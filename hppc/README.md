@@ -1,4 +1,8 @@
-Project to build Jackson (http://jackson.codehaus.org) module (jar) to support JSON serialization and deserialization of High-Performance Primitive Collections (see http://labs.carrotsearch.com/hppc.html) datatypes.
+[Jackson](../../../jackson) datatype module (jar)
+to support JSON serialization and deserialization of
+[High-Performance Primitive Collections](http://labs.carrotsearch.com/hppc.html) datatypes.
+
+Licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Status
 
@@ -6,7 +10,7 @@ Project to build Jackson (http://jackson.codehaus.org) module (jar) to support J
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/)
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc)
 
-Currently (2.5) following things are supported:
+Currently (2.7) following things are supported:
 
 * Serializing of all 'XxxContainer' (IntContainer, IntSet, IntArrayList, LongContainer, DoubleContainer etc) types
 * Deserialization of all `int` valued container types
@@ -16,14 +20,10 @@ and following are not yet supported:
 * Deserialization for other primitive types
 * Handling of 'map' types (ie. 'XYAssociateContainer' implementations)
 
-plan is to support full fidelity of Jackson annotation configurability; meaning that all generic types (ones with 'Object' in name, and with generic type parameter) could be supported; as well as use of included type information.
+Plan is to support full fidelity of Jackson annotation configurability; meaning that all generic types (ones with 'Object' in name, and with generic type parameter) could be supported; as well as use of included type information.
 
 However, due to on-going competing work, at this point (May 2015) the best way to get additional coverage is to
 contribute code. Jackson team is happy to merge code contributions, and help with implementation details.
-
-## License
-
-[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Usage
 
