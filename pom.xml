@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion> 
+  <parent>
+    <groupId>com.fasterxml.jackson</groupId>
+    <artifactId>jackson-parent</artifactId>
+    <version>2.7</version>
+  </parent>
+  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <artifactId>jackson-datatype-collections-parent</artifactId>
+  <name>jackson-datatype-collections</name>
+  <version>2.7.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <description>Parent pom for Jackson Collection datatype modules
+  </description>
+
+  <modules>
+    <module>pcollections</module>
+  </modules>
+
+  <url>https://github.com/FasterXML/jackson-datatype-collections</url>
+  <scm>
+    <connection>scm:git:git@github.com:FasterXML/jackson-datatype-collections.git</connection>
+    <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatype-collections.git</developerConnection>
+    <url>http://github.com/FasterXML/jackson-datatype-collections</url>    
+    <tag>HEAD</tag>
+  </scm>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.jackson.core>2.7.0</version.jackson.core>
+  </properties>
+
+<!-- does Eclipse plug-in do anything?
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-eclipse-plugin</artifactId>
+	<version>2.10</version>
+	<configuration>
+	  <projectNameTemplate>SUB-[artifactId]-[version]</projectNameTemplate>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+-->
+</project>
