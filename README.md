@@ -5,7 +5,8 @@ Datatype modules to support 3rd party Collection libraries.
 
 Currently included are:
 
-* [PCollectons](pcollections/)
+* [HPPC](hppc/) datatype ([High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html))
+* [PCollections](pcollections/) datatype ([PCollecions](http://pcollections.org))
 
 ## More
 
