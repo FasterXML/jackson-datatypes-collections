@@ -6,11 +6,11 @@
     <version>2.7</version>
   </parent>
   <groupId>com.fasterxml.jackson.datatype</groupId>
-  <artifactId>jackson-datatype-collections-parent</artifactId>
-  <name>jackson-datatype-collections</name>
+  <artifactId>jackson-datatypes-collections</artifactId>
+  <name>Jackson datatypes: Collections</name>
   <version>2.7.1-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <description>Parent pom for Jackson Collection datatype modules
+  <description>Parent pom for Jackson Collection datatype modules.
   </description>
 
   <modules>
@@ -18,11 +18,11 @@
     <module>pcollections</module>
   </modules>
 
-  <url>https://github.com/FasterXML/jackson-datatype-collections</url>
+  <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
   <scm>
-    <connection>scm:git:git@github.com:FasterXML/jackson-datatype-collections.git</connection>
-    <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatype-collections.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-datatype-collections</url>    
+    <connection>scm:git:git@github.com:FasterXML/jackson-datatypes-collections.git</connection>
+    <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatypes-collections.git</developerConnection>
+    <url>http://github.com/FasterXML/jackson-datatypes-collections</url>    
     <tag>HEAD</tag>
   </scm>
 
@@ -31,18 +31,4 @@
     <version.jackson.core>2.7.0</version.jackson.core>
   </properties>
 
-<!-- does Eclipse plug-in do anything?
-  <build>
-    <plugins>
-      <plugin>
-	<groupId>org.apache.maven.plugins</groupId>
-	<artifactId>maven-eclipse-plugin</artifactId>
-	<version>2.10</version>
-	<configuration>
-	  <projectNameTemplate>SUB-[artifactId]-[version]</projectNameTemplate>
-	</configuration>
-      </plugin>
-    </plugins>
-  </build>
--->
 </project>
