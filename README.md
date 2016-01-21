@@ -10,6 +10,10 @@ Currently included are:
 
 All modules are licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
+## Status
+
+[![Build Status](https://travis-ci.org/FasterXML/jackson-datatype-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatype-collections)
+
 ## More
 
 See [Wiki](../../wiki) for more information (javadocs).

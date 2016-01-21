@@ -6,7 +6,6 @@ Licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.t
 
 ## Status
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-datatype-hppc.svg)](https://travis-ci.org/FasterXML/jackson-datatype-hppc)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/)
 [![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc)
 
