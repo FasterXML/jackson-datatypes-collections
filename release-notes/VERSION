@@ -1,0 +1,14 @@
+Project: jackson-modules-base
+Modules:
+  jackson-datatype-hppc
+  jackson-datatype-pcollections
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.7.1 (02-Feb-2016)
+
+First release from multi-module project; no functional changes since 2.7.0
+
+
