@@ -12,7 +12,7 @@ All modules are licensed under [Apache License 2.0](http://www.apache.org/licens
 
 ## Status
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-datatype-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatype-collections)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-datatypes-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatypes-collections)
 
 ## More
 
