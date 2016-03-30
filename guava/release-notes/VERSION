@@ -1,0 +1,202 @@
+Project: jackson-datatype-guava
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.7.4 (not yet released)
+
+- Improve handling of `Optional` to ensure custom content serializer/deserializer
+  is used.
+
+2.7.3 (16-Mar-2016)
+
+No changes since 2.7.2
+
+2.7.2 (27-Feb-2016)
+
+- Change build to produce JDK6-compatible jar, to allow use on JDK6 runtime
+
+2.7.1 (02-Feb-2016)
+
+#87, #88: OSGi import missing for `com.fasterxml.jackson.annotation.JsonInclude$Value`
+ (reported by Michael J)
+
+2.7.0 (10-Jan-2016)
+
+#76: New configuration for Guava Range default bound type.
+ (contributed by Jonathan R-d-O)
+(partial, serialization works) #11: Add support for Table<R, C, V>
+- Simplify OSGi settings for build.
+- Guava version now 16 (from 15); does not rely on new features yet
+
+2.6.4 (not yet released)
+
+- Small fix to unwrapped `Optional` serialization, should not fail when trying to
+  serialize empty unwrapped `Optional`.
+
+2.6.3 (12-Oct-2015)
+
+#83: Generic type information for `Optional` wrapped generic type lost in visitor
+ (reported by vzx@github)
+#84: Class not found exception in OSGi (com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter)
+ (reported by mjameson-se@github)
+- Allow use of `@JsonDeserializer(contentAs=...)` with `Optional`
+
+2.6.2 (15-Sep-2015)
+
+#52: Guava collection types do not allow null values
+ (contributed by Jose T)
+#80: Relax OSGi version constraints for Guava dependency.
+ (requested by Benson M)
+#82: Problem with polymorphic value types for `Optional`, with 2.6
+
+2.6.1 (09-Aug-2015)
+
+No changes since 2.6.0
+
+2.6.0 (19-Jul-2015)
+
+#64: `@JsonUnwrapped` annotation is ignored when a field is an Optional
+ (reported by Alexey K, akobiakov@github)
+#66: Add `GuavaModule.configureAbsentsAsNulls(boolean)` to change whether
+ `Optional.absent()` is to be handled same as Java null during serialization
+ (default: true) or not.
+#67: Support deserializing ImmutableSetMultimaps
+ (contributed by Michael H, michaelhixson@github)
+#69: Add support for `JsonInclude.Include.NON_ABSENT`, to compensate for #66
+#70: Change OSGi manifest entries to import guava 15.0 or greater
+ (reported by sprynter@github)
+#74: Multimap serializer ignores _valueTypeSerializer
+ (reported by soldierkam@github)
+
+2.5.4 (09-Jun-2015)
+
+- Add override for `MultimapSerializer.isEmpty(SerializerProvider, Multimap<?,?>)`
+  for forward compatibility (needed for databind 2.6)
+
+2.5.3 (24-Apr-2015)
+
+#65: Add deserialization support for SortedMultiset and ImmutableSortedMultiset
+ (contributed by Stephan S, Stephan202@github)
+
+2.5.2 (29-Mar-2015)
+
+#62: Add `com.google.common.hash` to OSGi import list
+ (reported by lukewink@github)
+
+2.5.1 (06-Fev-2015)
+
+No changes since 2.5.0
+
+2.5.0 (01-Jan-2015)
+
+#56: Add support `HashCode`
+ (contributed by Stephan S, Stephan202@github)
+
+2.4.6 (23-Apr-2015)
+
+#61: NPE serializing `Multimap`s with null values
+ (reported by sixinli@github)
+
+2.4.5 (13-Jan-2015)
+
+#58: `FluentIterable` serialization doesn't work for Bean properties
+ (fixed by Christopher C)
+
+2.4.4 (24-Nov-2014)
+
+No changes since 2.4.3
+
+2.4.3 (04-Oct-2014)
+
+#50: Add support for `InternetDomainName`
+ (suggested by sdavids@github)
+- Improved serialization, type handling, schema-access for `Range` and `Optional`.
+
+2.4.2 (15-Aug-2014)
+
+#46: Can not serialize guava Iterables
+ (reported by chisui@github)
+
+2.4.1 (17-Jun-2014)
+
+No changes since 2.4.0.
+
+2.4.0 (03-Jun-2014)
+
+#43: Add support for `HostAndPort`
+
+2.3.3 (14-Apr-2014)
+
+#37: `Optional` not correctly deserialized from JSON null, if inside a Collection
+ (reported by JYang-Addepar@github)
+#41: `Multimap` serializer does not honor @JsonInclude(JsonInclude.Include.NON_EMPTY) 
+ (reported by Olve S-H)
+
+2.3.2 (01-Mar-2014)
+
+#36: Improve Range deserializer to work with older Guava versions (10-)
+ (contribtued by ispringer@github)
+
+2.3.1 (28-Dec-2013)
+
+#33: Add support for `Range` values
+ (contribute by ispringer@github)
+#34: Use Optional type parameter if present to create JSON schema
+ (contributed by cponomaryov@github)
+
+2.3.0 (14-Nov-2013)
+
+#29: Empty ImmutableMap not deserialized correctly, when type info included
+ (reported by pbergn@github)
+- Add support for `DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY` for
+  `ImmutableSet` and `MultiSet`
+
+2.2.3 (25-Aug-2013)
+2.2.2 (27-May-2013)
+2.2.1 (03-May-2013)
+
+No functional changes.
+
+2.2.0 (23-Apr-2013)
+
+New minor version, no functional changes.
+
+2.1.2 (08-Dec-2012)
+
+No functional changes.
+
+2.1.1 (13-Nov-2012)
+
+* More improvements to handling of Optional values
+
+2.1.0 (08-Oct-2012)
+
+* [Issue#9]: Handling of Optional values, wrt NON_NULL inclusion
+
+2.0.6 (30-Sep-2012)
+
+  No functional changes, just dependency updates.
+
+2.0.4, 2.0.5: not released
+
+2.0.3 (14-Jun-2012)
+
+* Issue-6: An NPE in MultimapDeserializer
+
+2.0.2 (16-May-2012)
+
+Fixes:
+
+* Issue-3: (Tree)MultiMaps not serialized properly
+
+Improvements:
+
+* Add for a wider set of Collections
+ (contributed by Pascal G)
+
+
+2.0.0 (25-Mar-2012)
+
+The official 2.0 release...

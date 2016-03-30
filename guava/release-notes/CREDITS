@@ -1,0 +1,33 @@
+Here are people who have contributed to the development of Jackson JSON processor
+Guava datatype component, version 2.x
+(version numbers in brackets indicate release in which the problem was fixed)
+
+Tatu Saloranta (tatu.saloranta@iki.fi): author
+
+Steven Schlansker (steven@nesscomputing.com): co-author
+
+Stephan Schroevers: (Stephan202@github)
+  * Contributed #56: Add support `HashCode`
+   (2.5.0)
+  * Contributed #65: Add deserialization support for SortedMultiset and ImmutableSortedMultiset
+   (2.5.3)
+
+Michael Hixson:
+  * Contributed fix for #67: Support deserializing ImmutableSetMultimaps
+   (2.6.0)
+
+Alexey Kobyakov (akobiakov@github)
+  * Reported #64: `@JsonUnwrapped` annotation is ignored when a field is an Optional
+   (2.6.0)
+
+Jose Thomas (josethomas@github)
+  * Contributed #52: Guava collection types do not allow null values
+   (2.6.2)
+
+Jonathan Rodrigues de Oliveira (jorool@github)
+  * Contributed #79: New configuration for Guava Range default bound type.
+   (2.7.0)
+
+Micahel Jameson (mjameson-se@github)
+  * Reported #87: OSGi import missing for `com.fasterxml.jackson.annotation.JsonInclude$Value`
+   (2.7.1)

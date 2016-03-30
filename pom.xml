@@ -7,13 +7,14 @@
   </parent>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatypes-collections</artifactId>
-  <name>Jackson datatypes: Collections</name>
+  <name>Jackson datatypes: collections</name>
   <version>2.7.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Parent pom for Jackson Collection datatype modules.
   </description>
 
   <modules>
+    <module>guava</module>
     <module>hppc</module>
     <module>pcollections</module>
   </modules>
@@ -28,12 +29,27 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.jackson.core>2.7.3</version.jackson.core>
+    <version.jackson.core>2.7.4-SNAPSHOT</version.jackson.core>
 
     <!-- 23-Feb-2016, tatu: Try to keep JDK6 runtime for 2.7 at least -->
     <javac.src.version>1.6</javac.src.version>
     <javac.target.version>1.6</javac.target.version>
 
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+	<groupId>com.fasterxml.jackson.core</groupId>
+	<artifactId>jackson-core</artifactId>
+	<version>${version.jackson.core}</version>
+      </dependency>
+      <dependency>
+	<groupId>com.fasterxml.jackson.core</groupId>
+	<artifactId>jackson-databind</artifactId>
+	<version>${version.jackson.core}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>
