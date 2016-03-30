@@ -47,7 +47,8 @@ public class HppcContainerDeserializers
             if (type.isAbstract()) {
                 Class<?> concrete = _concreteMapping.get(raw);
                 if (concrete != null) {
-                    type = type.forcedNarrowBy(concrete);
+                    // 29-Mar-2016, tatu: was: type.forcedNarrowBy(concrete);
+                    type = config.getTypeFactory().constructSpecializedType(type, concrete);
                     raw = concrete;
                 }
             }

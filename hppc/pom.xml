@@ -5,7 +5,6 @@
     <artifactId>jackson-datatypes-collections</artifactId>
     <version>2.7.4-SNAPSHOT</version>
   </parent>
-  <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-hppc</artifactId>
   <name>Jackson datatype: HPPC</name>
   <packaging>bundle</packaging>
@@ -26,12 +25,10 @@ High-Performance Primitive Collections (HPPC, see http://labs.carrotsearch.com/h
     <dependency><!-- add core, not just mapper, to try to enforce compatible versions-->
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${version.jackson.core}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${version.jackson.core}</version>
     </dependency>
 
     <!-- And obviously also depend on HPPC -->
