@@ -127,7 +127,7 @@ public class GuavaOptionalDeserializer
     {
         final JsonToken t = p.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) {
-            return getNullValue();
+            return getNullValue(ctxt);
         }
         // 03-Nov-2013, tatu: This gets rather tricky with "natural" types
         //   (String, Integer, Boolean), which do NOT include type information.
