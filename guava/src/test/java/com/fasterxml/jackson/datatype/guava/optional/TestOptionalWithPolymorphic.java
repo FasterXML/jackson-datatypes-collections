@@ -56,6 +56,11 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         public Optional<java.io.Serializable> value;
     }
 
+    static class TypeInfoOptional {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "$type")
+        public Optional<Strategy> value;
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -108,6 +113,13 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         Object ob = result.value.get();
         assertEquals(Integer.class, ob.getClass());
         assertEquals(Integer.valueOf(5), ob);
+    }
+
+    public void testOptionalPropagatesTypeInfo() throws Exception
+    {
+        TypeInfoOptional data = new TypeInfoOptional();
+        data.value = Optional.<Strategy>of(new Foo(42));
+        assertEquals(aposToQuotes("{'value':{'$type':'Foo','foo':42}}"), MAPPER.writeValueAsString(data));
     }
 
     private void _test(ObjectMapper m, Map<String, ?> map) throws Exception
