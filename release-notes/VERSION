@@ -7,6 +7,11 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.7.4 (not yet released)
+
+(Guava) #4: Fix GuavaOptionalSerializer.isEmpty()
+ (fixed by Nate B)
+
 2.7.3 (16-Mar-2016)
 2.7.2 (27-Feb-2016)
 
