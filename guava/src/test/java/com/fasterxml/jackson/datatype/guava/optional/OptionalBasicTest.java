@@ -166,6 +166,46 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myString\":\"simpleString\"}", value);
     }
 
+    public void testSerPropInclusionAlways() throws Exception {
+        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        data.myData = Optional.of("simpleString");
+        // NOTE: pass 'true' to ensure "legacy" setting
+        String value = mapperWithModule(true)
+                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
+                .writeValueAsString(data);
+        assertEquals("{\"myData\":\"simpleString\"}", value);
+    }
+
+    public void testSerPropInclusionNonNull() throws Exception {
+        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        data.myData = Optional.of("simpleString");
+        // NOTE: pass 'true' to ensure "legacy" setting
+        String value = mapperWithModule(true)
+                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL))
+                .writeValueAsString(data);
+        assertEquals("{\"myData\":\"simpleString\"}", value);
+    }
+
+    public void testSerPropInclusionNonAbsent() throws Exception {
+        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        data.myData = Optional.of("simpleString");
+        // NOTE: pass 'true' to ensure "legacy" setting
+        String value = mapperWithModule(true)
+                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT))
+                .writeValueAsString(data);
+        assertEquals("{\"myData\":\"simpleString\"}", value);
+    }
+
+    public void testSerPropInclusionNonEmpty() throws Exception {
+        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        data.myData = Optional.of("simpleString");
+        // NOTE: pass 'true' to ensure "legacy" setting
+        String value = mapperWithModule(true)
+                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY))
+                .writeValueAsString(data);
+        assertEquals("{\"myData\":\"simpleString\"}", value);
+    }
+
     public void testSerGeneric() throws Exception {
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
