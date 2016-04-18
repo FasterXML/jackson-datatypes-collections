@@ -2,12 +2,12 @@ package com.fasterxml.jackson.datatype.guava.optional;
 
 import java.util.Map;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
-import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 
 public class TestOptionalWithPolymorphic extends ModuleTestBase
 {
@@ -20,7 +20,7 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         @JsonProperty private Optional<String> name = Optional.absent();
         @JsonProperty private Strategy strategy = null;
     }
-         
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     @JsonSubTypes({
     @JsonSubTypes.Type(name = "Foo", value = Foo.class),
@@ -56,11 +56,23 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         public Optional<java.io.Serializable> value;
     }
 
-    static class TypeInfoOptional {
-        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "$type")
-        public Optional<Strategy> value;
+    @JsonSubTypes({
+        @JsonSubTypes.Type(name = "impl5", value = Impl5.class)
+    })
+    static class Base5 { }
+
+    static class Impl5 extends Base5 {
+        public int x;
+
+        protected Impl5() { }
+        public Impl5(int x) { this.x = x; }
     }
 
+    static class TypeInfoOptional {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "$type")
+        public Optional<Base5> value;
+    }
+    
     /*
     /**********************************************************************
     /* Test methods
@@ -115,13 +127,6 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         assertEquals(Integer.valueOf(5), ob);
     }
 
-    public void testOptionalPropagatesTypeInfo() throws Exception
-    {
-        TypeInfoOptional data = new TypeInfoOptional();
-        data.value = Optional.<Strategy>of(new Foo(42));
-        assertEquals(aposToQuotes("{'value':{'$type':'Foo','foo':42}}"), MAPPER.writeValueAsString(data));
-    }
-
     private void _test(ObjectMapper m, Map<String, ?> map) throws Exception
     {
         String json = m.writeValueAsString(map);
@@ -131,5 +136,14 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
 
         ContainerB objB = m.readValue(json, ContainerB.class);
         assertNotNull(objB);
+    }
+
+    public void testOptionalPropagatesTypeInfo() throws Exception
+    {
+        TypeInfoOptional data = new TypeInfoOptional();
+        data.value = Optional.<Base5>of(new Impl5(42));
+        String json = MAPPER.writeValueAsString(data);
+        TypeInfoOptional result = MAPPER.readValue(json, TypeInfoOptional.class);
+        assertNotNull(result);
     }
 }
