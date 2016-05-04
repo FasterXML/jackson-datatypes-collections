@@ -2,9 +2,9 @@ package com.fasterxml.jackson.datatype.guava.ser;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
 import com.google.common.collect.Table;
 
 /**
@@ -77,8 +76,9 @@ public class TableSerializer
         
         final MapType columnAndValueType = typeFactory.constructMapType(Map.class,
                 _type.containedTypeOrUnknown(1), _type.containedTypeOrUnknown(2));
+
         JsonSerializer<?> columnAndValueSerializer = 
-                MapSerializer.construct(null,
+                MapSerializer.construct((Set<String>) null,
                                         columnAndValueType,
                                         false,
                                         _valueTypeSerializer,
@@ -89,7 +89,7 @@ public class TableSerializer
         final MapType rowMapType = typeFactory.constructMapType(Map.class,
                 _type.containedTypeOrUnknown(0), columnAndValueType);
         _rowMapSerializer =
-                MapSerializer.construct(null,
+                MapSerializer.construct((Set<String>) null,
                                         rowMapType,
                                         false,
                                         null,
