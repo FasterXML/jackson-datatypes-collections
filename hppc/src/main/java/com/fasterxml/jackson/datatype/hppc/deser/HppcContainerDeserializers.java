@@ -63,7 +63,7 @@ public class HppcContainerDeserializers
                 return new IntDequeDeserializer(type, config);
             }
             // how about this? should we signal an error?
-            throw new JsonMappingException("Unrecognized HPPC IntContainer type: "+origType);
+            throw JsonMappingException.from((JsonParser)null, "Unrecognized HPPC IntContainer type: "+origType);
         } else if (LongContainer.class.isAssignableFrom(raw)) {
             // !!! TBI
         } else if (FloatContainer.class.isAssignableFrom(raw)) {

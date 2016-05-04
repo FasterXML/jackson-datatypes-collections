@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.std.MapProperty;
 import com.fasterxml.jackson.databind.type.MapLikeType;
-
 import com.google.common.collect.Multimap;
 
 /**
@@ -197,12 +197,16 @@ public class MultimapSerializer
 
         Set<String> ignored = _ignoredEntries;
         boolean sortKeys = false;
+
         if (intr != null && propertyAcc != null) {
-            String[] moreToIgnore = intr.findPropertiesToIgnore(propertyAcc, true);
-            if (moreToIgnore != null) {
-                ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
-                for (String str : moreToIgnore) {
-                    ignored.add(str);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            if (ignorals != null) {
+                Set<String> newIgnored = ignorals.findIgnoredForSerialization();
+                if ((newIgnored != null) && !newIgnored.isEmpty()) {
+                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
+                    for (String str : newIgnored) {
+                        ignored.add(str);
+                    }
                 }
             }
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);

@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import java.util.HashSet;
+import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -10,7 +11,6 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
@@ -90,12 +90,11 @@ public class GuavaSerializers extends Serializers.Base
         if (Multimap.class.isAssignableFrom(type.getRawClass())) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
             Object filterId = intr.findFilterId((Annotated)beanDesc.getClassInfo());
-            String[] ignored = intr.findPropertiesToIgnore(beanDesc.getClassInfo(), true);
-            HashSet<String> ignoredEntries = (ignored == null || ignored.length == 0)
-                    ? null : ArrayBuilders.arrayToSet(ignored);
-
+            JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
+                    beanDesc.getClassInfo());
+            Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new MultimapSerializer(type, beanDesc,
-                    keySerializer, elementTypeSerializer, elementValueSerializer, ignoredEntries, filterId);
+                    keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
         return null;
     }
