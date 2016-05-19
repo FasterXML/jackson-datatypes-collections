@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -212,6 +213,15 @@ public class MultimapSerializer
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
             sortKeys = (b != null) && b.booleanValue();
         }
+        // 19-May-2016, tatu: Also check per-property format features, even if
+        //    this isn't yet used (as per [guava#7])
+        JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
+        if (format != null) {
+            Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
+            if (B != null) {
+                sortKeys = B.booleanValue();
+            }
+        }
         return withResolved(property, keySer, typeSer, valueSer,
                 ignored, filterId, sortKeys);
     }
@@ -263,7 +273,7 @@ public class MultimapSerializer
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             if (_filterId != null) {
-                serializeOptionalFields(value, gen, provider);
+                serializeFilteredFields(value, gen, provider);
             } else {
                 serializeFields(value, gen, provider);
             }
@@ -280,7 +290,7 @@ public class MultimapSerializer
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             if (_filterId != null) {
-                serializeOptionalFields(value, gen, provider);
+                serializeFilteredFields(value, gen, provider);
             } else {
                 serializeFields(value, gen, provider);
             }
@@ -331,7 +341,7 @@ public class MultimapSerializer
         }
     }
 
-    private final void serializeOptionalFields(Multimap<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
+    private final void serializeFilteredFields(Multimap<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
             throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
