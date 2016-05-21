@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -121,5 +124,45 @@ public class TestMultisets extends ModuleTestBase
                 new TypeReference<Multiset<String>>() { });
         assertEquals(1, set.size());
         assertTrue(set.contains("abc"));
+    }
+    
+    public void testFromSingleValue() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule()
+            .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        SampleMultiMapTest sampleTest = mapper.readValue("{\"map\":{\"test\":\"value\"}}",
+               new TypeReference<SampleMultiMapTest>() { });
+       	
+       	assertEquals(1, sampleTest.map.get("test").size());
+    }
+    
+    public void testFromMultiValueWithSingleValueOptionEnabled() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule()
+            .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+       	
+        SampleMultiMapTest sampleTest = mapper.readValue("{\"map\":{\"test\":\"val\",\"test1\":[\"val1\",\"val2\"]}}",
+                new TypeReference<SampleMultiMapTest>() { });
+       	
+       	assertEquals(1, sampleTest.map.get("test").size());
+       	assertEquals(2, sampleTest.map.get("test1").size());
+       	
+    }
+    
+    public void testFromMultiValueWithNoSingleValueOptionEnabled() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+       	
+        SampleMultiMapTest sampleTest = mapper.readValue("{\"map\":{\"test\":[\"val\"],\"test1\":[\"val1\",\"val2\"]}}",
+                new TypeReference<SampleMultiMapTest>() { });
+       	
+       	assertEquals(1, sampleTest.map.get("test").size());
+       	assertEquals(2, sampleTest.map.get("test1").size());
+       	
+    }
+    
+    //Sample class for testing multimaps single value option
+    static class SampleMultiMapTest {
+        public HashMultimap<String, String> map;
     }
 }
