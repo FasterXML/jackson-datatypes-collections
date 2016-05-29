@@ -9,7 +9,8 @@ Modules:
 
 2.8.0 (not yet released)
 
-No changes since 2.7
+#6: `Multimap` deserializer does not honor DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY
+ (contributed by Lokesh N)
 
 2.7.4 (29-Apr-2016)
 

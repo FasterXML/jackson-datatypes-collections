@@ -43,3 +43,8 @@ Nate Bauernfeind (nbauernfeind@github)
 
   * Fixed #4:Fix GuavaOptionalSerializer.isEmpty()
    (2.7.4)
+
+Lokesh Kumar N (LokeshN@github)
+  * Fixed #6: `Multimap` deserializer does not honor
+    DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY
+   (2.8.0)
