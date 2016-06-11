@@ -11,6 +11,10 @@ Modules:
 
 No changes since 2.7
 
+2.7.5 (11-Jun-2016)
+
+No changes since 2.7.5
+
 2.7.4 (29-Apr-2016)
 
 (Guava) #4: Fix GuavaOptionalSerializer.isEmpty()
