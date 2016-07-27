@@ -22,7 +22,7 @@ datatypes is done as follows:
 
 ```java
 ObjectMapper mapper = new ObjectMapper()
-    .registerModule(new GuavaModule()
+    .registerModule(new GuavaModule())
     .registerModule(new HppcModule())
     .registerModule(new PCollectionsModule())
     ;
