@@ -18,6 +18,9 @@ No changes since 2.8.0.
 #6: `Multimap` deserializer does not honor DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY
  (contributed by Lokesh N)
 
+2.7.8 (26-Sep-2016)
+2.7.7 (27-Aug-2016)
+2.7.6 (23-Jul-2016)
 2.7.5 (11-Jun-2016)
 
 No changes since 2.7.5
