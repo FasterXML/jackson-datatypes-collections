@@ -105,13 +105,13 @@ public class RangeDeserializer
     }
 
     @Override
-    public Range<?> deserialize(JsonParser parser, DeserializationContext context)
+    public Range<?> deserialize(JsonParser p, DeserializationContext context)
             throws IOException
     {
         // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
-        JsonToken t = parser.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
-            t = parser.nextToken();
+            t = p.nextToken();
         }
 
         Comparable<?> lowerEndpoint = null;
@@ -119,27 +119,31 @@ public class RangeDeserializer
         BoundType lowerBoundType = _defaultBoundType;
         BoundType upperBoundType = _defaultBoundType;
 
-        for (; t != JsonToken.END_OBJECT; t = parser.nextToken()) {
-            expect(parser, JsonToken.FIELD_NAME, t);
-            String fieldName = parser.getCurrentName();
+        for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
+            expect(context, JsonToken.FIELD_NAME, t);
+            String fieldName = p.getCurrentName();
             try {
                 if (fieldName.equals("lowerEndpoint")) {
-                    parser.nextToken();
-                    lowerEndpoint = deserializeEndpoint(parser, context);
+                    p.nextToken();
+                    lowerEndpoint = deserializeEndpoint(p, context);
                 } else if (fieldName.equals("upperEndpoint")) {
-                    parser.nextToken();
-                    upperEndpoint = deserializeEndpoint(parser, context);
+                    p.nextToken();
+                    upperEndpoint = deserializeEndpoint(p, context);
                 } else if (fieldName.equals("lowerBoundType")) {
-                    parser.nextToken();
-                    lowerBoundType = deserializeBoundType(parser);
+                    p.nextToken();
+                    lowerBoundType = deserializeBoundType(p, context);
                 } else if (fieldName.equals("upperBoundType")) {
-                    parser.nextToken();
-                    upperBoundType = deserializeBoundType(parser);
+                    p.nextToken();
+                    upperBoundType = deserializeBoundType(p, context);
                 } else {
-                    throw context.mappingException("Unexpected Range field: " + fieldName);
+                    // Note: should either return `true`, iff problem is handled (and
+                    // content processed or skipped) or throw exception. So if we
+                    // get back, we ought to be fine...
+                    context.handleUnknownProperty(p, this, Range.class, fieldName);
                 }
             } catch (IllegalStateException e) {
-                throw JsonMappingException.from(parser, e.getMessage());
+                // !!! 01-Oct-2016, tatu: Should figure out semantically better exception/reporting
+                throw JsonMappingException.from(p, e.getMessage());
             }
         }
         try {
@@ -162,14 +166,14 @@ public class RangeDeserializer
             }
             return RangeFactory.all();
         } catch (IllegalStateException e) {
-            throw JsonMappingException.from(parser, e.getMessage());
+            throw JsonMappingException.from(p, e.getMessage());
         }
     }
 
-    private BoundType deserializeBoundType(JsonParser parser) throws IOException
+    private BoundType deserializeBoundType(JsonParser p, DeserializationContext context) throws IOException
     {
-        expect(parser, JsonToken.VALUE_STRING, parser.getCurrentToken());
-        String name = parser.getText();
+        expect(context, JsonToken.VALUE_STRING, p.getCurrentToken());
+        String name = p.getText();
         try {
             return BoundType.valueOf(name);
         } catch (IllegalArgumentException e) {
@@ -177,21 +181,26 @@ public class RangeDeserializer
         }
     }
 
-    private Comparable<?> deserializeEndpoint(JsonParser parser, DeserializationContext context) throws IOException
+    private Comparable<?> deserializeEndpoint(JsonParser p, DeserializationContext context) throws IOException
     {
-        Object obj = _endpointDeserializer.deserialize(parser, context);
+        Object obj = _endpointDeserializer.deserialize(p, context);
         if (!(obj instanceof Comparable)) {
-            throw context.mappingException(String.format(
-                                 "Field [%s] deserialized to [%s], which does not implement Comparable.",
-                                 parser.getCurrentName(), obj.getClass().getName()));
+            // 01-Oct-2015, tatu: Not sure if it's data or definition problem... for now,
+            //    assume definition, but may need to reconsider
+            context.reportBadDefinition(_rangeType,
+                    String.format(
+                            "Field [%s] deserialized to [%s], which does not implement Comparable.",
+                            p.getCurrentName(), obj.getClass().getName()));
         }
         return (Comparable<?>) obj;
     }
 
-    private void expect(JsonParser p, JsonToken expected, JsonToken actual) throws JsonMappingException
+    private void expect(DeserializationContext context, JsonToken expected, JsonToken actual) throws JsonMappingException
     {
         if (actual != expected) {
-            throw JsonMappingException.from(p, "Expecting " + expected + ", found " + actual);
+            context.reportInputMismatch(this, String.format(handledType().getName(),
+                    "Problem deserializing %s: expecting %s, found %s",
+                    expected, actual));
         }
     }
 }
