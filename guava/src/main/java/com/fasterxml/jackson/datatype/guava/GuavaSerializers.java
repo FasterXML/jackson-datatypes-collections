@@ -45,7 +45,10 @@ public class GuavaSerializers extends Serializers.Base
     {
         final Class<?> raw = refType.getRawClass();
         if (Optional.class.isAssignableFrom(raw)) {
-            return new GuavaOptionalSerializer(refType, contentTypeSerializer, contentValueSerializer);
+            boolean staticTyping = (contentTypeSerializer == null)
+                    && config.isEnabled(MapperFeature.USE_STATIC_TYPING);
+            return new GuavaOptionalSerializer(refType, staticTyping,
+                    contentTypeSerializer, contentValueSerializer);
         }
         return null;
     }
