@@ -3,7 +3,6 @@ package com.fasterxml.jackson.datatype.pcollections.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -92,30 +91,31 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
      * this method if they are to handle type information.
      */
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+            throws IOException
     {
-        return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
     {
         // Should usually point to START_ARRAY
-        if (jp.isExpectedStartArrayToken()) {
-            return _deserializeContents(jp, ctxt);
+        if (p.isExpectedStartArrayToken()) {
+            return _deserializeContents(p, ctxt);
         }
         // But may support implicit arrays from single values?
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            return _deserializeFromSingleValue(jp, ctxt);
+            return _deserializeFromSingleValue(p, ctxt);
         }
-        throw ctxt.mappingException(_containerType.getRawClass());
+        return (T) ctxt.handleUnexpectedToken(handledType(), p);
     }
 
-    protected T _deserializeContents(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
+            throws IOException {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
@@ -123,15 +123,15 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         // compiler-time fluff:
         T collection = createEmptyCollection();
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value;
 
             if (t == JsonToken.VALUE_NULL) {
                 value = null;
             } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
+                value = valueDes.deserialize(p, ctxt);
             } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
             // .plus is always overridden to return the correct subclass
             @SuppressWarnings("unchecked")
@@ -141,21 +141,21 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         return collection;
     }
 
-    protected T _deserializeFromSingleValue(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
+            throws IOException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
 
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
             value = null;
         } else if (typeDeser == null) {
-            value = valueDes.deserialize(jp, ctxt);
+            value = valueDes.deserialize(p, ctxt);
         } else {
-            value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
         }
         @SuppressWarnings("unchecked")
         T result = (T) createEmptyCollection().plus(value);

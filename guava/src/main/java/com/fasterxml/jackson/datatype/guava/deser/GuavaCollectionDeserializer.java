@@ -87,26 +87,27 @@ public abstract class GuavaCollectionDeserializer<T>
      * this method if they are to handle type information.
      */
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
-        return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
     {
         // Should usually point to START_ARRAY
-        if (jp.isExpectedStartArrayToken()) {
-            return _deserializeContents(jp, ctxt);
+        if (p.isExpectedStartArrayToken()) {
+            return _deserializeContents(p, ctxt);
         }
         // But may support implicit arrays from single values?
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            return _deserializeFromSingleValue(jp, ctxt);
+            return _deserializeFromSingleValue(p, ctxt);
         }
-        throw ctxt.mappingException(_containerType.getRawClass());
+        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     /*
@@ -115,8 +116,8 @@ public abstract class GuavaCollectionDeserializer<T>
     /**********************************************************************
      */
 
-    protected abstract T _deserializeContents(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException;
+    protected abstract T _deserializeContents(JsonParser p, DeserializationContext ctxt)
+            throws IOException;
 
     /**
      * Method used to support implicit coercion from a single non-array value
@@ -124,6 +125,6 @@ public abstract class GuavaCollectionDeserializer<T>
      * 
      * @since 2.3
      */
-    protected abstract T _deserializeFromSingleValue(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException;
+    protected abstract T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
+            throws IOException;
 }

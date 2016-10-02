@@ -29,42 +29,43 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-        TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer)
+        throws IOException
     {
-        return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // Ok: usually must point to START_ARRAY (or equivalent)
         // (note: caller handles nulls)
-        if (!jp.isExpectedStartArrayToken()) {
-            return handleNonArray(jp, ctxt);
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt);
         }
         T container = createContainerInstance(ctxt);
-        deserializeContents(jp, ctxt, container);
+        deserializeContents(p, ctxt, container);
         return container;
     }
-    
-    protected T handleNonArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+
+    @SuppressWarnings("unchecked")
+    protected T handleNonArray(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // default impl will just throw an exception; except if 'accept single as collection' is enabled...
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            T single = handleSingleAsArray(jp, ctxt, createContainerInstance(ctxt));
+            T single = handleSingleAsArray(p, ctxt, createContainerInstance(ctxt));
             if (single != null) {
                 return single;
             }
         }
-        throw ctxt.mappingException(_valueClass);
+        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     protected T createContainerInstance(DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         try {
             return _defaultCtor.newInstance();
@@ -73,14 +74,14 @@ public abstract class ContainerDeserializerBase<T>
         }
     }
     
-    protected T handleSingleAsArray(JsonParser jp, DeserializationContext ctxt, T container)
-        throws IOException, JsonProcessingException
+    protected T handleSingleAsArray(JsonParser p, DeserializationContext ctxt, T container)
+        throws IOException
     {
         return null;
     }
 
     // // // Abstract methods for sub-classes to implement
 
-    public abstract void deserializeContents(JsonParser jp, DeserializationContext ctxt, T container)
-        throws IOException, JsonProcessingException;
+    public abstract void deserializeContents(JsonParser p, DeserializationContext ctxt, T container)
+        throws IOException;
 }

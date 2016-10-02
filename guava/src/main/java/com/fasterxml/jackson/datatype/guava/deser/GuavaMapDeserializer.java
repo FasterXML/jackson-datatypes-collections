@@ -100,28 +100,29 @@ public abstract class GuavaMapDeserializer<T>
      * this method if they are to handle type information.
      */
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // note: call "...FromObject" because expected output structure
         // for value is JSON Object (regardless of contortions used for type id)
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
-    
+
+    @SuppressWarnings("unchecked")
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+            throws IOException
     {
         // Ok: must point to START_OBJECT or FIELD_NAME
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
-            t = jp.nextToken();
+            t = p.nextToken();
         }
         if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            throw ctxt.mappingException(_mapType.getRawClass());
+            return (T) ctxt.handleUnexpectedToken(_mapType.getRawClass(), p);
         }
-        return _deserializeEntries(jp, ctxt);
+        return _deserializeEntries(p, ctxt);
     }
 
     /*
@@ -130,6 +131,6 @@ public abstract class GuavaMapDeserializer<T>
     /**********************************************************************
      */
 
-    protected abstract T _deserializeEntries(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+    protected abstract T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
+        throws IOException;
 }

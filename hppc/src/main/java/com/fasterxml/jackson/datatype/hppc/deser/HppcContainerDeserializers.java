@@ -100,20 +100,21 @@ public class HppcContainerDeserializers
         }
 
         @Override
-        public void deserializeContents(JsonParser jp, DeserializationContext ctxt,
+        public void deserializeContents(JsonParser p, DeserializationContext ctxt,
                 T container)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             JsonToken t;
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 // whether we should allow truncating conversions?
                 int value;
                 if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
                     // should we catch overflow exceptions?
-                    value = jp.getIntValue();
+                    value = p.getIntValue();
                 } else {
                     if (t != JsonToken.VALUE_NULL) {
-                        throw ctxt.mappingException(_valueClass.getComponentType());
+                        ctxt.handleUnexpectedToken(_valueClass, p);
+                        return; // never gets here
                     }
                     value = 0;
                 }
