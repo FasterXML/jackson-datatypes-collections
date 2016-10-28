@@ -331,7 +331,10 @@ public class TestMultimaps extends ModuleTestBase
         
         assertEquals(1, sampleTest.map.get("test").size());
         assertEquals(2, sampleTest.map.get("test1").size());
-        
+
+        // Make sure that our Value is still a String not [String]
+        assertEquals(sampleTest.map.entries().iterator().next().getValue(), "val");
+
     }
     
     public void testFromMultiValueWithNoSingleValueOptionEnabled() throws Exception
