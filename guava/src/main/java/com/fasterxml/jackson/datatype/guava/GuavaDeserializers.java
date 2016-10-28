@@ -5,6 +5,7 @@ import com.google.common.collect.*;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -206,7 +207,7 @@ public class GuavaDeserializers
             }
 
             if (ImmutableSetMultimap.class.isAssignableFrom(raw)) {
-                // [Issue#67]: Preserve order of entries
+                // [#67]: Preserve order of entries
                 return new LinkedHashMultimapDeserializer(type, keyDeserializer,
                         elementTypeDeserializer, elementDeserializer);
             }
@@ -240,20 +241,20 @@ public class GuavaDeserializers
         return null;
     }
 
-    // 21-Oct-2015, tatu: Code much simplified with 2.7 where we should be getting much
-    //    of boilerplate handling automatically
-
     @Override // since 2.7
     public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
     {
+        // 28-Oct-2016, tatu: Should try to support subtypes too, with ValueInstantiators, but
+        //   not 100% clear how this could work at this point
+//        if (refType.isTypeOrSubTypeOf(Optional.class)) {
         if (refType.hasRawClass(Optional.class)) {
-            return new GuavaOptionalDeserializer(refType, contentTypeDeserializer, contentDeserializer);
+            return new GuavaOptionalDeserializer(refType, null, contentTypeDeserializer, contentDeserializer);
         }
         return null;
     }
-    
+
     @Override
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)

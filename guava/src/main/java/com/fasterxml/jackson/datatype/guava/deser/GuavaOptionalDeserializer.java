@@ -1,45 +1,43 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.std.ReferenceTypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.google.common.base.Optional;
 
 public class GuavaOptionalDeserializer
-    extends StdDeserializer<Optional<?>>
-    implements ContextualDeserializer
+    extends ReferenceTypeDeserializer<Optional<?>>
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Full type of `Optional` property.
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
      */
-    protected final JavaType _fullType;
 
-    protected final JsonDeserializer<?> _valueDeserializer;
-
-    protected final TypeDeserializer _valueTypeDeserializer;
-
-    public GuavaOptionalDeserializer(JavaType fullType,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser)
+    /**
+     * @since 2.9
+     */
+    public GuavaOptionalDeserializer(JavaType fullType, ValueInstantiator inst,
+            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
-        super(fullType);
-        _fullType = fullType;
-        _valueTypeDeserializer = typeDeser;
-        _valueDeserializer = valueDeser;
+        super(fullType, inst, typeDeser, deser);
     }
+    
+    /*
+    /**********************************************************
+    /* Abstract method implementations
+    /**********************************************************
+     */
 
     @Override
-    public JavaType getValueType() { return _fullType; }
+    public GuavaOptionalDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+        return new GuavaOptionalDeserializer(_fullType, _valueInstantiator,
+                typeDeser, valueDeser);
+    }
 
     @Override
     public Optional<?> getNullValue(DeserializationContext ctxt) {
@@ -47,36 +45,24 @@ public class GuavaOptionalDeserializer
     }
 
     @Override
-    @Deprecated // since 2.6; remove from 2.8
-    public Optional<?> getNullValue() {
-        return Optional.absent();
+    public Optional<?> referenceValue(Object contents) {
+        return Optional.fromNullable(contents);
     }
 
-    /**
-     * Overridable fluent factory method used for creating contextual
-     * instances.
-     */
-    protected GuavaOptionalDeserializer withResolved(JavaType fullType,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser)
-    {
-        if ((_fullType == fullType)
-                && (valueDeser == _valueDeserializer) && (typeDeser == _valueTypeDeserializer)) {
-            return this;
-        }
-        return new GuavaOptionalDeserializer(_fullType, typeDeser, valueDeser);
+    @Override
+    public Object getReferenced(Optional<?> reference) {
+        return reference.get();
     }
+
+    @Override // since 2.9
+    public Optional<?> updateReference(Optional<?> reference, Object contents) {
+        return Optional.fromNullable(contents);
+    }
+
+    // Default ought to be fine:
+//    public Boolean supportsUpdate(DeserializationConfig config) {
 
     /*
-    /**********************************************************
-    /* Validation, post-processing
-    /**********************************************************
-     */
-
-    /**
-     * Method called to finalize setup of this deserializer,
-     * after deserializer itself has been registered. This
-     * is needed to handle recursive and transitive dependencies.
-     */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -111,35 +97,5 @@ public class GuavaOptionalDeserializer
         }
         return withResolved(fullType, typeDeser, deser);
     }
-
-    @Override
-    public Optional<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
-        Object refd = (_valueTypeDeserializer == null)
-                ? _valueDeserializer.deserialize(p, ctxt)
-                : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
-        return Optional.fromNullable(refd);
-    }
-
-    @Override
-    public Optional<?> deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-        throws IOException
-    {
-        final JsonToken t = p.getCurrentToken();
-        if (t == JsonToken.VALUE_NULL) {
-            return getNullValue(ctxt);
-        }
-        // 03-Nov-2013, tatu: This gets rather tricky with "natural" types
-        //   (String, Integer, Boolean), which do NOT include type information.
-        //   These might actually be handled ok except that nominal type here
-        //   is `Optional`, so special handling is not invoked; instead, need
-        //   to do a work-around here.
-        // 22-Oct-2015, tatu: Most likely this is actually wrong, result of incorrewct
-        //   serialization (up to 2.6, was omitting necessary type info after all);
-        //   but safest to leave in place for now
-        if (t != null && t.isScalarValue()) {
-            return deserialize(p, ctxt);
-        }
-        return (Optional<?>) typeDeserializer.deserializeTypedFromAny(p, ctxt);
-    }
+    */
 }
