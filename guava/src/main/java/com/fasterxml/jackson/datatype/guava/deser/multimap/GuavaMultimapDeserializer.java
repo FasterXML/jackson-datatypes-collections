@@ -214,8 +214,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
             else {
                 // get the current token value
                 final Object value = getCurrentTokenValue(jp, ctxt);
-                // add the single value as a list
-                multimap.put(key, Collections.singletonList(value));
+                // add the single value
+                multimap.put(key, value);
             }
         }
         if (creatorMethod == null) {
