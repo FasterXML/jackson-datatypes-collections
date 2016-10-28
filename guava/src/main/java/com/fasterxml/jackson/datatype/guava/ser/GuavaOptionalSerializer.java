@@ -52,10 +52,6 @@ public class GuavaOptionalSerializer
     public ReferenceTypeSerializer<Optional<?>> withContentInclusion(Object suppressableValue,
             boolean suppressNulls)
     {
-        if ((_suppressableValue == suppressableValue)
-                && (_suppressNulls == suppressNulls)) {
-            return this;
-        }
         return new GuavaOptionalSerializer(this, _property, _valueTypeSerializer,
                 _valueSerializer, _unwrapper,
                 suppressableValue, suppressNulls);

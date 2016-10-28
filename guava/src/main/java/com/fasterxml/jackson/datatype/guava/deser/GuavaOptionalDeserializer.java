@@ -60,42 +60,5 @@ public class GuavaOptionalDeserializer
     }
 
     // Default ought to be fine:
-//    public Boolean supportsUpdate(DeserializationConfig config) {
-
-    /*
-    @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
-    {
-        JsonDeserializer<?> deser = _valueDeserializer;
-        TypeDeserializer typeDeser = _valueTypeDeserializer;
-        JavaType fullType = _fullType;
-
-        if (deser == null) {
-            // 08-Oct-2015, tatu:  need to allow type override, if any
-            if (property != null) {
-                AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-                AnnotatedMember member = property.getMember();
-                if ((intr != null)  && (member != null)) {
-                    fullType = intr.refineDeserializationType(ctxt.getConfig(), member, fullType);
-                }
-            }
-            JavaType refdType = fullType.getContentType();
-            if (refdType == null) {
-                refdType = TypeFactory.unknownType();
-            }
-            deser = ctxt.findContextualValueDeserializer(refdType, property);
-        } else { // otherwise directly assigned, probably not contextual yet:
-            JavaType refdType = fullType.getContentType();
-            if (refdType == null) {
-                refdType = TypeFactory.unknownType();
-            }
-            deser = ctxt.handleSecondaryContextualization(deser, property, refdType);
-        }
-        if (typeDeser != null) {
-            typeDeser = typeDeser.forProperty(property);
-        }
-        return withResolved(fullType, typeDeser, deser);
-    }
-    */
+//    public Boolean supportsUpdate(DeserializationConfig config) { }
 }
