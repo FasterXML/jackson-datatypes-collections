@@ -171,7 +171,8 @@ public class OptionalBasicTest extends ModuleTestBase
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = mapperWithModule(true)
-                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS))
+                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+                        JsonInclude.Include.ALWAYS))
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -181,7 +182,8 @@ public class OptionalBasicTest extends ModuleTestBase
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = mapperWithModule(true)
-                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL))
+                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+                        JsonInclude.Include.NON_NULL))
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -191,7 +193,8 @@ public class OptionalBasicTest extends ModuleTestBase
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = mapperWithModule(true)
-                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT))
+                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+                        JsonInclude.Include.NON_ABSENT))
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -201,7 +204,8 @@ public class OptionalBasicTest extends ModuleTestBase
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = mapperWithModule(true)
-                .setPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY))
+                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+                        JsonInclude.Include.NON_EMPTY))
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }

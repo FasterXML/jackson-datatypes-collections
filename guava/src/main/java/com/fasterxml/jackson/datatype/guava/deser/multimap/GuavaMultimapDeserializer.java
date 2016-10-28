@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.datatype.guava.deser.multimap;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapLikeType;
@@ -16,12 +16,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author mvolkhart
@@ -101,7 +95,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException {
+            BeanProperty property) throws JsonMappingException
+    {
         KeyDeserializer kd = keyDeserializer;
         if (kd == null) {
             kd = ctxt.findKeyDeserializer(type.getKeyType(), property);
@@ -115,7 +110,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
         if (etd != null && property != null) {
             etd = etd.forProperty(property);
         }
-        return (_createContextual(type, kd, etd, ed, creatorMethod));
+        return _createContextual(type, kd, etd, ed, creatorMethod);
     }
 
     protected abstract JsonDeserializer<?> _createContextual(MapLikeType t,
@@ -123,46 +118,47 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
             JsonDeserializer<?> ed, Method method);
 
     @Override
-    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException,
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException,
             JsonProcessingException {
 
     	//check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            return deserializeFromSingleValue(jp, ctxt);
+            return deserializeFromSingleValue(p, ctxt);
         }
         // if not deserialize the normal way
         else {
-            return deserializeContents(jp, ctxt);
+            return deserializeContents(p, ctxt);
         }
 
     }
 
-    private T deserializeContents(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    private T deserializeContents(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
 
         T multimap = createMultimap();
 
-        expect(jp, JsonToken.START_OBJECT);
+        expect(p, JsonToken.START_OBJECT);
 
-        while (jp.nextToken() != JsonToken.END_OBJECT) {
+        while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (keyDeserializer != null) {
-                key = keyDeserializer.deserializeKey(jp.getCurrentName(), ctxt);
+                key = keyDeserializer.deserializeKey(p.getCurrentName(), ctxt);
             } else {
-                key = jp.getCurrentName();
+                key = p.getCurrentName();
             }
 
-            jp.nextToken();
-            expect(jp, JsonToken.START_ARRAY);
+            p.nextToken();
+            expect(p, JsonToken.START_ARRAY);
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
+            while (p.nextToken() != JsonToken.END_ARRAY) {
                 final Object value;
-                if (jp.getCurrentToken() == JsonToken.VALUE_NULL) {
+                if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
                     value = null;
                 } else if (elementTypeDeserializer != null) {
-                    value = elementDeserializer.deserializeWithType(jp, ctxt, elementTypeDeserializer);
+                    value = elementDeserializer.deserializeWithType(p, ctxt, elementTypeDeserializer);
                 } else {
-                    value = elementDeserializer.deserialize(jp, ctxt);
+                    value = elementDeserializer.deserialize(p, ctxt);
                 }
                 multimap.put(key, value);
             }
@@ -175,37 +171,37 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
         } catch (InvocationTargetException e) {
-            throw new JsonMappingException(jp, "Could not map to " + type, _peel(e));
+            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(jp, "Could not map to " + type, _peel(e));
+            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         } catch (IllegalAccessException e) {
-            throw new JsonMappingException(jp, "Could not map to " + type, _peel(e));
+            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         }
     }
 
-    private T deserializeFromSingleValue(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
-
+    private T deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
         T multimap = createMultimap();
 
-        expect(jp, JsonToken.START_OBJECT);
+        expect(p, JsonToken.START_OBJECT);
 
-        while (jp.nextToken() != JsonToken.END_OBJECT) {
+        while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (keyDeserializer != null) {
-                key = keyDeserializer.deserializeKey(jp.getCurrentName(), ctxt);
+                key = keyDeserializer.deserializeKey(p.getCurrentName(), ctxt);
             } else {
-                key = jp.getCurrentName();
+                key = p.getCurrentName();
             }
 
-            jp.nextToken();
+            p.nextToken();
 
             // if there is an array, parse the array and add the elements
-            if (jp.currentToken() == JsonToken.START_ARRAY) {
+            if (p.currentToken() == JsonToken.START_ARRAY) {
 
-                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                while (p.nextToken() != JsonToken.END_ARRAY) {
                     // get the current token value
-                    final Object value = getCurrentTokenValue(jp, ctxt);
+                    final Object value = getCurrentTokenValue(p, ctxt);
                     // add the token value to the map
                     multimap.put(key, value);
                 }
@@ -213,7 +209,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
             // if the element is a String, then add it as a List
             else {
                 // get the current token value
-                final Object value = getCurrentTokenValue(jp, ctxt);
+                final Object value = getCurrentTokenValue(p, ctxt);
                 // add the single value
                 multimap.put(key, value);
             }
@@ -226,32 +222,30 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
         } catch (InvocationTargetException e) {
-            throw new JsonMappingException(jp, "Could not map to " + type, _peel(e));
+            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(jp, "Could not map to " + type, _peel(e));
+            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         } catch (IllegalAccessException e) {
-            throw new JsonMappingException(jp, "Could not map to " + type, _peel(e));
+            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         }
     }
 
-    private Object getCurrentTokenValue(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
-
-        final Object value;
-        if (jp.getCurrentToken() == JsonToken.VALUE_NULL) {
-            value = null;
-        } else if (elementTypeDeserializer != null) {
-            value = elementDeserializer.deserializeWithType(jp, ctxt, elementTypeDeserializer);
-        } else {
-            value = elementDeserializer.deserialize(jp, ctxt);
+    private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
+            throws IOException
+    {
+        if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
+            return null;
         }
-        return value;
+        if (elementTypeDeserializer != null) {
+            return elementDeserializer.deserializeWithType(p, ctxt, elementTypeDeserializer);
+        }
+        return elementDeserializer.deserialize(p, ctxt);
     }
 
-    private void expect(JsonParser jp, JsonToken token) throws IOException {
-        if (jp.getCurrentToken() != token) {
-            throw new JsonMappingException(jp, "Expecting " + token + ", found " + jp.getCurrentToken(),
-                    jp.getCurrentLocation());
+    private void expect(JsonParser p, JsonToken token) throws IOException {
+        if (p.getCurrentToken() != token) {
+            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.getCurrentToken(),
+                    p.getCurrentLocation());
         }
     }
 
