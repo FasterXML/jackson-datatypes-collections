@@ -7,7 +7,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.8.5 (not yet released)
+2.8.5 (14-Nov-2016)
 
 - Further fix for #6 (see below): problem with `Multimap`,
   `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
