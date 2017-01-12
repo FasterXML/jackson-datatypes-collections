@@ -7,6 +7,10 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.6 (12-Jan-2017)
+
+No changes since 2.8.5
+
 2.8.5 (14-Nov-2016)
 
 - Further fix for #6 (see below): problem with `Multimap`,
