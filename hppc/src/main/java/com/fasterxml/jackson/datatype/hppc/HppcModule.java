@@ -7,16 +7,17 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.*;
 
 import com.carrotsearch.hppc.ObjectContainer;
+
 import com.fasterxml.jackson.datatype.hppc.deser.HppcDeserializers;
 import com.fasterxml.jackson.datatype.hppc.ser.*;
 
 public class HppcModule extends SimpleModule
 {
-    private static final long serialVersionUID = -6687678065284757885L;
+    private static final long serialVersionUID = 1L;
 
     public HppcModule()
     {
-        super("HppcDatatypeModule", ModuleVersion.instance.version());
+        super("HppcDatatypeModule", PackageVersion.VERSION);
     }
     
     @Override
