@@ -1,11 +1,16 @@
 Project: jackson-modules-base
 Modules:
+  jackson-datatype-guava
   jackson-datatype-hppc
   jackson-datatype-pcollections
 
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
+
+2.9.0 (not yet released)
+
+- (guava) Upgrade guava dependency from 16 to 18
 
 2.8.6 (12-Jan-2017)
 

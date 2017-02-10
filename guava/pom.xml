@@ -21,8 +21,8 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
   </contributors>
 
   <properties>
-    <!-- 27-Nov-2015, tatu: For Jackson 2.7, move guava dep from 15 to 16 -->
-    <version.guava>16.0</version.guava>
+    <!-- 09-Feb-2016, tatu: For Jackson 2.9, move guava from 16 to 18 -->
+    <version.guava>18.0</version.guava>
 
     <!-- 11-Sep-2015, tatu: As per [datatype-guava#80] -->
     <version.guava.osgi>[${version.guava}.0,20)</version.guava.osgi>
