@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion> 
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
-    <artifactId>jackson-parent</artifactId>
-    <version>2.9-rc1-SNAPSHOT</version>
+    <artifactId>jackson-bom</artifactId>
+    <version>2.9.0.pr1</version>
   </parent>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatypes-collections</artifactId>
   <name>Jackson datatypes: collections</name>
-  <version>2.9.0-SNAPSHOT</version>
+  <version>2.9.0.pr1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <description>Parent pom for Jackson Collection datatype modules.
   </description>
@@ -27,27 +27,17 @@
     <tag>HEAD</tag>
   </scm>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.jackson.core>2.9.0-SNAPSHOT</version.jackson.core>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-	<groupId>com.fasterxml.jackson.core</groupId>
-	<artifactId>jackson-core</artifactId>
-	<version>${version.jackson.core}</version>
-      </dependency>
-      <dependency>
-	<groupId>com.fasterxml.jackson.core</groupId>
-	<artifactId>jackson-databind</artifactId>
-	<version>${version.jackson.core}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
+    <!-- all datatype modules rely on streaming and databind: -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
