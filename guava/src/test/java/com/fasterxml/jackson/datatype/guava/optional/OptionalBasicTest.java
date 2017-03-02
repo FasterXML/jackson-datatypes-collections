@@ -329,12 +329,6 @@ public class OptionalBasicTest extends ModuleTestBase
         }
     }
 
-    // [datatype-guava#48]
-    public void testDeserNull() throws Exception {
-        Optional<?> value = MAPPER.readValue("\"\"", new TypeReference<Optional<Integer>>() {});
-        assertFalse(value.isPresent());
-    }
-
     // [datatype-guava#81]
     public void testPolymorphic() throws Exception
     {
