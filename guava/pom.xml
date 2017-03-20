@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.fasterxml.jackson.datatype</groupId>
     <artifactId>jackson-datatypes-collections</artifactId>
-    <version>2.9.0-SNAPSHOT</version>
+    <version>2.9.0.pr2-SNAPSHOT</version>
   </parent>
   <artifactId>jackson-datatype-guava</artifactId>
   <name>Jackson datatype: Guava</name>
@@ -41,14 +41,6 @@ com.google.common.*;version="${version.guava.osgi}",
 
   <dependencies>
     <!-- Extends Jackson; supports Guava datatypes, so: -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>

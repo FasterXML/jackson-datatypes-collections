@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.datatype.guava.optional;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,13 +12,13 @@ public class OptionalMergingTest extends ModuleTestBase
 {
     static class MergedStringReference
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge(OptBoolean.TRUE)
         public Optional<String> value = Optional.of("default");
     }
 
     static class MergedPOJOReference
     {
-        @JsonSetter(merge=OptBoolean.TRUE)
+        @JsonMerge(OptBoolean.TRUE)
         public Optional<POJO> value;
 
         protected MergedPOJOReference() {
