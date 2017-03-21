@@ -259,8 +259,6 @@ public class TestRange extends ModuleTestBase {
         Range<Integer> input = RangeFactory.closed(1, 10);
         String json = mapper.writeValueAsString(input);
 
-System.err.println("JSON: "+json);
-
         Range<Integer> result = mapper.readValue(json,
                 new TypeReference<Range<Integer>>() { });
         assertNotNull(result);
