@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
@@ -125,16 +126,16 @@ public class RangeDeserializer
             try {
                 if (fieldName.equals("lowerEndpoint")) {
                     p.nextToken();
-                    lowerEndpoint = deserializeEndpoint(p, context);
+                    lowerEndpoint = deserializeEndpoint(context, p);
                 } else if (fieldName.equals("upperEndpoint")) {
                     p.nextToken();
-                    upperEndpoint = deserializeEndpoint(p, context);
+                    upperEndpoint = deserializeEndpoint(context, p);
                 } else if (fieldName.equals("lowerBoundType")) {
                     p.nextToken();
-                    lowerBoundType = deserializeBoundType(p, context);
+                    lowerBoundType = deserializeBoundType(context, p);
                 } else if (fieldName.equals("upperBoundType")) {
                     p.nextToken();
-                    upperBoundType = deserializeBoundType(p, context);
+                    upperBoundType = deserializeBoundType(context, p);
                 } else {
                     // Note: should either return `true`, iff problem is handled (and
                     // content processed or skipped) or throw exception. So if we
@@ -170,18 +171,21 @@ public class RangeDeserializer
         }
     }
 
-    private BoundType deserializeBoundType(JsonParser p, DeserializationContext context) throws IOException
+    private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
     {
         expect(context, JsonToken.VALUE_STRING, p.getCurrentToken());
         String name = p.getText();
         try {
             return BoundType.valueOf(name);
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("[" + name + "] is not a valid BoundType name.");
+            context.handleWeirdStringValue(BoundType.class, name,
+                    "not a valid BoundType name (should be one oF: %s)",
+                    Arrays.asList(BoundType.values()));
+            return null;
         }
     }
 
-    private Comparable<?> deserializeEndpoint(JsonParser p, DeserializationContext context) throws IOException
+    private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p) throws IOException
     {
         Object obj = _endpointDeserializer.deserialize(p, context);
         if (!(obj instanceof Comparable)) {

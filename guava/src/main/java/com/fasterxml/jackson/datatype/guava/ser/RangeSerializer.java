@@ -124,26 +124,28 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         }
     }
 
-    private void _writeContents(Range<?> value, JsonGenerator jgen, SerializerProvider provider)
+    private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
-                jgen.writeFieldName("lowerEndpoint");
-                _endpointSerializer.serialize(value.lowerEndpoint(), jgen, provider);
+                g.writeFieldName("lowerEndpoint");
+                _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), jgen);
+                provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), g);
             }
-            provider.defaultSerializeField("lowerBoundType", value.lowerBoundType(), jgen);
+            // 20-Mar-2016, tatu: Should not use default handling since it leads to
+            //    [datatypes-collections#12] with default typing
+            g.writeStringField("lowerBoundType", value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
-                jgen.writeFieldName("upperEndpoint");
-                _endpointSerializer.serialize(value.upperEndpoint(), jgen, provider);
+                g.writeFieldName("upperEndpoint");
+                _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), jgen);
+                provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), g);
             }
-            provider.defaultSerializeField("upperBoundType", value.upperBoundType(), jgen);
+            g.writeStringField("upperBoundType", value.upperBoundType().name());
         }
     }
 }

@@ -12,6 +12,12 @@ Modules:
 
 - (guava) Upgrade guava dependency from 16 to 18
 
+2.8.8 (not yet released)
+
+#12: `Range` deserialization fails when `ObjectMapper` has default typing enabled
+ (reported by kringol@github)
+
+2.8.7 (21-Feb-2017)
 2.8.6 (12-Jan-2017)
 
 No changes since 2.8.5
