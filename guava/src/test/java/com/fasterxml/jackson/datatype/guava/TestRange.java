@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 
 import com.google.common.collect.BoundType;
@@ -248,5 +249,26 @@ public class TestRange extends ModuleTestBase {
 
         assertEquals(BoundType.CLOSED, r.lowerBoundType());
         assertEquals(BoundType.CLOSED, r.upperBoundType());
+    }
+
+    // [datatypes-collections#12]
+    public void testRangeWithDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        Range<Integer> input = RangeFactory.closed(1, 10);
+        String json = mapper.writeValueAsString(input);
+
+System.err.println("JSON: "+json);
+
+        Range<Integer> result = mapper.readValue(json,
+                new TypeReference<Range<Integer>>() { });
+        assertNotNull(result);
+
+        assertEquals(Integer.valueOf(1), result.lowerEndpoint());
+        assertEquals(Integer.valueOf(10), result.upperEndpoint());
+
+        assertEquals(BoundType.CLOSED, result.lowerBoundType());
+        assertEquals(BoundType.CLOSED, result.upperBoundType());
     }
 }

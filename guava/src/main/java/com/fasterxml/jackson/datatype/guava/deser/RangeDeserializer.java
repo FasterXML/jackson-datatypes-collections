@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
@@ -120,21 +121,21 @@ public class RangeDeserializer
         BoundType upperBoundType = _defaultBoundType;
 
         for (; t != JsonToken.END_OBJECT; t = parser.nextToken()) {
-            expect(parser, JsonToken.FIELD_NAME, t);
+            expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = parser.getCurrentName();
             try {
                 if (fieldName.equals("lowerEndpoint")) {
                     parser.nextToken();
-                    lowerEndpoint = deserializeEndpoint(parser, context);
+                    lowerEndpoint = deserializeEndpoint(context, parser);
                 } else if (fieldName.equals("upperEndpoint")) {
                     parser.nextToken();
-                    upperEndpoint = deserializeEndpoint(parser, context);
+                    upperEndpoint = deserializeEndpoint(context, parser);
                 } else if (fieldName.equals("lowerBoundType")) {
                     parser.nextToken();
-                    lowerBoundType = deserializeBoundType(parser);
+                    lowerBoundType = deserializeBoundType(context, parser);
                 } else if (fieldName.equals("upperBoundType")) {
                     parser.nextToken();
-                    upperBoundType = deserializeBoundType(parser);
+                    upperBoundType = deserializeBoundType(context, parser);
                 } else {
                     throw context.mappingException("Unexpected Range field: " + fieldName);
                 }
@@ -166,18 +167,23 @@ public class RangeDeserializer
         }
     }
 
-    private BoundType deserializeBoundType(JsonParser parser) throws IOException
+    private BoundType deserializeBoundType(DeserializationContext context, JsonParser p)
+        throws IOException
     {
-        expect(parser, JsonToken.VALUE_STRING, parser.getCurrentToken());
-        String name = parser.getText();
+        expect(context, JsonToken.VALUE_STRING, p.getCurrentToken());
+        String name = p.getText();
         try {
             return BoundType.valueOf(name);
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("[" + name + "] is not a valid BoundType name.");
+            context.handleWeirdStringValue(BoundType.class, name,
+                    "not a valid BoundType name (should be one oF: %s)",
+                    Arrays.asList(BoundType.values()));
+            return null;
         }
     }
 
-    private Comparable<?> deserializeEndpoint(JsonParser parser, DeserializationContext context) throws IOException
+    private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser parser)
+        throws IOException
     {
         Object obj = _endpointDeserializer.deserialize(parser, context);
         if (!(obj instanceof Comparable)) {
@@ -188,10 +194,11 @@ public class RangeDeserializer
         return (Comparable<?>) obj;
     }
 
-    private void expect(JsonParser p, JsonToken expected, JsonToken actual) throws JsonMappingException
+    private void expect(DeserializationContext context, JsonToken expected, JsonToken actual)
+        throws JsonMappingException
     {
         if (actual != expected) {
-            throw JsonMappingException.from(p, "Expecting " + expected + ", found " + actual);
+            context.reportWrongTokenException(context.getParser(), expected, null);
         }
     }
 }
