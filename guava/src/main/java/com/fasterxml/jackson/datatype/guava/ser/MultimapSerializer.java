@@ -366,16 +366,16 @@ public class MultimapSerializer
             } else {
                 valueSer = _valueSerializer;
             }
-            prop.reset(key, _keySerializer, valueSer);
+            prop.reset(key, value, _keySerializer, valueSer);
             try {
-                filter.serializeAsField(value, gen, provider, prop);
+                filter.serializeAsField(mmap, gen, provider, prop);
             } catch (Exception e) {
                 String keyDesc = ""+key;
                 wrapAndThrow(provider, e, value, keyDesc);
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Schema related functionality
