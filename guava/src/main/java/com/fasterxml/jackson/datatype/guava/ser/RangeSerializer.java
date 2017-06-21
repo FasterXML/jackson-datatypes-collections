@@ -95,7 +95,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     @Override
     public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // Will be serialized as a JSON Object, so:
         typeSer.writeTypePrefixForObject(value, gen);
@@ -124,26 +124,26 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         }
     }
 
-    private void _writeContents(Range<?> value, JsonGenerator jgen, SerializerProvider provider)
+    private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
-                jgen.writeFieldName("lowerEndpoint");
-                _endpointSerializer.serialize(value.lowerEndpoint(), jgen, provider);
+                g.writeFieldName("lowerEndpoint");
+                _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), jgen);
+                provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), g);
             }
-            provider.defaultSerializeField("lowerBoundType", value.lowerBoundType(), jgen);
+            provider.defaultSerializeField("lowerBoundType", value.lowerBoundType(), g);
         }
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
-                jgen.writeFieldName("upperEndpoint");
-                _endpointSerializer.serialize(value.upperEndpoint(), jgen, provider);
+                g.writeFieldName("upperEndpoint");
+                _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), jgen);
+                provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), g);
             }
-            provider.defaultSerializeField("upperBoundType", value.upperBoundType(), jgen);
+            provider.defaultSerializeField("upperBoundType", value.upperBoundType(), g);
         }
     }
 }
