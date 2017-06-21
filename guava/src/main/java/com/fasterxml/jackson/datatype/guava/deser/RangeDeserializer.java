@@ -201,9 +201,8 @@ public class RangeDeserializer
     private void expect(DeserializationContext context, JsonToken expected, JsonToken actual) throws JsonMappingException
     {
         if (actual != expected) {
-            context.reportInputMismatch(this, String.format(handledType().getName(),
-                    "Problem deserializing %s: expecting %s, found %s",
-                    expected, actual));
+            context.reportInputMismatch(this, String.format("Problem deserializing %s: expecting %s, found %s",
+                    handledType().getName(), expected, actual));
         }
     }
 }
