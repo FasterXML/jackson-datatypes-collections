@@ -171,7 +171,7 @@ public class MultimapSerializer
             valueSer = _valueSerializer;
         }
         // [datatype-guava#124]: May have a content converter
-        valueSer = findConvertingContentSerializer(provider, property, valueSer);
+        valueSer = findContextualConvertingSerializer(provider, property, valueSer);
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
@@ -248,12 +248,6 @@ public class MultimapSerializer
     }
 
     @Override
-    @Deprecated // since 2.5
-    public boolean isEmpty(Multimap<?,?> value) {
-        return isEmpty(null, value);
-    }
-
-    @Override
     public boolean isEmpty(SerializerProvider prov, Multimap<?,?> value) {
         return value.isEmpty();
     }
@@ -272,6 +266,12 @@ public class MultimapSerializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
+ // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
+//          plugged in...
+//            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+//                value = _orderEntries(value, gen, provider);
+//            }
+
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider);
             } else {
@@ -289,6 +289,11 @@ public class MultimapSerializer
         typeSer.writeTypePrefixForObject(value, gen);
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
+// 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
+//     plugged in...
+//            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+//              value = _orderEntries(value, gen, provider);
+//          }
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider);
             } else {
@@ -361,16 +366,16 @@ public class MultimapSerializer
             } else {
                 valueSer = _valueSerializer;
             }
-            prop.reset(key, _keySerializer, valueSer);
+            prop.reset(key, value, _keySerializer, valueSer);
             try {
-                filter.serializeAsField(value, gen, provider, prop);
+                filter.serializeAsField(mmap, gen, provider, prop);
             } catch (Exception e) {
                 String keyDesc = ""+key;
                 wrapAndThrow(provider, e, value, keyDesc);
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Schema related functionality
