@@ -134,7 +134,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             } else {
                 provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), g);
             }
-            provider.defaultSerializeField("lowerBoundType", value.lowerBoundType(), g);
+            // 20-Mar-2016, tatu: Should not use default handling since it leads to
+            //    [datatypes-collections#12] with default typing
+            g.writeStringField("lowerBoundType", value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
@@ -143,7 +145,8 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             } else {
                 provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), g);
             }
-            provider.defaultSerializeField("upperBoundType", value.upperBoundType(), g);
+            // same as above; should always be just String so
+            g.writeStringField("upperBoundType", value.upperBoundType().name());
         }
     }
 }
