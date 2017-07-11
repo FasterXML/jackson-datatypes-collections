@@ -52,6 +52,7 @@ public class TestPCollections extends ModuleTestBase
         assertEquals("[\"abc\",\"def\"]", MAPPER.writeValueAsString(stack));
     }
 
+    // 11-Jul-2017, tatu: Seems pointless to verify this... ?
     /**
      * Deserialization will fail, however.
      */
@@ -64,24 +65,24 @@ public class TestPCollections extends ModuleTestBase
                     new TypeReference<PSequence<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<PSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<PMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
     }
-        
+
     /*
     /**********************************************************************
     /* Unit tests for actual registered module
