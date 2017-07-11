@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -28,7 +29,10 @@ import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.TableSerializer;
 
 public class GuavaSerializers extends Serializers.Base
+    implements Serializable
 {
+    static final long serialVersionUID = 1L;
+
     static class FluentConverter extends StdConverter<Object,Iterable<?>> {
         static final FluentConverter instance = new FluentConverter();
 

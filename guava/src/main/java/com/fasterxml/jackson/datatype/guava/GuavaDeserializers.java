@@ -19,12 +19,16 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.list.LinkedListMultim
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
 
+import java.io.Serializable;
+
 /**
  * Custom deserializers module offers.
  */
 public class GuavaDeserializers
     extends Deserializers.Base
+    implements Serializable
 {
+    static final long serialVersionUID = 1L;
     protected BoundType _defaultBoundType;
 
     public GuavaDeserializers() {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.google.common.base.Optional;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -13,7 +14,9 @@ import java.util.List;
  * optional values iff handling of "absent as nulls" is enabled.
  */
 public class GuavaBeanSerializerModifier extends BeanSerializerModifier
+    implements Serializable
 {
+    static final long serialVersionUID = 1L;
     @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
             BeanDescription beanDesc,
