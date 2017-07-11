@@ -36,6 +36,7 @@ public class TestMultisets extends ModuleTestBase
         assertEquals("[\"abc\",\"abc\",\"foo\"]", json);
     }
 
+    // 11-Jul-2017, tatu: Not sure if this test makes sense actually...
     public void testWithoutDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -44,10 +45,10 @@ public class TestMultisets extends ModuleTestBase
                     new TypeReference<Multiset<String>>() { });
             fail("Should have failed");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Unit tests for actual registered module

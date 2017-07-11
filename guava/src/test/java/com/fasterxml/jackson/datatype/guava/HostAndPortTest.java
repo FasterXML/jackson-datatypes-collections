@@ -35,7 +35,7 @@ public class HostAndPortTest extends ModuleTestBase
             result = MAPPER.readValue("[ ]", HostAndPort.class);
             fail("Should not deserialize from boolean: got "+result);
         } catch (JsonProcessingException e) {
-            verifyException(e, "Can not deserialize");
+            verifyException(e, "Cannot deserialize");
         }
     }
 }

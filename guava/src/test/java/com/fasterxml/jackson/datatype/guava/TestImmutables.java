@@ -67,28 +67,28 @@ public class TestImmutables extends ModuleTestBase
                     new TypeReference<ImmutableList<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<ImmutableSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<ImmutableSortedSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
         
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<ImmutableMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (JsonMappingException e) {
-            verifyException(e, "can not find a deserializer");
+            verifyException(e, "cannot find a deserializer");
         }
     }
         
