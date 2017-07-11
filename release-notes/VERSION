@@ -10,6 +10,8 @@ Modules:
 
 2.9.0 (not yet released)
 
+(guava) #15: Add support for java serialization to guava module
+ (suggested by gcooney@github)
 - (guava) Upgrade guava dependency from 16 to 18
 
 2.8.8 (not yet released)
