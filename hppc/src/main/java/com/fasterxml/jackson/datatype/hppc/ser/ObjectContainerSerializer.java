@@ -142,7 +142,8 @@ public class ObjectContainerSerializer
 
     @Override
     protected void serializeContents(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException {
+        throws IOException
+    {
         throw new IllegalStateException();
     }
 }

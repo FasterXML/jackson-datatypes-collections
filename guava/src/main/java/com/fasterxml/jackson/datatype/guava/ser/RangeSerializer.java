@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.guava.ser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -86,7 +86,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        gen.writeStartObject();
+        gen.writeStartObject(value);
         _writeContents(value, gen, provider);
         gen.writeEndObject();
 
@@ -97,31 +97,11 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             TypeSerializer typeSer)
         throws IOException
     {
-        // Will be serialized as a JSON Object, so:
-        typeSer.writeTypePrefixForObject(value, gen);
+        gen.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
         _writeContents(value, gen, provider);
-        typeSer.writeTypeSuffixForObject(value, gen);
-    }
-
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
-    {
-        if (visitor != null) {
-            JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
-            if (objectVisitor != null) {
-                if (_endpointSerializer != null) {
-                    JavaType endpointType = _rangeType.containedType(0);
-                    JavaType btType = visitor.getProvider().constructType(BoundType.class);
-                    JsonSerializer<?> btSer = visitor.getProvider()
-                            .findValueSerializer(btType, null);
-                    objectVisitor.property("lowerEndpoint", _endpointSerializer, endpointType);
-                    objectVisitor.property("lowerBoundType", btSer, btType);
-                    objectVisitor.property("upperEndpoint", _endpointSerializer, endpointType);
-                    objectVisitor.property("upperBoundType", btSer, btType);
-                }
-            }
-        }
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
     private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
@@ -149,4 +129,26 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             g.writeStringField("upperBoundType", value.upperBoundType().name());
         }
     }
+
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
+        if (visitor != null) {
+            JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+            if (objectVisitor != null) {
+                if (_endpointSerializer != null) {
+                    JavaType endpointType = _rangeType.containedType(0);
+                    JavaType btType = visitor.getProvider().constructType(BoundType.class);
+                    JsonSerializer<?> btSer = visitor.getProvider()
+                            .findValueSerializer(btType, null);
+                    objectVisitor.property("lowerEndpoint", _endpointSerializer, endpointType);
+                    objectVisitor.property("lowerBoundType", btSer, btType);
+                    objectVisitor.property("upperEndpoint", _endpointSerializer, endpointType);
+                    objectVisitor.property("upperBoundType", btSer, btType);
+                }
+            }
+        }
+    }
 }
+

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -282,12 +283,13 @@ public class MultimapSerializer
     }
 
     @Override
-    public void serializeWithType(Multimap<?,?> value, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer)
+    public void serializeWithType(Multimap<?,?> value, JsonGenerator gen,
+            SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForObject(value, gen);
         gen.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
 // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
 //     plugged in...
@@ -300,11 +302,12 @@ public class MultimapSerializer
                 serializeFields(value, gen, provider);
             }
         }
-        typeSer.writeTypeSuffixForObject(value, gen);
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    private final void serializeFields(Multimap<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+    private final void serializeFields(Multimap<?, ?> mmap, JsonGenerator
+            gen, SerializerProvider provider)
+        throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
         PropertySerializerMap serializers = _dynamicValueSerializers;

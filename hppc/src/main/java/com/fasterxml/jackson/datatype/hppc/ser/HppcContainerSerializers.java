@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
@@ -86,28 +87,30 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public void serialize(ByteContainer value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(ByteContainer value, JsonGenerator gen, SerializerProvider provider)
             throws IOException
         {
-            serializeContents(value, jgen, provider);
+            gen.setCurrentValue(value);
+            serializeContents(value, gen, provider);
         }
         
         @Override
-        public void serializeWithType(ByteContainer value, JsonGenerator jgen, SerializerProvider provider,
+        public void serializeWithType(ByteContainer value, JsonGenerator gen, SerializerProvider provider,
                 TypeSerializer typeSer)
             throws IOException
         {
-            // will be a JSON String, so can't use array prefix/suffix
-            typeSer.writeTypePrefixForScalar(value, jgen);
-            serializeContents(value, jgen, provider);
-            typeSer.writeTypeSuffixForScalar(value, jgen);
+            gen.setCurrentValue(value);
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                    typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
+            serializeContents(value, gen, provider);
+            typeSer.writeTypeSuffix(gen, typeIdDef);
         }
+
         @Override
-        protected void serializeContents(final ByteContainer value, final JsonGenerator jgen, SerializerProvider provider)
-               throws IOException, JsonGenerationException
+        protected void serializeContents(final ByteContainer value, final JsonGenerator gen, SerializerProvider provider)
+               throws IOException
         {
-            byte[] bytes = value.toArray();
-            jgen.writeBinary(bytes);
+            gen.writeBinary(value.toArray());
         }
     }
 
@@ -143,13 +146,13 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final ShortContainer value, final JsonGenerator jgen, SerializerProvider provider)
+        protected void serializeContents(final ShortContainer value, final JsonGenerator gen, SerializerProvider provider)
                throws IOException
         {
             if (value instanceof ShortIndexedContainer) {
                 ShortIndexedContainer list = (ShortIndexedContainer) value;
                 for (int i = 0, len = list.size(); i < len; ++i) {
-                    jgen.writeNumber(list.get(i));
+                    gen.writeNumber(list.get(i));
                 }
                 return;
             }
@@ -158,7 +161,7 @@ public class HppcContainerSerializers
                 @Override
                 public boolean apply(short v) {
                     try {
-                        jgen.writeNumber(v);
+                        gen.writeNumber(v);
                     } catch (IOException e) {
                         holder.assignException(e);
                         return false;
@@ -220,7 +223,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final IntContainer value, final JsonGenerator jgen, SerializerProvider provider)
+        protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializerProvider provider)
                throws IOException, JsonGenerationException
         {
             // doh. Can't throw checked exceptions through; hence need convoluted handling...
@@ -229,7 +232,7 @@ public class HppcContainerSerializers
                 @Override
                 public boolean apply(int v) {
                     try {
-                        jgen.writeNumber(v);
+                        gen.writeNumber(v);
                     } catch (IOException e) {
                         holder.assignException(e);
                         return false;
@@ -272,7 +275,7 @@ public class HppcContainerSerializers
             }
             
             @Override
-            protected void serializeContents(final IntIndexedContainer value, final JsonGenerator jgen, SerializerProvider provider)
+            protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializerProvider provider)
                    throws IOException, JsonGenerationException
             {
                 int[] array;
@@ -282,7 +285,7 @@ public class HppcContainerSerializers
                     array = value.toArray();
                 }
                 for (int i = 0, len = value.size(); i < len; ++i) {
-                    jgen.writeNumber(array[i]);
+                    gen.writeNumber(array[i]);
                 }
                 return;
             }
@@ -322,7 +325,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final LongContainer value, final JsonGenerator jgen, SerializerProvider provider)
+        protected void serializeContents(final LongContainer value, final JsonGenerator gen, SerializerProvider provider)
                throws IOException, JsonGenerationException
         {
             if (value instanceof LongIndexedContainer) {
@@ -334,7 +337,7 @@ public class HppcContainerSerializers
                     array = list.toArray();
                 }
                 for (int i = 0, len = list.size(); i < len; ++i) {
-                    jgen.writeNumber(array[i]);
+                    gen.writeNumber(array[i]);
                 }
                 return;
             }
@@ -344,7 +347,7 @@ public class HppcContainerSerializers
                 @Override
                 public boolean apply(long v) {
                     try {
-                        jgen.writeNumber(v);
+                        gen.writeNumber(v);
                     } catch (IOException e) {
                         holder.assignException(e);
                         return false;
@@ -400,29 +403,31 @@ public class HppcContainerSerializers
         }
         
         @Override
-        public void serialize(CharContainer value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(CharContainer value, JsonGenerator gen, SerializerProvider provider)
             throws IOException
         {
-            serializeContents(value, jgen, provider);
+            gen.setCurrentValue(value);
+            serializeContents(value, gen, provider);
         }
         
         @Override
-        public void serializeWithType(CharContainer value, JsonGenerator jgen, SerializerProvider provider,
+        public void serializeWithType(CharContainer value, JsonGenerator gen, SerializerProvider provider,
                 TypeSerializer typeSer)
             throws IOException
         {
-            // will be a JSON String, so can't use array prefix/suffix
-            typeSer.writeTypePrefixForScalar(value, jgen);
-            serializeContents(value, jgen, provider);
-            typeSer.writeTypeSuffixForScalar(value, jgen);
+            gen.setCurrentValue(value);
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                    typeSer.typeId(value, JsonToken.VALUE_STRING));
+            serializeContents(value, gen, provider);
+            typeSer.writeTypeSuffix(gen, typeIdDef);
         }
 
         @Override
-        protected void serializeContents(final CharContainer value, final JsonGenerator jgen, SerializerProvider provider)
-               throws IOException, JsonGenerationException
+        protected void serializeContents(final CharContainer value, final JsonGenerator gen, SerializerProvider provider)
+               throws IOException
         {
             char[] ch = value.toArray();
-            jgen.writeString(ch, 0, ch.length);
+            gen.writeString(ch, 0, ch.length);
         }
     }
     
@@ -464,13 +469,13 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final FloatContainer value, final JsonGenerator jgen, SerializerProvider provider)
+        protected void serializeContents(final FloatContainer value, final JsonGenerator gen, SerializerProvider provider)
                throws IOException, JsonGenerationException
         {
             if (value instanceof FloatIndexedContainer) {
                 FloatIndexedContainer list = (FloatIndexedContainer) value;
                 for (int i = 0, len = list.size(); i < len; ++i) {
-                    jgen.writeNumber(list.get(i));
+                    gen.writeNumber(list.get(i));
                 }
                 return;
             }
@@ -480,7 +485,7 @@ public class HppcContainerSerializers
                 @Override
                 public boolean apply(float v) {
                     try {
-                        jgen.writeNumber(v);
+                        gen.writeNumber(v);
                     } catch (IOException e) {
                         holder.assignException(e);
                         return false;
@@ -523,13 +528,13 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final DoubleContainer value, final JsonGenerator jgen, SerializerProvider provider)
+        protected void serializeContents(final DoubleContainer value, final JsonGenerator gen, SerializerProvider provider)
                throws IOException, JsonGenerationException
         {
             if (value instanceof DoubleIndexedContainer) {
                 DoubleIndexedContainer list = (DoubleIndexedContainer) value;
                 for (int i = 0, len = list.size(); i < len; ++i) {
-                    jgen.writeNumber(list.get(i));
+                    gen.writeNumber(list.get(i));
                 }
                 return;
             }
@@ -539,7 +544,7 @@ public class HppcContainerSerializers
                 @Override
                 public boolean apply(double v) {
                     try {
-                        jgen.writeNumber(v);
+                        gen.writeNumber(v);
                     } catch (IOException e) {
                         holder.assignException(e);
                         return false;

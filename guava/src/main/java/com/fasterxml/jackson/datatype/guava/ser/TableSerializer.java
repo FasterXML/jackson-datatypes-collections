@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -21,7 +22,7 @@ import com.google.common.collect.Table;
 public class TableSerializer
     extends ContainerSerializer<Table<?, ?, ?>> implements ContextualSerializer
 {
-    private static final long serialVersionUID = -1449462718192917949L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Type declaration that defines parameters; may be a supertype of actual
@@ -186,12 +187,6 @@ public class TableSerializer
     }
 
     @Override
-    @Deprecated // since 2.6, remove from 2.8
-    public boolean isEmpty(Table<?, ?, ?> table) {
-        return table.isEmpty();
-    }
-
-    @Override
     public boolean hasSingleElement(final Table<?, ?, ?> table) {
         return table.size() == 1;
     }
@@ -207,7 +202,7 @@ public class TableSerializer
             final JsonGenerator gen, final SerializerProvider provider)
         throws IOException
     {
-        gen.writeStartObject();
+        gen.writeStartObject(value);
         if ( !value.isEmpty()) {
             serializeFields(value, gen, provider);
         }
@@ -216,13 +211,14 @@ public class TableSerializer
 
     @Override
     public void serializeWithType(final Table<?, ?, ?> value,
-            final JsonGenerator gen,
-            final SerializerProvider provider,
+            final JsonGenerator gen, final SerializerProvider provider,
             final TypeSerializer typeSer) throws IOException
     {
-        typeSer.writeTypePrefixForObject(value, gen);
+        gen.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeFields(value, gen, provider);
-        typeSer.writeTypeSuffixForObject(value, gen);
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
     private final void serializeFields( final Table<?, ?, ?> table, final JsonGenerator jgen, final SerializerProvider provider )

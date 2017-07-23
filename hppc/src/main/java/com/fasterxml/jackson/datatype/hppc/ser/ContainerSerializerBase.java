@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -83,25 +84,28 @@ public abstract class ContainerSerializerBase<T>
      */
     
     @Override
-    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        jgen.writeStartArray();
-        serializeContents(value, jgen, provider);
-        jgen.writeEndArray();
+        gen.setCurrentValue(value);
+        gen.writeStartArray();
+        serializeContents(value, gen, provider);
+        gen.writeEndArray();
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
+    protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
             throws IOException;
     
     @Override
-    public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForArray(value, jgen);
-        serializeContents(value, jgen, provider);
-        typeSer.writeTypeSuffixForArray(value, jgen);
+        gen.setCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
+        serializeContents(value, gen, provider);
+        typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
     /*
