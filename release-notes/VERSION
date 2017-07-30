@@ -8,7 +8,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.0 (not yet released)
+2.9.0 (30-Jul-2017)
 
 (guava) #15: Add support for java serialization to guava module
  (suggested by gcooney@github)
