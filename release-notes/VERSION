@@ -7,6 +7,10 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.8.10 (not yet released)
+
+#19: Multimap serializer produces wrong Schema structure
+
 2.8.9 (12-Jun-2017)
 
 No changes since 2.8.8
