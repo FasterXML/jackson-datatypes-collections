@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -393,12 +396,25 @@ public class MultimapSerializer
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _type.getKeyType());
             JsonSerializer<?> valueSer = _valueSerializer;
-            JavaType vt = _type.getContentType();
+            final JavaType vt = _type.getContentType();
+            final SerializerProvider prov = visitor.getProvider();
             if (valueSer == null) {
-                valueSer = _findAndAddDynamic(_dynamicValueSerializers,
-                            vt, visitor.getProvider());
+                valueSer = _findAndAddDynamic(_dynamicValueSerializers, vt, prov);
             }
-            v2.valueFormat(valueSer, vt);
+            final JsonSerializer<?> valueSer2 = valueSer;
+            v2.valueFormat(new JsonFormatVisitable() {
+                final JavaType arrayType = prov.getTypeFactory().constructArrayType(vt);
+                @Override
+                public void acceptJsonFormatVisitor(
+                        JsonFormatVisitorWrapper v3, JavaType hint3)
+                    throws JsonMappingException
+                {
+                    JsonArrayFormatVisitor v4 = v3.expectArrayFormat(arrayType);
+                    if (v4 != null) {
+                        v4.itemsFormat(valueSer2, vt);
+                    }
+                }
+            }, vt);
         }
     }
 
