@@ -48,69 +48,73 @@ public class GuavaDeserializers
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
-        Class<?> raw = type.getRawClass();
-
-        // ImmutableXxx types?
-        if (ImmutableCollection.class.isAssignableFrom(raw)) {
-            if (ImmutableList.class.isAssignableFrom(raw)) {
-                return new ImmutableListDeserializer(type,
-                        elementTypeDeserializer, elementDeserializer);
-            }
-            if (ImmutableMultiset.class.isAssignableFrom(raw)) {
-                // sorted one?
-                if (ImmutableSortedMultiset.class.isAssignableFrom(raw)) {
-                    /* See considerations for ImmutableSortedSet below. */
-                    requireCollectionOfComparableElements(type, "ImmutableSortedMultiset");
-                    return new ImmutableSortedMultisetDeserializer(type,
-                            elementTypeDeserializer, elementDeserializer);
-                }
-                // nah, just regular one
-                return new ImmutableMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-            }
-            if (ImmutableSet.class.isAssignableFrom(raw)) {
-                // sorted one?
-                if (ImmutableSortedSet.class.isAssignableFrom(raw)) {
-                    /* 28-Nov-2010, tatu: With some more work would be able to use other things
-                     *   than natural ordering; but that'll have to do for now...
-                     */
-                    requireCollectionOfComparableElements(type, "ImmutableSortedSet");
-                    return new ImmutableSortedSetDeserializer(type,
-                            elementTypeDeserializer, elementDeserializer);
-                }
-                // nah, just regular one
-                return new ImmutableSetDeserializer(type,
-                        elementTypeDeserializer, elementDeserializer);
-            }
-            // TODO: make configurable (for now just default blindly to a list)
-            return new ImmutableListDeserializer(type, elementTypeDeserializer, elementDeserializer);
-        }
-
-        // Multi-xxx collections?
-        if (Multiset.class.isAssignableFrom(raw)) {
-            if (SortedMultiset.class.isAssignableFrom(raw)) {
-                if (TreeMultiset.class.isAssignableFrom(raw)) {
-                    return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-                }
-
-                // TODO: make configurable (for now just default blindly)
-                return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-            }
-
-            // Quite a few variations...
-            if (LinkedHashMultiset.class.isAssignableFrom(raw)) {
-                return new LinkedHashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-            }
-            if (HashMultiset.class.isAssignableFrom(raw)) {
-                return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-            }
-            if (EnumMultiset.class.isAssignableFrom(raw)) {
-                // !!! TODO
-            }
-
-            // TODO: make configurable (for now just default blindly)
-            return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-        }
-
+    	try {
+	    	Class<?> raw = this.getClass().getClassLoader().loadClass(type.getRawClass().getCanonicalName());
+	
+	        // ImmutableXxx types?
+	        if (ImmutableCollection.class.isAssignableFrom(raw)) {
+	            if (ImmutableList.class.isAssignableFrom(raw)) {
+	                return new ImmutableListDeserializer(type,
+	                        elementTypeDeserializer, elementDeserializer);
+	            }
+	            if (ImmutableMultiset.class.isAssignableFrom(raw)) {
+	                // sorted one?
+	                if (ImmutableSortedMultiset.class.isAssignableFrom(raw)) {
+	                    /* See considerations for ImmutableSortedSet below. */
+	                    requireCollectionOfComparableElements(type, "ImmutableSortedMultiset");
+	                    return new ImmutableSortedMultisetDeserializer(type,
+	                            elementTypeDeserializer, elementDeserializer);
+	                }
+	                // nah, just regular one
+	                return new ImmutableMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	            }
+	            if (ImmutableSet.class.isAssignableFrom(raw)) {
+	                // sorted one?
+	                if (ImmutableSortedSet.class.isAssignableFrom(raw)) {
+	                    /* 28-Nov-2010, tatu: With some more work would be able to use other things
+	                     *   than natural ordering; but that'll have to do for now...
+	                     */
+	                    requireCollectionOfComparableElements(type, "ImmutableSortedSet");
+	                    return new ImmutableSortedSetDeserializer(type,
+	                            elementTypeDeserializer, elementDeserializer);
+	                }
+	                // nah, just regular one
+	                return new ImmutableSetDeserializer(type,
+	                        elementTypeDeserializer, elementDeserializer);
+	            }
+	            // TODO: make configurable (for now just default blindly to a list)
+	            return new ImmutableListDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	        }
+	
+	        // Multi-xxx collections?
+	        if (Multiset.class.isAssignableFrom(raw)) {
+	            if (SortedMultiset.class.isAssignableFrom(raw)) {
+	                if (TreeMultiset.class.isAssignableFrom(raw)) {
+	                    return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	                }
+	
+	                // TODO: make configurable (for now just default blindly)
+	                return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	            }
+	
+	            // Quite a few variations...
+	            if (LinkedHashMultiset.class.isAssignableFrom(raw)) {
+	                return new LinkedHashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	            }
+	            if (HashMultiset.class.isAssignableFrom(raw)) {
+	                return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	            }
+	            if (EnumMultiset.class.isAssignableFrom(raw)) {
+	                // !!! TODO
+	            }
+	
+	            // TODO: make configurable (for now just default blindly)
+	            return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+	        }
+    	} catch (ClassNotFoundException e) {
+    		  throw new IllegalArgumentException("Can not handle type " + type.getRawClass().getCanonicalName()
+                      + " because it is not available to this classloader (" + e.getMessage() + ")");
+		}
         return null;
     }
 
