@@ -110,7 +110,7 @@ public class RangeDeserializer
             throws IOException
     {
         // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
@@ -173,7 +173,7 @@ public class RangeDeserializer
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
     {
-        expect(context, JsonToken.VALUE_STRING, p.getCurrentToken());
+        expect(context, JsonToken.VALUE_STRING, p.currentToken());
         String name = p.getText();
         try {
             return BoundType.valueOf(name);

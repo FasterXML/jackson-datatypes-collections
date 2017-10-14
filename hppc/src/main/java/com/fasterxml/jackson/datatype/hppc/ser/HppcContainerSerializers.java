@@ -1,15 +1,16 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+
 import com.carrotsearch.hppc.*;
 import com.carrotsearch.hppc.predicates.*;
 
@@ -63,11 +64,6 @@ public class HppcContainerSerializers
 
         ByteContainerSerializer() {
             super(ByteContainer.class, "string"); // really, "binary", but...
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("string", true);
         }
 
         @Override

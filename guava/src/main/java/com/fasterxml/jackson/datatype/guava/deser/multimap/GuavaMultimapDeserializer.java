@@ -153,7 +153,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
 
             while (p.nextToken() != JsonToken.END_ARRAY) {
                 final Object value;
-                if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
+                if (p.currentToken() == JsonToken.VALUE_NULL) {
                     value = null;
                 } else if (elementTypeDeserializer != null) {
                     value = elementDeserializer.deserializeWithType(p, ctxt, elementTypeDeserializer);
@@ -233,7 +233,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
     private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
+        if (p.currentToken() == JsonToken.VALUE_NULL) {
             return null;
         }
         if (elementTypeDeserializer != null) {
@@ -243,8 +243,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
     }
 
     private void expect(JsonParser p, JsonToken token) throws IOException {
-        if (p.getCurrentToken() != token) {
-            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.getCurrentToken(),
+        if (p.currentToken() != token) {
+            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.currentToken(),
                     p.getCurrentLocation());
         }
     }

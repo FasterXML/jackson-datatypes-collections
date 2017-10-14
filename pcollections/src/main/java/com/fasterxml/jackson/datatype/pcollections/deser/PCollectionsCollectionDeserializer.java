@@ -146,7 +146,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         Object value;
         

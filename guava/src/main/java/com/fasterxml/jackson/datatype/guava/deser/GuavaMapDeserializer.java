@@ -115,7 +115,7 @@ public abstract class GuavaMapDeserializer<T>
             throws IOException
     {
         // Ok: must point to START_OBJECT or FIELD_NAME
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }

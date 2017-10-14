@@ -116,7 +116,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
             throws IOException
     {
         // Ok: must point to START_OBJECT or FIELD_NAME
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }
@@ -136,7 +136,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
 
         T map = createEmptyMap();
-        for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.getCurrentName();
             Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);

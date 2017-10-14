@@ -17,13 +17,13 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
     public HostAndPortDeserializer() { super(HostAndPort.class); }
 
     @Override
-    public HostAndPort deserialize(JsonParser jp, DeserializationContext ctxt)
+    public HostAndPort deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // Need to override this method, which otherwise would work just fine,
         // since we have legacy JSON Object format to support too:
-        if (jp.getCurrentToken() == JsonToken.START_OBJECT) { // old style
-            JsonNode root = jp.readValueAsTree();
+        if (p.currentToken() == JsonToken.START_OBJECT) { // old style
+            JsonNode root = p.readValueAsTree();
             String host = root.path("hostText").asText();
             JsonNode n = root.get("port");
             if (n == null) {
@@ -31,7 +31,7 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
             }
             return HostAndPort.fromParts(host, n.asInt());
         }
-        return super.deserialize(jp, ctxt);
+        return super.deserialize(p, ctxt);
     }
 
     @Override

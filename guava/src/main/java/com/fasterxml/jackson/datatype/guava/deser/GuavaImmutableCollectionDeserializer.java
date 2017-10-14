@@ -53,21 +53,21 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     }
 
     @Override
-    protected T _deserializeFromSingleValue(JsonParser jp, DeserializationContext ctxt)
+    protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.currentToken();
 
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
             value = null;
         } else if (typeDeser == null) {
-            value = valueDes.deserialize(jp, ctxt);
+            value = valueDes.deserialize(p, ctxt);
         } else {
-            value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
         }
         @SuppressWarnings("unchecked")
         T result = (T) createBuilder().add(value).build();
