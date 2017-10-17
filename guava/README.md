@@ -54,5 +54,5 @@ Configurable settings of the module are:
 
 ## More
 
-See [Wiki](../../wiki) for more information (javadocs, downloads).
+See [Wiki](../../../wiki) for more information (javadocs, downloads).
 
