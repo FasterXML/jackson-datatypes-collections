@@ -1,11 +1,10 @@
 language: java
 
-# Runs on JDK6, but does not necessarily build on it any more so:
+# With 3.0, JDK 8 or above
 jdk:
-  - openjdk7
   - openjdk8
 
 branches:
   only:
     - master
-    - "2.8"
+    - "2.9"
