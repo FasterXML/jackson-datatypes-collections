@@ -122,7 +122,7 @@ public class RangeDeserializer
 
         for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
             expect(context, JsonToken.FIELD_NAME, t);
-            String fieldName = p.getCurrentName();
+            String fieldName = p.currentName();
             try {
                 if (fieldName.equals("lowerEndpoint")) {
                     p.nextToken();
@@ -193,7 +193,7 @@ public class RangeDeserializer
             context.reportBadDefinition(_rangeType,
                     String.format(
                             "Field [%s] deserialized to [%s], which does not implement Comparable.",
-                            p.getCurrentName(), obj.getClass().getName()));
+                            p.currentName(), obj.getClass().getName()));
         }
         return (Comparable<?>) obj;
     }

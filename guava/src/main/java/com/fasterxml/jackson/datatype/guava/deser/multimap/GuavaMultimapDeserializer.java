@@ -143,9 +143,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (keyDeserializer != null) {
-                key = keyDeserializer.deserializeKey(p.getCurrentName(), ctxt);
+                key = keyDeserializer.deserializeKey(p.currentName(), ctxt);
             } else {
-                key = p.getCurrentName();
+                key = p.currentName();
             }
 
             p.nextToken();
@@ -189,9 +189,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (keyDeserializer != null) {
-                key = keyDeserializer.deserializeKey(p.getCurrentName(), ctxt);
+                key = keyDeserializer.deserializeKey(p.currentName(), ctxt);
             } else {
-                key = p.getCurrentName();
+                key = p.currentName();
             }
 
             p.nextToken();

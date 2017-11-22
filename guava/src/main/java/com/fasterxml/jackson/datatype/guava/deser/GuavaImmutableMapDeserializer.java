@@ -33,7 +33,7 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
         ImmutableMap.Builder<Object, Object> builder = createBuilder();
         for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             // Must point to field name now
-            String fieldName = p.getCurrentName();
+            String fieldName = p.currentName();
             Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
