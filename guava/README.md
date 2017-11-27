@@ -5,7 +5,7 @@ to support JSON serialization and deserialization of
 ## Status
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-guava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-guava/)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.datatype/jackson-datatype-guava/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-guava)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-guava.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-guava)
 
 Module has been production-ready since version 2.3.
 Not all datatypes of Guava are support due to sheer size of the library; new support is added based on contributions.

@@ -7,7 +7,7 @@ Licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.t
 ## Status
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-pcollections/)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.datatype/jackson-datatype-pcollections/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-pcollections)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-pcollections)
 
 ## Usage
 
