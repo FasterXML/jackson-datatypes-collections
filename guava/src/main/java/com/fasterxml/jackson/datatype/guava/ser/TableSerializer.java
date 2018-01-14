@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -20,7 +19,7 @@ import com.google.common.collect.Table;
  * @author tatu - Some refactoring to streamline code
  */
 public class TableSerializer
-    extends ContainerSerializer<Table<?, ?, ?>> implements ContextualSerializer
+    extends ContainerSerializer<Table<?, ?, ?>>
 {
     private static final long serialVersionUID = 1L;
 
@@ -131,7 +130,8 @@ public class TableSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(final SerializerProvider provider, final BeanProperty property ) throws JsonMappingException
+    public JsonSerializer<?> createContextual(final SerializerProvider provider, final BeanProperty property )
+        throws JsonMappingException
     {
         JsonSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
@@ -139,23 +139,20 @@ public class TableSerializer
             if (valueType.isFinal()) {
                 valueSer = provider.findValueSerializer(valueType, property);
             }
-        }
-        else if (valueSer instanceof ContextualSerializer) {
-            valueSer = ((ContextualSerializer) valueSer).createContextual(provider, property);
+        } else {
+            valueSer = valueSer.createContextual(provider, property);
         }
         JsonSerializer<?> rowKeySer = _rowSerializer;
         if (rowKeySer == null) {
             rowKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(0), property);
-        }
-        else if (rowKeySer instanceof ContextualSerializer) {
-            rowKeySer = ((ContextualSerializer) rowKeySer).createContextual(provider, property);
+        } else {
+            rowKeySer = rowKeySer.createContextual(provider, property);
         }
         JsonSerializer<?> columnKeySer = _columnSerializer;
         if (columnKeySer == null) {
             columnKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(1), property);
-        }
-        else if (columnKeySer instanceof ContextualSerializer) {
-            columnKeySer = ((ContextualSerializer) columnKeySer).createContextual(provider, property);
+        } else {
+            columnKeySer = columnKeySer.createContextual(provider, property);
         }
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;

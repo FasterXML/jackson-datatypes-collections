@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.carrotsearch.hppc.*;
@@ -18,7 +17,6 @@ import com.carrotsearch.hppc.*;
  */
 public class ObjectContainerSerializer
     extends ContainerSerializerBase<ObjectContainer<?>>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 

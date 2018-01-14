@@ -5,15 +5,13 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import org.pcollections.PCollection;
 
 public abstract class PCollectionsCollectionDeserializer<T extends PCollection<Object>>
-        extends StdDeserializer<T>
-        implements ContextualDeserializer
+    extends StdDeserializer<T>
 {
     private static final long serialVersionUID = 1L;
 

@@ -5,14 +5,12 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import org.pcollections.PMap;
 
 public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>>
     extends JsonDeserializer<T>
-    implements ContextualDeserializer
 {
     protected final MapType _mapType;
     

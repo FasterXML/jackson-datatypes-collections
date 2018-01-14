@@ -10,7 +10,6 @@ import com.google.common.collect.Range;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -27,7 +26,6 @@ import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
  */
 public class RangeDeserializer
     extends StdDeserializer<Range<?>>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 

@@ -6,8 +6,10 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -16,11 +18,11 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.std.MapProperty;
 import com.fasterxml.jackson.databind.type.MapLikeType;
+
 import com.google.common.collect.Multimap;
 
 /**
@@ -40,7 +42,6 @@ import com.google.common.collect.Multimap;
  */
 public class MultimapSerializer
     extends ContainerSerializer<Multimap<?, ?>>
-    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -149,8 +150,8 @@ public class MultimapSerializer
             if (valueType.isFinal()) {
                 valueSer = provider.findValueSerializer(valueType, property);
             }
-        } else if (valueSer instanceof ContextualSerializer) {
-            valueSer = ((ContextualSerializer) valueSer).createContextual(provider, property);
+        } else {
+            valueSer = valueSer.createContextual(provider, property);
         }
 
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();

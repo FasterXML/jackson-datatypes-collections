@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.collect.ImmutableList;
@@ -21,9 +20,10 @@ import com.google.common.collect.Multimap;
  * @author mvolkhart
  */
 public abstract class GuavaMultimapDeserializer<T extends Multimap<Object,
-        Object>> extends JsonDeserializer<T> implements ContextualDeserializer {
-
+        Object>> extends JsonDeserializer<T>
+{
     private static final List<String> METHOD_NAMES = ImmutableList.of("copyOf", "create");
+
     private final MapLikeType type;
     private final KeyDeserializer keyDeserializer;
     private final TypeDeserializer elementTypeDeserializer;

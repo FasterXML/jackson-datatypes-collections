@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import com.google.common.collect.BoundType;
@@ -19,7 +18,6 @@ import com.google.common.collect.Range;
  */
 @SuppressWarnings("serial")
 public class RangeSerializer extends StdSerializer<Range<?>>
-    implements ContextualSerializer
 {
     protected final JavaType _rangeType;
 
@@ -61,8 +59,8 @@ public class RangeSerializer extends StdSerializer<Range<?>>
              *   access, in case they rely on annotations on properties... (or, more generally,
              *   in getting a chance to be contextualized)
              */
-        } else if (_endpointSerializer instanceof ContextualSerializer) {
-            JsonSerializer<?> cs = ((ContextualSerializer)_endpointSerializer).createContextual(prov, property);
+        } else {
+            JsonSerializer<?> cs = _endpointSerializer.createContextual(prov, property);
             if (cs != _endpointSerializer) {
                 return new RangeSerializer(_rangeType, cs);
             }

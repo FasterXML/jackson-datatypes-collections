@@ -4,14 +4,12 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.CollectionType;
 
 public abstract class GuavaCollectionDeserializer<T>
     extends StdDeserializer<T>
-    implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 

@@ -5,13 +5,11 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapType;
 
 public abstract class GuavaMapDeserializer<T>
     extends JsonDeserializer<T>
-    implements ContextualDeserializer
 {
     protected final MapType _mapType;
     
