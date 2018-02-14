@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.datatype.guava.deser.multimap.list;
 
+import java.lang.reflect.Method;
+
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.GuavaMultimapDeserializer;
-import com.google.common.collect.LinkedListMultimap;
 
-import java.lang.reflect.Method;
+import com.google.common.collect.LinkedListMultimap;
 
 /**
  * Provides deserialization for the Guava LinkedListMultimap class.
@@ -17,15 +19,17 @@ import java.lang.reflect.Method;
 public class LinkedListMultimapDeserializer
     extends GuavaMultimapDeserializer<LinkedListMultimap<Object,Object>>
 {
-    public LinkedListMultimapDeserializer(MapLikeType type, KeyDeserializer keyDeserializer,
+    private static final long serialVersionUID = 1L;
+
+    public LinkedListMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
     }
 
-    public LinkedListMultimapDeserializer(MapLikeType type, KeyDeserializer keyDeserializer,
+    public LinkedListMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
-            Method creatorMethod) {
-        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod);
+            Method creatorMethod, NullValueProvider nvp) {
+        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod, nvp);
     }
 
     @Override
@@ -34,10 +38,10 @@ public class LinkedListMultimapDeserializer
     }
 
     @Override
-    protected JsonDeserializer<?> _createContextual(MapLikeType type,
+    protected JsonDeserializer<?> _createContextual(JavaType type,
             KeyDeserializer keyDeserializer, TypeDeserializer typeDeserializer,
-            JsonDeserializer<?> elementDeserializer, Method method) {
+            JsonDeserializer<?> elementDeserializer, Method method, NullValueProvider nvp) {
         return new LinkedListMultimapDeserializer(type, keyDeserializer, typeDeserializer,
-                elementDeserializer, method);
+                elementDeserializer, method, nvp);
     }
 }
