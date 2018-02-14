@@ -48,3 +48,7 @@ Lokesh Kumar N (LokeshN@github)
   * Fixed #6: `Multimap` deserializer does not honor
     DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY
    (2.8.0)
+
+Neelav Rana (neelav@github)
+  * Reported #27: Null value handling not supported for `Optional` within `Multimap`
+   (2.9.5)

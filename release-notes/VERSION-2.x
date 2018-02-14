@@ -8,6 +8,11 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.9.5 (not yet released)
+
+#27: Null value handling not supported for `Optional` within `Multimap`
+ (reported by Neelav R)
+
 2.9.4 (24-Jan-2018)
 2.9.3 (09-Dec-2017)
 2.9.2 (14-Oct-2017)

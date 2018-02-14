@@ -7,12 +7,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.pojo.AddOp;
 import com.fasterxml.jackson.datatype.guava.pojo.MathOp;
 import com.fasterxml.jackson.datatype.guava.pojo.MulOp;
-
+import com.google.common.base.Optional;
 import com.google.common.collect.*;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.common.collect.TreeMultimap.create;
 
@@ -195,6 +196,22 @@ public class TestMultimaps extends ModuleTestBase
         input.put("empty", null);
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'empty':[null]}"), json);
+    }
+
+    // [datatypes-collections#27]: 
+    public void testWithReferenceType() throws Exception
+    {
+        String json = "{\"a\" : [5.0, null, 6.0]}";
+        ListMultimap<String, Optional<Double>> result = MAPPER.readValue(
+            json, 
+            new TypeReference<ListMultimap<String, Optional<Double>>>() {});
+
+        assertEquals(3, result.size());
+        assertEquals(ImmutableListMultimap.of(
+                "a", Optional.of(5.0), 
+                "a", Optional.absent(),
+                "a", Optional.of(6.0)),
+                result);
     }
 
     /*
