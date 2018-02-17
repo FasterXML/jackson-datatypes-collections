@@ -6,12 +6,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -135,10 +133,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             JsonDeserializer<?> vd, Method method, NullValueProvider np);
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException,
-            JsonProcessingException {
-
-    	//check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        //check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             return deserializeFromSingleValue(p, ctxt);
         }
@@ -146,8 +143,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         return deserializeContents(p, ctxt);
     }
 
-    private T deserializeContents(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+    private T deserializeContents(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         T multimap = createMultimap();
 

@@ -124,8 +124,9 @@ public class TestImmutables extends ModuleTestBase
 
     public void testImmutableSetFromSingle() throws Exception
     {
-        ObjectMapper mapper = mapperWithModule()
-            .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        ObjectMapper mapper = mapperBuilder()
+            .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            .build();
         ImmutableSet<String> set = mapper.readValue("\"abc\"",
                 new TypeReference<ImmutableSet<String>>() { });
         assertEquals(1, set.size());
