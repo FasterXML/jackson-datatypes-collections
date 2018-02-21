@@ -124,7 +124,9 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 2, \"upperEndpoint\": 3}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = new ObjectMapper().registerModule(mod);
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
 
         @SuppressWarnings("unchecked")
         Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
@@ -152,8 +154,9 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 2, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = new ObjectMapper().registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         @SuppressWarnings("unchecked")
         Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
 
@@ -180,8 +183,9 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 1, \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = new ObjectMapper().registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         @SuppressWarnings("unchecked")
         Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
 
@@ -209,8 +213,9 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 1, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = new ObjectMapper().registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         @SuppressWarnings("unchecked")
         Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
 
@@ -239,8 +244,9 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 12, \"lowerBoundType\": \"CLOSED\", \"upperEndpoint\": 33, \"upperBoundType\": \"CLOSED\"}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = new ObjectMapper().registerModule(mod);
-
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(mod)
+                .build();
         @SuppressWarnings("unchecked")
         Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
 

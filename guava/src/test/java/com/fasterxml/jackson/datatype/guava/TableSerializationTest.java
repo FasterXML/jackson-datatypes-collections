@@ -13,10 +13,9 @@ import com.google.common.collect.ImmutableTable;
 
 public class TableSerializationTest extends ModuleTestBase
 {
-    private final ObjectMapper MAPPER = mapperWithModule(false);
-    {
-        MAPPER.registerModule(new ComplexKeyModule());
-    }
+    private final ObjectMapper MAPPER = mapperBuilder(false)
+            .addModule(new ComplexKeyModule())
+            .build();
 
     static class ComplexKeyModule extends SimpleModule
     {

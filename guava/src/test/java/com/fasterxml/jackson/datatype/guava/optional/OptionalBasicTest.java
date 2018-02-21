@@ -247,23 +247,22 @@ public class OptionalBasicTest extends ModuleTestBase
         final OptionalData data = new OptionalData();
         data.myString = Optional.absent();
 
-        GuavaModule mod = new GuavaModule().configureAbsentsAsNulls(false);
-        ObjectMapper mapper = new ObjectMapper()
-            .registerModule(mod)
+        ObjectMapper mapper = mapperBuilder(false)
+            .build()
             .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
 
         assertEquals("{\"myString\":null}", mapper.writeValueAsString(data));
 
         // but do exclude with NON_EMPTY
-        mapper = new ObjectMapper()
-            .registerModule(mod)
-            .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper = mapperBuilder(false)
+                .build()
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         assertEquals("{}", mapper.writeValueAsString(data));
 
-        // and with new (2.6) NON_ABSENT
-        mapper = new ObjectMapper()
-            .registerModule(mod)
-            .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
+        // and with NON_ABSENT
+        mapper = mapperBuilder(false)
+                .build()
+                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
         assertEquals("{}", mapper.writeValueAsString(data));
     }
     
@@ -311,9 +310,10 @@ public class OptionalBasicTest extends ModuleTestBase
         assertSame(result, base);
     }
 
-    // [Issue#37]
     public void testOptionalCollection() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().registerModule(new GuavaModule());
+        ObjectMapper mapper = ObjectMapper.builder()
+                .addModule(new GuavaModule())
+                .build();
 
         TypeReference<List<Optional<String>>> typeReference =
             new TypeReference<List<Optional<String>>>() {};

@@ -58,7 +58,7 @@ public class GuavaModule extends Module // can't use just SimpleModule, due to g
 
         // 28-Apr-2015, tatu: Allow disabling "treat Optional.absent() like Java nulls"
         if (_cfgHandleAbsentAsNull) {
-            context.addBeanSerializerModifier(new GuavaBeanSerializerModifier());
+            context.addSerializerModifier(new GuavaBeanSerializerModifier());
         }
     }
 
@@ -72,8 +72,6 @@ public class GuavaModule extends Module // can't use just SimpleModule, due to g
      * backwards compatibility.
      * 
      * @return This module instance, useful for chaining calls
-     * 
-     * @since 2.6
      */
     public GuavaModule configureAbsentsAsNulls(boolean state) {
         _cfgHandleAbsentAsNull = state;
