@@ -87,8 +87,6 @@ public class GuavaModule extends Module // can't use just SimpleModule, due to g
      * @param boundType {@link BoundType}
      *
      * @return This module instance, useful for chaining calls
-     
-     * @since 2.7
      */
     public GuavaModule defaultBoundType(BoundType boundType) {
         checkNotNull(boundType);

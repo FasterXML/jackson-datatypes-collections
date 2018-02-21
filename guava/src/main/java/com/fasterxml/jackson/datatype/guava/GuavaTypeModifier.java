@@ -28,7 +28,7 @@ import com.google.common.collect.*;
 public class GuavaTypeModifier extends TypeModifier
     implements Serializable
 {
-    static final long serialVersionUID = 1L;
+    static final long serialVersionUID = 3L;
 
     @Override
     public JavaType modifyType(JavaType type, Type jdkType, TypeBindings bindings, TypeFactory typeFactory)

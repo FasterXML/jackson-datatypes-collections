@@ -70,9 +70,8 @@ public class GuavaDeserializers
             if (ImmutableSet.class.isAssignableFrom(raw)) {
                 // sorted one?
                 if (ImmutableSortedSet.class.isAssignableFrom(raw)) {
-                    /* 28-Nov-2010, tatu: With some more work would be able to use other things
-                     *   than natural ordering; but that'll have to do for now...
-                     */
+                    // 28-Nov-2010, tatu: With some more work would be able to use other things
+                    //   than natural ordering; but that'll have to do for now...
                     requireCollectionOfComparableElements(type, "ImmutableSortedSet");
                     return new ImmutableSortedSetDeserializer(type,
                             elementTypeDeserializer, elementDeserializer);
