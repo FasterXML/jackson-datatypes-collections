@@ -9,7 +9,9 @@ import static org.junit.Assert.*;
 public abstract class ModuleTestBase {
 
     protected ObjectMapper mapperWithModule() {
-        return new ObjectMapper().registerModule(new PCollectionsModule());
+        return ObjectMapper.builder()
+                .addModule(new PCollectionsModule())
+                .build();
     }
 
     protected void verifyException(Throwable e, String... matches)

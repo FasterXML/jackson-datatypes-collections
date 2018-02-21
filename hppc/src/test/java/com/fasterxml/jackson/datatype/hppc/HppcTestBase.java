@@ -12,9 +12,9 @@ public abstract class HppcTestBase extends junit.framework.TestCase
     
     protected ObjectMapper mapperWithModule()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new HppcModule());
-        return mapper;
+        return ObjectMapper.builder()
+                .addModule(new HppcModule())
+                .build();
     }
 
     protected void verifyException(Throwable e, String... matches)
