@@ -116,7 +116,7 @@ public class TestMultisets extends ModuleTestBase
 
     public void testFromSingle() throws Exception
     {
-        ObjectMapper mapper = mapperBuilder()
+        ObjectMapper mapper = builderWithModule()
             .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
             .build();
         Multiset<String> set = mapper.readValue("\"abc\"",

@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableTable;
 
 public class TableSerializationTest extends ModuleTestBase
 {
-    private final ObjectMapper MAPPER = mapperBuilder(false)
+    private final ObjectMapper MAPPER = builderWithModule(false)
             .addModule(new ComplexKeyModule())
             .build();
 

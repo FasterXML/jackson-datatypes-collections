@@ -11,18 +11,18 @@ public abstract class ModuleTestBase extends junit.framework.TestCase
     protected ModuleTestBase() { }
 
     protected ObjectMapper mapperWithModule() {
-        return mapperBuilder().build();
+        return builderWithModule().build();
     }
 
     protected ObjectMapper mapperWithModule(boolean absentsAsNulls) {
-        return mapperBuilder(absentsAsNulls).build();
+        return builderWithModule(absentsAsNulls).build();
     }
     
-    protected MapperBuilder<?,?> mapperBuilder() {
-        return mapperBuilder(false);
+    protected MapperBuilder<?,?> builderWithModule() {
+        return builderWithModule(false);
     }
 
-    protected MapperBuilder<?,?> mapperBuilder(boolean absentsAsNulls)
+    protected MapperBuilder<?,?> builderWithModule(boolean absentsAsNulls)
     {
         return ObjectMapper.builder()
                 .addModule(new GuavaModule()

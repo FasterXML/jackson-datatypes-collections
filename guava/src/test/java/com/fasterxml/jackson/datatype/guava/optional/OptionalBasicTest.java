@@ -170,9 +170,10 @@ public class OptionalBasicTest extends ModuleTestBase
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
-        String value = mapperWithModule(true)
-                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+        String value = builderWithModule(true)
+                .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
                         JsonInclude.Include.ALWAYS))
+                .build()
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -181,9 +182,10 @@ public class OptionalBasicTest extends ModuleTestBase
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
-        String value = mapperWithModule(true)
-                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+        String value = builderWithModule(true)
+                .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
                         JsonInclude.Include.NON_NULL))
+                .build()
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -192,9 +194,10 @@ public class OptionalBasicTest extends ModuleTestBase
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
-        String value = mapperWithModule(true)
-                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+        String value = builderWithModule(true)
+                .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
                         JsonInclude.Include.NON_ABSENT))
+                .build()
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -203,9 +206,10 @@ public class OptionalBasicTest extends ModuleTestBase
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
-        String value = mapperWithModule(true)
-                .setDefaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
+        String value = builderWithModule(true)
+                .changeDefaultPropertyInclusion(incl -> JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT,
                         JsonInclude.Include.NON_EMPTY))
+                .build()
                 .writeValueAsString(data);
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
@@ -221,24 +225,30 @@ public class OptionalBasicTest extends ModuleTestBase
         OptionalData data = new OptionalData();
         data.myString = Optional.absent();
         // NOTE: pass 'true' to ensure "legacy" setting
-        String value = mapperWithModule(true)
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(data);
+        String value = builderWithModule(true)
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
 
     public void testSerOptDefault() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = Optional.absent();
-        String value = mapperWithModule()
-                .setDefaultPropertyInclusion(JsonInclude.Include.ALWAYS).writeValueAsString(data);
+        String value = builderWithModule()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.ALWAYS))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{\"myString\":null}", value);
     }
 
     public void testSerOptNull() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = mapperWithModule()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(data);
+        String value = builderWithModule()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
 
@@ -247,38 +257,39 @@ public class OptionalBasicTest extends ModuleTestBase
         final OptionalData data = new OptionalData();
         data.myString = Optional.absent();
 
-        ObjectMapper mapper = mapperBuilder(false)
-            .build()
-            .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-
+        ObjectMapper mapper = mapperWithModule(false);
         assertEquals("{\"myString\":null}", mapper.writeValueAsString(data));
 
         // but do exclude with NON_EMPTY
-        mapper = mapperBuilder(false)
-                .build()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper = builderWithModule(false)
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         assertEquals("{}", mapper.writeValueAsString(data));
 
         // and with NON_ABSENT
-        mapper = mapperBuilder(false)
-                .build()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
+        mapper = builderWithModule(false)
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_ABSENT))
+                .build();
         assertEquals("{}", mapper.writeValueAsString(data));
     }
     
     public void testSerOptNonEmpty() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = mapperWithModule()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY).writeValueAsString(data);
+        String value = builderWithModule()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
 
     public void testSerOptNonDefault() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = null;
-        String value = mapperWithModule()
-                .setDefaultPropertyInclusion(JsonInclude.Include.NON_DEFAULT).writeValueAsString(data);
+        String value = builderWithModule()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
+                .build()
+                .writeValueAsString(data);
         assertEquals("{}", value);
     }
     

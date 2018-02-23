@@ -329,7 +329,7 @@ public class TestMultimaps extends ModuleTestBase
     
     public void testFromSingleValue() throws Exception
     {
-        ObjectMapper mapper = mapperBuilder()
+        ObjectMapper mapper = builderWithModule()
             .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
             .build();
         SampleMultiMapTest sampleTest = mapper.readValue("{\"map\":{\"test\":\"value\"}}",
@@ -340,7 +340,7 @@ public class TestMultimaps extends ModuleTestBase
     
     public void testFromMultiValueWithSingleValueOptionEnabled() throws Exception
     {
-        ObjectMapper mapper = mapperBuilder()
+        ObjectMapper mapper = builderWithModule()
             .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
             .build();
         SampleMultiMapTest sampleTest = mapper.readValue("{\"map\":{\"test\":\"val\",\"test1\":[\"val1\",\"val2\"]}}",
