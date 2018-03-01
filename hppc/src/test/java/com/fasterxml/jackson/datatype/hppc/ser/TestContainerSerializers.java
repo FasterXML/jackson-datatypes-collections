@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.carrotsearch.hppc.*;
 
-import com.fasterxml.jackson.datatype.hppc.HppcTestBase;
+import com.fasterxml.jackson.datatype.hppc.ModuleTestBase;
 
-public class TestContainerSerializers extends HppcTestBase
+public class TestContainerSerializers extends ModuleTestBase
 {
     public void testByteSerializer() throws Exception
     {

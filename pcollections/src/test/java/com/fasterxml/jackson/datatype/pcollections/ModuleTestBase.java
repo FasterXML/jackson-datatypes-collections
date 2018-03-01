@@ -6,8 +6,8 @@ import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
-public abstract class ModuleTestBase {
-
+public abstract class ModuleTestBase
+{
     protected ObjectMapper mapperWithModule() {
         return ObjectMapper.builder()
                 .addModule(new PCollectionsModule())

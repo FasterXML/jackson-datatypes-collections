@@ -8,9 +8,9 @@ import org.junit.Assert;
 
 import com.carrotsearch.hppc.*;
 
-import com.fasterxml.jackson.datatype.hppc.HppcTestBase;
+import com.fasterxml.jackson.datatype.hppc.ModuleTestBase;
 
-public class TestContainerDeserializers extends HppcTestBase
+public class TestContainerDeserializers extends ModuleTestBase
 {
     public void testIntDeserializers() throws Exception
     {

@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.datatype.hppc.HppcModule;
 
-public abstract class HppcTestBase extends junit.framework.TestCase
+public abstract class ModuleTestBase extends junit.framework.TestCase
 {
-    protected HppcTestBase() { }
+    protected ModuleTestBase() { }
     
     protected ObjectMapper mapperWithModule()
     {

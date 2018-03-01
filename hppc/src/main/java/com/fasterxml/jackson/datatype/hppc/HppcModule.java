@@ -2,28 +2,29 @@ package com.fasterxml.jackson.datatype.hppc;
 
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.type.*;
+import com.fasterxml.jackson.core.Version;
 
-import com.carrotsearch.hppc.ObjectContainer;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.type.*;
 
 import com.fasterxml.jackson.datatype.hppc.deser.HppcDeserializers;
 import com.fasterxml.jackson.datatype.hppc.ser.*;
 
-public class HppcModule extends SimpleModule
-{
-    private static final long serialVersionUID = 1L;
+import com.carrotsearch.hppc.ObjectContainer;
 
-    public HppcModule()
-    {
-        super("HppcDatatypeModule", PackageVersion.VERSION);
-    }
+public class HppcModule extends Module
+    implements java.io.Serializable
+{
+    private static final long serialVersionUID = 3L;
+
+    private final String NAME = "HppcDatatypeModule";
+
+    @Override public String getModuleName() { return NAME; }
+    @Override public Version version() { return PackageVersion.VERSION; }
     
     @Override
     public void setupModule(SetupContext context)
     {
-        super.setupModule(context);
         // must add a "type modifier", to recognize HPPC collection/map types
         context.addTypeModifier(new HppcTypeModifier());
         context.addDeserializers(new HppcDeserializers());

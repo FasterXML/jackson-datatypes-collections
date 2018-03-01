@@ -2,7 +2,7 @@ package com.fasterxml.jackson.datatype.hppc;
 
 import java.io.*;
 
-public class TestVersions extends HppcTestBase
+public class TestVersions extends ModuleTestBase
 {
     public void testMapperVersions() throws IOException
     {
