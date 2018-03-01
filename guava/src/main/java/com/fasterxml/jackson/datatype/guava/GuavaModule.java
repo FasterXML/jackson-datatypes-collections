@@ -23,7 +23,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *</ul>
  */
 public class GuavaModule extends Module // can't use just SimpleModule, due to generic types
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     private final String NAME = "GuavaModule";
 
     /**
@@ -33,13 +36,12 @@ public class GuavaModule extends Module // can't use just SimpleModule, due to g
      * If enabled, absent values are treated like nulls; if disabled, they are not.
      * In either case, absent values are always considered "empty".
      *<p>
-     * Default value is `true` for backwards compatibility (2.5 and prior
-     * only had this behavior).
+     * Default value is `false` (NOTE: in 2.x it defaulted to `true`)
      *<p>
      * Note that this setting MUST be changed BEFORE registering the module:
      * changes after registration will have no effect.
      */
-    protected boolean _cfgHandleAbsentAsNull = true;
+    protected boolean _cfgHandleAbsentAsNull = false;
     protected BoundType _defaultBoundType;
     
     public GuavaModule() {
@@ -92,15 +94,5 @@ public class GuavaModule extends Module // can't use just SimpleModule, due to g
         checkNotNull(boundType);
         _defaultBoundType = boundType;
         return this;
-    }
-    
-    @Override
-    public int hashCode() {
-        return NAME.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return this == o;
     }
 }
