@@ -330,7 +330,7 @@ public class MultimapSerializer
             gen.writeStartArray();
             for (Object vv : entry.getValue()) {
                 if (vv == null) {
-                    provider.defaultSerializeNull(gen);
+                    provider.defaultSerializeNullValue(gen);
                     continue;
                 }
                 JsonSerializer<Object> valueSer = _valueSerializer;
