@@ -295,15 +295,14 @@ public class OptionalBasicTest extends ModuleTestBase
     
     public void testWithTypingEnabled() throws Exception
     {
-		final ObjectMapper objectMapper = mapperWithModule();
-		// ENABLE TYPING
-		objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
-
+		final ObjectMapper mapper = builderWithModule()
+		        .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
+		        .build();
 		final OptionalData myData = new OptionalData();
 		myData.myString = Optional.fromNullable("abc");
 
-		final String json = objectMapper.writeValueAsString(myData);
-		final OptionalData deserializedMyData = objectMapper.readValue(json, OptionalData.class);
+		final String json = mapper.writeValueAsString(myData);
+		final OptionalData deserializedMyData = mapper.readValue(json, OptionalData.class);
 		assertEquals(myData.myString, deserializedMyData.myString);
     }
 
