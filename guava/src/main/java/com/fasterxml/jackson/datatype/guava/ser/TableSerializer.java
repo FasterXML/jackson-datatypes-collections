@@ -29,8 +29,6 @@ public class TableSerializer
      */
     private final JavaType _type;
 
-    private final BeanProperty _property;
-
     private final JsonSerializer<Object> _rowSerializer;
     private final JsonSerializer<Object> _columnSerializer;
     private final TypeSerializer _valueTypeSerializer;
@@ -44,11 +42,10 @@ public class TableSerializer
     /**********************************************************
      */
     
-    public TableSerializer(final JavaType type)
+    public TableSerializer(JavaType type)
     {
-        super(type);
+        super(type, null);
         _type = type;
-        _property = null;
         _rowSerializer = null;
         _columnSerializer = null;
         _valueTypeSerializer = null;
@@ -66,9 +63,8 @@ public class TableSerializer
             final TypeSerializer valueTypeSerializer,
             final JsonSerializer<?> valueSerializer)
     {
-        super(src);
+        super(src, property);
         _type = src._type;
-        _property = property;
         _rowSerializer = (JsonSerializer<Object>) rowKeySerializer;
         _columnSerializer = (JsonSerializer<Object>) columnKeySerializer;
         _valueTypeSerializer = valueTypeSerializer;
@@ -102,14 +98,12 @@ public class TableSerializer
     {
         super(src);
         _type = src._type;
-        _property = src._property;
         _rowSerializer = src._rowSerializer;
         _columnSerializer = src._columnSerializer;
         _valueTypeSerializer = typeSer;
         _valueSerializer = src._valueSerializer;
 
         _rowMapSerializer = src._rowMapSerializer;
-
     }
 
     protected TableSerializer withResolved(final BeanProperty property,

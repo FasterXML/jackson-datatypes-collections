@@ -22,12 +22,12 @@ public class HostAndPortTest extends ModuleTestBase
         // old:
         HostAndPort result = MAPPER.readValue(aposToQuotes("{'hostText':'localhost','port':9090}"),
                 HostAndPort.class);
-        assertEquals("localhost", result.getHostText());
+        assertEquals("localhost", result.getHost());
         assertEquals(9090, result.getPort());
 
         // and new:
         result = MAPPER.readValue(quote("localhost:7070"), HostAndPort.class);
-        assertEquals("localhost", result.getHostText());
+        assertEquals("localhost", result.getHost());
         assertEquals(7070, result.getPort());
 
         // and ... error (note: numbers, booleans may all be fine)

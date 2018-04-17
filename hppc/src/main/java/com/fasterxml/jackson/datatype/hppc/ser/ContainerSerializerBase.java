@@ -27,7 +27,7 @@ public abstract class ContainerSerializerBase<T>
 
     protected ContainerSerializerBase(JavaType type, String schemaElementType)
     {
-        super(type);
+        super(type, null);
         _schemeElementType = schemaElementType;
     }
 

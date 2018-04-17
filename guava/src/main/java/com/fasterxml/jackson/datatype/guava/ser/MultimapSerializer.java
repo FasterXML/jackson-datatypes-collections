@@ -417,31 +417,4 @@ public class MultimapSerializer
             }, vt);
         }
     }
-
-    /*
-    /**********************************************************
-    /* Internal helper methods
-    /**********************************************************
-     */
-    
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            JavaType type, SerializerProvider provider) throws JsonMappingException
-    {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
-    }
 }

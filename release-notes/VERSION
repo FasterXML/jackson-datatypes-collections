@@ -1,0 +1,14 @@
+Project: jackson-modules-base
+Major version: 3 (for earlier, see VERSION-2.x)
+Modules:
+  jackson-datatype-guava
+  jackson-datatype-hppc
+  jackson-datatype-pcollections
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+3.0.0 (not yet released)
+
+- (guava) Upgrade guava dependency from 18 to 20

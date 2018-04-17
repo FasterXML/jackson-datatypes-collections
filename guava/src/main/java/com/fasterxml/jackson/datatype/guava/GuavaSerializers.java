@@ -67,8 +67,6 @@ public class GuavaSerializers extends Serializers.Base
         if (Table.class.isAssignableFrom(raw)) {
             return new TableSerializer(_findDeclared(type, Table.class));
         }
-
-        // since 2.4
         if (HostAndPort.class.isAssignableFrom(raw)) {
             return ToStringSerializer.instance;
         }
