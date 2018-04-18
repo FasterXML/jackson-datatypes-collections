@@ -82,7 +82,7 @@ public class GuavaSerializers extends Serializers.Base
         }
         if (FluentIterable.class.isAssignableFrom(raw)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
-            return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null);
+            return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
         }
         return super.findSerializer(config, type, beanDesc);
     }

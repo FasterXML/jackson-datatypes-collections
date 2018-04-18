@@ -131,7 +131,7 @@ public class TableSerializer
         if (valueSer == null) { // if type is final, can actually resolve:
             final JavaType valueType = _type.containedTypeOrUnknown(2);
             if (valueType.isFinal()) {
-                valueSer = provider.findValueSerializer(valueType, property);
+                valueSer = provider.findSecondaryPropertySerializer(valueType, property);
             }
         } else {
             valueSer = valueSer.createContextual(provider, property);

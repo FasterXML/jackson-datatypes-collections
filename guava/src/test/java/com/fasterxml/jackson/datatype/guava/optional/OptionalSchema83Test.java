@@ -61,7 +61,7 @@ public class OptionalSchema83Test
                 private void anyProperty(BeanProperty prop) throws JsonMappingException {
                     final String propertyName = prop.getFullName().toString();
                     traversedProperties.add(baseName + propertyName);
-                    serializerProvider.findValueSerializer(prop.getType(), prop)
+                    serializerProvider.findPrimaryPropertySerializer(prop.getType(), prop)
                             .acceptJsonFormatVisitor(createSubtraverser(baseName + propertyName + "."), prop.getType());
                 }
             };
