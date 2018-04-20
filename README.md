@@ -52,3 +52,12 @@ ObjectMapper mapper = new ObjectMapper()
 after which datatype read/write support is available for all normal Jackson operations,
 including support for nested types.
 
+### Usage with Spring Boot
+
+```java
+@Bean
+public Jackson2ObjectMapperBuilderCustomizer customize()
+{
+    return builder -> builder.modules( new GuavaModule() );
+}
+```
