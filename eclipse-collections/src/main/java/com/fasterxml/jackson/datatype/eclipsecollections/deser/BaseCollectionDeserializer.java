@@ -107,7 +107,9 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            if (p.currentToken() == JsonToken.VALUE_STRING) {
+            if (p.currentToken() == JsonToken.VALUE_STRING ||
+                p.currentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
+
                 byte[] binaryValue = p.getBinaryValue();
                 Intermediate intermediate = createIntermediate();
                 intermediate.addAll(binaryValue);
