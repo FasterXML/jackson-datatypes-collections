@@ -26,7 +26,6 @@ public class EclipseCollectionsModule extends Module {
     @Override
     public void setupModule(SetupContext context) {
         context.addDeserializers(new EclipseCollectionsDeserializers());
-        context.addTypeModifier(new EclipseCollectionsTypeModifier());
         context.addSerializers(new EclipseCollectionsSerializers());
     }
 

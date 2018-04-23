@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.bag;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
 import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
 import org.eclipse.collections.impl.factory.SortedBags;
@@ -13,8 +13,8 @@ public final class MutableSortedBagDeserializer {
 
     public static final class Ref
             extends BaseCollectionDeserializer.Ref<MutableSortedBag<?>, MutableSortedBag<Object>> {
-        public Ref(CollectionLikeType type, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
-            super(type, typeDeserializer, deserializer);
+        public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
+            super(MutableSortedBag.class, elementType, typeDeserializer, deserializer);
         }
 
         @Override
@@ -32,7 +32,7 @@ public final class MutableSortedBagDeserializer {
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {
-            return new MutableSortedBagDeserializer.Ref(_containerType, typeDeserializerForValue, valueDeserializer);
+            return new MutableSortedBagDeserializer.Ref(_elementType, typeDeserializerForValue, valueDeserializer);
         }
     }
 }

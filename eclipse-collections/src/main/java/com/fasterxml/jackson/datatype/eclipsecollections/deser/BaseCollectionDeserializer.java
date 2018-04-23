@@ -266,13 +266,19 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
             extends BaseCollectionDeserializer<T, Intermediate>
             implements ContextualDeserializer {
 
-        protected final CollectionLikeType _containerType;
+        protected final JavaType _elementType;
         protected final JsonDeserializer<?> _valueDeserializer;
         protected final TypeDeserializer _typeDeserializerForValue;
 
-        protected Ref(CollectionLikeType type, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
-            super(type);
-            _containerType = type;
+        protected Ref(
+                // ? super T so we can support generics in T
+                Class<? super T> containerType,
+                JavaType elementType,
+                TypeDeserializer typeDeserializer,
+                JsonDeserializer<?> deserializer
+        ) {
+            super(containerType);
+            this._elementType = elementType;
             this._typeDeserializerForValue = typeDeserializer;
             this._valueDeserializer = deserializer;
         }
@@ -288,7 +294,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
             JsonDeserializer<?> deser = _valueDeserializer;
             TypeDeserializer typeDeser = _typeDeserializerForValue;
             if (deser == null) {
-                deser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
+                deser = ctxt.findContextualValueDeserializer(_elementType, property);
             }
             if (typeDeser != null) {
                 typeDeser = typeDeser.forProperty(property);

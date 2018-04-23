@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.eclipse.collections.api.PrimitiveIterable;
+import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.primitive.BooleanLists;
 import org.eclipse.collections.impl.factory.primitive.ByteLists;
 import org.eclipse.collections.impl.factory.primitive.CharLists;
@@ -19,12 +20,10 @@ import org.junit.Test;
 public final class SerializerTest extends ModuleTestBase {
     @Test
     public void ref() throws JsonProcessingException {
-        /* FIXME
         Assert.assertEquals(
-                "[\"a\", \"b\", \"c\"]",
+                "[\"a\",\"b\",\"c\"]",
                 mapperWithModule().writeValueAsString(Sets.immutable.of("a", "b", "c"))
         );
-        */
     }
 
     @Test

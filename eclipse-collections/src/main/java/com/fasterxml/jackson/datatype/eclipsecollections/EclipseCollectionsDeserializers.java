@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDeserializer;
@@ -164,59 +163,11 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
     ) throws JsonMappingException {
-        return findCollectionLikeDeserializer(type, config, beanDesc, elementTypeDeserializer, elementDeserializer);
-    }
-
-    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention" })
-    @Override
-    public JsonDeserializer<?> findCollectionLikeDeserializer(
-            CollectionLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
-        Class<?> rawClass = type.getRawClass();
         //noinspection SuspiciousMethodCalls
-        if (REFERENCE_TYPES.contains(rawClass)) {
-            // bags
-            if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {
-                return new MutableBagDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == ImmutableBag.class) {
-                return new ImmutableBagDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == MutableSortedBag.class || rawClass == SortedBag.class) {
-                return new MutableSortedBagDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == ImmutableSortedBag.class) {
-                return new ImmutableSortedBagDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            }
-
-            // collections, lists, some iterables
-            if (rawClass == MutableList.class || rawClass == MutableCollection.class ||
-                rawClass == OrderedIterable.class || rawClass == ReversibleIterable.class ||
-                rawClass == RichIterable.class || rawClass == InternalIterable.class) {
-                return new MutableListDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == ImmutableList.class || rawClass == ImmutableCollection.class) {
-                return new ImmutableListDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == FixedSizeList.class || rawClass == FixedSizeCollection.class) {
-                return new FixedSizeListDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            }
-
-            // sets
-            if (rawClass == MutableSet.class || rawClass == MutableSetIterable.class ||
-                rawClass == SetIterable.class || rawClass == UnsortedSetIterable.class) {
-                return new MutableSetDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
-                return new ImmutableSetDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == MutableSortedSet.class || rawClass == SortedSetIterable.class) {
-                return new MutableSortedSetDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            } else if (rawClass == ImmutableSortedSet.class) {
-                return new ImmutableSortedSetDeserializer.Ref(type, elementTypeDeserializer, elementDeserializer);
-            }
-
-            assert false : "Type " + rawClass + " in REFERENCE_TYPES but no deserializer found, should not happen";
+        if (REFERENCE_TYPES.contains(type.getRawClass())) {
+            return findReferenceDeserializer(type);
         }
-        return super.findCollectionLikeDeserializer(
-                type, config, beanDesc, elementTypeDeserializer, elementDeserializer);
+        return findCollectionLikeDeserializer(type, config, beanDesc, elementTypeDeserializer, elementDeserializer);
     }
 
     @Override
@@ -229,7 +180,58 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             return deserializer;
         }
 
+        //noinspection SuspiciousMethodCalls
+        if (REFERENCE_TYPES.contains(type.getRawClass())) {
+            return findReferenceDeserializer(type);
+        }
+
         return super.findBeanDeserializer(type, config, beanDesc);
+    }
+
+    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention", "ConstantConditions" })
+    private JsonDeserializer<?> findReferenceDeserializer(JavaType containerType) {
+        Class<?> rawClass = containerType.getRawClass();
+        JavaType elementType = containerType.containedType(0);
+
+        TypeDeserializer elementTypeDeserializer = null;
+        JsonDeserializer<?> elementDeserializer = null;
+
+        // bags
+        if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {
+            return new MutableBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == ImmutableBag.class) {
+            return new ImmutableBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == MutableSortedBag.class || rawClass == SortedBag.class) {
+            return new MutableSortedBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == ImmutableSortedBag.class) {
+            return new ImmutableSortedBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        }
+
+        // collections, lists, some iterables
+        if (rawClass == MutableList.class || rawClass == MutableCollection.class ||
+            rawClass == OrderedIterable.class || rawClass == ReversibleIterable.class ||
+            rawClass == RichIterable.class || rawClass == InternalIterable.class) {
+            return new MutableListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == ImmutableList.class || rawClass == ImmutableCollection.class) {
+            return new ImmutableListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == FixedSizeList.class || rawClass == FixedSizeCollection.class) {
+            return new FixedSizeListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        }
+
+        // sets
+        if (rawClass == MutableSet.class || rawClass == MutableSetIterable.class ||
+            rawClass == SetIterable.class || rawClass == UnsortedSetIterable.class) {
+            return new MutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
+            return new ImmutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == MutableSortedSet.class || rawClass == SortedSetIterable.class) {
+            return new MutableSortedSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        } else if (rawClass == ImmutableSortedSet.class) {
+            return new ImmutableSortedSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        }
+
+        throw new AssertionError(
+                "Type " + rawClass + " in REFERENCE_TYPES but no deserializer found, should not happen");
     }
 
     static {

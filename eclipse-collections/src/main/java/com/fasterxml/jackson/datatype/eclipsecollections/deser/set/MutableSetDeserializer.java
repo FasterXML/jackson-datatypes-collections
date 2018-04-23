@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.set;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.BooleanSet;
@@ -37,8 +37,8 @@ public final class MutableSetDeserializer {
 
     public static final class Ref extends
             BaseCollectionDeserializer.Ref<MutableSet<?>, MutableSet<Object>> {
-        public Ref(CollectionLikeType type, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
-            super(type, typeDeserializer, deserializer);
+        public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
+            super(MutableSet.class, elementType, typeDeserializer, deserializer);
         }
 
         @Override
@@ -56,7 +56,7 @@ public final class MutableSetDeserializer {
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {
-            return new MutableSetDeserializer.Ref(_containerType, typeDeserializerForValue, valueDeserializer);
+            return new MutableSetDeserializer.Ref(_elementType, typeDeserializerForValue, valueDeserializer);
         }
     }
 

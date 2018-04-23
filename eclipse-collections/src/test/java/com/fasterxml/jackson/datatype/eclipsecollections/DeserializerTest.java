@@ -15,6 +15,7 @@ import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.ShortIterable;
 import org.eclipse.collections.api.bag.Bag;
 import org.eclipse.collections.api.bag.ImmutableBag;
+import org.eclipse.collections.api.bag.MutableBag;
 import org.eclipse.collections.api.bag.primitive.BooleanBag;
 import org.eclipse.collections.api.bag.primitive.ByteBag;
 import org.eclipse.collections.api.bag.primitive.CharBag;
@@ -40,6 +41,7 @@ import org.eclipse.collections.api.bag.primitive.MutableLongBag;
 import org.eclipse.collections.api.bag.primitive.MutableShortBag;
 import org.eclipse.collections.api.bag.primitive.ShortBag;
 import org.eclipse.collections.api.bag.sorted.ImmutableSortedBag;
+import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
 import org.eclipse.collections.api.collection.FixedSizeCollection;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.collection.MutableCollection;
@@ -87,6 +89,7 @@ import org.eclipse.collections.api.list.primitive.MutableLongList;
 import org.eclipse.collections.api.list.primitive.MutableShortList;
 import org.eclipse.collections.api.list.primitive.ShortList;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.BooleanSet;
 import org.eclipse.collections.api.set.primitive.ByteSet;
 import org.eclipse.collections.api.set.primitive.CharSet;
@@ -180,11 +183,9 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void mutableBag() throws IOException {
-        /* FIXME
         testCollection(Bags.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableBag<String>>() {});
-        */
         testCollection(BooleanBags.mutable.of(true, false, true), "[true, false, true]", MutableBooleanBag.class);
         testCollection(ByteBags.mutable.of((byte) 1, (byte) 2, (byte) 3), "[3, 2, 1]", MutableByteBag.class);
         testCollection(ShortBags.mutable.of((short) 1, (short) 2, (short) 3), "[3, 2, 1]", MutableShortBag.class);
@@ -197,11 +198,9 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void mutableSortedBag() throws IOException {
-        /* FIXME
         testCollection(SortedBags.mutable.of("3", "2", "1"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableSortedBag<String>>() {});
-                       */
     }
 
     @Test
@@ -346,11 +345,9 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void mutableSet() throws IOException {
-        /* FIXME
         testCollection(Sets.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableSet<String>>() {});
-        */
         testCollection(BooleanSets.mutable.of(true, false, true), "[true, false, true]", MutableBooleanSet.class);
         testCollection(ByteSets.mutable.of((byte) 1, (byte) 2, (byte) 3), "[1, 2, 3]", MutableByteSet.class);
         testCollection(ShortSets.mutable.of((short) 1, (short) 2, (short) 3), "[1, 2, 3]", MutableShortSet.class);
