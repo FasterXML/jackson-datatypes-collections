@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
-import com.carrotsearch.hppc.ObjectContainer;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -10,7 +11,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
-import com.fasterxml.jackson.databind.type.MapLikeType;
+
+import com.carrotsearch.hppc.ObjectContainer;
 
 public class HppcSerializers extends Serializers.Base
 {
@@ -18,9 +20,8 @@ public class HppcSerializers extends Serializers.Base
     
     @Override
     public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType containerType,
-            BeanDescription beanDesc, TypeSerializer elementTypeSerializer,
-            JsonSerializer<Object> elementValueSerializer)
+            CollectionLikeType containerType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
     {
         if (ObjectContainer.class.isAssignableFrom(containerType.getRawClass())) {
             // hmmh. not sure if we can find 'forceStaticTyping' anywhere...
@@ -32,14 +33,16 @@ public class HppcSerializers extends Serializers.Base
         return null;
     }
 
+    /*
     @Override
     public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType arg1, BeanDescription arg2,
+            MapLikeType arg1, BeanDescription arg2, JsonFormat.Value formatOverrides,
             JsonSerializer<Object> arg4, TypeSerializer arg5,
             JsonSerializer<Object> arg6) {
         // TODO: handle XxxMap with Object keys and/or values
         return null;
     }
+    */
 
     /**
      * Anything that we don't explicitly mark as Map- or Collection-like
@@ -47,9 +50,8 @@ public class HppcSerializers extends Serializers.Base
      */
     @Override
     public JsonSerializer<?> findSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc)
+            JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         return HppcContainerSerializers.getMatchingSerializer(config, type);
     }
-    
 }

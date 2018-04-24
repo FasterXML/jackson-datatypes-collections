@@ -3,6 +3,7 @@ package com.fasterxml.jackson.datatype.guava;
 import java.io.Serializable;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -44,7 +45,7 @@ public class GuavaSerializers extends Serializers.Base
 
     @Override
     public JsonSerializer<?> findReferenceSerializer(SerializationConfig config, 
-            ReferenceType refType, BeanDescription beanDesc,
+            ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentValueSerializer)
     {
         final Class<?> raw = refType.getRawClass();
@@ -58,7 +59,8 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type, BeanDescription beanDesc)
+    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
+            BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         Class<?> raw = type.getRawClass();
         if (Range.class.isAssignableFrom(raw)) {
@@ -84,12 +86,13 @@ public class GuavaSerializers extends Serializers.Base
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
         }
-        return super.findSerializer(config, type, beanDesc);
+        return null;
     }
 
     @Override
     public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BeanDescription beanDesc, JsonSerializer<Object> keySerializer,
+            MapLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
     {
         if (Multimap.class.isAssignableFrom(type.getRawClass())) {
