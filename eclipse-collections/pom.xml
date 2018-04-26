@@ -29,6 +29,9 @@
         <!-- Generate PackageVersion.java into this directory. -->
         <packageVersion.dir>com/fasterxml/jackson/datatype/eclipsecollections</packageVersion.dir>
         <packageVersion.package>${project.groupId}.eclipsecollections</packageVersion.package>
+
+        <javac.src.version>1.8</javac.src.version>
+        <javac.target.version>1.8</javac.target.version>
     </properties>
 
     <dependencies>

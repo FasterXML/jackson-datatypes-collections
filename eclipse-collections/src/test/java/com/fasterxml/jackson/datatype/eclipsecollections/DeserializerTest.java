@@ -1,8 +1,16 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;
@@ -88,6 +96,10 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.list.primitive.MutableLongList;
 import org.eclipse.collections.api.list.primitive.MutableShortList;
 import org.eclipse.collections.api.list.primitive.ShortList;
+import org.eclipse.collections.api.map.ImmutableMap;
+import org.eclipse.collections.api.map.MapIterable;
+import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.map.UnsortedMapIterable;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.BooleanSet;
@@ -116,6 +128,7 @@ import org.eclipse.collections.api.set.primitive.MutableShortSet;
 import org.eclipse.collections.api.set.primitive.ShortSet;
 import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.Lists;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.SortedBags;
 import org.eclipse.collections.impl.factory.primitive.BooleanBags;
@@ -373,5 +386,120 @@ public final class DeserializerTest extends ModuleTestBase {
     @Test
     public void charsAsArray() throws IOException {
         testCollection(CharSets.mutable.of('a', 'b', 'c'), "[\"a\", \"b\", \"c\"]", CharSet.class);
+    }
+
+    @SuppressWarnings({ "StringConcatenationInLoop", "NonConstantStringShouldBeStringBuffer" })
+    @Test
+    public void primitiveMaps() throws Exception {
+        List<Class<?>> keyPrimitives = Arrays.asList(
+                Object.class, byte.class, short.class, char.class, int.class, float.class, long.class, double.class);
+        List<Class<?>> valuePrimitives = new ArrayList<>(keyPrimitives);
+        valuePrimitives.add(boolean.class);
+
+        ObjectMapper mapper = mapperWithModule();
+
+        for (Class<?> key : keyPrimitives) {
+            for (Class<?> value : valuePrimitives) {
+                if (key == Object.class && value == Object.class) { continue; }
+
+                String keyUpper = key.getSimpleName().substring(0, 1).toUpperCase() +
+                                  key.getSimpleName().substring(1);
+                String valueUpper = value.getSimpleName().substring(0, 1).toUpperCase() +
+                                    value.getSimpleName().substring(1);
+                Class<?> mutableMapType = Class.forName(
+                        "org.eclipse.collections.api.map.primitive.Mutable" + keyUpper + valueUpper + "Map");
+                Class<?> immutableMapType = Class.forName(
+                        "org.eclipse.collections.api.map.primitive.Immutable" + keyUpper + valueUpper + "Map");
+                Class<?> baseMapType = Class.forName(
+                        "org.eclipse.collections.api.map.primitive." + keyUpper + valueUpper + "Map");
+                Class<?> factoryType = Class.forName(
+                        "org.eclipse.collections.impl.factory.primitive." + keyUpper + valueUpper + "Maps");
+
+                Object mutableFactory = factoryType.getField("mutable").get(null);
+                Object immutableFactory = factoryType.getField("immutable").get(null);
+
+                Object mutableSample = mutableFactory.getClass().getMethod("empty").invoke(mutableFactory);
+
+                Set<Object> seenKeys = new HashSet<>();
+                String json = "{";
+                for (int i = 0; i < 3; i++) {
+                    Object keySample;
+                    do {
+                        keySample = randomSample(key);
+                    } while (!seenKeys.add(keySample));
+                    Object valueSample = randomSample(value);
+                    mutableSample.getClass().getMethod("put", key, value)
+                            .invoke(mutableSample, keySample, valueSample);
+                    if (i > 0) { json += ","; }
+                    json = json + '"' + keySample + "\":";
+                    if (value == char.class || value == Object.class) {
+                        json += '"' + valueSample.toString() + '"';
+                    } else {
+                        json += valueSample;
+                    }
+                }
+                json += "}";
+                System.out.println(json);
+
+                Object immutableSample = immutableFactory.getClass()
+                        .getMethod("ofAll", baseMapType)
+                        .invoke(immutableFactory, mutableSample);
+
+                Assert.assertEquals(mutableSample, immutableSample);
+
+                Function<Class<?>, JavaType> generify;
+                if (key == Object.class || value == Object.class) {
+                    generify = c -> mapper.getTypeFactory().constructParametricType(c, String.class);
+                } else {
+                    generify = c -> mapper.getTypeFactory().constructType(c);
+                }
+
+                Object mutableParsed = mapper.readValue(json, generify.apply(mutableMapType));
+                Object immutableParsed = mapper.readValue(json, generify.apply(immutableMapType));
+                Object baseParsed = mapper.readValue(json, generify.apply(baseMapType));
+                Assert.assertEquals(mutableSample, mutableParsed);
+                Assert.assertEquals(immutableSample, immutableParsed);
+                Assert.assertEquals(mutableSample, baseParsed);
+
+                Assert.assertTrue(mutableMapType.isInstance(mutableParsed));
+                Assert.assertTrue(immutableMapType.isInstance(immutableParsed));
+                Assert.assertTrue(baseMapType.isInstance(baseParsed));
+            }
+        }
+    }
+
+    @Test
+    public void objectObjectMaps() throws IOException {
+        Assert.assertEquals(
+                mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<MutableMap<String, String>>() {}),
+                Maps.mutable.of("abc", "def")
+        );
+        Assert.assertEquals(
+                mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<ImmutableMap<String, String>>() {}),
+                Maps.immutable.of("abc", "def")
+        );
+        Assert.assertEquals(
+                mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<MapIterable<String, String>>() {}),
+                Maps.mutable.of("abc", "def")
+        );
+        Assert.assertEquals(
+                mapperWithModule().readValue("{\"abc\":\"def\"}",
+                                             new TypeReference<UnsortedMapIterable<String, String>>() {}),
+                Maps.mutable.of("abc", "def")
+        );
+    }
+
+    @SuppressWarnings("ObjectEquality")
+    private Object randomSample(Class<?> type) {
+        if (type == boolean.class) { return ThreadLocalRandom.current().nextBoolean(); }
+        if (type == byte.class) { return ((byte) ThreadLocalRandom.current().nextInt()); }
+        if (type == short.class) { return ((short) ThreadLocalRandom.current().nextInt()); }
+        if (type == char.class) { return ((char) (ThreadLocalRandom.current().nextInt(20) + 'a')); }
+        if (type == int.class) { return ThreadLocalRandom.current().nextInt(); }
+        if (type == float.class) { return ThreadLocalRandom.current().nextFloat(); }
+        if (type == long.class) { return ThreadLocalRandom.current().nextLong(); }
+        if (type == double.class) { return ThreadLocalRandom.current().nextDouble(); }
+        if (type == Object.class) { return randomSample(char.class).toString(); }
+        throw new AssertionError();
     }
 }
