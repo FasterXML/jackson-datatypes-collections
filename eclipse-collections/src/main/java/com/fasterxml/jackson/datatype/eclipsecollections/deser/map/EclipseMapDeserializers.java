@@ -320,8 +320,6 @@ public final class EclipseMapDeserializers {
     }
 
     static {
-        Function<JavaType, RefValueHandler> refValue = null; // TODO
-
         add(MutableMap.class, TypeHandlerPair.OBJECT_OBJECT);
         add(MutableMapIterable.class, TypeHandlerPair.OBJECT_OBJECT);
         add(MapIterable.class, TypeHandlerPair.OBJECT_OBJECT);

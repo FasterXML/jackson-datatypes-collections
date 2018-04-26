@@ -27,10 +27,6 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Boolean extends PrimitiveKVHandler<Boolean> {
         public static final Boolean INSTANCE = new Boolean();
 
-        public boolean key(DeserializationContext ctx, String key) {
-            return java.lang.Boolean.parseBoolean(key);
-        }
-
         public boolean value(DeserializationContext ctx, JsonParser parser) throws IOException {
             return parser.getBooleanValue();
         }
