@@ -2,9 +2,16 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.IOException;
 import org.eclipse.collections.api.PrimitiveIterable;
+import org.eclipse.collections.api.map.ImmutableMap;
+import org.eclipse.collections.api.map.MapIterable;
+import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.map.MutableMapIterable;
+import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.primitive.BooleanLists;
 import org.eclipse.collections.impl.factory.primitive.ByteLists;
@@ -94,5 +101,39 @@ public final class SerializerTest extends ModuleTestBase {
                         .writeValueAsString(new char[]{ '1', '2', '3' }),
                 CharLists.immutable.of('1', '2', '3'),
                 mapperWithModule().configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true));
+    }
+
+    @Test
+    public void primitiveMaps() throws Exception {
+        DeserializerTest.primitiveMaps0(mapperWithModule(), true);
+    }
+
+    @Test
+    public void objectObjectMaps() throws IOException {
+        Assert.assertEquals(
+                "{\"abc\":\"def\"}",
+                mapperWithModule().writerFor(MutableMap.class).writeValueAsString(Maps.mutable.of("abc", "def"))
+        );
+        Assert.assertEquals(
+                "{\"abc\":\"def\"}",
+                mapperWithModule().writerFor(ImmutableMap.class).writeValueAsString(Maps.immutable.of("abc", "def"))
+        );
+        Assert.assertEquals(
+                "{\"abc\":\"def\"}",
+                mapperWithModule().writerFor(MapIterable.class).writeValueAsString(Maps.immutable.of("abc", "def"))
+        );
+        Assert.assertEquals(
+                "{\"abc\":\"def\"}",
+                mapperWithModule().writerFor(MutableMapIterable.class).writeValueAsString(Maps.mutable.of("abc", "def"))
+        );
+        Assert.assertEquals(
+                "{\"abc\":\"def\"}",
+                mapperWithModule().writeValueAsString(Maps.immutable.of("abc", "def"))
+        );
+        Assert.assertEquals(
+                "{\"abc\":\"def\"}",
+                mapperWithModule().writerFor(new TypeReference<MapIterable<String, String>>() {})
+                        .writeValueAsString(Maps.immutable.of("abc", "def"))
+        );
     }
 }

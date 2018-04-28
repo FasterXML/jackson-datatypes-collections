@@ -388,15 +388,17 @@ public final class DeserializerTest extends ModuleTestBase {
         testCollection(CharSets.mutable.of('a', 'b', 'c'), "[\"a\", \"b\", \"c\"]", CharSet.class);
     }
 
-    @SuppressWarnings({ "StringConcatenationInLoop", "NonConstantStringShouldBeStringBuffer" })
     @Test
     public void primitiveMaps() throws Exception {
+        primitiveMaps0(mapperWithModule(), false);
+    }
+
+    @SuppressWarnings({ "StringConcatenationInLoop", "NonConstantStringShouldBeStringBuffer" })
+    static void primitiveMaps0(ObjectMapper mapper, boolean serialize) throws Exception {
         List<Class<?>> keyPrimitives = Arrays.asList(
                 Object.class, byte.class, short.class, char.class, int.class, float.class, long.class, double.class);
         List<Class<?>> valuePrimitives = new ArrayList<>(keyPrimitives);
         valuePrimitives.add(boolean.class);
-
-        ObjectMapper mapper = mapperWithModule();
 
         for (Class<?> key : keyPrimitives) {
             for (Class<?> value : valuePrimitives) {
@@ -439,7 +441,7 @@ public final class DeserializerTest extends ModuleTestBase {
                     }
                 }
                 json += "}";
-                System.out.println(json);
+                //System.out.println(baseMapType + ": " + json);
 
                 Object immutableSample = immutableFactory.getClass()
                         .getMethod("ofAll", baseMapType)
@@ -454,16 +456,31 @@ public final class DeserializerTest extends ModuleTestBase {
                     generify = c -> mapper.getTypeFactory().constructType(c);
                 }
 
-                Object mutableParsed = mapper.readValue(json, generify.apply(mutableMapType));
-                Object immutableParsed = mapper.readValue(json, generify.apply(immutableMapType));
-                Object baseParsed = mapper.readValue(json, generify.apply(baseMapType));
-                Assert.assertEquals(mutableSample, mutableParsed);
-                Assert.assertEquals(immutableSample, immutableParsed);
-                Assert.assertEquals(mutableSample, baseParsed);
+                if (serialize) {
+                    String mutablePrinted = mapper.writerFor(generify.apply(mutableMapType)).writeValueAsString(
+                            mutableSample);
+                    String immutablePrinted = mapper.writerFor(generify.apply(immutableMapType))
+                            .writeValueAsString(immutableSample);
+                    String basePrinted =
+                            mapper.writerFor(generify.apply(baseMapType)).writeValueAsString(mutableSample);
+                    String polyPrinted = mapper.writeValueAsString(mutableSample);
+                    // compare trees so property order doesn't matter
+                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(mutablePrinted));
+                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(immutablePrinted));
+                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(basePrinted));
+                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(polyPrinted));
+                } else {
+                    Object mutableParsed = mapper.readValue(json, generify.apply(mutableMapType));
+                    Object immutableParsed = mapper.readValue(json, generify.apply(immutableMapType));
+                    Object baseParsed = mapper.readValue(json, generify.apply(baseMapType));
+                    Assert.assertEquals(mutableSample, mutableParsed);
+                    Assert.assertEquals(immutableSample, immutableParsed);
+                    Assert.assertEquals(mutableSample, baseParsed);
 
-                Assert.assertTrue(mutableMapType.isInstance(mutableParsed));
-                Assert.assertTrue(immutableMapType.isInstance(immutableParsed));
-                Assert.assertTrue(baseMapType.isInstance(baseParsed));
+                    Assert.assertTrue(mutableMapType.isInstance(mutableParsed));
+                    Assert.assertTrue(immutableMapType.isInstance(immutableParsed));
+                    Assert.assertTrue(baseMapType.isInstance(baseParsed));
+                }
             }
         }
     }
@@ -490,7 +507,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @SuppressWarnings("ObjectEquality")
-    private Object randomSample(Class<?> type) {
+    private static Object randomSample(Class<?> type) {
         if (type == boolean.class) { return ThreadLocalRandom.current().nextBoolean(); }
         if (type == byte.class) { return ((byte) ThreadLocalRandom.current().nextInt()); }
         if (type == short.class) { return ((short) ThreadLocalRandom.current().nextInt()); }
