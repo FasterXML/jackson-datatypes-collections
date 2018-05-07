@@ -169,9 +169,9 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     ) throws JsonMappingException {
         //noinspection SuspiciousMethodCalls
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type);
+            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
         }
-        return findCollectionLikeDeserializer(type, config, beanDesc, elementTypeDeserializer, elementDeserializer);
+        return null;
     }
 
     @Override
@@ -199,7 +199,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
 
         //noinspection SuspiciousMethodCalls
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type);
+            return findReferenceDeserializer(type, null, null);
         }
 
         EclipseMapDeserializer<?, ?, ?, ?> mapDeserializer = EclipseMapDeserializers.createDeserializer(type);
@@ -207,16 +207,16 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             return mapDeserializer;
         }
 
-        return super.findBeanDeserializer(type, config, beanDesc);
+        return null;
     }
 
     @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention", "ConstantConditions" })
-    private JsonDeserializer<?> findReferenceDeserializer(JavaType containerType) {
+    private JsonDeserializer<?> findReferenceDeserializer(
+            JavaType containerType,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer
+    ) {
         Class<?> rawClass = containerType.getRawClass();
         JavaType elementType = containerType.containedType(0);
-
-        TypeDeserializer elementTypeDeserializer = null;
-        JsonDeserializer<?> elementDeserializer = null;
 
         // bags
         if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {
