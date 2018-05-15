@@ -8,6 +8,7 @@ Currently included are:
 * [Guava](guava/) datatype ([Guava](http://code.google.com/p/guava-libraries/))
 * [HPPC](hppc/) datatype ([High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html))
 * [PCollections](pcollections/) datatype ([Persistent Java Collections](http://pcollections.org))
+* [Eclipse Collections](eclipse-collections/) datatype ([https://github.com/eclipse/eclipse-collections])
 
 All modules are licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
