@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -13,11 +17,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+
 import org.eclipse.collections.api.map.MapIterable;
 
 /**
@@ -28,6 +29,8 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     private static final long serialVersionUID = 3L;
 
     private final JavaType _type;
+    private final JavaType _keyType, _valueType;
+
     private final JsonSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
     private final JsonSerializer<Object> _valueSerializer;
@@ -37,12 +40,6 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
      */
     protected final Set<String> _ignoredEntries;
 
-    /**
-     * If value type can not be statically determined, mapping from
-     * runtime value types to serializers are stored in this object.
-     */
-    protected PropertySerializerMap _dynamicValueSerializers;
-
     public RefRefMapSerializer(
             JavaType type,
             JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
@@ -50,12 +47,13 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     ) {
         super(type, null);
         _type = type;
+        JavaType[] typeParameters = _type.findTypeParameters(MapIterable.class);
+        _keyType = (typeParameters.length > 0) ? typeParameters[0] : TypeFactory.unknownType();
+        _valueType = (typeParameters.length > 1) ? typeParameters[1] : TypeFactory.unknownType();
         _keySerializer = keySerializer;
         _valueTypeSerializer = vts;
         _valueSerializer = valueSerializer;
         _ignoredEntries = ignoredEntries;
-
-        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")
@@ -66,6 +64,8 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     ) {
         super(src, property);
         _type = src._type;
+        _keyType = src._keyType;
+        _valueType = src._valueType;
         _keySerializer = (JsonSerializer<Object>) keySerializer;
         _valueTypeSerializer = vts;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
@@ -175,14 +175,12 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     }
 
     protected JavaType getKeyType() {
-        JavaType[] typeParameters = _type.findTypeParameters(MapIterable.class);
-        return typeParameters.length > 0 ? typeParameters[0] : TypeFactory.unknownType();
+        return _keyType;
     }
 
     @Override
     public JavaType getContentType() {
-        JavaType[] typeParameters = _type.findTypeParameters(MapIterable.class);
-        return typeParameters.length > 1 ? typeParameters[1] : TypeFactory.unknownType();
+        return _valueType;
     }
 
     @Override
@@ -212,7 +210,7 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     ) throws IOException {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
-                                                           typeSer.typeId(value, JsonToken.START_OBJECT));
+                typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
             serializeFields(value, gen, provider);
         }
@@ -222,7 +220,6 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     private final void serializeFields(MapIterable<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         Set<String> ignored = _ignoredEntries;
-        PropertySerializerMap serializers = _dynamicValueSerializers;
         mmap.forEachKeyValue((key, v) -> {
             try {
                 // First, serialize key
@@ -241,11 +238,7 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
                 }
                 JsonSerializer<Object> valueSer = _valueSerializer;
                 if (valueSer == null) {
-                    Class<?> cc = v.getClass();
-                    valueSer = serializers.serializerFor(cc);
-                    if (valueSer == null) {
-                        valueSer = _findAndAddDynamic(serializers, cc, provider);
-                    }
+                    valueSer = _findSerializer(provider, v);
                 }
                 if (_valueTypeSerializer == null) {
                     valueSer.serialize(v, gen, provider);
@@ -258,22 +251,18 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
         });
     }
 
-    /*
-    /**********************************************************
-    /* Internal helper methods
-    /**********************************************************
-     */
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(
-            PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider
-    ) throws JsonMappingException {
-        PropertySerializerMap.SerializerAndMapResult result =
-                map.findAndAddSecondarySerializer(type, provider, _property);
-        // did we get a new map of serializers? If so, start using it
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
+    private final JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
+            Object value) throws JsonMappingException
+    {
+        final Class<?> cc = value.getClass();
+        JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
+        if (valueSer != null) {
+            return valueSer;
         }
-        return result.serializer;
+        if (_valueType.hasGenericTypes()) {
+            return _findAndAddDynamic(ctxt,
+                    ctxt.constructSpecializedType(_valueType, cc));
+        }
+        return _findAndAddDynamic(ctxt, cc);
     }
 }
