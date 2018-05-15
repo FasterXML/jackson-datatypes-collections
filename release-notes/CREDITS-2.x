@@ -4,6 +4,7 @@ Std Collections
 
 Tatu Saloranta (tatu.saloranta@iki.fi): author
 Steven Schlansker (steven@nesscomputing.com): co-author (Guava)
+Jonas Konrad (yawkat@github): co-author (Eclipse Collections)
 
 --------------------------------------------------------------------------------
 Credits for individual projects, before 2.7.1
@@ -52,3 +53,7 @@ Lokesh Kumar N (LokeshN@github)
 Neelav Rana (neelav@github)
   * Reported #27: Null value handling not supported for `Optional` within `Multimap`
    (2.9.5)
+
+Jonas Konrad (Eclipse collections)
+  * Contributed #29: Add eclipse-collections support
+   (2.9.6)
