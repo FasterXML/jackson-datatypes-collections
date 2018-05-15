@@ -10,8 +10,10 @@ Modules:
 
 2.9.5 (26-Mar-2018)
 
-#27: Null value handling not supported for `Optional` within `Multimap`
+(guava) #27: Null value handling not supported for `Optional` within `Multimap`
  (reported by Neelav R)
+(e-collections) #29: Add eclipse-collections support
+ (contributed by Jonas K)
 
 2.9.4 (24-Jan-2018)
 2.9.3 (09-Dec-2017)

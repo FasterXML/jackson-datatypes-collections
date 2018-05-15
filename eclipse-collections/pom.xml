@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatypes-collections</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>jackson-datatype-eclipse-collections</artifactId>
+    <name>Jackson datatype: eclipse-collections</name>
+    <packaging>jar</packaging>
+    <description>Add-on datatype-support module for Jackson (https://github.com/FasterXML/jackson) that handles
+        eclipse-collections (https://www.eclipse.org/collections/) types
+    </description>
+    <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
+
+    <contributors>
+        <contributor>
+            <name>Jonas Konrad</name>
+            <email>me@yawk.at</email>
+        </contributor>
+    </contributors>
+
+    <properties>
+        <version.eclipse-collections>9.1.0</version.eclipse-collections>
+
+        <!-- Generate PackageVersion.java into this directory. -->
+        <packageVersion.dir>com/fasterxml/jackson/datatype/eclipsecollections</packageVersion.dir>
+        <packageVersion.package>${project.groupId}.eclipsecollections</packageVersion.package>
+
+        <javac.src.version>1.8</javac.src.version>
+        <javac.target.version>1.8</javac.target.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections</artifactId>
+            <version>9.1.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.code.maven-replacer-plugin</groupId>
+                <artifactId>replacer</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-packageVersion</id>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>com/fasterxml/jackson/**/failing/*.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
