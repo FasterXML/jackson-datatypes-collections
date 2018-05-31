@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -100,6 +102,7 @@ import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.map.UnsortedMapIterable;
+import org.eclipse.collections.api.map.primitive.IntObjectMap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.BooleanSet;
@@ -148,6 +151,7 @@ import org.eclipse.collections.impl.factory.primitive.FloatLists;
 import org.eclipse.collections.impl.factory.primitive.FloatSets;
 import org.eclipse.collections.impl.factory.primitive.IntBags;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.eclipse.collections.impl.factory.primitive.LongBags;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
@@ -518,5 +522,39 @@ public final class DeserializerTest extends ModuleTestBase {
         if (type == double.class) { return ThreadLocalRandom.current().nextDouble(); }
         if (type == Object.class) { return randomSample(char.class).toString(); }
         throw new AssertionError();
+    }
+
+    @Test
+    public void typeInfoObjectMap() throws IOException {
+        Assert.assertEquals(
+                mapperWithModule()
+                        .readValue("{\"map\":{\"0\":{\"@c\":\".DeserializerTest$B\"}}}", Container.class).map,
+                IntObjectMaps.immutable.of(0, new B())
+        );
+    }
+
+    private static class Container {
+        public IntObjectMap<A> map;
+    }
+
+    @JsonSubTypes(@JsonSubTypes.Type(B.class))
+    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+    private static abstract class A {
+
+    }
+
+    private static class B extends A {
+        public B() {
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof B;
+        }
+
+        @Override
+        public int hashCode() {
+            return 1;
+        }
     }
 }

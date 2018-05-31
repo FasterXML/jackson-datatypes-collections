@@ -39,11 +39,10 @@ public class RefValueHandler implements ValueHandler<RefValueHandler> {
         } else {
             deser = _valueDeserializer;
         }
-        TypeDeserializer typeDeser;
-        if (_typeDeserializerForValue == null) {
-            typeDeser = null;
-        } else {
-            typeDeser = _typeDeserializerForValue.forProperty(property);
+        TypeDeserializer typeDeser = _typeDeserializerForValue == null ?
+                ctxt.getFactory().findTypeDeserializer(ctxt.getConfig(), _valueType) : _typeDeserializerForValue;
+        if (typeDeser != null) {
+            typeDeser = typeDeser.forProperty(property);
         }
         //noinspection ObjectEquality
         if (deser == this._valueDeserializer && typeDeser == this._typeDeserializerForValue) {
