@@ -11,6 +11,7 @@ import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.map.MutableMapIterable;
+import org.eclipse.collections.api.map.primitive.IntObjectMap;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.primitive.BooleanLists;
@@ -19,6 +20,7 @@ import org.eclipse.collections.impl.factory.primitive.CharLists;
 import org.eclipse.collections.impl.factory.primitive.DoubleLists;
 import org.eclipse.collections.impl.factory.primitive.FloatLists;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.eclipse.collections.impl.factory.primitive.ShortLists;
 import org.junit.Assert;
@@ -135,5 +137,26 @@ public final class SerializerTest extends ModuleTestBase {
                 mapperWithModule().writerFor(new TypeReference<MapIterable<String, String>>() {})
                         .writeValueAsString(Maps.immutable.of("abc", "def"))
         );
+    }
+
+    @Test
+    public void typeInfoObjectMap() throws JsonProcessingException {
+        Assert.assertEquals(
+                "{\"map\":{\"0\":{\"@c\":\".SerializerTest$B\"}}}",
+                mapperWithModule().writeValueAsString(new Container())
+        );
+    }
+
+    private static class Container {
+        public final IntObjectMap<A> map = IntObjectMaps.immutable.of(0, new B());
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+    private static abstract class A {
+
+    }
+
+    private static class B extends A {
+
     }
 }
