@@ -24,7 +24,7 @@ To use these format backends Maven-based projects, use following dependency:
 
 ```xml
 <dependency>
-  <groupId>com.fasterxml.jackson.dataformat</groupId>
+  <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-[COLLECTION]</artifactId>
   <version>2.9.5</version>
 </dependency>
