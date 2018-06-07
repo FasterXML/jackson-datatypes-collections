@@ -95,10 +95,9 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
      */
 
     @Override
-    public JsonSerializer<?> createContextual(
-            SerializerProvider provider,
-            BeanProperty property
-    ) throws JsonMappingException {
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property) throws JsonMappingException
+    {
         JsonSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = getContentType();
@@ -150,7 +149,7 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(property);
+            typeSer = typeSer.forProperty(provider, property);
         }
 
         Set<String> ignored = _ignoredEntries;

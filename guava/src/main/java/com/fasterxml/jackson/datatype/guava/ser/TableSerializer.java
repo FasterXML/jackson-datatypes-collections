@@ -124,7 +124,8 @@ public class TableSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(final SerializerProvider provider, final BeanProperty property )
+    public JsonSerializer<?> createContextual(final SerializerProvider provider,
+            final BeanProperty property )
         throws JsonMappingException
     {
         JsonSerializer<?> valueSer = _valueSerializer;
@@ -151,7 +152,7 @@ public class TableSerializer
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(property);
+            typeSer = typeSer.forProperty(provider, property);
         }
         return withResolved(property, provider.getTypeFactory(), rowKeySer, columnKeySer, typeSer, valueSer);
     }
