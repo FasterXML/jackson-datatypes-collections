@@ -57,6 +57,10 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
         TypeSerializer vts = this._valueTypeSerializer == null ? null
                 : this._valueTypeSerializer.forProperty(prov, property);
         JavaType containedType = _type.containedTypeOrUnknown(0);
+        TypeSerializer vts = this._valueTypeSerializer == null ?
+                prov.findTypeSerializer(containedType) :
+                this._valueTypeSerializer;
+        if (vts != null) { vts = vts.forProperty(property); }
         JsonSerializer<Object> vs = this._valueSerializer == null && containedType.useStaticType() ?
                 prov.findValueSerializer(containedType) :
                 this._valueSerializer;
