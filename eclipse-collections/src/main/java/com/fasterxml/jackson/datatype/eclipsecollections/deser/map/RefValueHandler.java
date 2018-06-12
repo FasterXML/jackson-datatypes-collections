@@ -40,16 +40,15 @@ public class RefValueHandler implements ValueHandler<RefValueHandler> {
             deser = _valueDeserializer;
         }
         TypeDeserializer typeDeser = _typeDeserializerForValue == null ?
-                ctxt.getFactory().findTypeDeserializer(ctxt.getConfig(), _valueType) : _typeDeserializerForValue;
+                ctxt.findTypeDeserializer(_valueType) : _typeDeserializerForValue;
         if (typeDeser != null) {
             typeDeser = typeDeser.forProperty(property);
         }
         //noinspection ObjectEquality
-        if (deser == this._valueDeserializer && typeDeser == this._typeDeserializerForValue) {
+        if (deser == _valueDeserializer && typeDeser == _typeDeserializerForValue) {
             return this;
-        } else {
-            return new RefValueHandler(_valueType, deser, typeDeser);
         }
+        return new RefValueHandler(_valueType, deser, typeDeser);
     }
 
     public Object value(DeserializationContext ctx, JsonParser parser) throws IOException {
@@ -58,8 +57,7 @@ public class RefValueHandler implements ValueHandler<RefValueHandler> {
         }
         if (_typeDeserializerForValue == null) {
             return _valueDeserializer.deserialize(parser, ctx);
-        } else {
-            return _valueDeserializer.deserializeWithType(parser, ctx, _typeDeserializerForValue);
         }
+        return _valueDeserializer.deserializeWithType(parser, ctx, _typeDeserializerForValue);
     }
 }
