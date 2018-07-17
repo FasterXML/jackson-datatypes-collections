@@ -25,7 +25,7 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
     <version.guava>20.0</version.guava>
 
     <!-- 11-Sep-2015, tatu: As per [datatype-guava#80] -->
-    <version.guava.osgi>[${version.guava}.0,22)</version.guava.osgi>
+    <version.guava.osgi>[${version.guava}.0,25)</version.guava.osgi>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/guava</packageVersion.dir>
