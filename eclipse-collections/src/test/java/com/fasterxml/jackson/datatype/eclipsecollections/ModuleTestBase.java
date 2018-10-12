@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.util.Arrays;
 
@@ -14,7 +15,7 @@ public abstract class ModuleTestBase {
     }
 
     protected MapperBuilder<?,?> mapperBuilder() {
-        return ObjectMapper.builder()
+        return JsonMapper.builder()
                 .addModule(new EclipseCollectionsModule());
     }
     

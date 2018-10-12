@@ -67,7 +67,7 @@ import org.eclipse.collections.api.map.primitive.ShortShortMap;
 /**
  * @author yawkat
  */
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"Duplicates", "serial"})
 public final class PrimitivePrimitiveMapSerializers {
     private PrimitivePrimitiveMapSerializers() {
     }

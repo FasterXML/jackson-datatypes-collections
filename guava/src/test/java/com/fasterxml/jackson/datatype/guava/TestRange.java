@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 
 import com.google.common.collect.BoundType;
@@ -125,7 +126,7 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 2, \"upperEndpoint\": 3}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
                 .build();
 
@@ -155,7 +156,7 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 2, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
                 .build();
         @SuppressWarnings("unchecked")
@@ -184,7 +185,7 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 1, \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
                 .build();
         @SuppressWarnings("unchecked")
@@ -214,7 +215,7 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 1, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
                 .build();
         @SuppressWarnings("unchecked")
@@ -245,7 +246,7 @@ public class TestRange extends ModuleTestBase {
         String json = "{\"lowerEndpoint\": 12, \"lowerBoundType\": \"CLOSED\", \"upperEndpoint\": 33, \"upperBoundType\": \"CLOSED\"}";
 
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
-        ObjectMapper mapper = ObjectMapper.builder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
                 .build();
         @SuppressWarnings("unchecked")

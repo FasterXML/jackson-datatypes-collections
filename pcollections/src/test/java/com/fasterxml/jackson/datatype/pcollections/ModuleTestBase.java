@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.datatype.pcollections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.util.Arrays;
 
@@ -9,7 +10,7 @@ import static org.junit.Assert.*;
 public abstract class ModuleTestBase
 {
     protected ObjectMapper mapperWithModule() {
-        return ObjectMapper.builder()
+        return JsonMapper.builder()
                 .addModule(new PCollectionsModule())
                 .build();
     }

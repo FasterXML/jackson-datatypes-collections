@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 import com.google.common.base.Optional;
@@ -321,10 +320,7 @@ public class OptionalBasicTest extends ModuleTestBase
     }
 
     public void testOptionalCollection() throws Exception {
-        ObjectMapper mapper = ObjectMapper.builder()
-                .addModule(new GuavaModule())
-                .build();
-
+        ObjectMapper mapper = mapperWithModule();
         TypeReference<List<Optional<String>>> typeReference =
             new TypeReference<List<Optional<String>>>() {};
 

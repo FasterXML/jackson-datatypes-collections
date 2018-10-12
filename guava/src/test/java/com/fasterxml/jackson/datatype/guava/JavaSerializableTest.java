@@ -53,9 +53,6 @@ public class JavaSerializableTest extends ModuleTestBase {
         Object deserializedObject = inputStream.readObject();
 
         //validate the object
-        assertTrue("Deserialized object should be an instance of ObjectMapper",
-                ObjectMapper.class == deserializedObject.getClass());
-
         return (ObjectMapper) deserializedObject;
     }
 }

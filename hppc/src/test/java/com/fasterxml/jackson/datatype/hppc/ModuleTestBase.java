@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.hppc;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.hppc.HppcModule;
 
 public abstract class ModuleTestBase extends junit.framework.TestCase
@@ -12,7 +12,7 @@ public abstract class ModuleTestBase extends junit.framework.TestCase
     
     protected ObjectMapper mapperWithModule()
     {
-        return ObjectMapper.builder()
+        return JsonMapper.builder()
                 .addModule(new HppcModule())
                 .build();
     }

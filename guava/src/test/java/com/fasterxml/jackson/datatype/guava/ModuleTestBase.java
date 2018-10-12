@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 
 public abstract class ModuleTestBase extends junit.framework.TestCase
@@ -24,7 +25,7 @@ public abstract class ModuleTestBase extends junit.framework.TestCase
 
     protected MapperBuilder<?,?> builderWithModule(boolean absentsAsNulls)
     {
-        return ObjectMapper.builder()
+        return JsonMapper.builder()
                 .addModule(new GuavaModule()
                         .configureAbsentsAsNulls(absentsAsNulls));
     }
