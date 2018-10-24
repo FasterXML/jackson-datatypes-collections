@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -129,6 +130,9 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.api.set.primitive.MutableLongSet;
 import org.eclipse.collections.api.set.primitive.MutableShortSet;
 import org.eclipse.collections.api.set.primitive.ShortSet;
+import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.api.tuple.Twin;
+import org.eclipse.collections.api.tuple.primitive.ObjectIntPair;
 import org.eclipse.collections.impl.factory.Bags;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
@@ -159,6 +163,8 @@ import org.eclipse.collections.impl.factory.primitive.LongSets;
 import org.eclipse.collections.impl.factory.primitive.ShortBags;
 import org.eclipse.collections.impl.factory.primitive.ShortLists;
 import org.eclipse.collections.impl.factory.primitive.ShortSets;
+import org.eclipse.collections.impl.tuple.Tuples;
+import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -408,10 +414,8 @@ public final class DeserializerTest extends ModuleTestBase {
             for (Class<?> value : valuePrimitives) {
                 if (key == Object.class && value == Object.class) { continue; }
 
-                String keyUpper = key.getSimpleName().substring(0, 1).toUpperCase() +
-                                  key.getSimpleName().substring(1);
-                String valueUpper = value.getSimpleName().substring(0, 1).toUpperCase() +
-                                    value.getSimpleName().substring(1);
+                String keyUpper = capitalize(key.getSimpleName());
+                String valueUpper = capitalize(value.getSimpleName());
                 Class<?> mutableMapType = Class.forName(
                         "org.eclipse.collections.api.map.primitive.Mutable" + keyUpper + valueUpper + "Map");
                 Class<?> immutableMapType = Class.forName(
@@ -489,6 +493,10 @@ public final class DeserializerTest extends ModuleTestBase {
         }
     }
 
+    private static String capitalize(String simpleName) {
+        return simpleName.substring(0, 1).toUpperCase() + simpleName.substring(1);
+    }
+
     @Test
     public void objectObjectMaps() throws IOException {
         Assert.assertEquals(
@@ -556,5 +564,90 @@ public final class DeserializerTest extends ModuleTestBase {
         public int hashCode() {
             return 1;
         }
+    }
+
+    @Test
+    public void primitivePairs() throws Exception {
+        List<Class<?>> types = Arrays.asList(
+                Object.class,
+                boolean.class,
+                byte.class,
+                short.class,
+                char.class,
+                int.class,
+                float.class,
+                long.class,
+                double.class);
+
+        for (Class<?> oneType : types) {
+            for (Class<?> twoType : types) {
+                Class<?> pairClass;
+                Method factory;
+                if (oneType == Object.class && twoType == Object.class) {
+                    pairClass = Pair.class;
+                    factory = Tuples.class.getMethod("pair", Object.class, Object.class);
+                } else {
+                    pairClass = Class.forName("org.eclipse.collections.api.tuple.primitive." +
+                                              capitalize(oneType.getSimpleName()) +
+                                              capitalize(twoType.getSimpleName()) +
+                                              "Pair");
+                    factory = PrimitiveTuples.class.getMethod("pair", oneType, twoType);
+                }
+
+                Object sampleOne = randomSample(oneType);
+                Object sampleTwo = randomSample(twoType);
+
+                JavaType pairType;
+                // possibly generify with the sample type
+                if (oneType == Object.class) {
+                    if (twoType == Object.class) {
+                        pairType = mapperWithModule().getTypeFactory().constructParametricType(
+                                pairClass, sampleOne.getClass(), sampleTwo.getClass());
+                    } else {
+                        pairType = mapperWithModule().getTypeFactory().constructParametricType(
+                                pairClass, sampleOne.getClass());
+                    }
+                } else {
+                    if (twoType == Object.class) {
+                        pairType = mapperWithModule().getTypeFactory().constructParametricType(
+                                pairClass, sampleTwo.getClass());
+                    } else {
+                        pairType = mapperWithModule().constructType(pairClass);
+                    }
+                }
+
+                String expectedJson = "{\"one\":" + mapperWithModule().writeValueAsString(sampleOne)
+                                      + ",\"two\":" + mapperWithModule().writeValueAsString(sampleTwo) + "}";
+                Object samplePair = factory.invoke(null, sampleOne, sampleTwo);
+
+                Assert.assertEquals(expectedJson, mapperWithModule().writeValueAsString(samplePair));
+                Assert.assertEquals(samplePair, mapperWithModule().readValue(expectedJson, pairType));
+            }
+        }
+    }
+
+    @Test
+    public void twin() throws Exception {
+        Object sampleOne = randomSample(Object.class);
+        Object sampleTwo = randomSample(Object.class);
+        String expectedJson = "{\"one\":" + mapperWithModule().writeValueAsString(sampleOne)
+                              + ",\"two\":" + mapperWithModule().writeValueAsString(sampleTwo) + "}";
+        Twin<String> twin = Tuples.twin((String) sampleOne, (String) sampleTwo);
+        Assert.assertEquals(expectedJson, mapperWithModule().writeValueAsString(twin));
+        Assert.assertEquals(twin, mapperWithModule().readValue(expectedJson, new TypeReference<Twin<String>>() {}));
+    }
+
+    @Test
+    public void pairTyped() throws Exception {
+        ObjectIntPair<A> pair = PrimitiveTuples.pair(new B(), 5);
+        String json = "{\"one\":{\"@c\":\".DeserializerTest$B\"},\"two\":5}";
+        Assert.assertEquals(
+                json,
+                mapperWithModule().writerFor(new TypeReference<ObjectIntPair<A>>() {}).writeValueAsString(pair)
+        );
+        Assert.assertEquals(
+                pair,
+                mapperWithModule().readValue(json, new TypeReference<ObjectIntPair<A>>() {})
+        );
     }
 }

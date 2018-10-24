@@ -82,3 +82,15 @@ for k in key_types:
     for v in value_types:
         print("        INSTANCES.put("+k+v+"Map.class, "+k.upper()+"_"+v.upper()+");")
 print("    }")
+
+
+print()
+print()
+print("PairInstantiators:")
+for one in value_types:
+    print("    //region "+one+" -> Primitive")
+    for two in value_types:
+        print("""purePrimitiveInstantiator(OneTTwoTPair.class, oneT.class, twoT.class,
+                                  (one, two) -> PrimitiveTuples.pair((oneT) one, (twoT) two));"""
+              .replace("OneT", one).replace("TwoT", two).replace("oneT", one.lower()).replace("twoT", two.lower()))
+    print("    //endregion")
