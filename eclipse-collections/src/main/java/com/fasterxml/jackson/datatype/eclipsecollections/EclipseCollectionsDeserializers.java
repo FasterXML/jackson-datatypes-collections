@@ -157,6 +157,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
 
     // initialized below
     static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS = new HashMap<>();
+    @SuppressWarnings("rawtypes")
     static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
 
     @Override

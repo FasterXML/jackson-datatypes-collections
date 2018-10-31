@@ -179,10 +179,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
                     JavaType oneType = beanType.containedType(0);
                     JavaType twoType = beanType.containedType(1);
-                    return makeProperties(config, oneType, twoType);
+                    return makeProperties(ctxt, oneType, twoType);
                 }
 
                 @Override
@@ -200,9 +200,9 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
                     JavaType memberType = beanType.containedType(0);
-                    return makeProperties(config, memberType, memberType);
+                    return makeProperties(ctxt, memberType, memberType);
                 }
 
                 @Override
@@ -226,10 +226,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-                JavaType oneType = config.constructType(one);
+            public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+                JavaType oneType = ctxt.constructType(one);
                 JavaType twoType = inputType.containedType(0);
-                return makeProperties(config, oneType, twoType);
+                return makeProperties(ctxt, oneType, twoType);
             }
 
             @Override
@@ -250,10 +250,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+            public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
                 JavaType oneType = inputType.containedType(0);
-                JavaType twoType = config.constructType(two);
-                return makeProperties(config, oneType, twoType);
+                JavaType twoType = ctxt.constructType(two);
+                return makeProperties(ctxt, oneType, twoType);
             }
 
             @Override
@@ -274,10 +274,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-                JavaType oneType = config.constructType(one);
-                JavaType twoType = config.constructType(two);
-                return makeProperties(config, oneType, twoType);
+            public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+                JavaType oneType = ctxt.constructType(one);
+                JavaType twoType = ctxt.constructType(two);
+                return makeProperties(ctxt, oneType, twoType);
             }
 
             @Override
@@ -288,7 +288,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
     }
 
     static SettableBeanProperty[] makeProperties(
-            DeserializationConfig config,
+            DeserializationContext ctxt,
             JavaType oneType,
             JavaType twoType
     ) {
@@ -298,7 +298,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                             PropertyName.construct("one"),
                             oneType,
                             null,
-                            config.findTypeDeserializer(oneType),
+                            ctxt.findTypeDeserializer(oneType),
                             AnnotationCollector.emptyAnnotations(),
                             null, 0, null, PropertyMetadata.STD_REQUIRED
                     ),
@@ -306,7 +306,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                             PropertyName.construct("two"),
                             twoType,
                             null,
-                            config.findTypeDeserializer(twoType),
+                            ctxt.findTypeDeserializer(twoType),
                             AnnotationCollector.emptyAnnotations(),
                             null, 1, null, PropertyMetadata.STD_REQUIRED
                     )

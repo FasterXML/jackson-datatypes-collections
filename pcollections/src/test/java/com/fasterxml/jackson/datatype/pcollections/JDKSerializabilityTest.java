@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.pcollections.PCollection;
 
-import static org.junit.Assert.*;
-
 public class JDKSerializabilityTest extends ModuleTestBase
 {
     @Test
