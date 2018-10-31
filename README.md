@@ -5,10 +5,10 @@ Datatype modules to support 3rd party Collection libraries.
 
 Currently included are:
 
-* [Guava](guava/) datatype ([Guava](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
-* [HPPC](hppc/) datatype ([High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
-* [PCollections](pcollections/) datatype ([Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
-* [Eclipse Collections](eclipse-collections/) datatype [https://github.com/eclipse/eclipse-collections](https://www.eclipse.org/collections/): `jackson-datatype-eclipse-collections` (since 2.10)
+* [Guava](guava/) datatype (for [Guava](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
+* [HPPC](hppc/) datatype (for [High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
+* [PCollections](pcollections/) datatype (for [Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
+* [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.10)
 
 All modules are licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
