@@ -2,9 +2,10 @@ Here are people who have contributed to the development of Jackson JSON processo
 Std Collections
 (version numbers in brackets indicate release in which the problem was fixed)
 
-Tatu Saloranta (tatu.saloranta@iki.fi): author
-Steven Schlansker (steven@nesscomputing.com): co-author (Guava)
-Jonas Konrad (yawkat@github): co-author (Eclipse Collections)
+Tatu Saloranta (tatu.saloranta@iki.fi): author for HPPC, Pcollections modules;
+   co-author for Guava, Eclipse collections
+Steven Schlansker (steven@nesscomputing.com): author of Guava module
+Jonas Konrad (yawkat@github): author of Eclipse Collections module
 
 --------------------------------------------------------------------------------
 Credits for individual projects, before 2.7.1

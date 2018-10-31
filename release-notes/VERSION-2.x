@@ -11,6 +11,11 @@ Modules:
 
 2.10.0 (not yet released)
 
+#34: (guava) Allow use of Guava versions up to 25 (from 22)
+ (suggested by Philipp H, AUTplayed@github)
+#37: (eclipse-collections) Implement pair deserialization
+ (contributed by Jonas K)
+
 2.9.7 (19-Sep-2018)
 
 No changes since 2.9.6
@@ -18,6 +23,7 @@ No changes since 2.9.6
 2.9.6 (12-Jun-2018)
 
 - First experimental version of `jackson-datatype-eclipse-collections`!
+ (by 
 
 2.9.5 (26-Mar-2018)
 
