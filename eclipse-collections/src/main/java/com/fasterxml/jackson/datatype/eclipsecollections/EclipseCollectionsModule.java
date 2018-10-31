@@ -2,6 +2,8 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.deser.ValueInstantiators;
+import com.fasterxml.jackson.datatype.eclipsecollections.deser.pair.PairInstantiators;
 
 /**
  * Basic Jackson {@link Module} that adds support for eclipse-collections types.
@@ -27,6 +29,8 @@ public class EclipseCollectionsModule extends Module {
     public void setupModule(SetupContext context) {
         context.addDeserializers(new EclipseCollectionsDeserializers());
         context.addSerializers(new EclipseCollectionsSerializers());
+
+        context.addValueInstantiators(new PairInstantiators());
     }
 
     @Override
