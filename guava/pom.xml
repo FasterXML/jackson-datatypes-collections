@@ -24,8 +24,8 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
     <!-- 09-Feb-2016, tatu: For Jackson 2.9, move guava from 16 to 18 -->
     <version.guava>18.0</version.guava>
 
-    <!-- 11-Sep-2015, tatu: As per [datatype-guava#80] -->
-    <version.guava.osgi>[${version.guava}.0,22)</version.guava.osgi>
+    <!-- 30-Oct-2018, tatu: as per [datatypes-collections#34], allow up to 25 -->
+    <version.guava.osgi>[${version.guava}.0,25)</version.guava.osgi>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/guava</packageVersion.dir>
