@@ -9,6 +9,12 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+2.9.7 (19-Sep-2018)
+
+No changes since 2.9.6
+
 2.9.6 (12-Jun-2018)
 
 - First experimental version of `jackson-datatype-eclipse-collections`!
