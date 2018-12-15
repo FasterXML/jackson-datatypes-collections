@@ -278,8 +278,8 @@ public final class EclipseMapDeserializers {
                                MapIterable.class.isAssignableFrom(rawClass);
             boolean refKey = refValue ? (typeParameters.size() == 2) : (typeParameters.size() == 1);
 
-            K keyHandler = typeHandlerPair.keyHandler(refKey ? typeParameters.get(typeParameters.size() - 1) : null);
-            V valueHandler = typeHandlerPair.valueHandler(refValue ? typeParameters.get(0) : null);
+            K keyHandler = typeHandlerPair.keyHandler(refKey ? typeParameters.get(0) : null);
+            V valueHandler = typeHandlerPair.valueHandler(refValue ? typeParameters.get(typeParameters.size() - 1) : null);
 
             return new DeserializerImpl(keyHandler, valueHandler);
         }

@@ -16,6 +16,7 @@ Modules:
 #37: (eclipse-collections) Implement pair deserialization
  (contributed by Jonas K)
 
+2.9.8 (15-Dec-2018)
 2.9.7 (19-Sep-2018)
 
 No changes since 2.9.6

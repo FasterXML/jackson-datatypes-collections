@@ -650,4 +650,14 @@ public final class DeserializerTest extends ModuleTestBase {
                 mapperWithModule().readValue(json, new TypeReference<ObjectIntPair<A>>() {})
         );
     }
+
+    @Test
+    public void nestedMap() throws Exception {
+        MutableMap<String, MutableMap<String, String>> pair = Maps.mutable.of("a", Maps.mutable.of("b", "c"));
+        String json = "{\"a\":{\"b\":\"c\"}}";
+        TypeReference<MutableMap<String, MutableMap<String, String>>> type =
+                new TypeReference<MutableMap<String, MutableMap<String, String>>>() {};
+        Assert.assertEquals(json, mapperWithModule().writerFor(type).writeValueAsString(pair));
+        Assert.assertEquals(pair, mapperWithModule().readValue(json, type));
+    }
 }
