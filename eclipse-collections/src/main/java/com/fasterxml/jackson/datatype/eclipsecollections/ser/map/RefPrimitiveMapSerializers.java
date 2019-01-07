@@ -1,68 +1,27 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.RefPrimitiveMapSerializer;
+import org.eclipse.collections.api.map.primitive.*;
 
-import org.eclipse.collections.api.PrimitiveIterable;
-import org.eclipse.collections.api.map.primitive.ObjectBooleanMap;
-import org.eclipse.collections.api.map.primitive.ObjectByteMap;
-import org.eclipse.collections.api.map.primitive.ObjectCharMap;
-import org.eclipse.collections.api.map.primitive.ObjectDoubleMap;
-import org.eclipse.collections.api.map.primitive.ObjectFloatMap;
-import org.eclipse.collections.api.map.primitive.ObjectIntMap;
-import org.eclipse.collections.api.map.primitive.ObjectLongMap;
-import org.eclipse.collections.api.map.primitive.ObjectShortMap;
+import java.io.IOException;
+
+import static com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitiveRefMapSerializers.rethrowUnchecked;
 
 /**
  * @author yawkat
  */
 @SuppressWarnings({ "Duplicates", "NewClassNamingConvention" })
-public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
-        extends PrimitiveMapSerializer<T>
-{
-    private static final long serialVersionUID = 3L;
-
-    protected final JavaType _type;
-    protected final BeanProperty _property;
-    protected final JsonSerializer<Object> _keySerializer;
-
-    private RefPrimitiveMapSerializer(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
-        super(type);
-        this._type = type;
-        this._property = property;
-        this._keySerializer = keySerializer;
-    }
-
-    protected abstract RefPrimitiveMapSerializer<T, K> withResolved(
-            BeanProperty property, JsonSerializer<Object> keySerializer
-    );
-
-    @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-            throws JsonMappingException {
-        JsonSerializer<Object> ks = _keySerializer == null ?
-                prov.findKeySerializer(_type.containedTypeOrUnknown(0), property) :
-                _keySerializer;
-        return withResolved(property, ks);
-    }
-
-    protected void _serializeKey(K key, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        if (key == null) {
-            provider.findNullKeySerializer(_type.getKeyType(), _property)
-                    .serialize(null, gen, provider);
-        } else {
-            _keySerializer.serialize(key, gen, provider);
-        }
+public final class RefPrimitiveMapSerializers {
+    private RefPrimitiveMapSerializers() {
     }
 
     public static final class Boolean<K> extends RefPrimitiveMapSerializer<ObjectBooleanMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Boolean(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -89,7 +48,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Byte<K> extends RefPrimitiveMapSerializer<ObjectByteMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Byte(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -116,7 +75,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Short<K> extends RefPrimitiveMapSerializer<ObjectShortMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Short(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -143,7 +102,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Char<K> extends RefPrimitiveMapSerializer<ObjectCharMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Char(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -170,7 +129,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Int<K> extends RefPrimitiveMapSerializer<ObjectIntMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Int(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -197,7 +156,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Float<K> extends RefPrimitiveMapSerializer<ObjectFloatMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Float(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -224,7 +183,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Long<K> extends RefPrimitiveMapSerializer<ObjectLongMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Long(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
@@ -251,7 +210,7 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Double<K> extends RefPrimitiveMapSerializer<ObjectDoubleMap<K>, K> {
-        private static final long serialVersionUID = 3L;
+        private static final long serialVersionUID = 4L;
 
         public Double(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);

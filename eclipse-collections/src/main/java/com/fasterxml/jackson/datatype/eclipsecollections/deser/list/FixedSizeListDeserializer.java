@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser.list;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
+import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
 import org.eclipse.collections.api.list.FixedSizeList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
@@ -13,7 +13,7 @@ public final class FixedSizeListDeserializer {
     }
 
     public static final class Ref extends
-            BaseCollectionDeserializer.Ref<FixedSizeList<?>, MutableList<Object>> {
+            BaseRefCollectionDeserializer<FixedSizeList<?>, MutableList<Object>> {
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(FixedSizeList.class, elementType, typeDeserializer, deserializer);
         }
@@ -29,7 +29,7 @@ public final class FixedSizeListDeserializer {
         }
 
         @Override
-        protected Ref<?, ?> withResolved(
+        protected Ref withResolved(
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {

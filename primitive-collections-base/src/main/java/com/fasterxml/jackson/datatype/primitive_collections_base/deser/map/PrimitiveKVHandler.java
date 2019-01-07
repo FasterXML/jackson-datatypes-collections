@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.datatype.eclipsecollections.deser.map;
+package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;

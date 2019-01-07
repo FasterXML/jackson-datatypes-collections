@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.eclipse.collections.api.LongIterable;
 import org.eclipse.collections.api.iterator.LongIterator;
 
-public final class LongIterableSerializer extends PrimitiveIterableSerializer<LongIterable> {
+public final class LongIterableSerializer extends EclipsePrimitiveIterableSerializer<LongIterable> {
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(long.class);
 
     public LongIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

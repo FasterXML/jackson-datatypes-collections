@@ -15,9 +15,10 @@
 
   <modules>
     <module>guava</module>
-    <module>hppc</module>
     <module>pcollections</module>
     <module>eclipse-collections</module>
+    <module>primitive-collections-base</module>
+    <module>hppc</module>
   </modules>
 
   <url>https://github.com/FasterXML/jackson-datatypes-collections</url>

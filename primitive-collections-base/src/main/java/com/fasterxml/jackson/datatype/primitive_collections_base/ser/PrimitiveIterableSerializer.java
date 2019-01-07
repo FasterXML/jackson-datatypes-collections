@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.datatype.eclipsecollections.ser;
+package com.fasterxml.jackson.datatype.primitive_collections_base.ser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -11,14 +11,15 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import java.io.IOException;
-import org.eclipse.collections.api.PrimitiveIterable;
 
-public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> extends ContainerSerializer<C> {
+public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer<C> {
+    private static final long serialVersionUID = 0L;
+
     protected final JavaType _elementType;
     protected final BeanProperty _property;
     protected final Boolean _unwrapSingle;
 
-    public PrimitiveIterableSerializer(
+    protected PrimitiveIterableSerializer(
             Class<C> type, JavaType elementType,
             BeanProperty property, Boolean unwrapSingle
     ) {
@@ -29,11 +30,6 @@ public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> e
     }
 
     protected abstract PrimitiveIterableSerializer<C> withResolved(BeanProperty property, Boolean unwrapSingle);
-
-    @Override
-    public boolean isEmpty(SerializerProvider prov, C value) {
-        return value.isEmpty();
-    }
 
     @Override
     public JavaType getContentType() {
@@ -52,18 +48,10 @@ public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> e
     }
 
     @Override
-    public boolean hasSingleElement(C value) {
-        if (value != null) {
-            return value.size() == 1;
-        }
-        return false;
-    }
-
-    @Override
     public final void serialize(C value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         if (((_unwrapSingle == null) &&
-             provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-            || (Boolean.TRUE.equals(_unwrapSingle))) {
+                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                || (Boolean.TRUE.equals(_unwrapSingle))) {
             if (hasSingleElement(value)) {
                 serializeContents(value, gen);
                 return;
@@ -85,3 +73,4 @@ public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> e
 
     protected abstract void serializeContents(C value, JsonGenerator gen) throws IOException;
 }
+

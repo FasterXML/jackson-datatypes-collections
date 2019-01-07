@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,6 +11,10 @@ import com.fasterxml.jackson.datatype.guava.pojo.MathOp;
 import com.fasterxml.jackson.datatype.guava.pojo.MulOp;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 import static com.google.common.collect.TreeMultimap.create;
 

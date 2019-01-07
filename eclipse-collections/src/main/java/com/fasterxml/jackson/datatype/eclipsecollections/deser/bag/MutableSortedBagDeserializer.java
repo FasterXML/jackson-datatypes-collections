@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser.bag;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
+import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
 import org.eclipse.collections.api.bag.sorted.MutableSortedBag;
 import org.eclipse.collections.impl.factory.SortedBags;
 
@@ -12,7 +12,7 @@ public final class MutableSortedBagDeserializer {
     }
 
     public static final class Ref
-            extends BaseCollectionDeserializer.Ref<MutableSortedBag<?>, MutableSortedBag<Object>> {
+            extends BaseRefCollectionDeserializer<MutableSortedBag<?>, MutableSortedBag<Object>> {
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(MutableSortedBag.class, elementType, typeDeserializer, deserializer);
         }
@@ -28,7 +28,7 @@ public final class MutableSortedBagDeserializer {
         }
 
         @Override
-        protected Ref<?, ?> withResolved(
+        protected Ref withResolved(
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {

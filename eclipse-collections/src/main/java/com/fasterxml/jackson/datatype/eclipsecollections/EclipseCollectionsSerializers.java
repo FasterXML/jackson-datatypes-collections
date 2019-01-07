@@ -14,12 +14,13 @@ import com.fasterxml.jackson.datatype.eclipsecollections.ser.FloatIterableSerial
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.IntIterableSerializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.LongIterableSerializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.ShortIterableSerializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitiveMapSerializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitivePrimitiveMapSerializers;
-import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitiveRefMapSerializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefPrimitiveMapSerializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefRefMapSerializer;
+import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitiveRefMapSerializers;
+import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefPrimitiveMapSerializers;
+import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefRefMapIterableSerializer;
 import java.util.Map;
+
+import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;
@@ -55,44 +56,44 @@ public final class EclipseCollectionsSerializers extends Serializers.Base {
         Class<?> rawClass = type.getRawClass();
 
         if (MapIterable.class.isAssignableFrom(rawClass)) {
-            return new RefRefMapSerializer(type, null, null, null, null);
+            return new RefRefMapIterableSerializer(type, null, null, null, null);
         }
 
         if (PrimitiveObjectMap.class.isAssignableFrom(rawClass)) {
             if (ByteObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Byte<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Byte<>(type, null, null, null);
             } else if (ShortObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Short<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Short<>(type, null, null, null);
             } else if (CharObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Char<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Char<>(type, null, null, null);
             } else if (IntObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Int<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Int<>(type, null, null, null);
             } else if (FloatObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Float<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Float<>(type, null, null, null);
             } else if (LongObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Long<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Long<>(type, null, null, null);
             } else if (DoubleObjectMap.class.isAssignableFrom(rawClass)) {
-                return new PrimitiveRefMapSerializer.Double<>(type, null, null, null);
+                return new PrimitiveRefMapSerializers.Double<>(type, null, null, null);
             }
         }
 
         if (PrimitiveIterable.class.isAssignableFrom(rawClass)) {
             if (ObjectBooleanMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Boolean<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Boolean<>(type, null, null);
             } else if (ObjectByteMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Byte<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Byte<>(type, null, null);
             } else if (ObjectShortMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Short<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Short<>(type, null, null);
             } else if (ObjectCharMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Char<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Char<>(type, null, null);
             } else if (ObjectIntMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Int<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Int<>(type, null, null);
             } else if (ObjectFloatMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Float<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Float<>(type, null, null);
             } else if (ObjectLongMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Long<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Long<>(type, null, null);
             } else if (ObjectDoubleMap.class.isAssignableFrom(rawClass)) {
-                return new RefPrimitiveMapSerializer.Double<>(type, null, null);
+                return new RefPrimitiveMapSerializers.Double<>(type, null, null);
             }
 
             for (Map.Entry<Class<? extends PrimitiveIterable>, PrimitiveMapSerializer<?>> entry :

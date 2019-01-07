@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.iterator.IntIterator;
 
-public final class IntIterableSerializer extends PrimitiveIterableSerializer<IntIterable> {
+public final class IntIterableSerializer extends EclipsePrimitiveIterableSerializer<IntIterable> {
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(int.class);
 
     public IntIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

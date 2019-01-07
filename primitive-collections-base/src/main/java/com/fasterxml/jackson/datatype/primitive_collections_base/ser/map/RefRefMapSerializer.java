@@ -1,39 +1,33 @@
-package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+package com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import org.eclipse.collections.api.map.MapIterable;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
 /**
  * @author yawkat
  */
-public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?, ?>>
+public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 {
     private static final long serialVersionUID = 3L;
 
     private final JavaType _type;
     private final JavaType _keyType, _valueType;
 
-    private final JsonSerializer<Object> _keySerializer;
+    protected final JsonSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
-    private final JsonSerializer<Object> _valueSerializer;
+    protected final JsonSerializer<Object> _valueSerializer;
 
     /**
      * Set of entries to omit during serialization, if any
@@ -41,15 +35,19 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     protected final Set<String> _ignoredEntries;
 
     public RefRefMapSerializer(
-            JavaType type,
+            JavaType type, Class<? super T> mapClass,
             JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(type, null);
         _type = type;
-        JavaType[] typeParameters = _type.findTypeParameters(MapIterable.class);
-        _keyType = (typeParameters.length > 0) ? typeParameters[0] : TypeFactory.unknownType();
-        _valueType = (typeParameters.length > 1) ? typeParameters[1] : TypeFactory.unknownType();
+        // Assumes that the map class has first two type parameters corresponding to the key and the
+        // value type.
+        JavaType[] typeParameters = type.findTypeParameters(mapClass);
+        JavaType keyType = (typeParameters.length > 0) ? typeParameters[0] : TypeFactory.unknownType();
+        JavaType valueType = (typeParameters.length > 1) ? typeParameters[1] : TypeFactory.unknownType();
+        _keyType = keyType;
+        _valueType = valueType;
         _keySerializer = keySerializer;
         _valueTypeSerializer = vts;
         _valueSerializer = valueSerializer;
@@ -73,20 +71,11 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
         _ignoredEntries = ignoredEntries;
     }
 
-    protected RefRefMapSerializer withResolved(
+    protected abstract RefRefMapSerializer<?> withResolved(
             BeanProperty property,
             JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
             Set<String> ignored
-    ) {
-        return new RefRefMapSerializer(this, property, keySer, vts, valueSer,
-                                       ignored);
-    }
-
-    @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
-        return new RefRefMapSerializer(this, _property, _keySerializer,
-                                       typeSer, _valueSerializer, _ignoredEntries);
-    }
+    );
 
     /*
     /**********************************************************
@@ -164,8 +153,7 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
                 }
             }
         }
-        return withResolved(property, keySer, typeSer, valueSer,
-                            ignored);
+        return withResolved(property, keySer, typeSer, valueSer, ignored);
     }
 
     @Override
@@ -183,20 +171,10 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     }
 
     @Override
-    public boolean hasSingleElement(MapIterable<?, ?> map) {
-        return map.size() == 1;
-    }
-
-    @Override
-    public boolean isEmpty(SerializerProvider prov, MapIterable<?, ?> value) {
-        return value.isEmpty();
-    }
-
-    @Override
-    public void serialize(MapIterable<?, ?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         gen.writeStartObject(value);
-        if (!value.isEmpty()) {
+        if (!isEmpty(provider, value)) {
             serializeFields(value, gen, provider);
         }
         gen.writeEndObject();
@@ -204,22 +182,23 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
 
     @Override
     public void serializeWithType(
-            MapIterable<?, ?> value, JsonGenerator gen,
+            T value, JsonGenerator gen,
             SerializerProvider provider, TypeSerializer typeSer
     ) throws IOException {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        if (!value.isEmpty()) {
+        if (!isEmpty(provider, value)) {
             serializeFields(value, gen, provider);
         }
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    private final void serializeFields(MapIterable<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+    protected abstract void forEachKeyValue(T value, BiConsumer<Object, Object> action);
+
+    private void serializeFields(T value, JsonGenerator gen, SerializerProvider provider) {
         Set<String> ignored = _ignoredEntries;
-        mmap.forEachKeyValue((key, v) -> {
+        forEachKeyValue(value, (key, v) -> {
             try {
                 // First, serialize key
                 if ((ignored != null) && ignored.contains(key)) {
@@ -245,12 +224,12 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
                     valueSer.serializeWithType(v, gen, provider, _valueTypeSerializer);
                 }
             } catch (IOException e) {
-                PrimitiveMapSerializer.rethrowUnchecked(e);
+                rethrowUnchecked(e);
             }
         });
     }
 
-    private final JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
+    private JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
             Object value) throws JsonMappingException
     {
         final Class<?> cc = value.getClass();
@@ -264,4 +243,10 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
         }
         return _findAndAddDynamic(ctxt, cc);
     }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
+        throw (E) e;
+    }
 }
+

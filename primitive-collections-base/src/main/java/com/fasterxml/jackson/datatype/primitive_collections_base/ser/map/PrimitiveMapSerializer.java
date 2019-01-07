@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
+package com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
@@ -13,18 +13,14 @@ import java.io.IOException;
  * @author yawkat
  */
 public abstract class PrimitiveMapSerializer<T> extends StdSerializer<T> {
-    public PrimitiveMapSerializer(Class<T> t) {
+    private static final long serialVersionUID = 0L;
+
+    protected PrimitiveMapSerializer(Class<T> t) {
         super(t);
     }
 
-    public PrimitiveMapSerializer(JavaType type) {
+    protected PrimitiveMapSerializer(JavaType type) {
         super(type);
-    }
-
-    // used because the lambda passed to forEachKeyValue can't throw.
-    @SuppressWarnings("unchecked")
-    static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
-        throw (E) e;
     }
 
     @Override

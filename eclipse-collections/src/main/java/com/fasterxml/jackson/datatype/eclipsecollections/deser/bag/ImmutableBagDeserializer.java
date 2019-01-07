@@ -3,41 +3,21 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser.bag;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
+import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializers;
+import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
 import org.eclipse.collections.api.bag.ImmutableBag;
 import org.eclipse.collections.api.bag.MutableBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableBooleanBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableByteBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableCharBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableDoubleBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableFloatBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableIntBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableLongBag;
-import org.eclipse.collections.api.bag.primitive.ImmutableShortBag;
-import org.eclipse.collections.api.bag.primitive.MutableBooleanBag;
-import org.eclipse.collections.api.bag.primitive.MutableByteBag;
-import org.eclipse.collections.api.bag.primitive.MutableCharBag;
-import org.eclipse.collections.api.bag.primitive.MutableDoubleBag;
-import org.eclipse.collections.api.bag.primitive.MutableFloatBag;
-import org.eclipse.collections.api.bag.primitive.MutableIntBag;
-import org.eclipse.collections.api.bag.primitive.MutableLongBag;
-import org.eclipse.collections.api.bag.primitive.MutableShortBag;
+import org.eclipse.collections.api.bag.primitive.*;
+import org.eclipse.collections.impl.bag.mutable.primitive.ByteHashBag;
 import org.eclipse.collections.impl.factory.Bags;
-import org.eclipse.collections.impl.factory.primitive.BooleanBags;
-import org.eclipse.collections.impl.factory.primitive.ByteBags;
-import org.eclipse.collections.impl.factory.primitive.CharBags;
-import org.eclipse.collections.impl.factory.primitive.DoubleBags;
-import org.eclipse.collections.impl.factory.primitive.FloatBags;
-import org.eclipse.collections.impl.factory.primitive.IntBags;
-import org.eclipse.collections.impl.factory.primitive.LongBags;
-import org.eclipse.collections.impl.factory.primitive.ShortBags;
+import org.eclipse.collections.impl.factory.primitive.*;
 
 public final class ImmutableBagDeserializer {
     private ImmutableBagDeserializer() {
     }
 
     public static final class Ref extends
-            BaseCollectionDeserializer.Ref<ImmutableBag<?>, MutableBag<Object>> {
+            BaseRefCollectionDeserializer<ImmutableBag<?>, MutableBag<Object>> {
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(ImmutableBag.class, elementType, typeDeserializer, deserializer);
         }
@@ -53,7 +33,7 @@ public final class ImmutableBagDeserializer {
         }
 
         @Override
-        protected Ref<?, ?> withResolved(
+        protected Ref withResolved(
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {
@@ -62,7 +42,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Boolean extends
-            BaseCollectionDeserializer.Boolean<ImmutableBooleanBag, MutableBooleanBag> {
+            BaseCollectionDeserializers.Boolean<ImmutableBooleanBag, MutableBooleanBag> {
         public static final ImmutableBagDeserializer.Boolean INSTANCE = new ImmutableBagDeserializer.Boolean();
 
         public Boolean() {
@@ -81,7 +61,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Byte extends
-            BaseCollectionDeserializer.Byte<ImmutableByteBag, MutableByteBag> {
+            BaseCollectionDeserializers.Byte<ImmutableByteBag, MutableByteBag> {
         public static final ImmutableBagDeserializer.Byte INSTANCE = new ImmutableBagDeserializer.Byte();
 
         public Byte() {
@@ -94,13 +74,21 @@ public final class ImmutableBagDeserializer {
         }
 
         @Override
+        protected MutableByteBag createIntermediate(int expectedSize) {
+            // TODO check whether ByteHashBag really accepts expected size (the parameter is called
+            //  "size") or it is still "capacity" a-la in java.util.HashMap, and therefore the
+            //  expectedSize should be translated to "capacity" w. r. t. the default load factor.
+            return new ByteHashBag(expectedSize);
+        }
+
+        @Override
         protected ImmutableByteBag finish(MutableByteBag objects) {
             return objects.toImmutable();
         }
     }
 
     public static final class Short extends
-            BaseCollectionDeserializer.Short<ImmutableShortBag, MutableShortBag> {
+            BaseCollectionDeserializers.Short<ImmutableShortBag, MutableShortBag> {
         public static final ImmutableBagDeserializer.Short INSTANCE = new ImmutableBagDeserializer.Short();
 
         public Short() {
@@ -119,7 +107,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Char extends
-            BaseCollectionDeserializer.Char<ImmutableCharBag, MutableCharBag> {
+            BaseCollectionDeserializers.Char<ImmutableCharBag, MutableCharBag> {
         public static final ImmutableBagDeserializer.Char INSTANCE = new ImmutableBagDeserializer.Char();
 
         public Char() {
@@ -138,7 +126,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Int extends
-            BaseCollectionDeserializer.Int<ImmutableIntBag, MutableIntBag> {
+            BaseCollectionDeserializers.Int<ImmutableIntBag, MutableIntBag> {
         public static final ImmutableBagDeserializer.Int INSTANCE = new ImmutableBagDeserializer.Int();
 
         public Int() {
@@ -157,7 +145,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Float extends
-            BaseCollectionDeserializer.Float<ImmutableFloatBag, MutableFloatBag> {
+            BaseCollectionDeserializers.Float<ImmutableFloatBag, MutableFloatBag> {
         public static final ImmutableBagDeserializer.Float INSTANCE = new ImmutableBagDeserializer.Float();
 
         public Float() {
@@ -176,7 +164,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Long extends
-            BaseCollectionDeserializer.Long<ImmutableLongBag, MutableLongBag> {
+            BaseCollectionDeserializers.Long<ImmutableLongBag, MutableLongBag> {
         public static final ImmutableBagDeserializer.Long INSTANCE = new ImmutableBagDeserializer.Long();
 
         public Long() {
@@ -195,7 +183,7 @@ public final class ImmutableBagDeserializer {
     }
 
     public static final class Double extends
-            BaseCollectionDeserializer.Double<ImmutableDoubleBag, MutableDoubleBag> {
+            BaseCollectionDeserializers.Double<ImmutableDoubleBag, MutableDoubleBag> {
         public static final ImmutableBagDeserializer.Double INSTANCE = new ImmutableBagDeserializer.Double();
 
         public Double() {

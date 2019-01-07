@@ -1,15 +1,13 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.core.Version;
-
-import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaBeanSerializerModifier;
 import com.google.common.collect.BoundType;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Basic Jackson {@link Module} that adds support for Guava types.
+ * Basic Jackson {@link com.fasterxml.jackson.databind.Module} that adds support for Guava types.
  *<p>
  * Current configurability includes:
  *<ul>
