@@ -8,7 +8,7 @@ Currently included are:
 * [Guava](guava/) datatype (for [Guava](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
 * [HPPC](hppc/) datatype (for [High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
 * [PCollections](pcollections/) datatype (for [Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
-* [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.10)
+* [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.9.6)
 
 All modules are licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
@@ -30,7 +30,7 @@ To use these format backends Maven-based projects, use following dependency:
 </dependency>
 ```
 
-where `COLLECTION` would be one of `guava`, `hppc` or `pcollections`.
+where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, or `eclipse-collections`.
 
 NOTE! Parent pom itself only specifies defaults to individual modules but
 DOES NOT include them, so you CAN NOT just add dependency to `jackson-datatypes-collections`.
@@ -47,6 +47,7 @@ ObjectMapper mapper = new ObjectMapper()
     .registerModule(new GuavaModule())
     .registerModule(new HppcModule())
     .registerModule(new PCollectionsModule())
+    .registerModule(new EclipseCollectionsModule())
     ;
 ```
 
