@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
@@ -228,15 +230,45 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
         mmap.forEachKeyValue((key, v) -> {
             try {
                 // First, serialize key
+
+                // fast path: If the key is a string, we can check for ignore immediately. This will do nothing if
+                // key is a non-String reference.
+                //noinspection SuspiciousMethodCalls
                 if ((ignored != null) && ignored.contains(key)) {
                     return;
                 }
+
+                JsonSerializer<Object> ks;
                 if (key == null) {
-                    provider.findNullKeySerializer(getKeyType(), _property)
-                            .serialize(null, gen, provider);
+                    ks = provider.findNullKeySerializer(getKeyType(), _property);
                 } else {
-                    _keySerializer.serialize(key, gen, provider);
+                    ks = _keySerializer;
                 }
+                // slow path: if the key is not a string, and we have ignores declared on this map, buffer the key
+                // and compare the string output. (see #40)
+                if (ignored != null && !(key instanceof String)) {
+                    TokenBuffer tokenBuffer = new TokenBuffer(gen.getCodec(), false);
+                    ks.serialize(key, tokenBuffer, provider);
+                    JsonParser parser = tokenBuffer.asParser();
+                    if (parser.nextToken() != JsonToken.FIELD_NAME) {
+                        provider.reportMappingProblem(
+                                "Map key with ignored properties filter did not serialize to a string");
+                        return;
+                    }
+                    String text = parser.getText();
+                    if (parser.nextToken() != null) {
+                        provider.reportMappingProblem(
+                                "Map key with ignored properties filter did not serialize to a single token");
+                        return;
+                    }
+                    if (ignored.contains(text)) {
+                        return;
+                    }
+                    gen.writeFieldName(text);
+                } else {
+                    ks.serialize(key, gen, provider);
+                }
+
                 if (v == null) {
                     provider.defaultSerializeNull(gen);
                     return;

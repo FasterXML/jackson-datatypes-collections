@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefRefMapSerializer;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.collections.api.PrimitiveIterable;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MapIterable;
@@ -158,5 +163,22 @@ public final class SerializerTest extends ModuleTestBase {
 
     private static class B extends A {
 
+    }
+
+    @Test
+    public void ignoreSerialize() throws JsonProcessingException {
+        Assert.assertEquals(
+                "{\"ecMap\":{\"2\":\"2\"}}",
+                mapperWithModule().writeValueAsString(new IgnoreSerialize())
+        );
+    }
+
+    static class IgnoreSerialize {
+        @JsonIgnoreProperties("1")
+        @JsonSerialize(as = MapIterable.class)
+        public final MapIterable<Integer, String> ecMap = Maps.immutable.of(
+                1, "1",
+                2, "2"
+        );
     }
 }
