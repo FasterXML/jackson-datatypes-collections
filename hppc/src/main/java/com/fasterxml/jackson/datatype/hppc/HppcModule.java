@@ -12,7 +12,7 @@ import com.fasterxml.jackson.datatype.hppc.ser.*;
 
 import com.carrotsearch.hppc.ObjectContainer;
 
-public class HppcModule extends Module
+public class HppcModule extends com.fasterxml.jackson.databind.Module
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;

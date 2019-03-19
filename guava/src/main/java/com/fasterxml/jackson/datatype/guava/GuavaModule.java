@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *  </li>
  *</ul>
  */
-public class GuavaModule extends Module // can't use just SimpleModule, due to generic types
+public class GuavaModule extends com.fasterxml.jackson.databind.Module // can't use just SimpleModule, due to generic types
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
