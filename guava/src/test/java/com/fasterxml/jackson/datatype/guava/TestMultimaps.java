@@ -132,10 +132,10 @@ public class TestMultimaps extends ModuleTestBase
 
         // these seem to be order-sensitive as well, so only use for ordered-maps
         if (fullyOrdered) {
-            assertEquals(map, MAPPER.<Multimap<String, Boolean>>readValue(serializedForm, new TypeReference<TreeMultimap<String, Boolean>>() {}));
+            assertEquals(map, MAPPER.<TreeMultimap<String, Boolean>>readValue(serializedForm, new TypeReference<TreeMultimap<String, Boolean>>() {}));
             assertEquals(map, create(MAPPER.<Multimap<String, Boolean>>readValue(serializedForm, new TypeReference<Multimap<String, Boolean>>() {})));
-            assertEquals(map, create(MAPPER.<Multimap<String, Boolean>>readValue(serializedForm, new TypeReference<HashMultimap<String, Boolean>>() {})));
-            assertEquals(map, create(MAPPER.<Multimap<String, Boolean>>readValue(serializedForm, new TypeReference<ImmutableMultimap<String, Boolean>>() {})));
+            assertEquals(map, create(MAPPER.<HashMultimap<String, Boolean>>readValue(serializedForm, new TypeReference<HashMultimap<String, Boolean>>() {})));
+            assertEquals(map, create(MAPPER.<ImmutableMultimap<String, Boolean>>readValue(serializedForm, new TypeReference<ImmutableMultimap<String, Boolean>>() {})));
         }
     }
 
@@ -255,10 +255,11 @@ public class TestMultimaps extends ModuleTestBase
     }
     */
 
+    @SuppressWarnings("unchecked")
     private SetMultimap<String, String> _verifyMultiMapRead(TypeReference<?> type)
         throws IOException
     {
-        SetMultimap<String, String> map = MAPPER.readValue(STRING_STRING_MULTIMAP, type);
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, type);
         assertEquals(3, map.size());
         assertTrue(map.containsEntry("first", "abc"));
         assertTrue(map.containsEntry("first", "foo"));
@@ -290,9 +291,10 @@ public class TestMultimaps extends ModuleTestBase
         assertEquals("{\"map\":{\"a\":[\"foo\"]}}",
                 MAPPER.writeValueAsString(new MultiMapWithIgnores()));
     }
-    
+
+    @SuppressWarnings("unchecked")
     private ListMultimap<String, String> listBasedHelper(TypeReference<?> type) throws IOException {
-        ListMultimap<String, String> map = MAPPER.readValue(STRING_STRING_MULTIMAP, type);
+        ListMultimap<String, String> map = (ListMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, type);
         assertEquals(4, map.size());
         assertTrue(map.remove("first", "abc"));
         assertTrue(map.containsEntry("first", "abc"));
