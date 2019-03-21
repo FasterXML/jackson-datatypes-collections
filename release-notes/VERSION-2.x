@@ -15,6 +15,7 @@ Modules:
  (suggested by Philipp H, AUTplayed@github)
 #37: (eclipse-collections) Implement pair deserialization
  (contributed by Jonas K)
+#48: (all) Add simple module-info for JDK9+, using Moditect
 
 2.9.8 (15-Dec-2018)
 2.9.7 (19-Sep-2018)
