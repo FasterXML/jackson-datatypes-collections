@@ -57,6 +57,10 @@ PCollections (http://pcollections.org/) types
           </excludes>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 </project>

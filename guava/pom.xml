@@ -69,6 +69,10 @@ com.google.common.*;version="${version.guava.osgi}",
           </excludes>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 </project>

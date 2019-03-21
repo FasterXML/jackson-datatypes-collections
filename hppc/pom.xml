@@ -43,6 +43,10 @@ High-Performance Primitive Collections (HPPC, see http://labs.carrotsearch.com/h
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.moditect</groupId>
+        <artifactId>moditect-maven-plugin</artifactId>
+      </plugin>
     </plugins>
   </build>
 </project>
