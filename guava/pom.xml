@@ -22,7 +22,7 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
 
   <properties>
     <!-- 17-Apr-2018, tatu: For Jackson 3.0, guava 18 -> 20 (released Oct 2016) -->
-    <version.guava>20.0</version.guava>
+    <version.guava>27.1-jre</version.guava>
 
     <!-- 11-Sep-2015, tatu: As per [datatype-guava#80] -->
     <version.guava.osgi>[${version.guava}.0,22)</version.guava.osgi>
