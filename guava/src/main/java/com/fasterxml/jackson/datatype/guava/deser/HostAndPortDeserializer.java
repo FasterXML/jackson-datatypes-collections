@@ -22,9 +22,11 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
     {
         // Need to override this method, which otherwise would work just fine,
         // since we have legacy JSON Object format to support too:
-        if (p.currentToken() == JsonToken.START_OBJECT) { // old style
+        if (p.hasToken(JsonToken.START_OBJECT)) { // old style
             JsonNode root = p.readValueAsTree();
-            String host = root.path("hostText").asText();
+            // [datatypes-collections#45]: we actually have 2 possibilities depending on Guava version
+            JsonNode hostNode = root.get("host");
+            final String host = (hostNode == null) ? root.path("hostText").asText() : hostNode.textValue();
             JsonNode n = root.get("port");
             if (n == null) {
                 return HostAndPort.fromString(host);

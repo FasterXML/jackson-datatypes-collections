@@ -17,6 +17,11 @@ Modules:
  (contributed by Jonas K)
 #48: (all) Add simple module-info for JDK9+, using Moditect
 
+2.9.9 (not yet released)
+
+#45: HostAndPortDeserializer rely on older version property name
+ (reported by Jakub B)
+
 2.9.8 (15-Dec-2018)
 2.9.7 (19-Sep-2018)
 
