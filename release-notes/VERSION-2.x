@@ -16,6 +16,7 @@ Modules:
 #37: (eclipse-collections) Implement pair deserialization
  (contributed by Jonas K)
 #48: (all) Add simple module-info for JDK9+, using Moditect
+- Support nested `Optional` values wrt null provider (see [databind#2303]
 
 2.9.9 (not yet released)
 
