@@ -263,7 +263,7 @@ public class TestRange extends ModuleTestBase {
     public void testRangeWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = builderWithModule()
-                .enableDefaultTyping(DefaultTyping.NON_FINAL)
+                .enableDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
                 .build();
         Range<Integer> input = RangeFactory.closed(1, 10);
         String json = mapper.writeValueAsString(input);

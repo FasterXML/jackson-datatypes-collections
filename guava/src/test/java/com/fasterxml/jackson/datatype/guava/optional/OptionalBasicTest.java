@@ -295,7 +295,8 @@ public class OptionalBasicTest extends ModuleTestBase
     public void testWithTypingEnabled() throws Exception
     {
 		final ObjectMapper mapper = builderWithModule()
-		        .enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE)
+		        .enableDefaultTyping(new NoCheckSubTypeValidator(),
+		                DefaultTyping.OBJECT_AND_NON_CONCRETE)
 		        .build();
 		final OptionalData myData = new OptionalData();
 		myData.myString = Optional.fromNullable("abc");
