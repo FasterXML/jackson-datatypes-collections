@@ -18,7 +18,7 @@ Modules:
 #48: (all) Add simple module-info for JDK9+, using Moditect
 - Support nested `Optional` values wrt null provider (see [databind#2303]
 
-2.9.9 (not yet released)
+2.9.9 (16-May-2019)
 
 #45: HostAndPortDeserializer rely on older version property name
  (reported by Jakub B)
