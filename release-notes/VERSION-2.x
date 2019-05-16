@@ -9,7 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.9.9 (not yet released)
+2.9.9 (16-May-2019)
 
 #45: HostAndPortDeserializer rely on older version property name
  (reported by Jakub B)
