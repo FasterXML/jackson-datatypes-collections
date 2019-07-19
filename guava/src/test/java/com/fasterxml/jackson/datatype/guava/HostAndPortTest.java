@@ -28,7 +28,7 @@ public class HostAndPortTest extends ModuleTestBase
         // and Alt Old too:
         result = MAPPER.readValue(aposToQuotes("{'port':8080, 'host':'foobar.com'}"),
                 HostAndPort.class);
-        assertEquals("foobar.com", result.getHostText());
+        assertEquals("foobar.com", result.getHost());
         assertEquals(8080, result.getPort());
 
         // and new:
