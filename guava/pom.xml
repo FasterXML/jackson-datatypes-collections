@@ -3,7 +3,7 @@
   <parent>
     <groupId>com.fasterxml.jackson.datatype</groupId>
     <artifactId>jackson-datatypes-collections</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
+    <version>2.10.0.pr1-SNAPSHOT</version>
   </parent>
   <artifactId>jackson-datatype-guava</artifactId>
   <name>Jackson datatype: Guava</name>
@@ -22,10 +22,12 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
 
   <properties>
     <!-- 09-Feb-2016, tatu: For Jackson 2.9, move guava from 16 to 18 -->
-    <version.guava>18.0</version.guava>
+    <!-- 19-Jul-2019, tatu: and for 2.10, 18.0 to 20.0 -->
+    <version.guava>20.0</version.guava>
 
     <!-- 30-Oct-2018, tatu: as per [datatypes-collections#34], allow up to 25 -->
-    <version.guava.osgi>[${version.guava}.0,25)</version.guava.osgi>
+    <!-- 19-Jul-2019, tatu: and why not further? -->
+    <version.guava.osgi>[${version.guava}.0,28)</version.guava.osgi>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/guava</packageVersion.dir>

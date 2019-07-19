@@ -9,7 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0 (not yet released)
+2.10.0.pr1 (19-Jul-2019)
 
 #34: (guava) Allow use of Guava versions up to 25 (from 22)
  (suggested by Philipp H, AUTplayed@github)
@@ -17,6 +17,7 @@ Modules:
  (contributed by Jonas K)
 #48: (all) Add simple module-info for JDK9+, using Moditect
 - Support nested `Optional` values wrt null provider (see [databind#2303]
+- Update "preferred" Guava version to 20.0
 
 2.9.9 (16-May-2019)
 
