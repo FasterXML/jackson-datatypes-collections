@@ -22,7 +22,7 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
 
   <properties>
     <!-- 09-Feb-2016, tatu: For Jackson 2.9, move guava from 16 to 18 -->
-    <!-- 19-Jul-2019, tatu: and for 2.10, 18.0 to 20.0 -->
+    <!-- 19-Jul-2019, tatu: and for 2.10, 18.0 to 20.0 (last pre-Java8 version) -->
     <version.guava>20.0</version.guava>
 
     <!-- 30-Oct-2018, tatu: as per [datatypes-collections#34], allow up to 25 -->
