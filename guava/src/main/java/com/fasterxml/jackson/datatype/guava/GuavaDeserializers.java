@@ -54,7 +54,8 @@ public class GuavaDeserializers
         if (ImmutableCollection.class.isAssignableFrom(raw)) {
             if (ImmutableList.class.isAssignableFrom(raw)) {
                 return new ImmutableListDeserializer(type,
-                        elementTypeDeserializer, elementDeserializer);
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             if (ImmutableMultiset.class.isAssignableFrom(raw)) {
                 // sorted one?
@@ -62,10 +63,13 @@ public class GuavaDeserializers
                     /* See considerations for ImmutableSortedSet below. */
                     requireCollectionOfComparableElements(type, "ImmutableSortedMultiset");
                     return new ImmutableSortedMultisetDeserializer(type,
-                            elementTypeDeserializer, elementDeserializer);
+                            elementDeserializer, elementTypeDeserializer,
+                            null, null);
                 }
                 // nah, just regular one
-                return new ImmutableMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                return new ImmutableMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             if (ImmutableSet.class.isAssignableFrom(raw)) {
                 // sorted one?
@@ -75,40 +79,54 @@ public class GuavaDeserializers
                      */
                     requireCollectionOfComparableElements(type, "ImmutableSortedSet");
                     return new ImmutableSortedSetDeserializer(type,
-                            elementTypeDeserializer, elementDeserializer);
+                            elementDeserializer, elementTypeDeserializer,
+                            null, null);
                 }
                 // nah, just regular one
                 return new ImmutableSetDeserializer(type,
-                        elementTypeDeserializer, elementDeserializer);
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             // TODO: make configurable (for now just default blindly to a list)
-            return new ImmutableListDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return new ImmutableListDeserializer(type,
+                    elementDeserializer, elementTypeDeserializer,
+                    null, null);
         }
 
         // Multi-xxx collections?
         if (Multiset.class.isAssignableFrom(raw)) {
             if (SortedMultiset.class.isAssignableFrom(raw)) {
                 if (TreeMultiset.class.isAssignableFrom(raw)) {
-                    return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                    return new TreeMultisetDeserializer(type,
+                            elementDeserializer, elementTypeDeserializer,
+                            null, null);
                 }
 
                 // TODO: make configurable (for now just default blindly)
-                return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                return new TreeMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
 
             // Quite a few variations...
             if (LinkedHashMultiset.class.isAssignableFrom(raw)) {
-                return new LinkedHashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-            }
+                return new LinkedHashMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
+           }
             if (HashMultiset.class.isAssignableFrom(raw)) {
-                return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                return new HashMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             if (EnumMultiset.class.isAssignableFrom(raw)) {
                 // !!! TODO
             }
 
             // TODO: make configurable (for now just default blindly)
-            return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return new HashMultisetDeserializer(type,
+                    elementDeserializer, elementTypeDeserializer,
+                    null, null);
         }
 
         return null;

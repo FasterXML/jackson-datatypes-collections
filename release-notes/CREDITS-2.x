@@ -58,3 +58,8 @@ Neelav Rana (neelav@github)
 Jonas Konrad (Eclipse collections)
   * Contributed #29: Add eclipse-collections support
    (2.9.6)
+
+Jon Freedman (jonfreedman@github)
+  * Reported #53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
+   an empty `Optional` from null
+   (2.10.0)

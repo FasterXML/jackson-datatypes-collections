@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -11,9 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
-import java.io.IOException;
-import java.util.Arrays;
+
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;
@@ -33,6 +34,8 @@ import org.eclipse.collections.api.collection.primitive.MutableLongCollection;
 import org.eclipse.collections.api.collection.primitive.MutableShortCollection;
 
 public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDeserializer<T> {
+    private static final long serialVersionUID = 2L;
+
     protected BaseCollectionDeserializer(Class<? super T> cls) {
         super(cls);
     }

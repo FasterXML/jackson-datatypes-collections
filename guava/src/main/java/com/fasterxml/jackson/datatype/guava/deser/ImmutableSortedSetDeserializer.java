@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
 import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableSortedSet;
 
@@ -10,19 +11,19 @@ public class ImmutableSortedSetDeserializer extends GuavaImmutableCollectionDese
 {
     private static final long serialVersionUID = 1L;
 
-    public ImmutableSortedSetDeserializer(CollectionType type,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
-    {
-        super(type, typeDeser, deser);
+    public ImmutableSortedSetDeserializer(JavaType selfType,
+            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     @Override
-    public ImmutableSortedSetDeserializer withResolved(TypeDeserializer typeDeser,
-            JsonDeserializer<?> valueDeser) {
+    public ImmutableSortedSetDeserializer withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableSortedSetDeserializer(_containerType,
-                typeDeser, valueDeser);
+                valueDeser, typeDeser, nuller, unwrapSingle);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     protected Builder<Object> createBuilder() {
