@@ -68,7 +68,6 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
                 return (T) createMultiset();
             }
             value = _nullProvider.getNullValue(ctxt);
-            value = null;
         } else if (typeDeser == null) {
             value = valueDes.deserialize(p, ctxt);
         } else {
