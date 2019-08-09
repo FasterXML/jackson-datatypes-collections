@@ -5,40 +5,46 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
+
 import com.google.common.collect.Multiset;
 
 abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     extends GuavaCollectionDeserializer<T>
 {
-    private static final long serialVersionUID = 1L;
-
-    GuavaMultisetDeserializer(CollectionType type, TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
-        super(type, typeDeser, deser);
+    GuavaMultisetDeserializer(JavaType selfType,
+            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     protected abstract T createMultiset();
 
     @Override
-    protected T _deserializeContents(JsonParser jp, DeserializationContext ctxt) throws IOException,
+    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt) throws IOException,
             JsonProcessingException {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
-        final TypeDeserializer typeDeser = _typeDeserializerForValue;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         T set = createMultiset();
     
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value;
-            
+
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                if (_skipNullValues) {
+                    continue;
+                }
+                value = _nullProvider.getNullValue(ctxt);
             } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
+                value = valueDes.deserialize(p, ctxt);
             } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
             set.add(value);
         }
@@ -50,13 +56,16 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
             throws IOException, JsonProcessingException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _typeDeserializerForValue;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         JsonToken t = p.currentToken();
 
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = null;
+            if (_skipNullValues) {
+                return (T) createMultiset();
+            }
+            value = _nullProvider.getNullValue(ctxt);
         } else if (typeDeser == null) {
             value = valueDes.deserialize(p, ctxt);
         } else {

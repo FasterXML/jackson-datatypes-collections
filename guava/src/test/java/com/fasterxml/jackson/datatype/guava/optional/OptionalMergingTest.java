@@ -39,7 +39,7 @@ public class OptionalMergingTest extends ModuleTestBase
             this.y = y;
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods

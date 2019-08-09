@@ -9,6 +9,12 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.0.pr2 (not yet released)
+
+#53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
+  an empty `Optional` from null
+ (reported by Jon F)
+
 2.10.0.pr1 (19-Jul-2019)
 
 #34: (guava) Allow use of Guava versions up to 25 (from 22)

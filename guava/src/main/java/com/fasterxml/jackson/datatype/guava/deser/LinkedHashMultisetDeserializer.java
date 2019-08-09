@@ -1,16 +1,21 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
+
 import com.google.common.collect.LinkedHashMultiset;
 
-public class LinkedHashMultisetDeserializer extends GuavaMultisetDeserializer<LinkedHashMultiset<Object>>
+public class LinkedHashMultisetDeserializer
+    extends GuavaMultisetDeserializer<LinkedHashMultiset<Object>>
 {
     private static final long serialVersionUID = 1L;
 
-    public LinkedHashMultisetDeserializer(CollectionType type, TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
-        super(type, typeDeser, deser);
+    public LinkedHashMultisetDeserializer(JavaType selfType,
+            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     @Override
@@ -19,8 +24,9 @@ public class LinkedHashMultisetDeserializer extends GuavaMultisetDeserializer<Li
     }
 
     @Override
-    public GuavaCollectionDeserializer<LinkedHashMultiset<Object>> withResolved(TypeDeserializer typeDeser,
-            JsonDeserializer<?> valueDeser) {
-        return new LinkedHashMultisetDeserializer(_containerType, typeDeser, valueDeser);
+    public GuavaCollectionDeserializer<LinkedHashMultiset<Object>> withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        return new LinkedHashMultisetDeserializer(_containerType,
+                valueDeser, typeDeser, nuller, unwrapSingle);
     }
 }

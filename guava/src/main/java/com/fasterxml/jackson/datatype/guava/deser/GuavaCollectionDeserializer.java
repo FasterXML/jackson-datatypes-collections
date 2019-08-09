@@ -1,20 +1,23 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
 import java.io.IOException;
+import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
 
+/**
+ * Base class for Guava-specific collection deserializers.
+ */
 public abstract class GuavaCollectionDeserializer<T>
-    extends StdDeserializer<T>
+    extends ContainerDeserializerBase<T>
 {
     private static final long serialVersionUID = 1L;
 
-    protected final CollectionType _containerType;
-    
     /**
      * Deserializer used for values contained in collection being deserialized;
      * either assigned on constructor, or during resolve().
@@ -26,14 +29,20 @@ public abstract class GuavaCollectionDeserializer<T>
      * is the type deserializer that can deserialize required type
      * information
      */
-    protected final TypeDeserializer _typeDeserializerForValue;
-    
-    protected GuavaCollectionDeserializer(CollectionType type,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+    protected final TypeDeserializer _valueTypeDeserializer;
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
+    protected GuavaCollectionDeserializer(JavaType selfType,
+            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle)
     {
-        super(type);
-        _containerType = type;
-        _typeDeserializerForValue = typeDeser;
+        super(selfType, nuller, unwrapSingle);
+        _valueTypeDeserializer = typeDeser;
         _valueDeserializer = deser;
     }
 
@@ -42,13 +51,8 @@ public abstract class GuavaCollectionDeserializer<T>
      * instances.
      */
     public abstract GuavaCollectionDeserializer<T> withResolved(
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
-    
-    /*
-    /**********************************************************
-    /* Validation, post-processing
-    /**********************************************************
-     */
+            JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser, 
+            NullValueProvider nuller, Boolean unwrapSingle);
 
     /**
      * Method called to finalize setup of this deserializer,
@@ -59,18 +63,39 @@ public abstract class GuavaCollectionDeserializer<T>
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        JsonDeserializer<?> deser = _valueDeserializer;
-        TypeDeserializer typeDeser = _typeDeserializerForValue;
-        if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+
+        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
+        if (valueDeser == null) {
+            valueDeser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
         }
-        if (typeDeser != null) {
-            typeDeser = typeDeser.forProperty(property);
+        if (valueTypeDeser != null) {
+            valueTypeDeser = valueTypeDeser.forProperty(property);
         }
-        if (deser == _valueDeserializer && typeDeser == _typeDeserializerForValue) {
-            return this;
+
+        NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
+
+        if ( (unwrapSingle != _unwrapSingle)
+                || (nuller != _nullProvider)
+                || (valueDeser != _valueDeserializer)
+                || (valueTypeDeser != _valueTypeDeserializer)) {
+            return withResolved(valueDeser, valueTypeDeser, nuller, unwrapSingle);
         }
-        return withResolved(typeDeser, deser);
+        return this;
+    }
+
+    /*
+    /**********************************************************
+    /* Base class method implementations
+    /**********************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonDeserializer<Object> getContentDeserializer() {
+        return (JsonDeserializer<Object>) _valueDeserializer;
     }
 
     /*
@@ -78,7 +103,7 @@ public abstract class GuavaCollectionDeserializer<T>
     /* Deserialization interface
     /**********************************************************
      */
-    
+
     /**
      * Base implementation that does not assume specific type
      * inclusion mechanism. Sub-classes are expected to override

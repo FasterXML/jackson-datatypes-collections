@@ -33,8 +33,6 @@ import org.eclipse.collections.api.collection.primitive.MutableLongCollection;
 import org.eclipse.collections.api.collection.primitive.MutableShortCollection;
 
 public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDeserializer<T> {
-    private static final long serialVersionUID = 1L;
-
     protected BaseCollectionDeserializer(Class<? super T> cls) {
         super(cls);
     }
@@ -90,8 +88,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Boolean<T extends BooleanIterable, Intermediate extends MutableBooleanCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Boolean(Class<? super T> cls) {
             super(cls);
         }
@@ -105,8 +101,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Byte<T extends ByteIterable, Intermediate extends MutableByteCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Byte(Class<? super T> cls) {
             super(cls);
         }
@@ -133,8 +127,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Short<T extends ShortIterable, Intermediate extends MutableShortCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Short(Class<? super T> cls) {
             super(cls);
         }
@@ -148,8 +140,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Char<T extends CharIterable, Intermediate extends MutableCharCollection>
             extends StdDeserializer<T> {
-        private static final long serialVersionUID = 3L;
-
         private static final int BATCH_COPY_SIZE = 4096;
 
         // this isn't actually a BaseCollectionDeserializer because we serialize from/to strings instead
@@ -222,8 +212,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Int<T extends IntIterable, Intermediate extends MutableIntCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Int(Class<? super T> cls) {
             super(cls);
         }
@@ -237,8 +225,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Float<T extends FloatIterable, Intermediate extends MutableFloatCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Float(Class<? super T> cls) {
             super(cls);
         }
@@ -252,8 +238,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Long<T extends LongIterable, Intermediate extends MutableLongCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Long(Class<? super T> cls) {
             super(cls);
         }
@@ -267,8 +251,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     public abstract static class Double<T extends DoubleIterable, Intermediate extends MutableDoubleCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Double(Class<? super T> cls) {
             super(cls);
         }
@@ -283,8 +265,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     public abstract static class Ref<T, Intermediate extends MutableCollection<Object>>
             extends BaseCollectionDeserializer<T, Intermediate>
     {
-        private static final long serialVersionUID = 3L;
-
         protected final JavaType _elementType;
         protected final JsonDeserializer<?> _valueDeserializer;
         protected final TypeDeserializer _typeDeserializerForValue;
