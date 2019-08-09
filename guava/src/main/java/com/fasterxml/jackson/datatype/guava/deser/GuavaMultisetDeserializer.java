@@ -52,28 +52,14 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     }
 
     @Override
-    protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-    {
-        JsonDeserializer<?> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        JsonToken t = p.currentToken();
+    protected T _createEmpty(DeserializationContext ctxt) throws IOException {
+        return createMultiset();
+    }
 
-        Object value;
-        
-        if (t == JsonToken.VALUE_NULL) {
-            if (_skipNullValues) {
-                return (T) createMultiset();
-            }
-            value = _nullProvider.getNullValue(ctxt);
-        } else if (typeDeser == null) {
-            value = valueDes.deserialize(p, ctxt);
-        } else {
-            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-        }
-        T result = createMultiset();
+    @Override
+    protected T _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+        final T result = createMultiset();
         result.add(value);
         return result;
     }
-
 }

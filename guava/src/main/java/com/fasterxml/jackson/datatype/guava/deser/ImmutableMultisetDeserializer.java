@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
@@ -28,5 +31,15 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableCollectionDeser
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableMultisetDeserializer(_containerType,
                 valueDeser, typeDeser, nuller, unwrapSingle);
+    }
+
+    @Override
+    protected ImmutableMultiset<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+        return ImmutableMultiset.of();
+    }
+
+    @Override
+    protected ImmutableMultiset<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+        return ImmutableMultiset.of(value);
     }
 }

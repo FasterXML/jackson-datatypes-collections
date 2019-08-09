@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
@@ -19,6 +22,13 @@ public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectio
     }
 
     @Override
+    public GuavaCollectionDeserializer<ImmutableSortedMultiset<Object>> withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        return new ImmutableSortedMultisetDeserializer(_containerType,
+                valueDeser, typeDeser, nuller, unwrapSingle);
+    }
+
+    @Override
     protected Builder<Object> createBuilder() {
         /* This is suboptimal. See the considerations in ImmutableSortedSetDeserializer. */
         @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -27,9 +37,15 @@ public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectio
     }
 
     @Override
-    public GuavaCollectionDeserializer<ImmutableSortedMultiset<Object>> withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle) {
-        return new ImmutableSortedMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle);
+    protected ImmutableSortedMultiset<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+        return ImmutableSortedMultiset.of();
+    }
+
+    @Override
+    protected ImmutableSortedMultiset<Object> _createWithSingleElement(DeserializationContext ctxt,
+            Object value) throws IOException {
+        return (ImmutableSortedMultiset<Object>) createBuilder()
+                .add(value)
+                .build();
     }
 }
