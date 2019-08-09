@@ -150,6 +150,30 @@ public abstract class GuavaCollectionDeserializer<T>
      * 
      * @since 2.3
      */
-    protected abstract T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException;
+    protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
+        final JsonToken t = p.getCurrentToken();
+
+        final Object value;
+
+        if (t == JsonToken.VALUE_NULL) {
+            if (_skipNullValues) {
+                return _createEmpty(ctxt);
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        } else if (typeDeser == null) {
+            value = valueDes.deserialize(p, ctxt);
+        } else {
+            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+        }
+        return _createWithSingleElement(ctxt, value);
+
+    }
+
+    protected abstract T _createEmpty(DeserializationContext ctxt) throws IOException;
+
+    protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException;
 }

@@ -2,6 +2,8 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import com.google.common.collect.ImmutableList;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -32,7 +34,16 @@ public class ImmutableListDeserializer extends
 
     @Override
     protected ImmutableList.Builder<Object> createBuilder() {
-        ImmutableList.Builder<Object> builder = ImmutableList.builder();
-        return builder;
+        return ImmutableList.builder();
+    }
+
+    @Override
+    protected ImmutableList<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+        return ImmutableList.of();
+    }
+
+    @Override
+    protected ImmutableList<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+        return ImmutableList.of(value);
     }
 }
