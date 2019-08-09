@@ -147,7 +147,7 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer valueTypeDeserializer, JsonDeserializer<?> valueDeserializer)
         throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
@@ -155,15 +155,16 @@ public class GuavaDeserializers
         // ImmutableXxxMap types?
         if (ImmutableMap.class.isAssignableFrom(raw)) {
             if (ImmutableSortedMap.class.isAssignableFrom(raw)) {
-                return new ImmutableSortedMapDeserializer(type, keyDeserializer, elementTypeDeserializer,
-                        elementDeserializer);
+                return new ImmutableSortedMapDeserializer(type, keyDeserializer,
+                        valueDeserializer, valueTypeDeserializer, null);
             }
             if (ImmutableBiMap.class.isAssignableFrom(raw)) {
-                return new ImmutableBiMapDeserializer(type, keyDeserializer, elementTypeDeserializer,
-                        elementDeserializer);
+                return new ImmutableBiMapDeserializer(type, keyDeserializer,
+                        valueDeserializer, valueTypeDeserializer, null);
             }
             // Otherwise, plain old ImmutableMap...
-            return new ImmutableMapDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            return new ImmutableMapDeserializer(type, keyDeserializer,
+                    valueDeserializer, valueTypeDeserializer, null);
         }
 
         // XxxBiMap types?

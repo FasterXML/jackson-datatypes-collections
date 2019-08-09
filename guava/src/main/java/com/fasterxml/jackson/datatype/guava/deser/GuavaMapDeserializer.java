@@ -6,15 +6,17 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.MapType;
 
 public abstract class GuavaMapDeserializer<T>
-    extends JsonDeserializer<T>
+    extends ContainerDeserializerBase<T>
     implements ContextualDeserializer
 {
-    protected final MapType _mapType;
-    
+    private static final long serialVersionUID = 2L;
+
     /**
      * Key deserializer used, if not null. If null, String from JSON
      * content is used as is.
@@ -30,7 +32,7 @@ public abstract class GuavaMapDeserializer<T>
      * If value instances have polymorphic type information, this
      * is the type deserializer that can handle it
      */
-    protected final TypeDeserializer _typeDeserializerForValue;
+    protected final TypeDeserializer _valueTypeDeserializer;
 
     /*
     /**********************************************************
@@ -38,13 +40,14 @@ public abstract class GuavaMapDeserializer<T>
     /**********************************************************
      */
     
-    protected GuavaMapDeserializer(MapType type, KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+    protected GuavaMapDeserializer(JavaType type, KeyDeserializer keyDeser,
+            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller)
     {
-        _mapType = type;
+        super(type, nuller, null);
         _keyDeserializer = keyDeser;
-        _typeDeserializerForValue = typeDeser;
-        _valueDeserializer = deser;
+        _valueDeserializer = valueDeser;
+        _valueTypeDeserializer = valueTypeDeser;
     }
 
     /**
@@ -52,8 +55,21 @@ public abstract class GuavaMapDeserializer<T>
      * instances.
      */
     public abstract GuavaMapDeserializer<T> withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
-    
+            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller);
+
+    /*
+    /**********************************************************
+    /* Abstract method impl
+    /**********************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonDeserializer<Object> getContentDeserializer() {
+        return (JsonDeserializer<Object>) _valueDeserializer;
+    }
+
     /*
     /**********************************************************
     /* Validation, post-processing
@@ -70,22 +86,41 @@ public abstract class GuavaMapDeserializer<T>
             BeanProperty property) throws JsonMappingException
     {
         KeyDeserializer keyDeser = _keyDeserializer;
-        JsonDeserializer<?> deser = _valueDeserializer;
-        TypeDeserializer typeDeser = _typeDeserializerForValue;
-        // Do we need any contextualization?
-        if ((keyDeser != null) && (deser != null) && (typeDeser == null)) { // nope
+        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
+
+        // First: fetch and/or contextualize deserializers (key, value, value type)
+        if (keyDeser == null) {
+            keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
+        } else {
+            if (keyDeser instanceof ContextualKeyDeserializer) {
+                keyDeser = ((ContextualKeyDeserializer) keyDeser).createContextual(ctxt, property);
+            }
+        }
+        final JavaType vt = _containerType.getContentType();
+        if (valueDeser == null) {
+            valueDeser = ctxt.findContextualValueDeserializer(vt, property);
+        } else {
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
+        }
+        if (valueTypeDeser != null) {
+            valueTypeDeser = valueTypeDeser.forProperty(property);
+        }
+
+        // Then other handlers
+
+        NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
+
+        // !!! 08-Aug-2019, tatu: TODO: null skipping? Ignored properties?
+        
+        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
+                && (_valueTypeDeserializer == valueTypeDeser)
+                && (_nullProvider == nuller)
+                ) {
             return this;
         }
-        if (keyDeser == null) {
-            keyDeser = ctxt.findKeyDeserializer(_mapType.getKeyType(), property);
-        }
-        if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
-        }
-        if (typeDeser != null) {
-            typeDeser = typeDeser.forProperty(property);
-        }
-        return withResolved(keyDeser, typeDeser, deser);
+        
+        return withResolved(keyDeser, valueDeser, valueTypeDeser, nuller);
     }
 
     /*
@@ -120,7 +155,7 @@ public abstract class GuavaMapDeserializer<T>
             t = p.nextToken();
         }
         if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            return (T) ctxt.handleUnexpectedToken(_mapType.getRawClass(), p);
+            return (T) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
         }
         return _deserializeEntries(p, ctxt);
     }
