@@ -645,7 +645,7 @@ public final class DeserializerTest extends ModuleTestBase {
         final String actJson = mapper.writerFor(new TypeReference<ObjectIntPair<A>>() {})
                 .writeValueAsString(pair);
         String expJson = "{\"one\":{\"@c\":\".DeserializerTest$B\"},\"two\":5}";
-        Assert.assertEquals(expJson, actJson);
+        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
         Assert.assertEquals(pair,
                 mapper.readValue(actJson, new TypeReference<ObjectIntPair<A>>() {})
         );
