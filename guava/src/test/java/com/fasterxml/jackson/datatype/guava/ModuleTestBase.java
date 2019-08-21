@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.guava;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 
 public abstract class ModuleTestBase extends junit.framework.TestCase
@@ -21,6 +21,17 @@ public abstract class ModuleTestBase extends junit.framework.TestCase
         module.configureAbsentsAsNulls(absentsAsNulls);
         mapper.registerModule(module);
         return mapper;
+    }
+
+    protected JsonMapper.Builder builderWithModule() {
+        return builderWithModule(false);
+    }
+    
+    protected JsonMapper.Builder builderWithModule(boolean absentsAsNulls) {
+        GuavaModule module = new GuavaModule();
+        module.configureAbsentsAsNulls(absentsAsNulls);
+        return JsonMapper.builder()
+                .addModule(module);
     }
 
     protected String aposToQuotes(String json) {

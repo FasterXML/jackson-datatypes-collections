@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
-
+import com.fasterxml.jackson.datatype.guava.testutil.NoCheckSubTypeValidator;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -254,8 +254,10 @@ public class TestRange extends ModuleTestBase {
     // [datatypes-collections#12]
     public void testRangeWithDefaultTyping() throws Exception
     {
-        ObjectMapper mapper = mapperWithModule();
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(),
+                        ObjectMapper.DefaultTyping.NON_FINAL)
+                .build();
         Range<Integer> input = RangeFactory.closed(1, 10);
         String json = mapper.writeValueAsString(input);
 

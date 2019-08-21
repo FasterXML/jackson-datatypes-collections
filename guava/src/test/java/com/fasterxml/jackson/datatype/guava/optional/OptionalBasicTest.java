@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
-
+import com.fasterxml.jackson.datatype.guava.testutil.NoCheckSubTypeValidator;
 import com.google.common.base.Optional;
 
 public class OptionalBasicTest extends ModuleTestBase
@@ -281,9 +281,11 @@ public class OptionalBasicTest extends ModuleTestBase
     
     public void testWithTypingEnabled() throws Exception
     {
-		final ObjectMapper objectMapper = mapperWithModule();
-		// ENABLE TYPING
-		objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
+		final ObjectMapper objectMapper = builderWithModule()
+		        // ENABLE TYPING
+		        .activateDefaultTyping(new NoCheckSubTypeValidator(),
+		                ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE)
+		        .build();
 
 		final OptionalData myData = new OptionalData();
 		myData.myString = Optional.fromNullable("abc");
