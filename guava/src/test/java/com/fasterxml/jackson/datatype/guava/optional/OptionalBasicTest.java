@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
-
 import com.google.common.base.Optional;
 
 public class OptionalBasicTest extends ModuleTestBase
@@ -67,7 +66,6 @@ public class OptionalBasicTest extends ModuleTestBase
         public CaseChangingStringWrapper(String s) { value = Optional.of(s); }
     }
 
-    @SuppressWarnings("serial")
     public static class UpperCasingSerializer extends StdScalarSerializer<String>
     {
         public UpperCasingSerializer() { super(String.class); }
@@ -79,7 +77,6 @@ public class OptionalBasicTest extends ModuleTestBase
         }
     }
 
-    @SuppressWarnings("serial")
     public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
     {
         public LowerCasingDeserializer() { super(String.class); }
@@ -295,7 +292,7 @@ public class OptionalBasicTest extends ModuleTestBase
     public void testWithTypingEnabled() throws Exception
     {
 		final ObjectMapper mapper = builderWithModule()
-		        .enableDefaultTyping(new NoCheckSubTypeValidator(),
+		        .activateDefaultTyping(new NoCheckSubTypeValidator(),
 		                DefaultTyping.OBJECT_AND_NON_CONCRETE)
 		        .build();
 		final OptionalData myData = new OptionalData();
