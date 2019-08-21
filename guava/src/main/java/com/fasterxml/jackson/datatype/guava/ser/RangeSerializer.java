@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+import java.util.Optional;
 
 /**
  * Jackson serializer for a Guava {@link Range}.
@@ -99,26 +100,29 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
+        PropertyNamingStrategy propertyNamingStrategy =
+                Optional.ofNullable(provider.getConfig().getPropertyNamingStrategy())
+                        .orElse(PropertyNamingStrategy.LOWER_CAMEL_CASE);
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
-                g.writeFieldName("lowerEndpoint");
+                g.writeFieldName(propertyNamingStrategy.nameForField(provider.getConfig(), null, "lowerEndpoint"));
                 _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), g);
+                provider.defaultSerializeField(propertyNamingStrategy.nameForField(provider.getConfig(), null, "lowerEndpoint"), value.lowerEndpoint(), g);
             }
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
-            g.writeStringField("lowerBoundType", value.lowerBoundType().name());
+            g.writeStringField(propertyNamingStrategy.nameForField(provider.getConfig(), null, "lowerBoundType"), value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
-                g.writeFieldName("upperEndpoint");
+                g.writeFieldName(propertyNamingStrategy.nameForField(provider.getConfig(), null, "upperEndpoint"));
                 _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), g);
+                provider.defaultSerializeField(propertyNamingStrategy.nameForField(provider.getConfig(), null, "upperEndpoint"), value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
-            g.writeStringField("upperBoundType", value.upperBoundType().name());
+            g.writeStringField(propertyNamingStrategy.nameForField(provider.getConfig(), null, "upperBoundType"), value.upperBoundType().name());
         }
     }
 

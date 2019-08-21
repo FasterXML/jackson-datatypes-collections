@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
+import java.util.Optional;
 
 /**
  * Jackson deserializer for a Guava {@link Range}.
@@ -121,17 +122,20 @@ public class RangeDeserializer
         for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
             expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = p.currentName();
+            PropertyNamingStrategy propertyNamingStrategy =
+                    Optional.ofNullable(context.getConfig().getPropertyNamingStrategy())
+                            .orElse(PropertyNamingStrategy.LOWER_CAMEL_CASE);
             try {
-                if (fieldName.equals("lowerEndpoint")) {
+                if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerEndpoint"))) {
                     p.nextToken();
                     lowerEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals("upperEndpoint")) {
+                } else if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "upperEndpoint"))) {
                     p.nextToken();
                     upperEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals("lowerBoundType")) {
+                } else if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerBoundType"))) {
                     p.nextToken();
                     lowerBoundType = deserializeBoundType(context, p);
-                } else if (fieldName.equals("upperBoundType")) {
+                } else if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "upperBoundType"))) {
                     p.nextToken();
                     upperBoundType = deserializeBoundType(context, p);
                 } else {
