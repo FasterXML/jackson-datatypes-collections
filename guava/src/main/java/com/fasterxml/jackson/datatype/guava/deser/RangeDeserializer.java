@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
-import java.util.Optional;
 
 /**
  * Jackson deserializer for a Guava {@link Range}.
@@ -33,7 +32,7 @@ public class RangeDeserializer
     protected final JavaType _rangeType;
 
     protected final JsonDeserializer<Object> _endpointDeserializer;
-    
+
     private final PropertyNamingStrategy _propertyNamingStrategy;
 
     private BoundType _defaultBoundType;
@@ -49,11 +48,11 @@ public class RangeDeserializer
      */
     @Deprecated // since 2.7
     public RangeDeserializer(JavaType rangeType) {
-        this(null, rangeType, null);
+        this(null, rangeType);
     }
     
-    public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType,  PropertyNamingStrategy propertyNamingStrategy) {
-        this(rangeType, null, propertyNamingStrategy);
+    public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType) {
+        this(rangeType, null, PropertyNamingStrategy.LOWER_CAMEL_CASE);
         _defaultBoundType = defaultBoundType;
     }
 
@@ -64,6 +63,12 @@ public class RangeDeserializer
         _rangeType = rangeType;
         _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
         _propertyNamingStrategy = propertyNamingStrategy;
+    }
+
+    @SuppressWarnings("unchecked")
+    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType)
+    {
+        this(rangeType, endpointDeser, defaultBoundType, PropertyNamingStrategy.LOWER_CAMEL_CASE);
     }
 
     @SuppressWarnings("unchecked")
@@ -83,14 +88,21 @@ public class RangeDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+        PropertyNamingStrategy propertyNamingStrategy = ctxt.getConfig().getPropertyNamingStrategy();
         if (_endpointDeserializer == null) {
             JavaType endpointType = _rangeType.containedType(0);
             if (endpointType == null) { // should this ever occur?
                 endpointType = TypeFactory.unknownType();
             }
             JsonDeserializer<Object> deser = ctxt.findContextualValueDeserializer(endpointType, property);
-            PropertyNamingStrategy propertyNamingStrategy = ctxt.getConfig().getPropertyNamingStrategy();
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, propertyNamingStrategy);
+            if (propertyNamingStrategy != null) {
+                return new RangeDeserializer(_rangeType, deser, _defaultBoundType, propertyNamingStrategy);
+            } else {
+                return new RangeDeserializer(_rangeType, deser, _defaultBoundType);
+            }
+        }
+        else if (propertyNamingStrategy != null) {
+            return new RangeDeserializer(_rangeType, _endpointDeserializer, _defaultBoundType, propertyNamingStrategy);
         }
         return this;
     }
@@ -127,20 +139,17 @@ public class RangeDeserializer
         for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
             expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = p.currentName();
-            PropertyNamingStrategy propertyNamingStrategy =
-                    Optional.ofNullable(_propertyNamingStrategy)
-                            .orElse(PropertyNamingStrategy.LOWER_CAMEL_CASE);
             try {
-                if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerEndpoint"))) {
+                if (fieldName.equals(_propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerEndpoint"))) {
                     p.nextToken();
                     lowerEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "upperEndpoint"))) {
+                } else if (fieldName.equals(_propertyNamingStrategy.nameForField(context.getConfig(), null, "upperEndpoint"))) {
                     p.nextToken();
                     upperEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerBoundType"))) {
+                } else if (fieldName.equals(_propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerBoundType"))) {
                     p.nextToken();
                     lowerBoundType = deserializeBoundType(context, p);
-                } else if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "upperBoundType"))) {
+                } else if (fieldName.equals(_propertyNamingStrategy.nameForField(context.getConfig(), null, "upperBoundType"))) {
                     p.nextToken();
                     upperBoundType = deserializeBoundType(context, p);
                 } else {
