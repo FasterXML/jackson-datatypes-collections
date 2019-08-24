@@ -24,6 +24,8 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     protected final JsonSerializer<Object> _endpointSerializer;
 
+    private PropertyNamingStrategy _propertyNamingStrategy;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -32,12 +34,17 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     public RangeSerializer(JavaType type) { this(type, null); }
 
+    public RangeSerializer(JavaType type, PropertyNamingStrategy propertyNamingStrategy) {
+        this(type, null, propertyNamingStrategy);
+    }
+
     @SuppressWarnings("unchecked")
-    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer)
+    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer, PropertyNamingStrategy propertyNamingStrategy)
     {
         super(type);
         _rangeType = type;
         _endpointSerializer = (JsonSerializer<Object>) endpointSer;
+        _propertyNamingStrategy = propertyNamingStrategy;
     }
 
     @Override
@@ -54,7 +61,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
             if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
                 JsonSerializer<?> ser = prov.findSecondaryPropertySerializer(endpointType, property);
-                return new RangeSerializer(_rangeType, ser);
+                return new RangeSerializer(_rangeType, ser, prov.getConfig().getPropertyNamingStrategy());
             }
             /* 21-Sep-2014, tatu: Need to make sure all serializers get proper contextual
              *   access, in case they rely on annotations on properties... (or, more generally,
@@ -63,7 +70,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         } else {
             JsonSerializer<?> cs = _endpointSerializer.createContextual(prov, property);
             if (cs != _endpointSerializer) {
-                return new RangeSerializer(_rangeType, cs);
+                return new RangeSerializer(_rangeType, cs, prov.getConfig().getPropertyNamingStrategy());
             }
         }
         return this;
@@ -101,7 +108,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         throws IOException
     {
         PropertyNamingStrategy propertyNamingStrategy =
-                Optional.ofNullable(provider.getConfig().getPropertyNamingStrategy())
+                Optional.ofNullable(_propertyNamingStrategy)
                         .orElse(PropertyNamingStrategy.LOWER_CAMEL_CASE);
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {

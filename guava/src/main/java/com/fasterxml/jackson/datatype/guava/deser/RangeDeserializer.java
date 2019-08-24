@@ -33,6 +33,8 @@ public class RangeDeserializer
     protected final JavaType _rangeType;
 
     protected final JsonDeserializer<Object> _endpointDeserializer;
+    
+    private final PropertyNamingStrategy _propertyNamingStrategy;
 
     private BoundType _defaultBoundType;
 
@@ -47,29 +49,31 @@ public class RangeDeserializer
      */
     @Deprecated // since 2.7
     public RangeDeserializer(JavaType rangeType) {
-        this(null, rangeType);
+        this(null, rangeType, null);
     }
     
-    public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType) {
-        this(rangeType, null);
+    public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType,  PropertyNamingStrategy propertyNamingStrategy) {
+        this(rangeType, null, propertyNamingStrategy);
         _defaultBoundType = defaultBoundType;
     }
 
     @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser)
+    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, PropertyNamingStrategy propertyNamingStrategy)
     {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
+        _propertyNamingStrategy = propertyNamingStrategy;
     }
 
     @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType)
+    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType, PropertyNamingStrategy propertyNamingStrategy)
     {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
         _defaultBoundType = defaultBoundType;
+        _propertyNamingStrategy = propertyNamingStrategy;
     }
 
     @Override
@@ -85,7 +89,8 @@ public class RangeDeserializer
                 endpointType = TypeFactory.unknownType();
             }
             JsonDeserializer<Object> deser = ctxt.findContextualValueDeserializer(endpointType, property);
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType);
+            PropertyNamingStrategy propertyNamingStrategy = ctxt.getConfig().getPropertyNamingStrategy();
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, propertyNamingStrategy);
         }
         return this;
     }
@@ -95,7 +100,7 @@ public class RangeDeserializer
     /* Actual deserialization
     /**********************************************************
      */
-    
+
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
@@ -123,7 +128,7 @@ public class RangeDeserializer
             expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = p.currentName();
             PropertyNamingStrategy propertyNamingStrategy =
-                    Optional.ofNullable(context.getConfig().getPropertyNamingStrategy())
+                    Optional.ofNullable(_propertyNamingStrategy)
                             .orElse(PropertyNamingStrategy.LOWER_CAMEL_CASE);
             try {
                 if (fieldName.equals(propertyNamingStrategy.nameForField(context.getConfig(), null, "lowerEndpoint"))) {

@@ -64,7 +64,7 @@ public class GuavaSerializers extends Serializers.Base
     {
         Class<?> raw = type.getRawClass();
         if (Range.class.isAssignableFrom(raw)) {
-            return new RangeSerializer(_findDeclared(type, Range.class));
+            return new RangeSerializer(_findDeclared(type, Range.class), config.getPropertyNamingStrategy());
         }
         if (Table.class.isAssignableFrom(raw)) {
             return new TableSerializer(_findDeclared(type, Table.class));

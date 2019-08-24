@@ -282,7 +282,7 @@ public class GuavaDeserializers
             BeanDescription beanDesc)
     {
         if (type.hasRawClass(Range.class)) {
-            return new RangeDeserializer(_defaultBoundType, type);
+            return new RangeDeserializer(_defaultBoundType, type, config.getPropertyNamingStrategy());
         }
         if (type.hasRawClass(HostAndPort.class)) {
             return HostAndPortDeserializer.std;
