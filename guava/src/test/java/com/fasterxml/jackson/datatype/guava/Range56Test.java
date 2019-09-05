@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.datatype.guava.failing;
+package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -8,7 +8,6 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 // [datatypes-collections#56]: support naming strategy
 public class Range56Test extends ModuleTestBase

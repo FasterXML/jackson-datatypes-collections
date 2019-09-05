@@ -63,3 +63,8 @@ Jon Freedman (jonfreedman@github)
   * Reported #53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
    an empty `Optional` from null
    (2.10.0)
+
+Philip Leonard (philleonard@github)
+  * Reported#56, contributed fix: Range property name (de)serialisation doesn't
+    respect property naming strategy
+   (2.10.0)
