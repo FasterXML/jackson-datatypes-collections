@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
+import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -25,6 +25,8 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     protected final JsonSerializer<Object> _endpointSerializer;
 
+    protected final RangeHelper.RangeProperties _fieldNames;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -33,12 +35,23 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     public RangeSerializer(JavaType type) { this(type, null); }
 
-    @SuppressWarnings("unchecked")
+    @Deprecated // since 2.10
     public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer)
+    {
+        this(type, endpointSer, RangeHelper.standardNames());
+    }
+
+    /**
+     * @since 2.10
+     */
+    @SuppressWarnings("unchecked")
+    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
+            RangeHelper.RangeProperties fieldNames)
     {
         super(type);
         _rangeType = type;
         _endpointSerializer = (JsonSerializer<Object>) endpointSer;
+        _fieldNames = fieldNames;
     }
 
     @Override
@@ -56,22 +69,26 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) throws JsonMappingException
     {
-        if (_endpointSerializer == null) {
+        final PropertyNamingStrategy propertyNamingStrategy = prov.getConfig().getPropertyNamingStrategy();
+        final RangeHelper.RangeProperties nameMapping = RangeHelper.getPropertyNames(prov.getConfig(), propertyNamingStrategy);
+        JsonSerializer<?> endpointSer = _endpointSerializer;
+
+        if (endpointSer == null) {
             JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
             if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
                 JsonSerializer<?> ser = prov.findValueSerializer(endpointType, property);
-                return new RangeSerializer(_rangeType, ser);
+                return new RangeSerializer(_rangeType, ser, nameMapping);
             }
             /* 21-Sep-2014, tatu: Need to make sure all serializers get proper contextual
              *   access, in case they rely on annotations on properties... (or, more generally,
              *   in getting a chance to be contextualized)
              */
-        } else if (_endpointSerializer instanceof ContextualSerializer) {
-            JsonSerializer<?> cs = ((ContextualSerializer)_endpointSerializer).createContextual(prov, property);
-            if (cs != _endpointSerializer) {
-                return new RangeSerializer(_rangeType, cs);
-            }
+        } else if (endpointSer instanceof ContextualSerializer) {
+            endpointSer = ((ContextualSerializer) endpointSer).createContextual(prov, property);
+        }
+        if ((endpointSer != _endpointSerializer) || (nameMapping != null)) {
+            return new RangeSerializer(_rangeType, endpointSer, nameMapping);
         }
         return this;
     }
@@ -108,25 +125,27 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         throws IOException
     {
         if (value.hasLowerBound()) {
+            final String fieldName = _fieldNames.lowerEndpoint;
             if (_endpointSerializer != null) {
-                g.writeFieldName("lowerEndpoint");
+                g.writeFieldName(fieldName);
                 _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField("lowerEndpoint", value.lowerEndpoint(), g);
+                provider.defaultSerializeField(fieldName, value.lowerEndpoint(), g);
             }
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
-            g.writeStringField("lowerBoundType", value.lowerBoundType().name());
+            g.writeStringField(_fieldNames.lowerBoundType, value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
+            final String fieldName = _fieldNames.upperEndpoint;
             if (_endpointSerializer != null) {
-                g.writeFieldName("upperEndpoint");
-                _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
+                g.writeFieldName(fieldName);
+                _endpointSerializer.serialize(fieldName, g, provider);
             } else {
                 provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
-            g.writeStringField("upperBoundType", value.upperBoundType().name());
+            g.writeStringField(_fieldNames.upperBoundType, value.upperBoundType().name());
         }
     }
 
@@ -142,10 +161,10 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                     JavaType btType = visitor.getProvider().constructType(BoundType.class);
                     JsonSerializer<?> btSer = visitor.getProvider()
                             .findValueSerializer(btType, null);
-                    objectVisitor.property("lowerEndpoint", _endpointSerializer, endpointType);
-                    objectVisitor.property("lowerBoundType", btSer, btType);
-                    objectVisitor.property("upperEndpoint", _endpointSerializer, endpointType);
-                    objectVisitor.property("upperBoundType", btSer, btType);
+                    objectVisitor.property(_fieldNames.lowerEndpoint, _endpointSerializer, endpointType);
+                    objectVisitor.property(_fieldNames.lowerBoundType, btSer, btType);
+                    objectVisitor.property(_fieldNames.upperEndpoint, _endpointSerializer, endpointType);
+                    objectVisitor.property(_fieldNames.upperBoundType, btSer, btType);
                 }
             }
         }
