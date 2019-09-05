@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import static java.util.Arrays.asList;
-
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
@@ -11,23 +9,21 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Jackson serializer for a Guava {@link Range}.
  */
-@SuppressWarnings("serial")
 public class RangeSerializer extends StdSerializer<Range<?>>
 {
     protected final JavaType _rangeType;
 
     protected final JsonSerializer<Object> _endpointSerializer;
 
-    private final Map<String, String> _fieldNames;
+    private final RangeHelper.RangeProperties _fieldNames;
 
     /*
     /**********************************************************
@@ -35,14 +31,11 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     /**********************************************************
      */
 
-    public RangeSerializer(JavaType type) { this(type, null); }
-
-    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer) {
-        this(type, endpointSer, new HashMap<>());
-    }
+    public RangeSerializer(JavaType type) { this(type, null, RangeHelper.standardNames()); }
 
     @SuppressWarnings("unchecked")
-    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer, Map<String, String> fieldNames)
+    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
+            RangeHelper.RangeProperties fieldNames)
     {
         super(type);
         _rangeType = type;
@@ -59,46 +52,23 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) throws JsonMappingException
     {
-        PropertyNamingStrategy propertyNamingStrategy = prov.getConfig().getPropertyNamingStrategy();
-        if (_endpointSerializer == null) {
+        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(prov.getConfig(),
+                prov.getConfig().getPropertyNamingStrategy());
+        JsonSerializer<?> endpointSer = _endpointSerializer;
+        if (endpointSer == null) {
             JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
             if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
-                JsonSerializer<?> ser = prov.findSecondaryPropertySerializer(endpointType, property);
-                if (propertyNamingStrategy != null) {
-                    return new RangeSerializer(_rangeType, ser, getPropertyNames(prov.getConfig(), propertyNamingStrategy));
-                } else {
-                    return new RangeSerializer(_rangeType, ser);
-                }
+                endpointSer = prov.findSecondaryPropertySerializer(endpointType, property);
             }
-            /* 21-Sep-2014, tatu: Need to make sure all serializers get proper contextual
-             *   access, in case they rely on annotations on properties... (or, more generally,
-             *   in getting a chance to be contextualized)
-             */
         } else {
-            JsonSerializer<?> cs = _endpointSerializer.createContextual(prov, property);
-            if (cs != _endpointSerializer) {
-                if (propertyNamingStrategy != null) {
-                    return new RangeSerializer(_rangeType, cs, getPropertyNames(prov.getConfig(), propertyNamingStrategy));
-                } else {
-                    return new RangeSerializer(_rangeType, cs);
-                }
-            }
+            endpointSer = _endpointSerializer.createContextual(prov, property);
         }
-        if (propertyNamingStrategy != null) {
-            return new RangeSerializer(_rangeType, _endpointSerializer, getPropertyNames(prov.getConfig(), propertyNamingStrategy));
+        if ((endpointSer != _endpointSerializer) || (fieldNames != _fieldNames)) {
+            return new RangeSerializer(_rangeType, endpointSer, fieldNames);
         }
         return this;
     }
-
-    private Map<String, String> getPropertyNames(SerializationConfig config, PropertyNamingStrategy propertyNamingStrategy) {
-        final HashMap<String, String> fieldNames = new HashMap<>();
-        for (String field : asList("lowerEndpoint", "upperEndpoint", "lowerBoundType", "upperBoundType")) {
-            fieldNames.put(field, propertyNamingStrategy.nameForField(config, null, field));
-        }
-        return fieldNames;
-    }
-
 
     /*
     /**********************************************************
@@ -133,30 +103,25 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     {
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
-                g.writeFieldName(getFieldName("lowerEndpoint"));
+                g.writeFieldName(_fieldNames.lowerEndpoint);
                 _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField(getFieldName("lowerEndpoint"), value.lowerEndpoint(), g);
+                provider.defaultSerializeField(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
             }
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
-            g.writeStringField(getFieldName("lowerBoundType"), value.lowerBoundType().name());
+            g.writeStringField(_fieldNames.lowerBoundType, value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
-                g.writeFieldName(getFieldName("upperEndpoint"));
+                g.writeFieldName(_fieldNames.upperEndpoint);
                 _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField(getFieldName("upperEndpoint"), value.upperEndpoint(), g);
+                provider.defaultSerializeField(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
-            g.writeStringField(getFieldName("upperBoundType"), value.upperBoundType().name());
+            g.writeStringField(_fieldNames.upperBoundType, value.upperBoundType().name());
         }
-    }
-
-    private String getFieldName(String fieldName) {
-        String name = _fieldNames.get(fieldName);
-        return name == null ? fieldName : name;
     }
 
     @Override
@@ -172,10 +137,10 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                     // should probably keep track of `property`...
                     JsonSerializer<?> btSer = visitor.getProvider()
                             .findSecondaryPropertySerializer(btType, null);
-                    objectVisitor.property(getFieldName("lowerEndpoint"), _endpointSerializer, endpointType);
-                    objectVisitor.property(getFieldName("lowerBoundType"), btSer, btType);
-                    objectVisitor.property(getFieldName("upperEndpoint"), _endpointSerializer, endpointType);
-                    objectVisitor.property(getFieldName("upperBoundType"), btSer, btType);
+                    objectVisitor.property(_fieldNames.lowerEndpoint, _endpointSerializer, endpointType);
+                    objectVisitor.property(_fieldNames.lowerBoundType, btSer, btType);
+                    objectVisitor.property(_fieldNames.upperEndpoint, _endpointSerializer, endpointType);
+                    objectVisitor.property(_fieldNames.upperBoundType, btSer, btType);
                 }
             }
         }

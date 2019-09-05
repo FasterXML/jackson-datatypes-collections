@@ -30,8 +30,6 @@ import java.util.Map;
 public class RangeDeserializer
     extends StdDeserializer<Range<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JavaType _rangeType;
 
     protected final JsonDeserializer<Object> _endpointDeserializer;
@@ -68,7 +66,6 @@ public class RangeDeserializer
         _fieldNames = fieldNames;
     }
 
-    @SuppressWarnings("unchecked")
     public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType)
     {
         this(rangeType, endpointDeser, defaultBoundType, new HashMap<>());
