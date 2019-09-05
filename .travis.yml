@@ -2,7 +2,6 @@ language: java
 
 # Runs on JDK6, but does not necessarily build on it any more so:
 jdk:
-  - openjdk7
   - openjdk8
 
 branches:
