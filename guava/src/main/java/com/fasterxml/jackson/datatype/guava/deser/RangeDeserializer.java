@@ -102,6 +102,9 @@ public class RangeDeserializer
                 endpointType = TypeFactory.unknownType();
             }
             deser = ctxt.findContextualValueDeserializer(endpointType, property);
+        } else if (deser instanceof ContextualDeserializer) {
+            // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
+            deser = ((ContextualDeserializer) deser).createContextual(ctxt, property);
         }
         if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
             return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames);

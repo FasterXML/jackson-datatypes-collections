@@ -9,6 +9,12 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.10.0 (not yet released)
+
+#56: Range property name (de)serialisation doesn't respect property naming strategy
+ (reported, fix contributed by Philip L)
+#59: Drop support for Guava v10 - v13 to simplify `RangeFactory`
+
 2.10.0.pr2 (31-Aug-2019)
 
 #53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
