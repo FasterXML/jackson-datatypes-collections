@@ -142,7 +142,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                 g.writeFieldName(fieldName);
                 _endpointSerializer.serialize(fieldName, g, provider);
             } else {
-                provider.defaultSerializeField("upperEndpoint", value.upperEndpoint(), g);
+                provider.defaultSerializeField(fieldName, value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
             g.writeStringField(_fieldNames.upperBoundType, value.upperBoundType().name());

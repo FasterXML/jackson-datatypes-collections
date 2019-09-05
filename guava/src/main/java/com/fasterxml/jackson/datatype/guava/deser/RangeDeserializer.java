@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
+import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;
 
 /**
  * Jackson deserializer for a Guava {@link Range}.
@@ -35,8 +36,13 @@ public class RangeDeserializer
 
     protected final JsonDeserializer<Object> _endpointDeserializer;
 
-    private BoundType _defaultBoundType;
+    protected final BoundType _defaultBoundType;
 
+    /**
+     * @since 2.10
+     */
+    protected final RangeHelper.RangeProperties _fieldNames;
+    
     /*
     /**********************************************************
     /* Life-cycle
@@ -50,27 +56,34 @@ public class RangeDeserializer
     public RangeDeserializer(JavaType rangeType) {
         this(null, rangeType);
     }
-    
+
     public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType) {
-        this(rangeType, null);
-        _defaultBoundType = defaultBoundType;
+        this(rangeType, null, defaultBoundType);
     }
 
+    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser) {
+        this(rangeType, endpointDeser, null);
+    }
+
+    @Deprecated // since 2.10
+    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
+            BoundType defaultBoundType)
+    {
+        this(rangeType, endpointDeser, defaultBoundType, RangeHelper.standardNames());
+    }
+
+    /**
+     * @since 2.10
+     */
     @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser)
+    protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
+            BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
     {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
-    }
-
-    @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType)
-    {
-        super(rangeType);
-        _rangeType = rangeType;
-        _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
         _defaultBoundType = defaultBoundType;
+        _fieldNames = fieldNames;
     }
 
     @Override
@@ -80,13 +93,18 @@ public class RangeDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        if (_endpointDeserializer == null) {
+        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
+                ctxt.getConfig().getPropertyNamingStrategy());
+        JsonDeserializer<?> deser = _endpointDeserializer;
+        if (deser == null) {
             JavaType endpointType = _rangeType.containedType(0);
             if (endpointType == null) { // should this ever occur?
                 endpointType = TypeFactory.unknownType();
             }
-            JsonDeserializer<Object> deser = ctxt.findContextualValueDeserializer(endpointType, property);
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType);
+            deser = ctxt.findContextualValueDeserializer(endpointType, property);
+        }
+        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames);
         }
         return this;
     }
@@ -98,11 +116,11 @@ public class RangeDeserializer
      */
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     @Override
@@ -124,16 +142,16 @@ public class RangeDeserializer
             expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = p.getCurrentName();
             try {
-                if (fieldName.equals("lowerEndpoint")) {
+                if (fieldName.equals(_fieldNames.lowerEndpoint)) {
                     p.nextToken();
                     lowerEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals("upperEndpoint")) {
+                } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
                     p.nextToken();
                     upperEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals("lowerBoundType")) {
+                } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
                     p.nextToken();
                     lowerBoundType = deserializeBoundType(context, p);
-                } else if (fieldName.equals("upperBoundType")) {
+                } else if (fieldName.equals(_fieldNames.upperBoundType)) {
                     p.nextToken();
                     upperBoundType = deserializeBoundType(context, p);
                 } else {
