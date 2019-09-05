@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 public abstract class ContainerSerializerBase<T>
     extends ContainerSerializer<T>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final String _schemeElementType;
 
     protected ContainerSerializerBase(Class<T> type, String schemaElementType)
@@ -32,7 +30,7 @@ public abstract class ContainerSerializerBase<T>
     }
 
     protected ContainerSerializerBase(ContainerSerializerBase<?> src) {
-        super(src._handledType, true);
+        super(src._handledType);
         _schemeElementType = src._schemeElementType;
     }
 

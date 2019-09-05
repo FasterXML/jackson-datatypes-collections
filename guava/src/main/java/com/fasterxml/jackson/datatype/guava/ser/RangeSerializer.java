@@ -34,7 +34,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public RangeSerializer(JavaType type) { this(type, null, RangeHelper.standardNames()); }
 
     @SuppressWarnings("unchecked")
-    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
+    protected RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
             RangeHelper.RangeProperties fieldNames)
     {
         super(type);

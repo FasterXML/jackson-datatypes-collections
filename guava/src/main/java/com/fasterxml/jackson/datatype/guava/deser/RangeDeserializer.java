@@ -16,8 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;
 
 /**
  * Jackson deserializer for a Guava {@link Range}.
@@ -33,46 +32,23 @@ public class RangeDeserializer
     protected final JavaType _rangeType;
 
     protected final JsonDeserializer<Object> _endpointDeserializer;
+    protected final BoundType _defaultBoundType;
 
-    private final Map<String, String> _fieldNames;
-
-    private BoundType _defaultBoundType;
-
+    protected final RangeHelper.RangeProperties _fieldNames;
+    
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public RangeDeserializer(JavaType rangeType) {
-        this(null, rangeType);
-    }
-
-    public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType) {
-        this(rangeType, null, new HashMap<>());
-        _defaultBoundType = defaultBoundType;
+    public RangeDeserializer(JavaType rangeType, BoundType defaultBoundType) {
+        this(rangeType, null, defaultBoundType, RangeHelper.standardNames());
     }
 
     @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, Map<String, String> fieldNames)
-    {
-        super(rangeType);
-        _rangeType = rangeType;
-        _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
-        _fieldNames = fieldNames;
-    }
-
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType)
-    {
-        this(rangeType, endpointDeser, defaultBoundType, new HashMap<>());
-    }
-
-    @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType, Map<String, String> fieldNames)
+    protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
+            BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
     {
         super(rangeType);
         _rangeType = rangeType;
@@ -88,32 +64,20 @@ public class RangeDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        PropertyNamingStrategy propertyNamingStrategy = ctxt.getConfig().getPropertyNamingStrategy();
-        if (_endpointDeserializer == null) {
+        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
+                ctxt.getConfig().getPropertyNamingStrategy());
+        JsonDeserializer<?> deser = _endpointDeserializer;
+        if (deser == null) {
             JavaType endpointType = _rangeType.containedType(0);
             if (endpointType == null) { // should this ever occur?
                 endpointType = TypeFactory.unknownType();
             }
-            JsonDeserializer<Object> deser = ctxt.findContextualValueDeserializer(endpointType, property);
-            if (propertyNamingStrategy != null) {
-                return new RangeDeserializer(_rangeType, deser, _defaultBoundType, getPropertyNames(ctxt, propertyNamingStrategy));
-            } else {
-                return new RangeDeserializer(_rangeType, deser, _defaultBoundType);
-            }
+            deser = ctxt.findContextualValueDeserializer(endpointType, property);
         }
-        else if (propertyNamingStrategy != null) {
-            return new RangeDeserializer(_rangeType, _endpointDeserializer, _defaultBoundType, getPropertyNames(ctxt, propertyNamingStrategy));
+        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames);
         }
         return this;
-    }
-
-    private Map<String, String> getPropertyNames(DeserializationContext ctxt, PropertyNamingStrategy propertyNamingStrategy) {
-        DeserializationConfig config = ctxt.getConfig();
-        HashMap<String, String> fieldNames = new HashMap<>();
-        for (String field : asList("lowerEndpoint", "upperEndpoint", "lowerBoundType", "upperBoundType")) {
-            fieldNames.put(field, propertyNamingStrategy.nameForField(config, null, field));
-        }
-        return fieldNames;
     }
 
     /*
@@ -123,11 +87,11 @@ public class RangeDeserializer
      */
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     @Override
@@ -149,16 +113,16 @@ public class RangeDeserializer
             expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = p.currentName();
             try {
-                if (fieldName.equals(getFieldName("lowerEndpoint"))) {
+                if (fieldName.equals(_fieldNames.lowerEndpoint)) {
                     p.nextToken();
                     lowerEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals(getFieldName("upperEndpoint"))) {
+                } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
                     p.nextToken();
                     upperEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals(getFieldName("lowerBoundType"))) {
+                } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
                     p.nextToken();
                     lowerBoundType = deserializeBoundType(context, p);
-                } else if (fieldName.equals(getFieldName("upperBoundType"))) {
+                } else if (fieldName.equals(_fieldNames.upperBoundType)) {
                     p.nextToken();
                     upperBoundType = deserializeBoundType(context, p);
                 } else {
@@ -176,42 +140,37 @@ public class RangeDeserializer
             if ((lowerEndpoint != null) && (upperEndpoint != null)) {
                 Preconditions.checkState(lowerEndpoint.getClass() == upperEndpoint.getClass(),
                                          "Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
-                                         getFieldName("lowerEndpoint"),
+                                         _fieldNames.lowerEndpoint,
                                          lowerEndpoint.getClass().getName(),
-                                         getFieldName("upperEndpoint"),
+                                         _fieldNames.upperEndpoint,
                                          upperEndpoint.getClass().getName());
                 Preconditions.checkState(lowerBoundType != null,
                                          "'%s' field found, but not '%s'",
-                                         getFieldName("lowerEndpoint"),
-                                         getFieldName("lowerBoundType"));
+                                         _fieldNames.lowerEndpoint,
+                                         _fieldNames.lowerBoundType);
                 Preconditions.checkState(upperBoundType != null,
                                          "'%s' field found, but not '%s'",
-                                         getFieldName("upperEndpoint"),
-                                         getFieldName("upperBoundType"));
+                                         _fieldNames.upperEndpoint,
+                                         _fieldNames.upperBoundType);
                 return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
             }
             if (lowerEndpoint != null) {
                 Preconditions.checkState(lowerBoundType != null,
                                          "'%s' field found, but not '%s'",
-                                          getFieldName("lowerEndpoint"),
-                                          getFieldName("lowerBoundType"));
+                                         _fieldNames.lowerEndpoint,
+                                         _fieldNames.lowerBoundType);
                 return RangeFactory.downTo(lowerEndpoint, lowerBoundType);
             }
             if (upperEndpoint != null) {
                 Preconditions.checkState(upperBoundType != null,
                                          "'%s' field found, but not '%s'",
-                                          getFieldName("lowerEndpoint"));
+                                         _fieldNames.lowerEndpoint);
                 return RangeFactory.upTo(upperEndpoint, upperBoundType);
             }
             return RangeFactory.all();
         } catch (IllegalStateException e) {
             throw JsonMappingException.from(p, e.getMessage());
         }
-    }
-
-    private String getFieldName(String fieldName) {
-        String name = _fieldNames.get(fieldName);
-        return name == null ? fieldName : name;
     }
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
