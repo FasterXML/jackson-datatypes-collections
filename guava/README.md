@@ -20,14 +20,22 @@ To use module on Maven-based projects, use following dependency:
 
 ### Registering module
 
-Like all standard Jackson modules (libraries that implement Module interface), registration is done as follows:
+Like all standard Jackson modules (libraries that implement Module interface), registration is done as follows (Jackson 2.x up to 2.9)
 
 ```java
 ObjectMapper mapper = new ObjectMapper()
     .registerModule(new GuavaModule());
 ```
 
-after which functionality is available for all normal Jackson operations.
+OR, the new method added in 2.10 (old method will work with 2.x but not 3.x):
+
+```java
+ObjectMapper mapper = JsonMapper.builder()
+    .addModule(new GuavaModule())
+    .build();
+```
+
+after which functionality is available with all normal Jackson operations.
 
 ### Configuration
 
