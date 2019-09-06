@@ -10,9 +10,11 @@ Currently included are:
 * [PCollections](pcollections/) datatype ([Persistent Java Collections](http://pcollections.org))
 * [Eclipse Collections](eclipse-collections/) datatype ([https://github.com/eclipse/eclipse-collections])
 
+## License
+
 All modules are licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
-## Status
+## Build Status
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-datatypes-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatypes-collections)
 
@@ -31,4 +33,3 @@ ObjectMapper mapper = new ObjectMapper()
 
 after which datatype read/write support is available for all normal Jackson operations,
 including support for nested types.
-
