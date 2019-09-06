@@ -10,9 +10,11 @@ Currently included are:
 * [PCollections](pcollections/) datatype (for [Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
 * [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.9.6)
 
+## License
+
 All modules are licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
-## Status
+## Build Status
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-datatypes-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatypes-collections)
 
@@ -40,7 +42,7 @@ that depends on them).
 ### Registration with ObjectMapper
 
 Like all standard Jackson modules (libraries that implement Module interface), registration for Collections
-datatypes is done as follows:
+datatypes is done as follows (with 2.x up to 2.9 the only method)
 
 ```java
 ObjectMapper mapper = new ObjectMapper()
@@ -49,6 +51,17 @@ ObjectMapper mapper = new ObjectMapper()
     .registerModule(new PCollectionsModule())
     .registerModule(new EclipseCollectionsModule())
     ;
+```
+
+OR, with 2.10.0 and later (the only method in upcoming 3.x):
+
+```
+ObjectMapper mapper = JsonMapper.builder()
+    .registerModule(new GuavaModule())
+    .registerModule(new HppcModule())
+    .registerModule(new PCollectionsModule())
+    .registerModule(new EclipseCollectionsModule())
+    .build();
 ```
 
 after which datatype read/write support is available for all normal Jackson operations,
