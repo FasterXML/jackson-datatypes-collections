@@ -66,7 +66,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             return _deserializeFromSingleValue(p, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(handledType(), p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
@@ -158,7 +158,6 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
             return typeDeserializer.deserializeTypedFromScalar(p, ctxt);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException {
@@ -171,7 +170,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
                     if (t == JsonToken.VALUE_STRING) {
                         str = p.getText();
                     } else {
-                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
+                        CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                         str = cs.toString();
                     }
                     if (str.length() != 1) {

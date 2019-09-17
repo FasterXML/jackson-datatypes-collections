@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public abstract class GuavaMapDeserializer<T>
     extends ContainerDeserializerBase<T>
 {
-    private static final long serialVersionUID = 2L;
-
     /**
      * Key deserializer used, if not null. If null, String from JSON
      * content is used as is.
@@ -153,7 +151,7 @@ public abstract class GuavaMapDeserializer<T>
             t = p.nextToken();
         }
         if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            return (T) ctxt.handleUnexpectedToken(_containerType.getRawClass(), p);
+            return (T) ctxt.handleUnexpectedToken(_containerType, p);
         }
         return _deserializeEntries(p, ctxt);
     }

@@ -128,7 +128,7 @@ public abstract class GuavaCollectionDeserializer<T>
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             return _deserializeFromSingleValue(p, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /*

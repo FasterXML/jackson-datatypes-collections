@@ -13,8 +13,6 @@ import org.pcollections.PCollection;
 public abstract class PCollectionsCollectionDeserializer<T extends PCollection<Object>>
     extends StdDeserializer<T>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final CollectionType _containerType;
 
     /**
@@ -109,7 +107,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             return _deserializeFromSingleValue(p, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(handledType(), p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)

@@ -65,14 +65,17 @@ public abstract class EclipseMapDeserializer<T, I, K extends KeyHandler<K>, V ex
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
+            throws IOException
+    {
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }
         if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            return (T) ctxt.handleUnexpectedToken(handledType(), p);
+            // !!! 16-Sep-2019, tatu: Should use full generic type, for error message,
+            //   but would require more refactoring (to extend `StdDeserializer` f.ex)
+            return (T) ctxt.handleUnexpectedToken(ctxt.constructType(handledType()), p);
         }
 
         I map = createIntermediate();

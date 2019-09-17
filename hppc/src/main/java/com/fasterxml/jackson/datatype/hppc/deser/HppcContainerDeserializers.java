@@ -90,7 +90,6 @@ public class HppcContainerDeserializers
      * Intermediate base class used for various integral (as opposed to
      * floating point) value container types.
      */
-    @SuppressWarnings("serial")
     static abstract class IntContainerDeserializerBase<T>
         extends ContainerDeserializerBase<T>
     {
@@ -113,7 +112,7 @@ public class HppcContainerDeserializers
                     value = p.getIntValue();
                 } else {
                     if (t != JsonToken.VALUE_NULL) {
-                        ctxt.handleUnexpectedToken(_valueClass, p);
+                        ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                         return; // never gets here
                     }
                     value = 0;
@@ -135,8 +134,6 @@ public class HppcContainerDeserializers
     
     static class IntSetDeserializer extends IntContainerDeserializerBase<IntSet>
     {
-        private static final long serialVersionUID = 1L;
-
         public IntSetDeserializer(JavaType type, DeserializationConfig config)
         {
             super(type, config);
@@ -150,8 +147,6 @@ public class HppcContainerDeserializers
 
     static class IntIndexedContainerDeserializer extends IntContainerDeserializerBase<IntIndexedContainer>
     {
-        private static final long serialVersionUID = 1L;
-
         public IntIndexedContainerDeserializer(JavaType type, DeserializationConfig config)
         {
             super(type, config);
@@ -165,8 +160,6 @@ public class HppcContainerDeserializers
     
     static class IntDequeDeserializer extends IntContainerDeserializerBase<IntDeque>
     {
-        private static final long serialVersionUID = 1L;
-
         public IntDequeDeserializer(JavaType type, DeserializationConfig config)
         {
             super(type, config);
