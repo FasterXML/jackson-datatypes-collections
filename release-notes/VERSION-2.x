@@ -9,7 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0 (not yet released)
+2.10.0.pr3 (17-Sep-2019)
 
 #56: Range property name (de)serialisation doesn't respect property naming strategy
  (reported, fix contributed by Philip L)
