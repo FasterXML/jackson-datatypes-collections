@@ -10,7 +10,7 @@
     </parent>
     <artifactId>jackson-datatype-eclipse-collections</artifactId>
     <name>Jackson datatype: eclipse-collections</name>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <description>Add-on datatype-support module for Jackson (https://github.com/FasterXML/jackson) that handles
         eclipse-collections (https://www.eclipse.org/collections/) types
     </description>

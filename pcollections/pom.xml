@@ -7,7 +7,7 @@
   </parent>
   <artifactId>jackson-datatype-pcollections</artifactId>
   <name>Jackson datatype: pcollections</name>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
   <description>Add-on datatype-support module for Jackson (https://github.com/FasterXML/jackson) that handles
 PCollections (http://pcollections.org/) types
   </description>
