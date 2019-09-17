@@ -1,18 +1,6 @@
-[Jackson](../../../jackson) datatype module (jar)
-to support JSON serialization and deserialization of
+One of standard [Jackson](../../../..jackson) Collection type [Datatype modules](../../..).
+Supports JSON serialization and deserialization of
 [Guava](http://code.google.com/p/guava-libraries/) data types.
-
-## Status
-
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-guava/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-guava/)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.datatype/jackson-datatype-guava/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-guava)
-
-Module has been production-ready since version 2.3.
-Not all datatypes of Guava are support due to sheer size of the library; new support is added based on contributions.
-
-## License
-
-[Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Usage
 
@@ -24,7 +12,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-guava</artifactId>
-  <version>2.7.3</version>
+  <version>2.9.9</version>
 </dependency>
 ```
 
@@ -51,8 +39,3 @@ Configurable settings of the module are:
     * In either case, `Optional.absent()` values are always excluded with Inclusion values of:
         * NON_EMPTY
         * NON_ABSENT (new in Jackson 2.6)
-
-## More
-
-See [Wiki](../../wiki) for more information (javadocs, downloads).
-
