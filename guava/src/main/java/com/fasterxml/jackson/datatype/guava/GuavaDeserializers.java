@@ -282,6 +282,9 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
+        if (type.hasRawClass(RangeSet.class)) {
+            return new RangeSetDeserializer();
+        }
         if (type.hasRawClass(Range.class)) {
             return new RangeDeserializer(_defaultBoundType, type);
         }
