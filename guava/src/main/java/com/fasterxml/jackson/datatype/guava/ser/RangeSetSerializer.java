@@ -5,13 +5,17 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import java.io.IOException;
 import java.util.List;
 
-public class RangeSetSerializer extends JsonSerializer<RangeSet<Comparable<?>>> {
+public class RangeSetSerializer
+    extends JsonSerializer<RangeSet<Comparable<?>>>
+    implements ContextualSerializer
+{
     private JavaType genericRangeListType;
 
     @Override

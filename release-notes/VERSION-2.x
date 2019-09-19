@@ -11,9 +11,11 @@ Modules:
 
 2.10.0.pr3 (17-Sep-2019)
 
-#56: Range property name (de)serialisation doesn't respect property naming strategy
+#50: (guava) Add Serializer and Deserializer for `RangeSet`
+ (contributed by Felix K)
+#56: (guava) Range property name (de)serialisation doesn't respect property naming strategy
  (reported, fix contributed by Philip L)
-#59: Drop support for Guava v10 - v13 to simplify `RangeFactory`
+#59: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
 
 2.10.0.pr2 (31-Aug-2019)
 
