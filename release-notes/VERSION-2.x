@@ -9,27 +9,21 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.0.pr3 (17-Sep-2019)
-
-#50: (guava) Add Serializer and Deserializer for `RangeSet`
- (contributed by Felix K)
-#56: (guava) Range property name (de)serialisation doesn't respect property naming strategy
- (reported, fix contributed by Philip L)
-#59: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
-
-2.10.0.pr2 (31-Aug-2019)
-
-#53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
-  an empty `Optional` from null
- (reported by Jon F)
-
-2.10.0.pr1 (19-Jul-2019)
+2.10.0 (26-Sep-2019)
 
 #34: (guava) Allow use of Guava versions up to 25 (from 22)
  (suggested by Philipp H, AUTplayed@github)
 #37: (eclipse-collections) Implement pair deserialization
  (contributed by Jonas K)
 #48: (all) Add simple module-info for JDK9+, using Moditect
+#50: (guava) Add Serializer and Deserializer for `RangeSet`
+ (contributed by Felix K)
+#53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
+  an empty `Optional` from null
+ (reported by Jon F)
+#56: (guava) Range property name (de)serialisation doesn't respect property naming strategy
+ (reported, fix contributed by Philip L)
+#59: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
 - Support nested `Optional` values wrt null provider (see [databind#2303]
 - Update "preferred" Guava version to 20.0
 
