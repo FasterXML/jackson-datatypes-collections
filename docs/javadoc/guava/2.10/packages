@@ -1,0 +1,7 @@
+com.fasterxml.jackson.datatype.guava.deser
+com.fasterxml.jackson.datatype.guava.deser.multimap
+com.fasterxml.jackson.datatype.guava.deser.multimap.list
+com.fasterxml.jackson.datatype.guava.deser.multimap.set
+com.fasterxml.jackson.datatype.guava.deser.util
+com.fasterxml.jackson.datatype.guava
+com.fasterxml.jackson.datatype.guava.ser
