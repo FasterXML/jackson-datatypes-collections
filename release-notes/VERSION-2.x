@@ -23,7 +23,7 @@ Modules:
  (reported by Jon F)
 #56: (guava) Range property name (de)serialisation doesn't respect property naming strategy
  (reported, fix contributed by Philip L)
-#59: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
+#58: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
 - Support nested `Optional` values wrt null provider (see [databind#2303]
 - Update "preferred" Guava version to 20.0
 
