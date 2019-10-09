@@ -3,11 +3,13 @@ Modules:
   jackson-datatype-guava
   jackson-datatype-hppc
   jackson-datatype-pcollections
-  jackson-datatype-eclipse-collections (since 2.9.6)
+  jackson-datatype-eclipse-collections (since 2.10)
 
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
+
+2.10.1 (not yet released)
 
 2.10.0 (26-Sep-2019)
 
