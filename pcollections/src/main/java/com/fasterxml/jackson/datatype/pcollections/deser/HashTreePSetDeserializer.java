@@ -9,8 +9,6 @@ import org.pcollections.MapPSet;
 public class HashTreePSetDeserializer extends
         PCollectionsCollectionDeserializer<MapPSet<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public HashTreePSetDeserializer(CollectionType type,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
         super(type, typeDeser, deser);

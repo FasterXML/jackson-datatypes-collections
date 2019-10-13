@@ -11,8 +11,6 @@ import com.google.common.base.Optional;
 public class GuavaOptionalSerializer
     extends ReferenceTypeSerializer<Optional<?>> // since 2.9
 {
-    private static final long serialVersionUID = 1L;
-
     /*
     /**********************************************************
     /* Life-cycle

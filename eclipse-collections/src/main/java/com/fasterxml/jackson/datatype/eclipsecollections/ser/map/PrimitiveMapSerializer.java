@@ -28,18 +28,18 @@ public abstract class PrimitiveMapSerializer<T> extends StdSerializer<T> {
     }
 
     @Override
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider ctxt, TypeSerializer typeSer)
             throws IOException {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(
-                gen, typeSer.typeId(value, JsonToken.START_OBJECT));
-        serializeEntries(value, gen, serializers);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+                gen, ctxt, typeSer.typeId(value, JsonToken.START_OBJECT));
+        serializeEntries(value, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(T value, JsonGenerator gen, SerializerProvider ctxt) throws IOException {
         gen.writeStartObject(value);
-        serializeEntries(value, gen, provider);
+        serializeEntries(value, gen, ctxt);
         gen.writeEndObject();
     }
 

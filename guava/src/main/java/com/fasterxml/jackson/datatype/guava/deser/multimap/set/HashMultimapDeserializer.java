@@ -19,8 +19,6 @@ import com.google.common.collect.HashMultimap;
 public class HashMultimapDeserializer
     extends GuavaMultimapDeserializer<HashMultimap<Object, Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public HashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);

@@ -12,8 +12,6 @@ import com.google.common.collect.ImmutableSortedMap;
 public class ImmutableSortedMapDeserializer
     extends GuavaImmutableMapDeserializer<ImmutableSortedMap<Object, Object>>
 {
-    private static final long serialVersionUID = 2L;
-
     public ImmutableSortedMapDeserializer(JavaType type, KeyDeserializer keyDeser,
             JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller) {

@@ -87,15 +87,15 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     @Override
-    public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        _writeContents(value, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        _writeContents(value, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)

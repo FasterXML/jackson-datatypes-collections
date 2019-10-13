@@ -11,8 +11,6 @@ import com.google.common.collect.HashMultiset;
 public class HashMultisetDeserializer
     extends GuavaMultisetDeserializer<HashMultiset<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public HashMultisetDeserializer(JavaType selfType,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {

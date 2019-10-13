@@ -19,8 +19,6 @@ import com.google.common.collect.LinkedHashMultimap;
 public class LinkedHashMultimapDeserializer
     extends GuavaMultimapDeserializer<LinkedHashMultimap<Object, Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public LinkedHashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);

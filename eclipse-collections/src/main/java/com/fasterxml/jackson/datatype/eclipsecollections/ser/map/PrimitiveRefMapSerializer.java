@@ -27,8 +27,6 @@ import org.eclipse.collections.api.map.primitive.ShortObjectMap;
 public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>, V>
         extends PrimitiveMapSerializer<T>
 {
-    private static final long serialVersionUID = 3L;
-
     protected final JavaType _type;
     protected final BeanProperty _property;
     protected final TypeSerializer _valueTypeSerializer;
@@ -97,8 +95,6 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Byte<V> extends PrimitiveRefMapSerializer<ByteObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
-
         public Byte(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -126,9 +122,7 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Short<V> extends PrimitiveRefMapSerializer<ShortObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
         public Short(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
-            
             super(type, property, vts, valueSerializer);
         }
 
@@ -155,8 +149,6 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Char<V> extends PrimitiveRefMapSerializer<CharObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
-
         public Char(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -184,8 +176,6 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Int<V> extends PrimitiveRefMapSerializer<IntObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
-
         public Int(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -213,8 +203,6 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Float<V> extends PrimitiveRefMapSerializer<FloatObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
-
         public Float(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -242,8 +230,6 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Long<V> extends PrimitiveRefMapSerializer<LongObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
-
         public Long(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -271,8 +257,6 @@ public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>,
     }
 
     public static class Double<V> extends PrimitiveRefMapSerializer<DoubleObjectMap<V>, V> {
-        private static final long serialVersionUID = 3L;
-
         public Double(
                 JavaType type,
                 BeanProperty property,

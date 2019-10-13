@@ -21,8 +21,6 @@ import com.google.common.collect.Table;
 public class TableSerializer
     extends ContainerSerializer<Table<?, ?, ?>>
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Type declaration that defines parameters; may be a supertype of actual
      * type of property being serialized.
@@ -203,14 +201,14 @@ public class TableSerializer
 
     @Override
     public void serializeWithType(final Table<?, ?, ?> value,
-            final JsonGenerator gen, final SerializerProvider provider,
+            final JsonGenerator gen, final SerializerProvider ctxt,
             final TypeSerializer typeSer) throws IOException
     {
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        serializeFields(value, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        serializeFields(value, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     private final void serializeFields( final Table<?, ?, ?> table, final JsonGenerator jgen, final SerializerProvider provider )

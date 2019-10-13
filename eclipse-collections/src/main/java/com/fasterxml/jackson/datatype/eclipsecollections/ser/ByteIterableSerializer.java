@@ -17,22 +17,23 @@ public final class ByteIterableSerializer extends StdSerializer<ByteIterable> {
     }
 
     @Override
-    public void serialize(ByteIterable value, JsonGenerator g, SerializerProvider provider)
-            throws IOException {
+    public void serialize(ByteIterable value, JsonGenerator g, SerializerProvider ctxt)
+            throws IOException
+    {
         byte[] arr = value.toArray();
-        g.writeBinary(provider.getConfig().getBase64Variant(), arr, 0, arr.length);
+        g.writeBinary(ctxt.getConfig().getBase64Variant(), arr, 0, arr.length);
     }
 
     @Override
     public void serializeWithType(
-            ByteIterable value, JsonGenerator g, SerializerProvider provider,
+            ByteIterable value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer
     )
             throws IOException {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
-                                                           typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
         byte[] arr = value.toArray();
-        g.writeBinary(provider.getConfig().getBase64Variant(), arr, 0, arr.length);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        g.writeBinary(ctxt.getConfig().getBase64Variant(), arr, 0, arr.length);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 }

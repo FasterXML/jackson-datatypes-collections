@@ -10,8 +10,6 @@ import com.google.common.collect.LinkedHashMultiset;
 public class LinkedHashMultisetDeserializer
     extends GuavaMultisetDeserializer<LinkedHashMultiset<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public LinkedHashMultisetDeserializer(JavaType selfType,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {

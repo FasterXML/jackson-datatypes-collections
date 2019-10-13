@@ -10,8 +10,6 @@ import com.google.common.net.HostAndPort;
 
 public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
 {
-    private static final long serialVersionUID = 1L;
-
     public final static HostAndPortDeserializer std = new HostAndPortDeserializer();
     
     public HostAndPortDeserializer() { super(HostAndPort.class); }

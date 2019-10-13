@@ -8,8 +8,6 @@ import com.google.common.collect.TreeMultiset;
 
 public class TreeMultisetDeserializer extends GuavaMultisetDeserializer<TreeMultiset<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public TreeMultisetDeserializer(JavaType selfType,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {

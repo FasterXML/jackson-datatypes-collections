@@ -26,8 +26,6 @@ import org.eclipse.collections.api.map.primitive.ObjectShortMap;
 public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
         extends PrimitiveMapSerializer<T>
 {
-    private static final long serialVersionUID = 3L;
-
     protected final JavaType _type;
     protected final BeanProperty _property;
     protected final JsonSerializer<Object> _keySerializer;
@@ -62,8 +60,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Boolean<K> extends RefPrimitiveMapSerializer<ObjectBooleanMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Boolean(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -89,8 +85,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Byte<K> extends RefPrimitiveMapSerializer<ObjectByteMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Byte(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -116,8 +110,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Short<K> extends RefPrimitiveMapSerializer<ObjectShortMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Short(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -143,8 +135,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Char<K> extends RefPrimitiveMapSerializer<ObjectCharMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Char(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -170,8 +160,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Int<K> extends RefPrimitiveMapSerializer<ObjectIntMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Int(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -197,8 +185,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Float<K> extends RefPrimitiveMapSerializer<ObjectFloatMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Float(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -224,8 +210,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Long<K> extends RefPrimitiveMapSerializer<ObjectLongMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Long(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
@@ -251,8 +235,6 @@ public abstract class RefPrimitiveMapSerializer<T extends PrimitiveIterable, K>
     }
 
     public static final class Double<K> extends RefPrimitiveMapSerializer<ObjectDoubleMap<K>, K> {
-        private static final long serialVersionUID = 3L;
-
         public Double(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }

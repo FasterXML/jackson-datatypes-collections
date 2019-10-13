@@ -14,8 +14,6 @@ import com.google.common.collect.ImmutableSortedSet;
 public class ImmutableSortedSetDeserializer
     extends GuavaImmutableCollectionDeserializer<ImmutableSortedSet<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public ImmutableSortedSetDeserializer(JavaType selfType,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {

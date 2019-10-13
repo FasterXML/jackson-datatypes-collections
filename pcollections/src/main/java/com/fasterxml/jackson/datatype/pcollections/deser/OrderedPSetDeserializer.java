@@ -8,8 +8,6 @@ import org.pcollections.OrderedPSet;
 public class OrderedPSetDeserializer extends
         PCollectionsCollectionDeserializer<OrderedPSet<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public OrderedPSetDeserializer(CollectionType type,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
         super(type, typeDeser, deser);

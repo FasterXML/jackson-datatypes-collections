@@ -39,20 +39,20 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
     public void serializeWithType(
             CharIterable value,
             JsonGenerator g,
-            SerializerProvider provider,
+            SerializerProvider ctxt,
             TypeSerializer typeSer
     ) throws IOException {
         g.setCurrentValue(value);
         WritableTypeId typeIdDef;
-        if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-            typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.START_ARRAY));
+        if (ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
+            typeIdDef = typeSer.writeTypePrefix(g, ctxt, typeSer.typeId(value, JsonToken.START_ARRAY));
             writeContentsAsArray(value, g);
         } else {
-            typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.VALUE_STRING));
+            typeIdDef = typeSer.writeTypePrefix(g, ctxt, typeSer.typeId(value, JsonToken.VALUE_STRING));
             char[] chars = value.toArray();
             g.writeString(chars, 0, chars.length);
         }
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     private void writeContentsAsArray(CharIterable value, JsonGenerator g) throws IOException {

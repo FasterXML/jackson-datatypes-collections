@@ -13,8 +13,6 @@ import com.google.common.collect.ImmutableSortedMultiset;
 
 public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectionDeserializer<ImmutableSortedMultiset<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public ImmutableSortedMultisetDeserializer(JavaType selfType,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {

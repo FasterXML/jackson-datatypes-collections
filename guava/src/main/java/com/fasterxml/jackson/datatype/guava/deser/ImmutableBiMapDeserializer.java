@@ -12,8 +12,6 @@ import com.google.common.collect.ImmutableMap.Builder;
 public class ImmutableBiMapDeserializer
     extends GuavaImmutableMapDeserializer<ImmutableBiMap<Object, Object>>
 {
-    private static final long serialVersionUID = 2L;
-
     public ImmutableBiMapDeserializer(JavaType type, KeyDeserializer keyDeser,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller) {

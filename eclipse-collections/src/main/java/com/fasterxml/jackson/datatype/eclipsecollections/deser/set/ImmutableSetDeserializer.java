@@ -32,7 +32,6 @@ import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.eclipse.collections.impl.factory.primitive.LongSets;
 import org.eclipse.collections.impl.factory.primitive.ShortSets;
 
-@SuppressWarnings("serial")
 public final class ImmutableSetDeserializer {
     private ImmutableSetDeserializer() {
     }

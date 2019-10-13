@@ -24,8 +24,6 @@ import com.google.common.collect.Multimap;
 public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Object>>
     extends ContainerDeserializerBase<T>
 {
-    private static final long serialVersionUID = 1L;
-
     private static final List<String> METHOD_NAMES = ImmutableList.of("copyOf", "create");
 
     private final KeyDeserializer _keyDeserializer;

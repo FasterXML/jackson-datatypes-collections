@@ -26,8 +26,6 @@ import org.eclipse.collections.api.map.MapIterable;
  */
 public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?, ?>>
 {
-    private static final long serialVersionUID = 3L;
-
     private final JavaType _type;
     private final JavaType _keyType, _valueType;
 
@@ -205,15 +203,15 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
     @Override
     public void serializeWithType(
             MapIterable<?, ?> value, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer typeSer
+            SerializerProvider ctxt, TypeSerializer typeSer
     ) throws IOException {
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
-            serializeFields(value, gen, provider);
+            serializeFields(value, gen, ctxt);
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     private final void serializeFields(MapIterable<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)

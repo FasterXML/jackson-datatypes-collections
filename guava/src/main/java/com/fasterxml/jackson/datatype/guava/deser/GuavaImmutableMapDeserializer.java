@@ -18,8 +18,6 @@ import com.google.common.collect.ImmutableMap;
 abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Object>> extends
         GuavaMapDeserializer<T>
 {
-    private static final long serialVersionUID = 2L;
-
     GuavaImmutableMapDeserializer(JavaType type, KeyDeserializer keyDeser,
             JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller) {
