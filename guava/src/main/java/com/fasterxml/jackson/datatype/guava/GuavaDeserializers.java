@@ -54,7 +54,8 @@ public class GuavaDeserializers
         if (ImmutableCollection.class.isAssignableFrom(raw)) {
             if (ImmutableList.class.isAssignableFrom(raw)) {
                 return new ImmutableListDeserializer(type,
-                        elementTypeDeserializer, elementDeserializer);
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             if (ImmutableMultiset.class.isAssignableFrom(raw)) {
                 // sorted one?
@@ -62,10 +63,13 @@ public class GuavaDeserializers
                     /* See considerations for ImmutableSortedSet below. */
                     requireCollectionOfComparableElements(type, "ImmutableSortedMultiset");
                     return new ImmutableSortedMultisetDeserializer(type,
-                            elementTypeDeserializer, elementDeserializer);
+                            elementDeserializer, elementTypeDeserializer,
+                            null, null);
                 }
                 // nah, just regular one
-                return new ImmutableMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                return new ImmutableMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             if (ImmutableSet.class.isAssignableFrom(raw)) {
                 // sorted one?
@@ -74,40 +78,54 @@ public class GuavaDeserializers
                     //   than natural ordering; but that'll have to do for now...
                     requireCollectionOfComparableElements(type, "ImmutableSortedSet");
                     return new ImmutableSortedSetDeserializer(type,
-                            elementTypeDeserializer, elementDeserializer);
+                            elementDeserializer, elementTypeDeserializer,
+                            null, null);
                 }
                 // nah, just regular one
                 return new ImmutableSetDeserializer(type,
-                        elementTypeDeserializer, elementDeserializer);
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             // TODO: make configurable (for now just default blindly to a list)
-            return new ImmutableListDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return new ImmutableListDeserializer(type,
+                    elementDeserializer, elementTypeDeserializer,
+                    null, null);
         }
 
         // Multi-xxx collections?
         if (Multiset.class.isAssignableFrom(raw)) {
             if (SortedMultiset.class.isAssignableFrom(raw)) {
                 if (TreeMultiset.class.isAssignableFrom(raw)) {
-                    return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                    return new TreeMultisetDeserializer(type,
+                            elementDeserializer, elementTypeDeserializer,
+                            null, null);
                 }
 
                 // TODO: make configurable (for now just default blindly)
-                return new TreeMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                return new TreeMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
 
             // Quite a few variations...
             if (LinkedHashMultiset.class.isAssignableFrom(raw)) {
-                return new LinkedHashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
-            }
+                return new LinkedHashMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
+           }
             if (HashMultiset.class.isAssignableFrom(raw)) {
-                return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+                return new HashMultisetDeserializer(type,
+                        elementDeserializer, elementTypeDeserializer,
+                        null, null);
             }
             if (EnumMultiset.class.isAssignableFrom(raw)) {
                 // !!! TODO
             }
 
             // TODO: make configurable (for now just default blindly)
-            return new HashMultisetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return new HashMultisetDeserializer(type,
+                    elementDeserializer, elementTypeDeserializer,
+                    null, null);
         }
 
         return null;
@@ -128,7 +146,7 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer valueTypeDeserializer, JsonDeserializer<?> valueDeserializer)
         throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
@@ -136,15 +154,16 @@ public class GuavaDeserializers
         // ImmutableXxxMap types?
         if (ImmutableMap.class.isAssignableFrom(raw)) {
             if (ImmutableSortedMap.class.isAssignableFrom(raw)) {
-                return new ImmutableSortedMapDeserializer(type, keyDeserializer, elementTypeDeserializer,
-                        elementDeserializer);
+                return new ImmutableSortedMapDeserializer(type, keyDeserializer,
+                        valueDeserializer, valueTypeDeserializer, null);
             }
             if (ImmutableBiMap.class.isAssignableFrom(raw)) {
-                return new ImmutableBiMapDeserializer(type, keyDeserializer, elementTypeDeserializer,
-                        elementDeserializer);
+                return new ImmutableBiMapDeserializer(type, keyDeserializer,
+                        valueDeserializer, valueTypeDeserializer, null);
             }
             // Otherwise, plain old ImmutableMap...
-            return new ImmutableMapDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            return new ImmutableMapDeserializer(type, keyDeserializer,
+                    valueDeserializer, valueTypeDeserializer, null);
         }
 
         // XxxBiMap types?
@@ -262,8 +281,11 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
+        if (type.hasRawClass(RangeSet.class)) {
+            return new RangeSetDeserializer();
+        }
         if (type.hasRawClass(Range.class)) {
-            return new RangeDeserializer(_defaultBoundType, type);
+            return new RangeDeserializer(type, _defaultBoundType);
         }
         if (type.hasRawClass(HostAndPort.class)) {
             return HostAndPortDeserializer.std;

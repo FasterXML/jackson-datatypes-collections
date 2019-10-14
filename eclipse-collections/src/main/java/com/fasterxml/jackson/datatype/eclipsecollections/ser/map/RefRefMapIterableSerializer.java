@@ -17,8 +17,6 @@ import java.util.function.BiConsumer;
  */
 public final class RefRefMapIterableSerializer extends RefRefMapSerializer<MapIterable<?, ?>>
 {
-    private static final long serialVersionUID = 4L;
-
     public RefRefMapIterableSerializer(
             JavaType type,
             JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,

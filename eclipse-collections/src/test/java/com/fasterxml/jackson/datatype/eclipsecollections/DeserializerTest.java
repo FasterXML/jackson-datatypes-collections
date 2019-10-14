@@ -628,26 +628,26 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void twin() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
         Object sampleOne = randomSample(Object.class);
         Object sampleTwo = randomSample(Object.class);
-        String expectedJson = "{\"one\":" + mapperWithModule().writeValueAsString(sampleOne)
-                              + ",\"two\":" + mapperWithModule().writeValueAsString(sampleTwo) + "}";
+        String expectedJson = "{\"one\":" + mapper.writeValueAsString(sampleOne)
+                              + ",\"two\":" + mapper.writeValueAsString(sampleTwo) + "}";
         Twin<String> twin = Tuples.twin((String) sampleOne, (String) sampleTwo);
-        Assert.assertEquals(expectedJson, mapperWithModule().writeValueAsString(twin));
-        Assert.assertEquals(twin, mapperWithModule().readValue(expectedJson, new TypeReference<Twin<String>>() {}));
+        Assert.assertEquals(expectedJson, mapper.writeValueAsString(twin));
+        Assert.assertEquals(twin, mapper.readValue(expectedJson, new TypeReference<Twin<String>>() {}));
     }
 
     @Test
     public void pairTyped() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
         ObjectIntPair<A> pair = PrimitiveTuples.pair(new B(), 5);
-        String json = "{\"one\":{\"@c\":\".DeserializerTest$B\"},\"two\":5}";
-        Assert.assertEquals(
-                json,
-                mapperWithModule().writerFor(new TypeReference<ObjectIntPair<A>>() {}).writeValueAsString(pair)
-        );
-        Assert.assertEquals(
-                pair,
-                mapperWithModule().readValue(json, new TypeReference<ObjectIntPair<A>>() {})
+        final String actJson = mapper.writerFor(new TypeReference<ObjectIntPair<A>>() {})
+                .writeValueAsString(pair);
+        String expJson = "{\"one\":{\"@c\":\".DeserializerTest$B\"},\"two\":5}";
+        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
+        Assert.assertEquals(pair,
+                mapper.readValue(actJson, new TypeReference<ObjectIntPair<A>>() {})
         );
     }
 

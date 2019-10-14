@@ -11,7 +11,6 @@ import org.eclipse.collections.api.set.primitive.*;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.primitive.*;
 
-@SuppressWarnings("serial")
 public final class ImmutableSetDeserializer {
     private ImmutableSetDeserializer() {
     }

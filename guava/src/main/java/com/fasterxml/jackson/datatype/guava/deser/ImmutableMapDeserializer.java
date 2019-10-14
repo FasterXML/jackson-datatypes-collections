@@ -1,31 +1,33 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.MapType;
+
 import com.google.common.collect.ImmutableMap;
 
 public class ImmutableMapDeserializer
- extends GuavaImmutableMapDeserializer<ImmutableMap<Object, Object>>
+    extends GuavaImmutableMapDeserializer<ImmutableMap<Object, Object>>
 {
-    public ImmutableMapDeserializer(MapType type, KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+    public ImmutableMapDeserializer(JavaType type, KeyDeserializer keyDeser,
+            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller)
     {
-        super(type, keyDeser, typeDeser, deser);
+        super(type, keyDeser, valueDeser, valueTypeDeser, nuller);
     }
 
     @Override
     public ImmutableMapDeserializer withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
-        return new ImmutableMapDeserializer(_mapType, keyDeser,
-                typeDeser, valueDeser);
+            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            NullValueProvider nuller) {
+        return new ImmutableMapDeserializer(_containerType, keyDeser,
+                valueDeser, valueTypeDeser, nuller);
     }
-    
+
     @Override
     protected ImmutableMap.Builder<Object, Object> createBuilder() {
         return ImmutableMap.builder();
     }
-
 }

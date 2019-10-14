@@ -11,8 +11,6 @@ import java.util.Collection;
 public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Collection<Object>>
         extends BaseCollectionDeserializer<T, Intermediate>
 {
-    private static final long serialVersionUID = 3L;
-
     protected final JavaType _elementType;
     protected final JsonDeserializer<?> _valueDeserializer;
     protected final TypeDeserializer _typeDeserializerForValue;

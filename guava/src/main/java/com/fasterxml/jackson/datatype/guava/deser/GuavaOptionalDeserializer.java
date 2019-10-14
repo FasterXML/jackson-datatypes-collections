@@ -10,17 +10,12 @@ import com.google.common.base.Optional;
 public class GuavaOptionalDeserializer
     extends ReferenceTypeDeserializer<Optional<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     public GuavaOptionalDeserializer(JavaType fullType, ValueInstantiator inst,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
@@ -60,7 +55,7 @@ public class GuavaOptionalDeserializer
         return reference.get();
     }
 
-    @Override // since 2.9
+    @Override
     public Optional<?> updateReference(Optional<?> reference, Object contents) {
         return Optional.fromNullable(contents);
     }

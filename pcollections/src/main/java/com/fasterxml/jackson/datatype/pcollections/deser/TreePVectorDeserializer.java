@@ -8,8 +8,6 @@ import org.pcollections.TreePVector;
 public class TreePVectorDeserializer extends
         PCollectionsCollectionDeserializer<TreePVector<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public TreePVectorDeserializer(CollectionType type,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
         super(type, typeDeser, deser);

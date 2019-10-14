@@ -1,0 +1,9 @@
+com.fasterxml.jackson.datatype.eclipsecollections
+com.fasterxml.jackson.datatype.eclipsecollections.deser
+com.fasterxml.jackson.datatype.eclipsecollections.deser.bag
+com.fasterxml.jackson.datatype.eclipsecollections.deser.list
+com.fasterxml.jackson.datatype.eclipsecollections.deser.map
+com.fasterxml.jackson.datatype.eclipsecollections.deser.pair
+com.fasterxml.jackson.datatype.eclipsecollections.deser.set
+com.fasterxml.jackson.datatype.eclipsecollections.ser
+com.fasterxml.jackson.datatype.eclipsecollections.ser.map

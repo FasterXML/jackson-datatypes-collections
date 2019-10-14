@@ -9,8 +9,6 @@ import org.pcollections.MapPBag;
 public class HashTreePBagDeserializer extends
         PCollectionsCollectionDeserializer<MapPBag<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public HashTreePBagDeserializer(CollectionType type,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
         super(type, typeDeser, deser);

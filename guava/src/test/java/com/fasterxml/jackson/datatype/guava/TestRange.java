@@ -6,9 +6,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
-
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -62,6 +62,21 @@ public class TestRange extends ModuleTestBase {
         testSerialization(MAPPER, RangeFactory.lessThan(10));
         testSerialization(MAPPER, RangeFactory.all());
         testSerialization(MAPPER, RangeFactory.singleton(1));
+    }
+
+    public void testSerializationWithPropertyNamingStrategy() throws Exception
+    {
+        ObjectMapper mappper = builderWithModule().propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE).build();
+        testSerialization(mappper, RangeFactory.open(1, 10));
+        testSerialization(mappper, RangeFactory.openClosed(1, 10));
+        testSerialization(mappper, RangeFactory.closedOpen(1, 10));
+        testSerialization(mappper, RangeFactory.closed(1, 10));
+        testSerialization(mappper, RangeFactory.atLeast(1));
+        testSerialization(mappper, RangeFactory.greaterThan(1));
+        testSerialization(mappper, RangeFactory.atMost(10));
+        testSerialization(mappper, RangeFactory.lessThan(10));
+        testSerialization(mappper, RangeFactory.all());
+        testSerialization(mappper, RangeFactory.singleton(1));
     }
 
     public void testWrappedSerialization() throws Exception
@@ -259,11 +274,31 @@ public class TestRange extends ModuleTestBase {
         assertEquals(BoundType.CLOSED, r.upperBoundType());
     }
 
+    public void testSnakeCaseNamingStrategy() throws Exception
+    {
+        String json = "{\"lower_endpoint\": 12, \"lower_bound_type\": \"CLOSED\", \"upper_endpoint\": 33, \"upper_bound_type\": \"CLOSED\"}";
+
+        GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(mod)
+                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .build();
+
+        @SuppressWarnings("unchecked")
+        Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
+
+        assertEquals(Integer.valueOf(12), r.lowerEndpoint());
+        assertEquals(Integer.valueOf(33), r.upperEndpoint());
+
+        assertEquals(BoundType.CLOSED, r.lowerBoundType());
+        assertEquals(BoundType.CLOSED, r.upperBoundType());
+    }
+
     // [datatypes-collections#12]
     public void testRangeWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = builderWithModule()
-                .enableDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
                 .build();
         Range<Integer> input = RangeFactory.closed(1, 10);
         String json = mapper.writeValueAsString(input);

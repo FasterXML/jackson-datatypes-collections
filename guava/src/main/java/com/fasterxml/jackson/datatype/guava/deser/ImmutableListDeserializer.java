@@ -2,25 +2,26 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import com.google.common.collect.ImmutableList;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
 
 public class ImmutableListDeserializer extends
         GuavaImmutableCollectionDeserializer<ImmutableList<Object>>
 {
-    private static final long serialVersionUID = 1L;
-
-    public ImmutableListDeserializer(CollectionType type,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
-        super(type, typeDeser, deser);
+    public ImmutableListDeserializer(JavaType selfType,
+            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     @Override
-    public ImmutableListDeserializer withResolved(TypeDeserializer typeDeser,
-            JsonDeserializer<?> valueDeser) {
-        return new ImmutableListDeserializer(_containerType, typeDeser,
-                valueDeser);
+    public ImmutableListDeserializer withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        return new ImmutableListDeserializer(_containerType,
+                valueDeser, typeDeser, nuller, unwrapSingle);
     }
 
     /*
@@ -31,7 +32,16 @@ public class ImmutableListDeserializer extends
 
     @Override
     protected ImmutableList.Builder<Object> createBuilder() {
-        ImmutableList.Builder<Object> builder = ImmutableList.builder();
-        return builder;
+        return ImmutableList.builder();
+    }
+
+    @Override
+    protected ImmutableList<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+        return ImmutableList.of();
+    }
+
+    @Override
+    protected ImmutableList<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+        return ImmutableList.of(value);
     }
 }

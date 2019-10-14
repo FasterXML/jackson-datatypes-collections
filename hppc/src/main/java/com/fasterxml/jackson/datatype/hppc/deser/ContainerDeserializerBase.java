@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
-@SuppressWarnings("serial")
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
 {
@@ -61,7 +60,7 @@ public abstract class ContainerDeserializerBase<T>
                 return single;
             }
         }
-        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     protected T createContainerInstance(DeserializationContext ctxt)

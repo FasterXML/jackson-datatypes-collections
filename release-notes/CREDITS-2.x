@@ -58,3 +58,17 @@ Neelav Rana (neelav@github)
 Jonas Konrad (Eclipse collections)
   * Contributed #29: Add eclipse-collections support
    (2.9.6)
+
+Felix König (Felk@github)
+  * Contributed #50: (guava) Add Serializer and Deserializer for `RangeSet`
+   (2.10.0)
+
+Jon Freedman (jonfreedman@github)
+  * Reported #53: (guava) `GuavaImmutableCollectionDeserializer` cannot deserialize
+   an empty `Optional` from null
+   (2.10.0)
+
+Philip Leonard (philleonard@github)
+  * Reported#56, contributed fix: Range property name (de)serialisation doesn't
+    respect property naming strategy
+   (2.10.0)

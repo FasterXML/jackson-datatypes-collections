@@ -5,12 +5,13 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import org.pcollections.PMap;
 
 public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>>
-    extends JsonDeserializer<T>
+    extends StdDeserializer<T>
 {
     protected final MapType _mapType;
     
@@ -40,6 +41,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     protected PCollectionsMapDeserializer(MapType type, KeyDeserializer keyDeser,
             TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
+        super(type);
         _mapType = type;
         _keyDeserializer = keyDeser;
         _typeDeserializerForValue = typeDeser;
@@ -119,7 +121,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
             t = p.nextToken();
         }
         if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
-            return (T) ctxt.handleUnexpectedToken(handledType(), p);
+            return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         return _deserializeEntries(p, ctxt);
     }

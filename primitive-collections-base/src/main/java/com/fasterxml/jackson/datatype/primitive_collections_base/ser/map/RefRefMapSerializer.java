@@ -20,8 +20,6 @@ import java.util.function.BiConsumer;
  */
 public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 {
-    private static final long serialVersionUID = 3L;
-
     private final JavaType _type;
     private final JavaType _keyType, _valueType;
 
@@ -183,15 +181,15 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     @Override
     public void serializeWithType(
             T value, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer typeSer
+            SerializerProvider ctxt, TypeSerializer typeSer
     ) throws IOException {
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        if (!isEmpty(provider, value)) {
-            serializeFields(value, gen, provider);
+        if (!isEmpty(ctxt, value)) {
+            serializeFields(value, gen, ctxt);
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     protected abstract void forEachKeyValue(T value, BiConsumer<Object, Object> action);

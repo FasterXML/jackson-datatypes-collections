@@ -18,8 +18,6 @@ import com.carrotsearch.hppc.*;
 public class ObjectContainerSerializer
     extends ContainerSerializerBase<ObjectContainer<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JavaType _contentType;
 
     /**

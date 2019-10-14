@@ -17,8 +17,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Boolean<T extends BooleanIterable, Intermediate extends MutableBooleanCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Boolean(Class<? super T> cls) {
             super(cls);
         }
@@ -32,8 +30,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Byte<T extends ByteIterable, Intermediate extends MutableByteCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Byte(Class<? super T> cls) {
             super(cls);
         }
@@ -60,8 +56,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Short<T extends ShortIterable, Intermediate extends MutableShortCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Short(Class<? super T> cls) {
             super(cls);
         }
@@ -75,8 +69,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Char<T extends CharIterable, Intermediate extends MutableCharCollection>
             extends BaseCharCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         private static final int BATCH_COPY_SIZE = 4096;
 
         protected Char(Class<? super T> cls) {
@@ -118,8 +110,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Int<T extends IntIterable, Intermediate extends MutableIntCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Int(Class<? super T> cls) {
             super(cls);
         }
@@ -133,8 +123,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Float<T extends FloatIterable, Intermediate extends MutableFloatCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Float(Class<? super T> cls) {
             super(cls);
         }
@@ -148,8 +136,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Long<T extends LongIterable, Intermediate extends MutableLongCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Long(Class<? super T> cls) {
             super(cls);
         }
@@ -163,8 +149,6 @@ public final class BaseCollectionDeserializers {
 
     public abstract static class Double<T extends DoubleIterable, Intermediate extends MutableDoubleCollection>
             extends BaseCollectionDeserializer<T, Intermediate> {
-        private static final long serialVersionUID = 3L;
-
         protected Double(Class<? super T> cls) {
             super(cls);
         }

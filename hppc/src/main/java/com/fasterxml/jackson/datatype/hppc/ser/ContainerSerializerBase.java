@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 public abstract class ContainerSerializerBase<T>
     extends ContainerSerializer<T>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final String _schemeElementType;
 
     protected ContainerSerializerBase(Class<T> type, String schemaElementType)
@@ -32,7 +30,7 @@ public abstract class ContainerSerializerBase<T>
     }
 
     protected ContainerSerializerBase(ContainerSerializerBase<?> src) {
-        super(src._handledType, true);
+        super(src._handledType);
         _schemeElementType = src._schemeElementType;
     }
 
@@ -87,15 +85,15 @@ public abstract class ContainerSerializerBase<T>
             throws IOException;
     
     @Override
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
     {
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
-        serializeContents(value, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        serializeContents(value, gen, ctxt);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     /*

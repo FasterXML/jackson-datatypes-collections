@@ -5,43 +5,61 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.google.common.collect.ImmutableCollection;
 
 abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollection<Object>>
         extends GuavaCollectionDeserializer<T>
 {
-    private static final long serialVersionUID = 1L;
-
-    GuavaImmutableCollectionDeserializer(CollectionType type,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser) {
-        super(type, typeDeser, deser);
+    GuavaImmutableCollectionDeserializer(JavaType selfType,
+            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     protected abstract ImmutableCollection.Builder<Object> createBuilder();
 
+    // Can not modify Immutable collections now can we
+    @Override // since 2.10
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
+    }
+
+    @Override // since 2.10
+    public AccessPattern getEmptyAccessPattern() {
+        // But we should be able to just share immutable empty instance
+        return AccessPattern.CONSTANT;
+    }
+
     @Override
-    protected T _deserializeContents(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
-        final TypeDeserializer typeDeser = _typeDeserializerForValue;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         // No way to pass actual type parameter; but does not matter, just
         // compiler-time fluff:
         ImmutableCollection.Builder<Object> builder = createBuilder();
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value;
 
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                if (_skipNullValues) {
+                    continue;
+                }
+                value = _resolveNullToValue(ctxt);
             } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
+                value = valueDes.deserialize(p, ctxt);
             } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
             builder.add(value);
         }
@@ -52,25 +70,23 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         return collection;
     }
 
-    @Override
-    protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    /**
+     *
+     * @since 2.10
+     */
+    protected Object _resolveNullToValue(DeserializationContext ctxt) throws IOException
     {
-        JsonDeserializer<?> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _typeDeserializerForValue;
-        JsonToken t = p.currentToken();
+        Object value = _nullProvider.getNullValue(ctxt);
 
-        Object value;
-        
-        if (t == JsonToken.VALUE_NULL) {
-            value = null;
-        } else if (typeDeser == null) {
-            value = valueDes.deserialize(p, ctxt);
-        } else {
-            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-        }
-        @SuppressWarnings("unchecked")
-        T result = (T) createBuilder().add(value).build();
-        return result;
+        // Since Guava (immutable) collections are not very happy with {@code null} values,
+        // we may eventually need to do additional mapping (see [databind#53]).
+        // But for now just use null provider:
+
+        /*
+        if (value == null) {
+            value = _valueDeserializer.getNullValue(ctxt);
+         }
+         */
+        return value;
     }
 }

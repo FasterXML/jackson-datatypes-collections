@@ -16,7 +16,6 @@ import static com.fasterxml.jackson.datatype.eclipsecollections.ser.map.Primitiv
 /**
  * @author yawkat
  */
-@SuppressWarnings({"Duplicates", "serial"})
 public final class PrimitivePrimitiveMapSerializers {
     private PrimitivePrimitiveMapSerializers() {
     }

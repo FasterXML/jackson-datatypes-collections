@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 
 public class InternetDomainNameDeserializer extends FromStringDeserializer<InternetDomainName>
 {
-    private static final long serialVersionUID = 1L;
-
     public final static InternetDomainNameDeserializer std = new InternetDomainNameDeserializer();
     
     public InternetDomainNameDeserializer() { super(InternetDomainName.class); }

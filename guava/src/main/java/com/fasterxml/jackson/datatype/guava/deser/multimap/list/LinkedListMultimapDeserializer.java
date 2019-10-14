@@ -19,8 +19,6 @@ import com.google.common.collect.LinkedListMultimap;
 public class LinkedListMultimapDeserializer
     extends GuavaMultimapDeserializer<LinkedListMultimap<Object,Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public LinkedListMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);

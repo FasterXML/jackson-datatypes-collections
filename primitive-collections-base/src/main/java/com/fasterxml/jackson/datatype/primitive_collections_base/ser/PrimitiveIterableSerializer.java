@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import java.io.IOException;
 
 public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer<C> {
-    private static final long serialVersionUID = 0L;
-
     protected final JavaType _elementType;
     protected final BeanProperty _property;
     protected final Boolean _unwrapSingle;
@@ -48,9 +46,9 @@ public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer
     }
 
     @Override
-    public final void serialize(C value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public final void serialize(C value, JsonGenerator gen, SerializerProvider ctxt) throws IOException {
         if (((_unwrapSingle == null) &&
-                provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                 || (Boolean.TRUE.equals(_unwrapSingle))) {
             if (hasSingleElement(value)) {
                 serializeContents(value, gen);
@@ -63,12 +61,12 @@ public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer
     }
 
     @Override
-    public void serializeWithType(C value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
+    public void serializeWithType(C value, JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
             throws IOException {
         g.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.START_ARRAY));
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt, typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     protected abstract void serializeContents(C value, JsonGenerator gen) throws IOException;

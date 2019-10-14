@@ -12,8 +12,6 @@ import java.io.IOException;
  */
 public abstract class PrimitiveRefMapSerializer<T, V>
         extends PrimitiveMapSerializer<T> {
-    private static final long serialVersionUID = 0L;
-
     protected final JavaType _type;
     protected final BeanProperty _property;
     protected final TypeSerializer _valueTypeSerializer;

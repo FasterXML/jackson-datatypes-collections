@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import java.io.IOException;
 
 public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDeserializer<T> {
-    private static final long serialVersionUID = 1L;
-
     protected BaseCollectionDeserializer(Class<? super T> cls) {
         super(cls);
     }
@@ -50,7 +48,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             return _deserializeFromSingleValue(p, ctxt);
         }
-        return (T) ctxt.handleUnexpectedToken(handledType(), p);
+        return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)

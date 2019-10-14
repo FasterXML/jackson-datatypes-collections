@@ -13,8 +13,6 @@ import java.io.IOException;
  * instead
  */
 public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends StdDeserializer<T> {
-    private static final long serialVersionUID = 3L;
-
     protected BaseCharCollectionDeserializer(Class<? super T> cls) {
         super(cls);
     }
@@ -33,7 +31,6 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
         return typeDeserializer.deserializeTypedFromScalar(p, ctxt);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException {
@@ -46,7 +43,8 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
                 if (t == JsonToken.VALUE_STRING) {
                     str = p.getText();
                 } else {
-                    CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(Character.TYPE, p);
+                    CharSequence cs =
+                            (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                     str = cs.toString();
                 }
                 if (str.length() != 1) {

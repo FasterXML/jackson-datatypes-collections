@@ -42,8 +42,6 @@ import com.google.common.collect.Multimap;
 public class MultimapSerializer
     extends ContainerSerializer<Multimap<?, ?>>
 {
-    private static final long serialVersionUID = 1L;
-
     private final MapLikeType _type;
     private final JsonSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
@@ -267,11 +265,11 @@ public class MultimapSerializer
 
     @Override
     public void serializeWithType(Multimap<?,?> value, JsonGenerator gen,
-            SerializerProvider provider, TypeSerializer typeSer)
+            SerializerProvider ctxt, TypeSerializer typeSer)
         throws IOException
     {
         gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
 // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
@@ -280,12 +278,12 @@ public class MultimapSerializer
 //              value = _orderEntries(value, gen, provider);
 //          }
             if (_filterId != null) {
-                serializeFilteredFields(value, gen, provider);
+                serializeFilteredFields(value, gen, ctxt);
             } else {
-                serializeFields(value, gen, provider);
+                serializeFields(value, gen, ctxt);
             }
         }
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
     private final void serializeFields(Multimap<?, ?> mmap, JsonGenerator

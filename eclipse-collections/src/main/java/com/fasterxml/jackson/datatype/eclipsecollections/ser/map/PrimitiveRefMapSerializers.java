@@ -17,6 +17,7 @@ import java.io.IOException;
 @SuppressWarnings({ "Duplicates", "NewClassNamingConvention" })
 public final class PrimitiveRefMapSerializers {
 
+    @SuppressWarnings("unchecked")
     static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
         throw (E) e;
     }
@@ -25,8 +26,6 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Byte<V> extends PrimitiveRefMapSerializer<ByteObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
-
         public Byte(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -54,9 +53,7 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Short<V> extends PrimitiveRefMapSerializer<ShortObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
         public Short(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
-            
             super(type, property, vts, valueSerializer);
         }
 
@@ -83,8 +80,6 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Char<V> extends PrimitiveRefMapSerializer<CharObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
-
         public Char(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -112,8 +107,6 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Int<V> extends PrimitiveRefMapSerializer<IntObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
-
         public Int(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -141,8 +134,6 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Float<V> extends PrimitiveRefMapSerializer<FloatObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
-
         public Float(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -170,8 +161,6 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Long<V> extends PrimitiveRefMapSerializer<LongObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
-
         public Long(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
@@ -199,8 +188,6 @@ public final class PrimitiveRefMapSerializers {
     }
 
     public static class Double<V> extends PrimitiveRefMapSerializer<DoubleObjectMap<V>, V> {
-        private static final long serialVersionUID = 4L;
-
         public Double(
                 JavaType type,
                 BeanProperty property,

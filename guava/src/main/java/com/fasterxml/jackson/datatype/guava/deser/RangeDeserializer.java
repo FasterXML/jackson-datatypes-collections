@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
+import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;
 
 /**
  * Jackson deserializer for a Guava {@link Range}.
@@ -27,48 +29,32 @@ import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 public class RangeDeserializer
     extends StdDeserializer<Range<?>>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JavaType _rangeType;
 
     protected final JsonDeserializer<Object> _endpointDeserializer;
+    protected final BoundType _defaultBoundType;
 
-    private BoundType _defaultBoundType;
-
+    protected final RangeHelper.RangeProperties _fieldNames;
+    
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public RangeDeserializer(JavaType rangeType) {
-        this(null, rangeType);
-    }
-    
-    public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType) {
-        this(rangeType, null);
-        _defaultBoundType = defaultBoundType;
+    public RangeDeserializer(JavaType rangeType, BoundType defaultBoundType) {
+        this(rangeType, null, defaultBoundType, RangeHelper.standardNames());
     }
 
     @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser)
-    {
-        super(rangeType);
-        _rangeType = rangeType;
-        _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
-    }
-
-    @SuppressWarnings("unchecked")
-    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType)
+    protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
+            BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
     {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
         _defaultBoundType = defaultBoundType;
+        _fieldNames = fieldNames;
     }
 
     @Override
@@ -78,13 +64,21 @@ public class RangeDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        if (_endpointDeserializer == null) {
+        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
+                ctxt.getConfig().getPropertyNamingStrategy());
+        JsonDeserializer<?> deser = _endpointDeserializer;
+        if (deser == null) {
             JavaType endpointType = _rangeType.containedType(0);
             if (endpointType == null) { // should this ever occur?
                 endpointType = TypeFactory.unknownType();
             }
-            JsonDeserializer<Object> deser = ctxt.findContextualValueDeserializer(endpointType, property);
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType);
+            deser = ctxt.findContextualValueDeserializer(endpointType, property);
+        } else {
+            // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
+            deser = deser.createContextual(ctxt, property);
+        }
+        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames);
         }
         return this;
     }
@@ -94,13 +88,13 @@ public class RangeDeserializer
     /* Actual deserialization
     /**********************************************************
      */
-    
+
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     @Override
@@ -122,16 +116,16 @@ public class RangeDeserializer
             expect(context, JsonToken.FIELD_NAME, t);
             String fieldName = p.currentName();
             try {
-                if (fieldName.equals("lowerEndpoint")) {
+                if (fieldName.equals(_fieldNames.lowerEndpoint)) {
                     p.nextToken();
                     lowerEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals("upperEndpoint")) {
+                } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
                     p.nextToken();
                     upperEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals("lowerBoundType")) {
+                } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
                     p.nextToken();
                     lowerBoundType = deserializeBoundType(context, p);
-                } else if (fieldName.equals("upperBoundType")) {
+                } else if (fieldName.equals(_fieldNames.upperBoundType)) {
                     p.nextToken();
                     upperBoundType = deserializeBoundType(context, p);
                 } else {
@@ -148,19 +142,32 @@ public class RangeDeserializer
         try {
             if ((lowerEndpoint != null) && (upperEndpoint != null)) {
                 Preconditions.checkState(lowerEndpoint.getClass() == upperEndpoint.getClass(),
-                                         "Endpoint types are not the same - 'lowerEndpoint' deserialized to [%s], and 'upperEndpoint' deserialized to [%s].",
+                                         "Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
+                                         _fieldNames.lowerEndpoint,
                                          lowerEndpoint.getClass().getName(),
+                                         _fieldNames.upperEndpoint,
                                          upperEndpoint.getClass().getName());
-                Preconditions.checkState(lowerBoundType != null, "'lowerEndpoint' field found, but not 'lowerBoundType'");
-                Preconditions.checkState(upperBoundType != null, "'upperEndpoint' field found, but not 'upperBoundType'");
+                Preconditions.checkState(lowerBoundType != null,
+                                         "'%s' field found, but not '%s'",
+                                         _fieldNames.lowerEndpoint,
+                                         _fieldNames.lowerBoundType);
+                Preconditions.checkState(upperBoundType != null,
+                                         "'%s' field found, but not '%s'",
+                                         _fieldNames.upperEndpoint,
+                                         _fieldNames.upperBoundType);
                 return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
             }
             if (lowerEndpoint != null) {
-                Preconditions.checkState(lowerBoundType != null, "'lowerEndpoint' field found, but not 'lowerBoundType'");
+                Preconditions.checkState(lowerBoundType != null,
+                                         "'%s' field found, but not '%s'",
+                                         _fieldNames.lowerEndpoint,
+                                         _fieldNames.lowerBoundType);
                 return RangeFactory.downTo(lowerEndpoint, lowerBoundType);
             }
             if (upperEndpoint != null) {
-                Preconditions.checkState(upperBoundType != null, "'upperEndpoint' field found, but not 'upperBoundType'");
+                Preconditions.checkState(upperBoundType != null,
+                                         "'%s' field found, but not '%s'",
+                                         _fieldNames.lowerEndpoint);
                 return RangeFactory.upTo(upperEndpoint, upperBoundType);
             }
             return RangeFactory.all();
@@ -178,7 +185,7 @@ public class RangeDeserializer
         } catch (IllegalArgumentException e) {
             return (BoundType) context.handleWeirdStringValue(BoundType.class, name,
                     "not a valid BoundType name (should be one oF: %s)",
-                    Arrays.asList(BoundType.values()));
+                    asList(BoundType.values()));
         }
     }
 
