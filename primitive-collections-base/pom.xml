@@ -10,7 +10,7 @@
     </parent>
     <artifactId>jackson-datatype-primitive-collections-base</artifactId>
     <name>Jackson datatype: primitive-collections-base</name>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <description>Base implementation for add-on datatype-support modules for Jackson
         (https://github.com/FasterXML/jackson) that handle Java collections that hold primitives
     </description>
@@ -26,4 +26,13 @@
             <email>leventov.ru@gmail.com</email>
         </contributor>
     </contributors>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.moditect</groupId>
+                <artifactId>moditect-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>
