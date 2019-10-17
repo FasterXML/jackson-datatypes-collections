@@ -8,5 +8,4 @@ module jackson.datatype.primitive.collections.base {
     exports com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
     exports com.fasterxml.jackson.datatype.primitive_collections_base.ser;
     exports com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
-
 }

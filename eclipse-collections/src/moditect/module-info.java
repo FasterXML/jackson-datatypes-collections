@@ -3,6 +3,7 @@ module jackson.datatype.eclipse.collections {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
+    requires jackson.datatype.primitive.collections.base;
 
     requires org.eclipse.collections.api;
     requires org.eclipse.collections.impl;

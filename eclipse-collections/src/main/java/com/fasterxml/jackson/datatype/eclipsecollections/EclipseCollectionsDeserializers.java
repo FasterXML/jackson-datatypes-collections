@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -155,11 +154,10 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     // are faster to construct.
 
     // initialized below
-    static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS
-            = new IdentityHashMap<>();
+    private static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS
+            = new HashMap<>();
     @SuppressWarnings("rawtypes")
-    static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES =
-            Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
 
     @Override
     public JsonDeserializer<?> findCollectionDeserializer(
@@ -168,8 +166,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
-        //noinspection SuspiciousMethodCalls
+    ) {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
         }
@@ -184,7 +181,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
+    ) {
 
         return findBeanDeserializer(type, config, beanDesc);
     }
@@ -192,14 +189,12 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     @Override
     public JsonDeserializer<?> findBeanDeserializer(
             JavaType type, DeserializationConfig config, BeanDescription beanDesc
-    ) throws JsonMappingException {
-        @SuppressWarnings("SuspiciousMethodCalls")
+    ) {
         JsonDeserializer<?> deserializer = PRIMITIVE_DESERIALIZERS.get(type.getRawClass());
         if (deserializer != null) {
             return deserializer;
         }
 
-        //noinspection SuspiciousMethodCalls
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, null, null);
         }

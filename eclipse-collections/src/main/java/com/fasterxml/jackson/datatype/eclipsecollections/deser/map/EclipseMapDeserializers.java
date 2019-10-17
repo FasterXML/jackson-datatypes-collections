@@ -5,11 +5,10 @@ import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.KeyHa
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.MapDeserializer;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.TypeHandlerPair;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.ValueHandler;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.map.TypeHandlerPairs;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.primitive.PrimitiveObjectMap;
 
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -18,7 +17,7 @@ import java.util.function.Function;
  * @author yawkat
  */
 public final class EclipseMapDeserializers {
-    private static final Map<Class<?>, Entry<?, ?, ?, ?>> ENTRIES = new IdentityHashMap<>();
+    private static final Map<Class<?>, Entry<?, ?, ?, ?>> ENTRIES = new HashMap<>();
 
     private EclipseMapDeserializers() {
     }
@@ -31,6 +30,7 @@ public final class EclipseMapDeserializers {
         return entry.createDeserializer(type);
     }
 
+    @SuppressWarnings("unused") // Used from TypeHandlerPairs
     static <T, K extends KeyHandler<K>, V extends ValueHandler<V>> void add(
             Class<T> type,
             TypeHandlerPair<? extends T, K, V> handlerPair
@@ -38,6 +38,7 @@ public final class EclipseMapDeserializers {
         ENTRIES.put(type, new Entry<>(handlerPair, null));
     }
 
+    @SuppressWarnings("unused") // Used from TypeHandlerPairs
     static <T, I> void add(
             Class<T> type,
             TypeHandlerPair<I, ?, ?> handlerPair,

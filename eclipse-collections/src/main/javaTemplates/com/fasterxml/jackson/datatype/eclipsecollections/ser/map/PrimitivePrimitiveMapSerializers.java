@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
@@ -60,7 +60,7 @@ public final class PrimitivePrimitiveMapSerializers {
 
     static {
         Map<Class<? extends PrimitiveIterable>, PrimitiveMapSerializer<?>> instances =
-                new IdentityHashMap<>();
+                new HashMap<>();
         /* with
             byte|char|short|int|long|float|double key
             short|byte|char|int|long|float|double|boolean value

@@ -10,8 +10,7 @@ import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.tuple.Tuples;
 
-import java.io.IOException;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -21,10 +20,10 @@ import java.util.function.Function;
  */
 public final class PairInstantiators extends ValueInstantiators.Base {
     private static final Map<Class<?>, ValueInstantiator> PURE_PRIMITIVE_INSTANTIATORS =
-            new IdentityHashMap<>();
+            new HashMap<>();
 
     private static final Map<Class<?>, Function<JavaType, ValueInstantiator>> KEY_OR_VALUE_OBJECT_LAMBDAS =
-            new IdentityHashMap<>();
+            new HashMap<>();
 
     @Override
     public ValueInstantiator findValueInstantiator(
@@ -60,7 +59,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+                public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                     return Tuples.pair(args[0], args[1]);
                 }
             };
@@ -80,7 +79,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+                public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                     return Tuples.twin(args[0], args[1]);
                 }
             };
@@ -89,11 +88,13 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         return defaultInstantiator;
     }
 
+    @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static void add(Class<?> objectKeyOrValuePairClass,
             Function<JavaType, ValueInstantiator> lambda) {
         KEY_OR_VALUE_OBJECT_LAMBDAS.put(objectKeyOrValuePairClass, lambda);
     }
 
+    @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static <P> ValueInstantiator primitiveObjectInstantiator(
             JavaType inputType, Class<?> one,
             BiFunction<Object, Object, P> factory
@@ -112,12 +113,13 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+            public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                 return factory.apply(args[0], args[1]);
             }
         };
     }
 
+    @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static <P> ValueInstantiator objectPrimitiveInstantiator(
             JavaType inputType, Class<?> two,
             BiFunction<Object, Object, P> factory
@@ -136,12 +138,13 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+            public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                 return factory.apply(args[0], args[1]);
             }
         };
     }
 
+    @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static <P> void purePrimitiveInstantiator(
             Class<P> pairClass, Class<?> one, Class<?> two,
             BiFunction<Object, Object, P> factory
@@ -160,13 +163,13 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException {
+            public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                 return factory.apply(args[0], args[1]);
             }
         });
     }
 
-    static SettableBeanProperty[] makeProperties(
+    private static SettableBeanProperty[] makeProperties(
             DeserializationContext ctxt,
             JavaType oneType,
             JavaType twoType
