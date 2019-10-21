@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -17,16 +16,15 @@ import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.MutableSorted
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.list.FixedSizeListDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.list.ImmutableListDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.list.MutableListDeserializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.map.EclipseMapDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.map.EclipseMapDeserializers;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSortedSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSortedSetDeserializer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+
+import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.MapDeserializer;
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;
@@ -156,9 +154,10 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     // are faster to construct.
 
     // initialized below
-    static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS = new HashMap<>();
+    private static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS
+            = new HashMap<>();
     @SuppressWarnings("rawtypes")
-    static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
+    private static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
 
     @Override
     public JsonDeserializer<?> findCollectionDeserializer(
@@ -167,8 +166,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
-        //noinspection SuspiciousMethodCalls
+    ) {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
         }
@@ -183,7 +181,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
+    ) {
 
         return findBeanDeserializer(type, config, beanDesc);
     }
@@ -191,19 +189,17 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     @Override
     public JsonDeserializer<?> findBeanDeserializer(
             JavaType type, DeserializationConfig config, BeanDescription beanDesc
-    ) throws JsonMappingException {
-        @SuppressWarnings("SuspiciousMethodCalls")
+    ) {
         JsonDeserializer<?> deserializer = PRIMITIVE_DESERIALIZERS.get(type.getRawClass());
         if (deserializer != null) {
             return deserializer;
         }
 
-        //noinspection SuspiciousMethodCalls
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, null, null);
         }
 
-        EclipseMapDeserializer<?, ?, ?, ?> mapDeserializer = EclipseMapDeserializers.createDeserializer(type);
+        MapDeserializer<?, ?, ?, ?> mapDeserializer = EclipseMapDeserializers.createDeserializer(type);
         if (mapDeserializer != null) {
             return mapDeserializer;
         }
@@ -211,7 +207,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         return null;
     }
 
-    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention", "ConstantConditions" })
+    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention" })
     private JsonDeserializer<?> findReferenceDeserializer(
             JavaType containerType,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer

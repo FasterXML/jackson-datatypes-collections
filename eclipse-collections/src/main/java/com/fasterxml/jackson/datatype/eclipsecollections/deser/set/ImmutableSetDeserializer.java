@@ -3,41 +3,20 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser.set;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
+import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializers;
+import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
-import org.eclipse.collections.api.set.primitive.ImmutableBooleanSet;
-import org.eclipse.collections.api.set.primitive.ImmutableByteSet;
-import org.eclipse.collections.api.set.primitive.ImmutableCharSet;
-import org.eclipse.collections.api.set.primitive.ImmutableDoubleSet;
-import org.eclipse.collections.api.set.primitive.ImmutableFloatSet;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import org.eclipse.collections.api.set.primitive.ImmutableLongSet;
-import org.eclipse.collections.api.set.primitive.ImmutableShortSet;
-import org.eclipse.collections.api.set.primitive.MutableBooleanSet;
-import org.eclipse.collections.api.set.primitive.MutableByteSet;
-import org.eclipse.collections.api.set.primitive.MutableCharSet;
-import org.eclipse.collections.api.set.primitive.MutableDoubleSet;
-import org.eclipse.collections.api.set.primitive.MutableFloatSet;
-import org.eclipse.collections.api.set.primitive.MutableIntSet;
-import org.eclipse.collections.api.set.primitive.MutableLongSet;
-import org.eclipse.collections.api.set.primitive.MutableShortSet;
+import org.eclipse.collections.api.set.primitive.*;
 import org.eclipse.collections.impl.factory.Sets;
-import org.eclipse.collections.impl.factory.primitive.BooleanSets;
-import org.eclipse.collections.impl.factory.primitive.ByteSets;
-import org.eclipse.collections.impl.factory.primitive.CharSets;
-import org.eclipse.collections.impl.factory.primitive.DoubleSets;
-import org.eclipse.collections.impl.factory.primitive.FloatSets;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.eclipse.collections.impl.factory.primitive.LongSets;
-import org.eclipse.collections.impl.factory.primitive.ShortSets;
+import org.eclipse.collections.impl.factory.primitive.*;
 
 public final class ImmutableSetDeserializer {
     private ImmutableSetDeserializer() {
     }
 
     public static final class Ref extends
-            BaseCollectionDeserializer.Ref<ImmutableSet<?>, MutableSet<Object>> {
+            BaseRefCollectionDeserializer<ImmutableSet<?>, MutableSet<Object>> {
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(ImmutableSet.class, elementType, typeDeserializer, deserializer);
         }
@@ -53,7 +32,7 @@ public final class ImmutableSetDeserializer {
         }
 
         @Override
-        protected Ref<?, ?> withResolved(
+        protected Ref withResolved(
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {
@@ -62,7 +41,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Boolean extends
-            BaseCollectionDeserializer.Boolean<ImmutableBooleanSet, MutableBooleanSet> {
+            BaseCollectionDeserializers.Boolean<ImmutableBooleanSet, MutableBooleanSet> {
         public static final ImmutableSetDeserializer.Boolean INSTANCE = new ImmutableSetDeserializer.Boolean();
 
         public Boolean() {
@@ -81,7 +60,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Byte extends
-            BaseCollectionDeserializer.Byte<ImmutableByteSet, MutableByteSet> {
+            BaseCollectionDeserializers.Byte<ImmutableByteSet, MutableByteSet> {
         public static final ImmutableSetDeserializer.Byte INSTANCE = new ImmutableSetDeserializer.Byte();
 
         public Byte() {
@@ -100,7 +79,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Short extends
-            BaseCollectionDeserializer.Short<ImmutableShortSet, MutableShortSet> {
+            BaseCollectionDeserializers.Short<ImmutableShortSet, MutableShortSet> {
         public static final ImmutableSetDeserializer.Short INSTANCE = new ImmutableSetDeserializer.Short();
 
         public Short() {
@@ -119,7 +98,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Char extends
-            BaseCollectionDeserializer.Char<ImmutableCharSet, MutableCharSet> {
+            BaseCollectionDeserializers.Char<ImmutableCharSet, MutableCharSet> {
         public static final ImmutableSetDeserializer.Char INSTANCE = new ImmutableSetDeserializer.Char();
 
         public Char() {
@@ -138,7 +117,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Int extends
-            BaseCollectionDeserializer.Int<ImmutableIntSet, MutableIntSet> {
+            BaseCollectionDeserializers.Int<ImmutableIntSet, MutableIntSet> {
         public static final ImmutableSetDeserializer.Int INSTANCE = new ImmutableSetDeserializer.Int();
 
         public Int() {
@@ -157,7 +136,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Float extends
-            BaseCollectionDeserializer.Float<ImmutableFloatSet, MutableFloatSet> {
+            BaseCollectionDeserializers.Float<ImmutableFloatSet, MutableFloatSet> {
         public static final ImmutableSetDeserializer.Float INSTANCE = new ImmutableSetDeserializer.Float();
 
         public Float() {
@@ -176,7 +155,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Long extends
-            BaseCollectionDeserializer.Long<ImmutableLongSet, MutableLongSet> {
+            BaseCollectionDeserializers.Long<ImmutableLongSet, MutableLongSet> {
         public static final ImmutableSetDeserializer.Long INSTANCE = new ImmutableSetDeserializer.Long();
 
         public Long() {
@@ -195,7 +174,7 @@ public final class ImmutableSetDeserializer {
     }
 
     public static final class Double extends
-            BaseCollectionDeserializer.Double<ImmutableDoubleSet, MutableDoubleSet> {
+            BaseCollectionDeserializers.Double<ImmutableDoubleSet, MutableDoubleSet> {
         public static final ImmutableSetDeserializer.Double INSTANCE = new ImmutableSetDeserializer.Double();
 
         public Double() {

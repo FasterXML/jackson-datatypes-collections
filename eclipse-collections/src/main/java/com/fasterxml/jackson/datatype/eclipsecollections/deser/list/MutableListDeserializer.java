@@ -3,40 +3,21 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser.list;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializer;
-import org.eclipse.collections.api.BooleanIterable;
-import org.eclipse.collections.api.ByteIterable;
-import org.eclipse.collections.api.CharIterable;
-import org.eclipse.collections.api.DoubleIterable;
-import org.eclipse.collections.api.FloatIterable;
-import org.eclipse.collections.api.IntIterable;
-import org.eclipse.collections.api.LongIterable;
-import org.eclipse.collections.api.ShortIterable;
+import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializers;
+import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
+import org.eclipse.collections.api.*;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.list.primitive.MutableBooleanList;
-import org.eclipse.collections.api.list.primitive.MutableByteList;
-import org.eclipse.collections.api.list.primitive.MutableCharList;
-import org.eclipse.collections.api.list.primitive.MutableDoubleList;
-import org.eclipse.collections.api.list.primitive.MutableFloatList;
-import org.eclipse.collections.api.list.primitive.MutableIntList;
-import org.eclipse.collections.api.list.primitive.MutableLongList;
-import org.eclipse.collections.api.list.primitive.MutableShortList;
+import org.eclipse.collections.api.list.primitive.*;
 import org.eclipse.collections.impl.factory.Lists;
-import org.eclipse.collections.impl.factory.primitive.BooleanLists;
-import org.eclipse.collections.impl.factory.primitive.ByteLists;
-import org.eclipse.collections.impl.factory.primitive.CharLists;
-import org.eclipse.collections.impl.factory.primitive.DoubleLists;
-import org.eclipse.collections.impl.factory.primitive.FloatLists;
-import org.eclipse.collections.impl.factory.primitive.IntLists;
-import org.eclipse.collections.impl.factory.primitive.LongLists;
-import org.eclipse.collections.impl.factory.primitive.ShortLists;
+import org.eclipse.collections.impl.factory.primitive.*;
+import org.eclipse.collections.impl.list.mutable.primitive.ByteArrayList;
 
 public final class MutableListDeserializer {
     private MutableListDeserializer() {
     }
 
     public static final class Ref extends
-            BaseCollectionDeserializer.Ref<MutableList<?>, MutableList<Object>> {
+            BaseRefCollectionDeserializer<MutableList<?>, MutableList<Object>> {
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(MutableList.class, elementType, typeDeserializer, deserializer);
         }
@@ -52,7 +33,7 @@ public final class MutableListDeserializer {
         }
 
         @Override
-        protected Ref<?, ?> withResolved(
+        protected Ref withResolved(
                 TypeDeserializer typeDeserializerForValue,
                 JsonDeserializer<?> valueDeserializer
         ) {
@@ -61,7 +42,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Boolean extends
-            BaseCollectionDeserializer.Boolean<MutableBooleanList, MutableBooleanList> {
+            BaseCollectionDeserializers.Boolean<MutableBooleanList, MutableBooleanList> {
         public static final MutableListDeserializer.Boolean INSTANCE = new MutableListDeserializer.Boolean();
 
         public Boolean() {
@@ -80,7 +61,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Byte extends
-            BaseCollectionDeserializer.Byte<MutableByteList, MutableByteList> {
+            BaseCollectionDeserializers.Byte<MutableByteList, MutableByteList> {
         public static final MutableListDeserializer.Byte INSTANCE = new MutableListDeserializer.Byte();
 
         public Byte() {
@@ -93,13 +74,18 @@ public final class MutableListDeserializer {
         }
 
         @Override
+        protected MutableByteList createIntermediate(int expectedSize) {
+            return new ByteArrayList(expectedSize);
+        }
+
+        @Override
         protected MutableByteList finish(MutableByteList objects) {
             return objects;
         }
     }
 
     public static final class Short extends
-            BaseCollectionDeserializer.Short<MutableShortList, MutableShortList> {
+            BaseCollectionDeserializers.Short<MutableShortList, MutableShortList> {
         public static final MutableListDeserializer.Short INSTANCE = new MutableListDeserializer.Short();
 
         public Short() {
@@ -118,7 +104,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Char extends
-            BaseCollectionDeserializer.Char<MutableCharList, MutableCharList> {
+            BaseCollectionDeserializers.Char<MutableCharList, MutableCharList> {
         public static final MutableListDeserializer.Char INSTANCE = new MutableListDeserializer.Char();
 
         public Char() {
@@ -137,7 +123,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Int extends
-            BaseCollectionDeserializer.Int<MutableIntList, MutableIntList> {
+            BaseCollectionDeserializers.Int<MutableIntList, MutableIntList> {
         public static final MutableListDeserializer.Int INSTANCE = new MutableListDeserializer.Int();
 
         public Int() {
@@ -156,7 +142,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Float extends
-            BaseCollectionDeserializer.Float<MutableFloatList, MutableFloatList> {
+            BaseCollectionDeserializers.Float<MutableFloatList, MutableFloatList> {
         public static final MutableListDeserializer.Float INSTANCE = new MutableListDeserializer.Float();
 
         public Float() {
@@ -175,7 +161,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Long extends
-            BaseCollectionDeserializer.Long<MutableLongList, MutableLongList> {
+            BaseCollectionDeserializers.Long<MutableLongList, MutableLongList> {
         public static final MutableListDeserializer.Long INSTANCE = new MutableListDeserializer.Long();
 
         public Long() {
@@ -194,7 +180,7 @@ public final class MutableListDeserializer {
     }
 
     public static final class Double extends
-            BaseCollectionDeserializer.Double<MutableDoubleList, MutableDoubleList> {
+            BaseCollectionDeserializers.Double<MutableDoubleList, MutableDoubleList> {
         public static final MutableListDeserializer.Double INSTANCE = new MutableListDeserializer.Double();
 
         public Double() {

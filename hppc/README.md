@@ -55,4 +55,4 @@ ObjectMapper mapper = new ObjectMapper();
 mapper.register(new HppcModule());
 ```
 
-after which you can read JSON as HPCC types, as well as write HPPC types as JSON. It's really that simple; convenient and efficient.
+after which you can read JSON as HPPC types, as well as write HPPC types as JSON. It's really that simple; convenient and efficient.

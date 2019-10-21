@@ -1,97 +1,28 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.PrimitiveRefMapSerializer;
+import org.eclipse.collections.api.map.primitive.*;
 
-import org.eclipse.collections.api.map.primitive.ByteObjectMap;
-import org.eclipse.collections.api.map.primitive.CharObjectMap;
-import org.eclipse.collections.api.map.primitive.DoubleObjectMap;
-import org.eclipse.collections.api.map.primitive.FloatObjectMap;
-import org.eclipse.collections.api.map.primitive.IntObjectMap;
-import org.eclipse.collections.api.map.primitive.LongObjectMap;
-import org.eclipse.collections.api.map.primitive.PrimitiveObjectMap;
-import org.eclipse.collections.api.map.primitive.ShortObjectMap;
+import java.io.IOException;
 
 /**
  * @author yawkat
  */
 @SuppressWarnings({ "Duplicates", "NewClassNamingConvention" })
-public abstract class PrimitiveRefMapSerializer<T extends PrimitiveObjectMap<V>, V>
-        extends PrimitiveMapSerializer<T>
-{
-    protected final JavaType _type;
-    protected final BeanProperty _property;
-    protected final TypeSerializer _valueTypeSerializer;
-    protected final JsonSerializer<Object> _valueSerializer;
+public final class PrimitiveRefMapSerializers {
 
-    protected PropertySerializerMap _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
-
-    public PrimitiveRefMapSerializer(
-            JavaType type, BeanProperty property,
-            TypeSerializer vts, JsonSerializer<Object> valueSerializer
-    ) {
-        super(type);
-        _type = type;
-        _property = property;
-        _valueTypeSerializer = vts;
-        _valueSerializer = valueSerializer;
+    @SuppressWarnings("unchecked")
+    static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
+        throw (E) e;
     }
 
-    protected abstract PrimitiveRefMapSerializer<T, V> withResolved(
-            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> valueSerializer
-    );
-
-    @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-            throws JsonMappingException {
-        JavaType containedType = _type.containedTypeOrUnknown(0);
-        TypeSerializer vts = (_valueTypeSerializer == null)
-                ? prov.findTypeSerializer(containedType) : _valueTypeSerializer;
-        if (vts != null) {
-            vts = vts.forProperty(prov, property);
-        }
-        JsonSerializer<Object> vs = ((_valueSerializer == null) && containedType.useStaticType())
-                ? prov.findValueSerializer(containedType) : _valueSerializer;
-        //noinspection ObjectEqualit
-        if (vts == _valueTypeSerializer && vs == _valueSerializer) {
-            return this;
-        }
-        return withResolved(vts, property, vs);
-    }
-
-    protected void _serializeValue(V value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        JsonSerializer<Object> valueSer = _valueSerializer;
-        if (valueSer == null) {
-            Class<?> cc = value.getClass();
-            valueSer = _dynamicValueSerializers.serializerFor(cc);
-            if (valueSer == null) {
-                valueSer = _findAndAddDynamic(_dynamicValueSerializers, serializers.constructType(cc), serializers);
-            }
-        }
-        if (_valueTypeSerializer == null) {
-            valueSer.serialize(value, gen, serializers);
-        } else {
-            valueSer.serializeWithType(value, gen, serializers, _valueTypeSerializer);
-        }
-    }
-
-    protected final JsonSerializer<Object> _findAndAddDynamic(
-            PropertySerializerMap map, JavaType type, SerializerProvider provider
-    ) throws JsonMappingException {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(
-                type, provider, _property);
-        if (map != result.map) {
-            _dynamicValueSerializers = result.map;
-        }
-        return result.serializer;
+    private PrimitiveRefMapSerializers() {
     }
 
     public static class Byte<V> extends PrimitiveRefMapSerializer<ByteObjectMap<V>, V> {

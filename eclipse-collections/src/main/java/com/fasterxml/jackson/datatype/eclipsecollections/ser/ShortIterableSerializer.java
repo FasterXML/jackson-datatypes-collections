@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.eclipse.collections.api.ShortIterable;
 import org.eclipse.collections.api.iterator.ShortIterator;
 
-public final class ShortIterableSerializer extends PrimitiveIterableSerializer<ShortIterable> {
+public final class ShortIterableSerializer extends EclipsePrimitiveIterableSerializer<ShortIterable> {
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(short.class);
 
     public ShortIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

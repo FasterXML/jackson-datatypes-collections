@@ -15,9 +15,10 @@
 
   <modules>
     <module>guava</module>
-    <module>hppc</module>
     <module>pcollections</module>
     <module>eclipse-collections</module>
+    <module>primitive-collections-base</module>
+    <module>hppc</module>
   </modules>
 
   <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
@@ -74,6 +75,20 @@
               <exclude>com/fasterxml/jackson/**/failing/*.java</exclude>
             </excludes>
           </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>io.timeandspace</groupId>
+          <artifactId>jpsg-maven-plugin</artifactId>
+          <version>1.3</version>
+          <executions>
+            <execution>
+              <id>jpsg</id>
+              <goals>
+                <goal>jpsg</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

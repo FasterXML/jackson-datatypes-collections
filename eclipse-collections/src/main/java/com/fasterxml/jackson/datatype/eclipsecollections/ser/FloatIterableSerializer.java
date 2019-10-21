@@ -8,7 +8,7 @@ import java.io.IOException;
 import org.eclipse.collections.api.FloatIterable;
 import org.eclipse.collections.api.iterator.FloatIterator;
 
-public final class FloatIterableSerializer extends PrimitiveIterableSerializer<FloatIterable> {
+public final class FloatIterableSerializer extends EclipsePrimitiveIterableSerializer<FloatIterable> {
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(float.class);
 
     public FloatIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

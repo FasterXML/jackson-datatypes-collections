@@ -1,6 +1,4 @@
-package com.fasterxml.jackson.datatype.eclipsecollections.deser.map;
-
-import java.io.IOException;
+package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -10,33 +8,49 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
+import java.io.IOException;
+import java.util.function.Function;
+
 /**
  * @author yawkat
  */
-public abstract class EclipseMapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandler<V>>
+public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandler<V>>
         extends JsonDeserializer<T> {
     private final K keyHandler;
     private final V valueHandler;
+    private final TypeHandlerPair<I, K, V> typeHandlerPair;
+    // null if this is the identity function
+    private final Function<I, T> finish;
 
-    public EclipseMapDeserializer(K keyHandler, V valueHandler) {
+    public MapDeserializer(K keyHandler, V valueHandler,
+            TypeHandlerPair<I, K, V> typeHandlerPair, Function<I, T> finish) {
         this.keyHandler = keyHandler;
         this.valueHandler = valueHandler;
+        this.typeHandlerPair = typeHandlerPair;
+        this.finish = finish;
     }
 
-    protected abstract EclipseMapDeserializer<T, ?, ?, ?> withResolved(K kh, V vh);
+    protected MapDeserializer<T, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
+        return new MapDeserializer<>(keyHandler, valueHandler, typeHandlerPair, finish);
+    }
 
-    protected abstract I createIntermediate();
+    protected I createIntermediate() {
+        return typeHandlerPair.createEmpty();
+    }
 
-    protected abstract void deserializeEntry(
+    private void deserializeEntry(
             I target,
-            K kh,
-            V vh,
             DeserializationContext ctx,
             String key,
             JsonParser valueParser
-    ) throws IOException;
+    ) throws IOException {
+        typeHandlerPair.add(target, keyHandler, valueHandler, ctx, key, valueParser);
+    }
 
-    protected abstract T finish(I intermediate);
+    @SuppressWarnings("unchecked")
+    protected T finish(I intermediate) {
+        return finish == null ? (T) intermediate : finish.apply(intermediate);
+    }
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
@@ -83,8 +97,9 @@ public abstract class EclipseMapDeserializer<T, I, K extends KeyHandler<K>, V ex
             // Must point to field name now
             String fieldName = p.currentName();
             p.nextToken();
-            deserializeEntry(map, keyHandler, valueHandler, ctxt, fieldName, p);
+            deserializeEntry(map, ctxt, fieldName, p);
         }
         return finish(map);
     }
 }
+
