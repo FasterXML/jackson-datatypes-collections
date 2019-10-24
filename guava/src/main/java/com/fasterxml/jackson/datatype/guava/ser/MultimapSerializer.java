@@ -126,7 +126,7 @@ public class MultimapSerializer
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = _type.getContentType();
             if (valueType.isFinal()) {
-                valueSer = provider.findSecondaryPropertySerializer(valueType, property);
+                valueSer = provider.findContentValueSerializer(valueType, property);
             }
         } else {
             valueSer = valueSer.createContextual(provider, property);
@@ -159,7 +159,7 @@ public class MultimapSerializer
             //   we can consider it a static case as well.
             JavaType valueType = _type.getContentType();
             if (valueType.useStaticType()) {
-                valueSer = provider.findSecondaryPropertySerializer(valueType, property);
+                valueSer = provider.findContentValueSerializer(valueType, property);
             }
         } else {
             valueSer = provider.handleSecondaryContextualization(valueSer, property);

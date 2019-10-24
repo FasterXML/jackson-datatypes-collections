@@ -59,7 +59,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
             if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
-                endpointSer = prov.findSecondaryPropertySerializer(endpointType, property);
+                endpointSer = prov.findContentValueSerializer(endpointType, property);
             }
         } else {
             endpointSer = _endpointSerializer.createContextual(prov, property);
@@ -136,7 +136,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                     JavaType btType = visitor.getProvider().constructType(BoundType.class);
                     // should probably keep track of `property`...
                     JsonSerializer<?> btSer = visitor.getProvider()
-                            .findSecondaryPropertySerializer(btType, null);
+                            .findContentValueSerializer(btType, null);
                     objectVisitor.property(_fieldNames.lowerEndpoint, _endpointSerializer, endpointType);
                     objectVisitor.property(_fieldNames.lowerBoundType, btSer, btType);
                     objectVisitor.property(_fieldNames.upperEndpoint, _endpointSerializer, endpointType);

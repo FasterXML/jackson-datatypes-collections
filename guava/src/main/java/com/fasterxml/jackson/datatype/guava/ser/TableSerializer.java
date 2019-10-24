@@ -130,22 +130,22 @@ public class TableSerializer
         if (valueSer == null) { // if type is final, can actually resolve:
             final JavaType valueType = _type.containedTypeOrUnknown(2);
             if (valueType.isFinal()) {
-                valueSer = provider.findSecondaryPropertySerializer(valueType, property);
+                valueSer = provider.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = valueSer.createContextual(provider, property);
+            valueSer = provider.handleSecondaryContextualization(valueSer, property);
         }
         JsonSerializer<?> rowKeySer = _rowSerializer;
         if (rowKeySer == null) {
             rowKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(0), property);
         } else {
-            rowKeySer = rowKeySer.createContextual(provider, property);
+            rowKeySer = provider.handleSecondaryContextualization(rowKeySer, property);
         }
         JsonSerializer<?> columnKeySer = _columnSerializer;
         if (columnKeySer == null) {
             columnKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(1), property);
         } else {
-            columnKeySer = columnKeySer.createContextual(provider, property);
+            columnKeySer = provider.handleSecondaryContextualization(columnKeySer, property);
         }
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;

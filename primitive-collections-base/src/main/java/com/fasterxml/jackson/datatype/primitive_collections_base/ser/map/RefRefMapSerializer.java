@@ -89,7 +89,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = getContentType();
             if (valueType.isFinal()) {
-                valueSer = provider.findSecondaryPropertySerializer(valueType, property);
+                valueSer = provider.findContentValueSerializer(valueType, property);
             }
         } else {
             valueSer = valueSer.createContextual(provider, property);
@@ -120,7 +120,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
             //   we can consider it a static case as well.
             JavaType valueType = getContentType();
             if (valueType.useStaticType()) {
-                valueSer = provider.findSecondaryPropertySerializer(valueType, property);
+                valueSer = provider.findContentValueSerializer(valueType, property);
             }
         } else {
             valueSer = provider.handleSecondaryContextualization(valueSer, property);
