@@ -102,7 +102,7 @@ public class GuavaSerializers extends Serializers.Base
     {
         if (Multimap.class.isAssignableFrom(type.getRawClass())) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            Object filterId = intr.findFilterId((Annotated)beanDesc.getClassInfo());
+            Object filterId = intr.findFilterId(config, (Annotated)beanDesc.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
                     beanDesc.getClassInfo());
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();

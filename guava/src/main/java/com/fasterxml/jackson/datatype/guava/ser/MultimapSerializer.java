@@ -119,70 +119,71 @@ public class MultimapSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property) throws JsonMappingException
     {
         JsonSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = _type.getContentType();
             if (valueType.isFinal()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = valueSer.createContextual(provider, property);
+            valueSer = valueSer.createContextual(ctxt, property);
         }
 
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
         JsonSerializer<?> keySer = null;
         Object filterId = _filterId;
         
         // First: if we have a property, may have property-annotation overrides
         if (propertyAcc != null && intr != null) {
-            Object serDef = intr.findKeySerializer(provider.getConfig(), propertyAcc);
+            Object serDef = intr.findKeySerializer(config, propertyAcc);
             if (serDef != null) {
-                keySer = provider.serializerInstance(propertyAcc, serDef);
+                keySer = ctxt.serializerInstance(propertyAcc, serDef);
             }
-            serDef = intr.findContentSerializer(provider.getConfig(), propertyAcc);
+            serDef = intr.findContentSerializer(config, propertyAcc);
             if (serDef != null) {
-                valueSer = provider.serializerInstance(propertyAcc, serDef);
+                valueSer = ctxt.serializerInstance(propertyAcc, serDef);
             }
-            filterId = intr.findFilterId(propertyAcc);
+            filterId = intr.findFilterId(config, propertyAcc);
         }
         if (valueSer == null) {
             valueSer = _valueSerializer;
         }
         // [datatype-guava#124]: May have a content converter
-        valueSer = findContextualConvertingSerializer(provider, property, valueSer);
+        valueSer = findContextualConvertingSerializer(ctxt, property, valueSer);
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             JavaType valueType = _type.getContentType();
             if (valueType.useStaticType()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = provider.handleSecondaryContextualization(valueSer, property);
+            valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
         if (keySer == null) {
             keySer = _keySerializer;
         }
         if (keySer == null) {
-            keySer = provider.findKeySerializer(_type.getKeyType(), property);
+            keySer = ctxt.findKeySerializer(_type.getKeyType(), property);
         } else {
-            keySer = provider.handleSecondaryContextualization(keySer, property);
+            keySer = ctxt.handleSecondaryContextualization(keySer, property);
         }
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(provider, property);
+            typeSer = typeSer.forProperty(ctxt, property);
         }
 
         Set<String> ignored = _ignoredEntries;
         boolean sortKeys = false;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
@@ -192,12 +193,12 @@ public class MultimapSerializer
                     }
                 }
             }
-            Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
+            Boolean b = intr.findSerializationSortAlphabetically(config, propertyAcc);
             sortKeys = (b != null) && b.booleanValue();
         }
         // 19-May-2016, tatu: Also check per-property format features, even if
         //    this isn't yet used (as per [guava#7])
-        JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
             if (B != null) {

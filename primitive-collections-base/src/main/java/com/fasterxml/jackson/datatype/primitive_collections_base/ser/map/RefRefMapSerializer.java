@@ -54,7 +54,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 
     @SuppressWarnings("unchecked")
     protected RefRefMapSerializer(
-            RefRefMapSerializer src, BeanProperty property,
+            RefRefMapSerializer<?> src, BeanProperty property,
             JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
             Set<String> ignoredEntries
     ) {
@@ -95,17 +95,18 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
             valueSer = valueSer.createContextual(provider, property);
         }
 
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final SerializationConfig config = provider.getConfig();
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
         JsonSerializer<?> keySer = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (propertyAcc != null && intr != null) {
-            Object serDef = intr.findKeySerializer(provider.getConfig(), propertyAcc);
+            Object serDef = intr.findKeySerializer(config, propertyAcc);
             if (serDef != null) {
                 keySer = provider.serializerInstance(propertyAcc, serDef);
             }
-            serDef = intr.findContentSerializer(provider.getConfig(), propertyAcc);
+            serDef = intr.findContentSerializer(config, propertyAcc);
             if (serDef != null) {
                 valueSer = provider.serializerInstance(propertyAcc, serDef);
             }
@@ -142,7 +143,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
         Set<String> ignored = _ignoredEntries;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
