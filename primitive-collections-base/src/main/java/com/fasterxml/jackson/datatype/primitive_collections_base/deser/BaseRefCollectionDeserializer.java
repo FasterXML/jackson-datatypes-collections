@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Objects;
 
 public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Collection<Object>>
         extends BaseCollectionDeserializer<T, Intermediate>
@@ -23,7 +24,7 @@ public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Coll
             JsonDeserializer<?> deserializer
     ) {
         super(containerType);
-        this._elementType = elementType;
+        this._elementType = Objects.requireNonNull(elementType);
         this._typeDeserializerForValue = typeDeserializer;
         this._valueDeserializer = deserializer;
     }

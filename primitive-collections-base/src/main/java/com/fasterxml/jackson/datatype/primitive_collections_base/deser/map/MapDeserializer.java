@@ -2,10 +2,7 @@ package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 import java.io.IOException;
@@ -16,6 +13,14 @@ import java.util.function.Function;
  */
 public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandler<V>>
         extends JsonDeserializer<T> {
+    public static <T, I, K extends KeyHandler<K>, V extends ValueHandler<V>> MapDeserializer<T, I, K, V> create(
+            JavaType keyType, JavaType valueType, TypeHandlerPair<I, K, V> typeHandlerPair,
+            Function<I, T> finish) {
+        K keyHandler = typeHandlerPair.keyHandler(keyType);
+        V valueHandler = typeHandlerPair.valueHandler(valueType);
+        return new MapDeserializer<>(keyHandler, valueHandler, typeHandlerPair, finish);
+    }
+
     private final K keyHandler;
     private final V valueHandler;
     private final TypeHandlerPair<I, K, V> typeHandlerPair;

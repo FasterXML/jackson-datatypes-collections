@@ -1,14 +1,9 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.MutableBagDeserializer;
@@ -24,7 +19,6 @@ import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSorted
 
 import java.util.*;
 
-import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.MapDeserializer;
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;
@@ -174,6 +168,16 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     }
 
     @Override
+    public JsonDeserializer<?> findCollectionLikeDeserializer(
+            CollectionLikeType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc,
+            TypeDeserializer elementTypeDeserializer,
+            JsonDeserializer<?> elementDeserializer) {
+        return findAnyEclipseDeserializer(type, elementTypeDeserializer, elementDeserializer);
+    }
+
+    @Override
     public JsonDeserializer<?> findMapDeserializer(
             MapType type,
             DeserializationConfig config,
@@ -182,29 +186,55 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
     ) {
-
+        // TODO: use keyDeserializer, elementTypeDeserializer, and elementDeserializer
         return findBeanDeserializer(type, config, beanDesc);
+    }
+
+    @Override
+    public JsonDeserializer<?> findMapLikeDeserializer(
+            MapLikeType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc,
+            KeyDeserializer keyDeserializer,
+            TypeDeserializer elementTypeDeserializer,
+            JsonDeserializer<?> elementDeserializer) {
+        // TODO: use keyDeserializer, elementTypeDeserializer, and elementDeserializer
+        return findBeanDeserializer(type, config, beanDesc);
+    }
+
+    @Override
+    public JsonDeserializer<?> findReferenceDeserializer(
+            ReferenceType refType,
+            DeserializationConfig config,
+            BeanDescription beanDesc,
+            TypeDeserializer contentTypeDeserializer,
+            JsonDeserializer<?> contentDeserializer) {
+        return findAnyEclipseDeserializer(refType, contentTypeDeserializer, contentDeserializer);
     }
 
     @Override
     public JsonDeserializer<?> findBeanDeserializer(
             JavaType type, DeserializationConfig config, BeanDescription beanDesc
     ) {
+        return findAnyEclipseDeserializer(type, null, null);
+    }
+
+    /**
+     * @param elementTypeDeserializer may be null
+     * @param elementDeserializer may be null
+     */
+    private JsonDeserializer<?> findAnyEclipseDeserializer(JavaType type,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
         JsonDeserializer<?> deserializer = PRIMITIVE_DESERIALIZERS.get(type.getRawClass());
         if (deserializer != null) {
             return deserializer;
         }
 
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type, null, null);
+            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
         }
 
-        MapDeserializer<?, ?, ?, ?> mapDeserializer = EclipseMapDeserializers.createDeserializer(type);
-        if (mapDeserializer != null) {
-            return mapDeserializer;
-        }
-
-        return null;
+        return EclipseMapDeserializers.createDeserializer(type); // May return null
     }
 
     @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention" })
@@ -213,7 +243,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer
     ) {
         Class<?> rawClass = containerType.getRawClass();
-        JavaType elementType = containerType.containedType(0);
+        JavaType elementType = containerType.containedTypeOrUnknown(0);
 
         // bags
         if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {

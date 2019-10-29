@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.eclipsecollections.deser.pair.PairInstanti
  * Basic Jackson {@link Module} that adds support for eclipse-collections types.
  */
 public class EclipseCollectionsModule extends Module {
-    private final String NAME = "EclipseCollectionsModule";
+    private static final String NAME = "EclipseCollectionsModule";
 
     public EclipseCollectionsModule() {
         super();
