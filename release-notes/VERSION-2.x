@@ -15,6 +15,8 @@ Modules:
 
 2.10.1 (not yet released)
 
+- (guava) Minor fix to `module-info` to guava module
+
 2.10.0 (26-Sep-2019)
 
 #34: (guava) Allow use of Guava versions up to 25 (from 22)
