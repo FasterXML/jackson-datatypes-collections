@@ -4,7 +4,9 @@ module com.fasterxml.jackson.datatype.guava {
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
-    requires guava;
+
+    requires static guava;
+    requires static com.google.common;
 
     exports com.fasterxml.jackson.datatype.guava;
     exports com.fasterxml.jackson.datatype.guava.deser;

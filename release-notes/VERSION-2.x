@@ -3,11 +3,19 @@ Modules:
   jackson-datatype-guava
   jackson-datatype-hppc
   jackson-datatype-pcollections
-  jackson-datatype-eclipse-collections (since 2.9.6)
+  jackson-datatype-eclipse-collections (since 2.10)
 
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
+
+2.11.0 (not yet released)
+
+-
+
+2.10.1 (not yet released)
+
+- (guava) Minor fix to `module-info` to guava module
 
 2.10.0 (26-Sep-2019)
 
@@ -23,7 +31,7 @@ Modules:
  (reported by Jon F)
 #56: (guava) Range property name (de)serialisation doesn't respect property naming strategy
  (reported, fix contributed by Philip L)
-#59: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
+#58: (guava) Drop support for Guava v10 - v13 to simplify `RangeFactory`
 - Support nested `Optional` values wrt null provider (see [databind#2303]
 - Update "preferred" Guava version to 20.0
 
