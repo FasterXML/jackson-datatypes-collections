@@ -26,20 +26,17 @@ public final class PrimitivePrimitiveMapSerializers {
 
     private static final Map<Class<? extends PrimitiveIterable>, PrimitiveMapSerializer<?>> INSTANCES;
 
-    // used because the lambda passed to forEachKeyValue can't throw.
-    @SuppressWarnings("unchecked")
-    static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
-        throw (E) e;
-    }
-
     /* with
         byte|char|short|int|long|float|double key
         short|byte|char|int|long|float|double|boolean value
     */
-    public static final PrimitiveMapSerializer<ByteShortMap> BYTE_SHORT =
+    private static final PrimitiveMapSerializer<ByteShortMap> BYTE_SHORT =
             new PrimitiveMapSerializer<ByteShortMap>(ByteShortMap.class) {
+
+                @SuppressWarnings("RedundantThrows") // May throw IOException from inside lambda
                 @Override
-                protected void serializeEntries(ByteShortMap value, JsonGenerator gen, SerializerProvider serializers) {
+                protected void serializeEntries(ByteShortMap value, JsonGenerator gen, SerializerProvider serializers)
+                        throws IOException {
                     value.forEachKeyValue((k, v) -> {
                         try {
                             gen.writeFieldName(String.valueOf(k));
@@ -54,6 +51,11 @@ public final class PrimitivePrimitiveMapSerializers {
                             rethrowUnchecked(e);
                         }
                     });
+                }
+
+                @Override
+                public boolean isEmpty(SerializerProvider provider, ByteShortMap value) {
+                    return value.isEmpty();
                 }
             };
     /* endwith */

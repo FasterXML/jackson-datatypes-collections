@@ -75,21 +75,33 @@ public final class TypeHandlerPairs {
 
 
     static void addDeserializers() {
-        EclipseMapDeserializers.add(MutableMap.class, OBJECT_OBJECT);
-        EclipseMapDeserializers.add(MutableMapIterable.class, OBJECT_OBJECT);
-        EclipseMapDeserializers.add(MapIterable.class, OBJECT_OBJECT);
-        EclipseMapDeserializers.add(UnsortedMapIterable.class, OBJECT_OBJECT);
-        EclipseMapDeserializers.add(ImmutableMap.class, OBJECT_OBJECT, MutableMap::toImmutable);
-        EclipseMapDeserializers.add(ImmutableMapIterable.class, OBJECT_OBJECT, MutableMap::toImmutable);
+        EclipseMapDeserializers.add(true, true, MutableMap.class, OBJECT_OBJECT, null);
+        EclipseMapDeserializers.add(true, true, MutableMapIterable.class, OBJECT_OBJECT, null);
+        EclipseMapDeserializers.add(true, true, MapIterable.class, OBJECT_OBJECT, null);
+        EclipseMapDeserializers.add(true, true, UnsortedMapIterable.class, OBJECT_OBJECT, null);
+        EclipseMapDeserializers.add(
+                true, true, ImmutableMap.class, OBJECT_OBJECT, MutableMap::toImmutable);
+        EclipseMapDeserializers.add(
+                true, true, ImmutableMapIterable.class, OBJECT_OBJECT, MutableMap::toImmutable);
 
         /* with
             byte|char|short|int|long|float|double|object key
             short|byte|char|int|long|float|double|object|boolean value
         */
         /* if !(object key object value) */
-        EclipseMapDeserializers.add(ByteShortMap.class, BYTE_SHORT);
-        EclipseMapDeserializers.add(MutableByteShortMap.class, BYTE_SHORT);
-        EclipseMapDeserializers.add(ImmutableByteShortMap.class, BYTE_SHORT, ByteShortMap::toImmutable);
+
+        EclipseMapDeserializers.add(
+                /* if !(object key) */false/* elif object key //true// endif */,
+                /* if !(object value) */false/* elif object value //true// endif */,
+                ByteShortMap.class, BYTE_SHORT, null);
+        EclipseMapDeserializers.add(
+                /* if !(object key) */false/* elif object key //true// endif */,
+                /* if !(object value) */false/* elif object value //true// endif */,
+                MutableByteShortMap.class, BYTE_SHORT, null);
+        EclipseMapDeserializers.add(
+                /* if !(object key) */false/* elif object key //true// endif */,
+                /* if !(object value) */false/* elif object value //true// endif */,
+                ImmutableByteShortMap.class, BYTE_SHORT, ByteShortMap::toImmutable);
         /* endif */
         /* endwith */
     }

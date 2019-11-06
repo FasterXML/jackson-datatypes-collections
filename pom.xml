@@ -83,10 +83,50 @@
           <version>1.3</version>
           <executions>
             <execution>
-              <id>jpsg</id>
+              <id>jpsg-main</id>
+              <phase>none</phase>
               <goals>
                 <goal>jpsg</goal>
               </goals>
+              <configuration>
+                <sourceDirectory>${basedir}/src/main/javaTemplates</sourceDirectory>
+              </configuration>
+            </execution>
+            <execution>
+              <id>jpsg-test</id>
+              <phase>none</phase>
+              <goals>
+                <goal>jpsg</goal>
+              </goals>
+              <configuration>
+                <sourceDirectory>${basedir}/src/test/javaTemplates</sourceDirectory>
+                <outputDirectory>
+                  ${project.build.directory}/generated-test-sources/jpsg
+                </outputDirectory>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Supports JPSG test source generation -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.0.0</version>
+          <executions>
+            <execution>
+              <id>add-test-sources</id>
+              <phase>generate-test-sources</phase>
+              <goals>
+                <goal>add-test-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>
+                    ${project.build.directory}/generated-test-sources/jpsg
+                  </source>
+                </sources>
+              </configuration>
             </execution>
           </executions>
         </plugin>

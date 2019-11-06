@@ -15,7 +15,9 @@ public class RefKeyHandler implements KeyHandler<RefKeyHandler> {
     private final KeyDeserializer _keyDeserializer;
 
     public RefKeyHandler(JavaType keyType, KeyDeserializer _keyDeserializer) {
-        if (keyType == null) { throw new IllegalArgumentException("keyType == null"); }
+        if (keyType == null) {
+            throw new IllegalArgumentException("keyType == null");
+        }
 
         this._keyType = keyType;
         this._keyDeserializer = _keyDeserializer;
