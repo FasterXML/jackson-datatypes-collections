@@ -65,4 +65,14 @@ public class PCollectionsDeserializers
 
         return null;
     }
+
+    @Override
+    public boolean hasDeserializerFor(DeserializationConfig config,
+            Class<?> valueType)
+    {
+        // NOTE: ok even if not all actually supported; just claims that we recognize
+        // types and might have deserializers wrt polymorphic handling
+        return PCollection.class.isAssignableFrom(valueType)
+                || PMap.class.isAssignableFrom(valueType);
+    }
 }

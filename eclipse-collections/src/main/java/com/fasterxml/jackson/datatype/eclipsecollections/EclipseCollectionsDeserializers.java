@@ -415,4 +415,12 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         PRIMITIVE_DESERIALIZERS.put(MutableDoubleSet.class, MutableSetDeserializer.Double.INSTANCE);
         PRIMITIVE_DESERIALIZERS.put(ImmutableDoubleSet.class, ImmutableSetDeserializer.Double.INSTANCE);
     }
+
+    @Override
+    public boolean hasDeserializerFor(DeserializationConfig config,
+            Class<?> valueType)
+    {
+        // 08-Nov-2019, tatu: Is this sufficient?
+        return REFERENCE_TYPES.contains(valueType);
+    }
 }
