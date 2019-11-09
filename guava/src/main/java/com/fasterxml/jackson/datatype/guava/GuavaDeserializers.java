@@ -299,4 +299,23 @@ public class GuavaDeserializers
         }
         return null;
     }
+
+    @Override
+    public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
+        if (valueType.getName().startsWith("com.google.")) {
+            return (valueType == Optional.class)
+                    || (valueType == RangeSet.class)
+                    || (valueType == HostAndPort.class)
+                    || (valueType == InternetDomainName.class)
+                    || (valueType == HashCode.class)
+                    // Ok to claim we might support; not a guarantee
+                    || Multiset.class.isAssignableFrom(valueType)
+                    || Multimap.class.isAssignableFrom(valueType)
+                    || ImmutableCollection.class.isAssignableFrom(valueType)
+                    || ImmutableMap.class.isAssignableFrom(valueType)
+                    || BiMap.class.isAssignableFrom(valueType)
+                    ;
+        }
+        return false;
+    }
 }

@@ -30,7 +30,7 @@ public class HppcContainerDeserializers
         _concreteMapping.put(IntSet.class, IntHashSet.class);
         _concreteMapping.put(IntDeque.class, IntArrayDeque.class);
     }
-    
+
     /**
      * Method called to see if this serializer (or a serializer this serializer
      * knows) should be used for given type; if not, null is returned.
@@ -41,7 +41,7 @@ public class HppcContainerDeserializers
     {
         JavaType type = origType;
         Class<?> raw = type.getRawClass();
-        
+
         if (IntContainer.class.isAssignableFrom(raw)) {
             // maybe we have mapping from abstract to concrete type?
             if (type.isAbstract()) {
@@ -79,7 +79,13 @@ public class HppcContainerDeserializers
         }
         return null;
     }        
-    
+
+    // @since 2.11
+    public static boolean hasDeserializerFor(DeserializationConfig config,
+            final Class<?> rawType) {
+        return IntContainer.class.isAssignableFrom(rawType);
+    }
+
     /*
     /**********************************************************************
     /* Intermediate base classes
