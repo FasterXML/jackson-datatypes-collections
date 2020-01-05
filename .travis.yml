@@ -1,7 +1,5 @@
 language: java
 
-# 05-Apr-2019, tatu: While most pieces run on JDK 6 (not eclipse-collections),
-#   build now requires JDK8 for all
 jdk:
   - openjdk8
   - openjdk11
