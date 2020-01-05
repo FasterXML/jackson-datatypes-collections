@@ -2,4 +2,4 @@ language: java
 
 # Runs on JDK6, but does not necessarily build on it any more so:
 jdk:
-  - oraclejdk8
+  - openjdk8
