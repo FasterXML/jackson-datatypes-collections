@@ -13,7 +13,9 @@ Modules:
 
 -
 
-2.10.1 (not yet released)
+2.10.1 (09-Nov-2019)
+
+- (guava) Minor fix to `module-info` to guava module
 
 2.10.0 (26-Sep-2019)
 
