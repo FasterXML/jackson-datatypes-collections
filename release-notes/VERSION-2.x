@@ -78,7 +78,11 @@ No changes since 2.9.0
  (suggested by gcooney@github)
 - (guava) Upgrade guava dependency from 16 to 18
 
-2.8.10 (not yet released)
+2.8.11 (24-Dec-2017)
+
+No changes since 2.8.10
+
+2.8.10 (24-Aug-2017)
 
 #19: Multimap serializer produces wrong Schema structure
 
