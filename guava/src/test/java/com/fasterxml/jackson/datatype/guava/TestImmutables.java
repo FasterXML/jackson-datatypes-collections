@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.google.common.collect.*;
 
 /**
@@ -21,12 +22,20 @@ public class TestImmutables extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule();
 
-    static class Holder {
+    // For polymorphic cases need to allow bit more access
+    private final ObjectMapper POLY_MAPPER = builderWithModule()
+            .polymorphicTypeValidator(BasicPolymorphicTypeValidator
+                    .builder()
+                    .allowIfBaseType(Object.class)
+                    .build()
+            ).build();
+
+    static class PolymorphicHolder {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
         public Object value;
 
-        public Holder() { }
-        public Holder(Object v) {
+        public PolymorphicHolder() { }
+        public PolymorphicHolder(Object v) {
             value = v;
         }
     }
@@ -91,10 +100,10 @@ public class TestImmutables extends ModuleTestBase
             verifyException(e, "cannot find a deserializer");
         }
     }
-        
+
     /*
     /**********************************************************************
-    /* Unit tests for actual registered module
+    /* Basic tests for actual registered module
     /**********************************************************************
      */
 
@@ -132,38 +141,6 @@ public class TestImmutables extends ModuleTestBase
         assertEquals(1, set.size());
         assertTrue(set.contains("abc"));
     }
-    
-    public void testTypedImmutableset() throws Exception
-    {
-        ImmutableSet<Integer> set;
-        Holder h;
-        String json;
-        Holder result;
-
-        // First, with one entry
-        set = new ImmutableSet.Builder<Integer>()
-                .add(1).build();
-        h = new Holder(set);
-        json = MAPPER.writeValueAsString(h);
-
-        // so far so good. and back?
-        result = MAPPER.readValue(json, Holder.class);
-        assertNotNull(result.value);
-        if (!(result.value instanceof ImmutableSet<?>)) {
-            fail("Expected ImmutableSet, got "+result.value.getClass());
-        }
-        assertEquals(1, ((ImmutableSet<?>) result.value).size());
-        // and then an empty version:
-        set = new ImmutableSet.Builder<Integer>().build();
-        h = new Holder(set);
-        json = MAPPER.writeValueAsString(h);
-        result = MAPPER.readValue(json, Holder.class);
-        assertNotNull(result.value);
-        if (!(result.value instanceof ImmutableSet<?>)) {
-            fail("Expected ImmutableSet, got "+result.value.getClass());
-        }
-        assertEquals(0, ((ImmutableSet<?>) result.value).size());
-    }
 
     public void testImmutableSortedSet() throws Exception
     {
@@ -192,38 +169,6 @@ public class TestImmutables extends ModuleTestBase
         assertEquals(1, map.size());
     }
 
-    public void testTypedImmutableMap() throws Exception
-    {
-        ImmutableMap<String,Integer> map;
-        Holder h;
-        String json;
-        Holder result;
-
-        // First, with one entry
-        map = new ImmutableMap.Builder<String,Integer>()
-                .put("a", 1).build();
-        h = new Holder(map);
-        json = MAPPER.writeValueAsString(h);
-
-        // so far so good. and back?
-        result = MAPPER.readValue(json, Holder.class);
-        assertNotNull(result.value);
-        if (!(result.value instanceof ImmutableMap<?,?>)) {
-            fail("Expected ImmutableMap, got "+result.value.getClass());
-        }
-        assertEquals(1, ((ImmutableMap<?,?>) result.value).size());
-        // and then an empty version:
-        map = new ImmutableMap.Builder<String,Integer>().build();
-        h = new Holder(map);
-        json = MAPPER.writeValueAsString(h);
-        result = MAPPER.readValue(json, Holder.class);
-        assertNotNull(result.value);
-        if (!(result.value instanceof ImmutableMap<?,?>)) {
-            fail("Expected ImmutableMap, got "+result.value.getClass());
-        }
-        assertEquals(0, ((ImmutableMap<?,?>) result.value).size());
-    }
-    
     public void testImmutableSortedMap() throws Exception
     {
         ImmutableSortedMap<Integer,Boolean> map = MAPPER.readValue("{\"12\":true,\"4\":false}", new TypeReference<ImmutableSortedMap<Integer,Boolean>>() { });
@@ -241,5 +186,74 @@ public class TestImmutables extends ModuleTestBase
         assertEquals(map.get(12), Boolean.TRUE);
         assertEquals(map.get(4), Boolean.FALSE);
     }
+
+    /*
+    /**********************************************************************
+    /* Polymorphic handling
+    /**********************************************************************
+     */
+
+    public void testTypedImmutableset() throws Exception
+    {
+        ImmutableSet<Integer> set;
+        PolymorphicHolder h;
+        String json;
+        PolymorphicHolder result;
+
+        // First, with one entry
+        set = new ImmutableSet.Builder<Integer>()
+                .add(1).build();
+        h = new PolymorphicHolder(set);
+        json = POLY_MAPPER.writeValueAsString(h);
+
+        // so far so good. and back?
+        result = POLY_MAPPER.readValue(json, PolymorphicHolder.class);
+        assertNotNull(result.value);
+        if (!(result.value instanceof ImmutableSet<?>)) {
+            fail("Expected ImmutableSet, got "+result.value.getClass());
+        }
+        assertEquals(1, ((ImmutableSet<?>) result.value).size());
+        // and then an empty version:
+        set = new ImmutableSet.Builder<Integer>().build();
+        h = new PolymorphicHolder(set);
+        json = POLY_MAPPER.writeValueAsString(h);
+        result = POLY_MAPPER.readValue(json, PolymorphicHolder.class);
+        assertNotNull(result.value);
+        if (!(result.value instanceof ImmutableSet<?>)) {
+            fail("Expected ImmutableSet, got "+result.value.getClass());
+        }
+        assertEquals(0, ((ImmutableSet<?>) result.value).size());
+    }
     
+    public void testTypedImmutableMap() throws Exception
+    {
+        ImmutableMap<String,Integer> map;
+        PolymorphicHolder h;
+        String json;
+        PolymorphicHolder result;
+
+        // First, with one entry
+        map = new ImmutableMap.Builder<String,Integer>()
+                .put("a", 1).build();
+        h = new PolymorphicHolder(map);
+        json = POLY_MAPPER.writeValueAsString(h);
+
+        // so far so good. and back?
+        result = POLY_MAPPER.readValue(json, PolymorphicHolder.class);
+        assertNotNull(result.value);
+        if (!(result.value instanceof ImmutableMap<?,?>)) {
+            fail("Expected ImmutableMap, got "+result.value.getClass());
+        }
+        assertEquals(1, ((ImmutableMap<?,?>) result.value).size());
+        // and then an empty version:
+        map = new ImmutableMap.Builder<String,Integer>().build();
+        h = new PolymorphicHolder(map);
+        json = POLY_MAPPER.writeValueAsString(h);
+        result = POLY_MAPPER.readValue(json, PolymorphicHolder.class);
+        assertNotNull(result.value);
+        if (!(result.value instanceof ImmutableMap<?,?>)) {
+            fail("Expected ImmutableMap, got "+result.value.getClass());
+        }
+        assertEquals(0, ((ImmutableMap<?,?>) result.value).size());
+    }
 }

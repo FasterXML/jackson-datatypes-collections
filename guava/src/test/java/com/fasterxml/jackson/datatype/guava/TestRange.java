@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -21,13 +22,13 @@ public class TestRange extends ModuleTestBase {
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
-    protected static class Untyped
+    protected static class UntypedWrapper
     {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
         public Object range;
 
-        public Untyped() { }
-        public Untyped(Range<?> r) { range = r; }
+        public UntypedWrapper() { }
+        public UntypedWrapper(Range<?> r) { range = r; }
     }
 
     static class Wrapped {
@@ -118,8 +119,16 @@ public class TestRange extends ModuleTestBase {
     
     public void testUntyped() throws Exception
     {
-        String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(new Untyped(RangeFactory.open(1, 10)));
-        Untyped out = MAPPER.readValue(json, Untyped.class);
+        // Default settings do not allow possibly unsafe base type
+        final ObjectMapper polyMapper = builderWithModule()
+                .polymorphicTypeValidator(BasicPolymorphicTypeValidator
+                        .builder()
+                        .allowIfBaseType(Object.class)
+                        .build()
+                ).build();
+
+        String json = polyMapper.writerWithDefaultPrettyPrinter().writeValueAsString(new UntypedWrapper(RangeFactory.open(1, 10)));
+        UntypedWrapper out = polyMapper.readValue(json, UntypedWrapper.class);
         assertNotNull(out);
         assertEquals(Range.class, out.range.getClass());
     }

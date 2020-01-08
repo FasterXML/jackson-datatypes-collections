@@ -302,6 +302,7 @@ public class GuavaDeserializers
     @Override
     public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
         if (valueType.getName().startsWith("com.google.")) {
+System.err.println("DEBUG: hasDeserializerFor? "+valueType+"...");    
             return (valueType == Optional.class)
                     || (valueType == RangeSet.class)
                     || (valueType == HostAndPort.class)
