@@ -22,6 +22,8 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultima
 
 import java.io.Serializable;
 
+import static com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes.isAssignableFromPrimitive;
+
 /**
  * Custom deserializers module offers.
  */
@@ -129,7 +131,9 @@ public class GuavaDeserializers
                     null, null);
         }
 
-        return null;
+        return isAssignableFromPrimitive(raw)
+                .transform(PrimitiveTypes.Primitives::newDeserializer)
+                .orNull();
     }
 
     private void requireCollectionOfComparableElements(CollectionType actualType, String targetType) {
@@ -303,7 +307,6 @@ public class GuavaDeserializers
     @Override
     public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
         if (valueType.getName().startsWith("com.google.")) {
-System.err.println("DEBUG: hasDeserializerFor? "+valueType+"...");    
             return (valueType == Optional.class)
                     || (valueType == RangeSet.class)
                     || (valueType == HostAndPort.class)
@@ -315,8 +318,10 @@ System.err.println("DEBUG: hasDeserializerFor? "+valueType+"...");
                     || ImmutableCollection.class.isAssignableFrom(valueType)
                     || ImmutableMap.class.isAssignableFrom(valueType)
                     || BiMap.class.isAssignableFrom(valueType)
+                    || isAssignableFromPrimitive(valueType).isPresent()
                     ;
         }
         return false;
     }
+
 }
