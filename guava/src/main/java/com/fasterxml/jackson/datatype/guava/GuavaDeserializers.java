@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import com.google.common.hash.HashCode;
