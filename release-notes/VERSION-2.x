@@ -1,4 +1,4 @@
-Project: jackson-modules-base
+Project: jackson-datatypes-collections
 Modules:
   jackson-datatype-guava
   jackson-datatype-hppc
