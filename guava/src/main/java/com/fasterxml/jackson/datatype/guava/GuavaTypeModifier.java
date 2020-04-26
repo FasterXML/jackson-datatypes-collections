@@ -20,8 +20,8 @@ import com.google.common.collect.*;
  *   </li>
  *  <li>Optional: generic type, simpler, more-efficient to detect parameterization here (although
  *      not strictly mandatory)
- *   </li>Range: same as with Optional, might as well resolve generic type information early on
- *  <li>
+ *   </li>
+ *  <li>Range: same as with Optional, might as well resolve generic type information early on
  *   </li>
  *</ul>
  */
