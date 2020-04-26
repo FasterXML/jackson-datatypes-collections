@@ -1,4 +1,4 @@
-Project: jackson-modules-base
+Project: jackson-datatypes-collections
 Modules:
   jackson-datatype-guava
   jackson-datatype-hppc
@@ -9,9 +9,13 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.11.0 (not yet released)
+2.11.1 (not yet released)
 
 -
+
+2.11.0 (26-Apr-2020)
+
+No changes since 2.10.x
 
 2.10.3 (03-Mar-2020)
 2.10.2 (05-Jan-2020)
