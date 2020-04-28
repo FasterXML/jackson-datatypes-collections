@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.Annotations;
+
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -175,22 +180,25 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             JavaType twoType
     ) {
         try {
+            /*
+    public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, JacksonInject.Value injectable,
+            PropertyMetadata metadata)
+             */
             return new SettableBeanProperty[]{
-                    new CreatorProperty(
-                            PropertyName.construct("one"),
-                            oneType,
-                            null,
+                    CreatorProperty.construct(
+                            PropertyName.construct("one"), oneType, null,
                             ctxt.findTypeDeserializer(oneType),
-                            AnnotationCollector.emptyAnnotations(),
-                            null, 0, null, PropertyMetadata.STD_REQUIRED
+                            AnnotationCollector.emptyAnnotations(), null,
+                            0, null, PropertyMetadata.STD_REQUIRED
                     ),
-                    new CreatorProperty(
-                            PropertyName.construct("two"),
-                            twoType,
-                            null,
+                    CreatorProperty.construct(
+                            PropertyName.construct("two"), twoType, null,
                             ctxt.findTypeDeserializer(twoType),
-                            AnnotationCollector.emptyAnnotations(),
-                            null, 1, null, PropertyMetadata.STD_REQUIRED
+                            AnnotationCollector.emptyAnnotations(), null,
+                            1, null, PropertyMetadata.STD_REQUIRED
                     )
             };
         } catch (JsonMappingException e) {
