@@ -107,6 +107,7 @@ import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
 public final class PairInstantiators extends ValueInstantiators.Base {
     private static final Map<Class<?>, ValueInstantiator> PURE_PRIMITIVE_INSTANTIATORS = new HashMap<>();
 
+    @SuppressWarnings("serial")
     @Override
     public ValueInstantiator findValueInstantiator(
             DeserializationConfig config, BeanDescription beanDesc, ValueInstantiator defaultInstantiator
@@ -215,6 +216,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         return defaultInstantiator;
     }
 
+    @SuppressWarnings("serial")
     private static <P> ValueInstantiator primitiveObjectInstantiator(
             JavaType inputType, Class<?> one,
             BiFunction<Object, Object, P> factory
@@ -263,6 +265,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         };
     }
 
+    @SuppressWarnings("serial")
     private static <P> void purePrimitiveInstantiator(
             Class<P> pairClass, Class<?> one, Class<?> two,
             BiFunction<Object, Object, P> factory
@@ -294,7 +297,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
     ) {
         try {
             return new SettableBeanProperty[]{
-                    new CreatorProperty(
+                    CreatorProperty.construct(
                             PropertyName.construct("one"),
                             oneType,
                             null,
@@ -302,7 +305,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                             AnnotationCollector.emptyAnnotations(),
                             null, 0, null, PropertyMetadata.STD_REQUIRED
                     ),
-                    new CreatorProperty(
+                    CreatorProperty.construct(
                             PropertyName.construct("two"),
                             twoType,
                             null,
