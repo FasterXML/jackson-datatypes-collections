@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
@@ -40,6 +41,9 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     protected BaseCollectionDeserializer(JavaType type) {
         super(type);
     }
+
+    @Override
+    public LogicalType logicalType() { return LogicalType.Collection; }
 
     protected abstract Intermediate createIntermediate();
 
