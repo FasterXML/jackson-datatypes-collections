@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 public abstract class GuavaMapDeserializer<T>
     extends ContainerDeserializerBase<T>
@@ -64,6 +65,11 @@ public abstract class GuavaMapDeserializer<T>
     @Override
     public JsonDeserializer<Object> getContentDeserializer() {
         return (JsonDeserializer<Object>) _valueDeserializer;
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Map;
     }
 
     /*
