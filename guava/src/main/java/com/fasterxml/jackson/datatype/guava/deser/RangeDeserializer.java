@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
@@ -88,6 +89,12 @@ public class RangeDeserializer
 
     @Override
     public JavaType getValueType() { return _rangeType; }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        // 30-May-2020, tatu: Not 100% sure, but looks a bit like POJO so...
+        return LogicalType.POJO;
+    }
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,

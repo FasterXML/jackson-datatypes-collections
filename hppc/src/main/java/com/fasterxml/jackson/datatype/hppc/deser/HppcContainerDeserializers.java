@@ -6,7 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.carrotsearch.hppc.*;
 
 public class HppcContainerDeserializers
@@ -103,6 +103,11 @@ public class HppcContainerDeserializers
         public IntContainerDeserializerBase(JavaType type, DeserializationConfig config)
         {
             super(type, config);
+        }
+
+        @Override // since 2.12
+        public LogicalType logicalType() {
+            return LogicalType.Collection;
         }
 
         @Override

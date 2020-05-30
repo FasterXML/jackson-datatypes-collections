@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 
 /**
  * Base class for Guava-specific collection deserializers.
@@ -98,6 +99,11 @@ public abstract class GuavaCollectionDeserializer<T>
     @Override
     public JsonDeserializer<Object> getContentDeserializer() {
         return (JsonDeserializer<Object>) _valueDeserializer;
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Collection;
     }
 
     /*

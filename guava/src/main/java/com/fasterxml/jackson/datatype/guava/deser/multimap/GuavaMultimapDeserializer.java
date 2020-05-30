@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.LinkedListMultimap;
@@ -103,6 +104,11 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
     protected abstract T createMultimap();
 
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Map;
+    }
+    
     /**
      * We need to use this method to properly handle possible contextual variants of key and value
      * deserializers, as well as type deserializers.
