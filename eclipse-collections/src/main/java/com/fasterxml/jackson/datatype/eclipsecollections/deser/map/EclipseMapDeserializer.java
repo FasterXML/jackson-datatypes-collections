@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
+
 import java.io.IOException;
 
 /**
@@ -22,6 +24,9 @@ public abstract class EclipseMapDeserializer<T, I, K extends KeyHandler<K>, V ex
         this.keyHandler = keyHandler;
         this.valueHandler = valueHandler;
     }
+
+    @Override
+    public LogicalType logicalType() { return LogicalType.Map; }
 
     protected abstract EclipseMapDeserializer<T, ?, ?, ?> withResolved(K keyHandler, V valueHandler);
 
