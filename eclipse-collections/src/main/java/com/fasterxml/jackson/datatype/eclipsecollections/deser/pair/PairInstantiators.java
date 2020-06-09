@@ -1,15 +1,11 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.util.Annotations;
 
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
@@ -57,10 +53,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig dconfig) {
                     JavaType oneType = beanType.containedType(0);
                     JavaType twoType = beanType.containedType(1);
-                    return makeProperties(config, oneType, twoType);
+                    return makeProperties(dconfig, oneType, twoType);
                 }
 
                 @Override
@@ -78,9 +74,9 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig dconfig) {
                     JavaType memberType = beanType.containedType(0);
-                    return makeProperties(config, memberType, memberType);
+                    return makeProperties(dconfig, memberType, memberType);
                 }
 
                 @Override
@@ -178,31 +174,27 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             JavaType oneType,
             JavaType twoType
     ) {
-        try {
-            /*
-    public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
-            TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedParameter param,
-            int index, JacksonInject.Value injectable,
-            PropertyMetadata metadata)
-             */
-            return new SettableBeanProperty[]{
+        // 08-Jun-2020, tatu: as per [databind#2748] do not have access to DeserializationContext
+        //    so can not get `TypeDeserializer`s... will probably need to figure out some
+        //    work-around; maybe `ValueInstantiator` needs contextualization
+        return new SettableBeanProperty[]{
                     CreatorProperty.construct(
                             PropertyName.construct("one"), oneType, null,
-                            config.findTypeDeserializer(oneType),
+// as per above:
+//     config.findTypeDeserializer(oneType),
+                            null,
                             AnnotationCollector.emptyAnnotations(), null,
                             0, null, PropertyMetadata.STD_REQUIRED
                     ),
                     CreatorProperty.construct(
                             PropertyName.construct("two"), twoType, null,
-                            config.findTypeDeserializer(twoType),
+ // as per above:
+//                          config.findTypeDeserializer(oneType),
+                            null,
                             AnnotationCollector.emptyAnnotations(), null,
                             1, null, PropertyMetadata.STD_REQUIRED
                     )
             };
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     static {
