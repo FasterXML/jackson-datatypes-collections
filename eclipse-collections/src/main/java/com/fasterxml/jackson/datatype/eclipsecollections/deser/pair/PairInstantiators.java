@@ -28,8 +28,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
     @Override
     public ValueInstantiator findValueInstantiator(
-            DeserializationConfig config, BeanDescription beanDesc,
-            ValueInstantiator defaultInstantiator
+            DeserializationConfig config, BeanDescription beanDesc
     ) {
         Class<?> beanClass = beanDesc.getBeanClass();
         ValueInstantiator purePrimitive = PURE_PRIMITIVE_INSTANTIATORS.get(beanClass);
@@ -86,7 +85,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             };
         }
 
-        return defaultInstantiator;
+        return null;
     }
 
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
@@ -175,8 +174,9 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             JavaType twoType
     ) {
         // 08-Jun-2020, tatu: as per [databind#2748] do not have access to DeserializationContext
-        //    so can not get `TypeDeserializer`s... will probably need to figure out some
-        //    work-around; maybe `ValueInstantiator` needs contextualization
+        //    so can not get `TypeDeserializer`s...
+        //  Must be changed to use `ValueInstantiator.createContextual()` (added in 2.12)
+        //  to get access
         return new SettableBeanProperty[]{
                     CreatorProperty.construct(
                             PropertyName.construct("one"), oneType, null,
