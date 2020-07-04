@@ -34,12 +34,12 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableCollectionDeser
     }
 
     @Override
-    protected ImmutableMultiset<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+    protected ImmutableMultiset<Object> _createEmpty(DeserializationContext ctxt) {
         return ImmutableMultiset.of();
     }
 
     @Override
-    protected ImmutableMultiset<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+    protected ImmutableMultiset<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) {
         return ImmutableMultiset.of(value);
     }
 }
