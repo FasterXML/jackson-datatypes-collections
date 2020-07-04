@@ -32,12 +32,12 @@ public class ImmutableSetDeserializer extends GuavaImmutableCollectionDeserializ
     }
 
     @Override
-    protected ImmutableSet<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+    protected ImmutableSet<Object> _createEmpty(DeserializationContext ctxt) {
         return ImmutableSet.of();
     }
 
     @Override
-    protected ImmutableSet<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+    protected ImmutableSet<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) {
         return ImmutableSet.of(value);
     }
 }

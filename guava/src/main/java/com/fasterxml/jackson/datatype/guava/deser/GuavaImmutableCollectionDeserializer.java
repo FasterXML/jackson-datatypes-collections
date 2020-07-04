@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
@@ -35,6 +36,11 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     public AccessPattern getEmptyAccessPattern() {
         // But we should be able to just share immutable empty instance
         return AccessPattern.CONSTANT;
+    }
+
+    @Override
+    public T getEmptyValue(DeserializationContext ctxt) {
+        return _createEmpty(ctxt);
     }
 
     @Override
@@ -71,7 +77,6 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     }
 
     /**
-     *
      * @since 2.10
      */
     protected Object _resolveNullToValue(DeserializationContext ctxt) throws IOException

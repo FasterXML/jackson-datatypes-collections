@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Base class for Guava-specific collection deserializers.
@@ -143,6 +144,14 @@ public abstract class GuavaCollectionDeserializer<T>
     /**********************************************************************
      */
 
+    // Force abstract-ness for subclasses
+    @Override
+    public abstract AccessPattern getEmptyAccessPattern();
+
+    // Force abstract-ness for subclasses
+    @Override
+    public abstract Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException;
+
     protected abstract T _deserializeContents(JsonParser p, DeserializationContext ctxt)
             throws IOException;
 
@@ -175,7 +184,9 @@ public abstract class GuavaCollectionDeserializer<T>
 
     }
 
-    protected abstract T _createEmpty(DeserializationContext ctxt) throws IOException;
+    // Note: 'throws IOException' dropped from 2.10.5
+    protected abstract T _createEmpty(DeserializationContext ctxt);
 
-    protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException;
+    // Note: 'throws IOException' dropped from 2.12.0
+    protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
 }
