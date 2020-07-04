@@ -37,7 +37,7 @@ public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectio
     }
 
     @Override
-    protected ImmutableSortedMultiset<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+    protected ImmutableSortedMultiset<Object> _createEmpty(DeserializationContext ctxt) {
         return ImmutableSortedMultiset.of();
     }
 
