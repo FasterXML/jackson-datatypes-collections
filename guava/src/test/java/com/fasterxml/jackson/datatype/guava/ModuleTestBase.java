@@ -26,12 +26,16 @@ public abstract class ModuleTestBase extends junit.framework.TestCase
     protected JsonMapper.Builder builderWithModule() {
         return builderWithModule(false);
     }
-    
+
     protected JsonMapper.Builder builderWithModule(boolean absentsAsNulls) {
         GuavaModule module = new GuavaModule();
         module.configureAbsentsAsNulls(absentsAsNulls);
         return JsonMapper.builder()
                 .addModule(module);
+    }
+
+    protected String a2q(String json) {
+        return aposToQuotes(json);
     }
 
     protected String aposToQuotes(String json) {

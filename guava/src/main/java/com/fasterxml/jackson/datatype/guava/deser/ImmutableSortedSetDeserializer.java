@@ -43,7 +43,7 @@ public class ImmutableSortedSetDeserializer
     }
 
     @Override
-    protected ImmutableSortedSet<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+    protected ImmutableSortedSet<Object> _createEmpty(DeserializationContext ctxt) {
         return ImmutableSortedSet.of();
     }
 

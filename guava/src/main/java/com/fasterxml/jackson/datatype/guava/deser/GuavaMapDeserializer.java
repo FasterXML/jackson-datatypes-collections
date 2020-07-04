@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.AccessPattern;
 
 public abstract class GuavaMapDeserializer<T>
     extends ContainerDeserializerBase<T>
@@ -165,6 +166,14 @@ public abstract class GuavaMapDeserializer<T>
     /* Abstract methods for impl classes
     /**********************************************************************
      */
+
+    // Force abstract-ness for subclasses
+    @Override
+    public abstract AccessPattern getEmptyAccessPattern();
+
+    // Force abstract-ness for subclasses
+    @Override
+    public abstract Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException;
 
     protected abstract T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
         throws IOException;
