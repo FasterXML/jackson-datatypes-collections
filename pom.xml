@@ -55,4 +55,41 @@
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
   </repositories>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <!-- Inherited from oss-base. Generate PackageVersion.java.-->
+          <groupId>com.google.code.maven-replacer-plugin</groupId>
+          <artifactId>replacer</artifactId>
+          <executions>
+            <execution>
+              <id>process-packageVersion</id>
+              <phase>generate-sources</phase>
+            </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>com/fasterxml/jackson/**/failing/*.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <!-- 05-Jul-2020, tatu: Add generation of Gradle Module Metadata -->
+    <plugins>
+      <plugin>
+        <groupId>de.jjohannes</groupId>
+        <artifactId>gradle-module-metadata-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+  
 </project>
