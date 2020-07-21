@@ -9,7 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.10.5 (not yet released)
+2.10.5 (21-Jul-2020)
 
 #67: Guava collection deserialization failure with `Nulls.AS_EMPTY`
  (reported by ari-talja-rovio@github)
