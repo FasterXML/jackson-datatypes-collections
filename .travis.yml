@@ -3,8 +3,19 @@ language: java
 jdk:
   - openjdk8
   - openjdk11
+  - openjdk14
 
 branches:
   only:
     - master
-    - "3.0"
+
+# Below this line is configuration for deploying to the Sonatype OSS repo
+#   https://knowm.org/configure-travis-ci-to-deploy-snapshots/
+
+before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
+script: "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && mvn clean deploy --settings target/travis/settings.xml || mvn clean verify --settings target/travis/settings.xml"
+
+env:
+  global:
+    - secure: "plMZDTqzEF9duT4ZZA/2Wp9plClV+7x1VIjab0DEyyTGTK7oiA6yxDSCA8+txix1EEVu+Y8OWCI8nzUOAjD7f54kOLuECSzEyRt5oRDrhlSYlLYfdU8lY9XWN18ODy/IHndoQa9o1i642ExQ6Wev2JyLKlNyiZ/KReNVZWUujiWYpaaZ41bSogvf5bc6PIIS/6ltJ1hU/c1uL6PFIFPvQuJb14/pEfCcJZyNjE57builEb3P1LXXoZBygXBRDbNvHRJmr1ZUsu9FanMN2t+ci8C9ADpBPbe+ECdKLOMa2AMhqBPsvBIg/wRES3CmYhJGL935H3kEjKOA5KuVRILhWUI/dfxuLZBya17/PNUQ1is3XVKHyz9ZkU3I1U0z+KkBMMl85mWnDOVv4IMzUZIkZOUL1kOpva99UjvA4/JAFeixrR/qXUww7RSyOWwFWg132DKJE0QFaHPSfuz2khN5uFdWfnvw745+h6Zp89ZdSAhwM0IfQpMVW+dPydbFZJc8FWJxE1PSdc/kE9JdJTdwe9NNGiwKXnIjKS7WvOUkins4RLO31wE0iHoUouWnhV1DHm8A9fRWUohOb06n8Pv5azPZYlSNGOOtU3RHLUWV/KJs0ms+G609sP73Tfi+KCzmSSaMRRkVbBsW/zzuA7ZYYgwgkRpYnsYU9wkkytvCohg="
+    - secure: "FtUlsDDX1g6TXr2cXOY5ZbKbD//KOpTiv/6R1kXN3XTMzRQuh8qxEaqWJNzD3RppPv9+VN/Ew3KDtQu74Gqrju/mXF+TJLK89TSP7Wt7ZfdBvkj4CBwGMQDIYBzqAYdEjSEmcwCmAQrFizJFd+AVWx+VVbADxjOvNGLjb0d8yvsVcg9pnQTGRFlqJsCK/QPVEbUWhz7bKtYMJ9TgKkEfdp4ryYoIEVIi1WshoUn2CLNUezcqrqpEF7gypRHuFkK1FCU2d6epCtoj9Ykq9Y9MNll9L9Aub7Ye3sboJOq2l19knhdA3oie+A05OP8KUapWsvJTQdtP0FIKux+fW9z7Q5erApQTjEcpeW5VTz6Pqcf3GEliX61OwSOQISj0UxNwzk7Ac+Luw4eaZUET8rSDRVlpnIT5mYSPBcRKPM5FIDmsewDzzCkgjYrIuuUKtxpNDmOvplhMZKE55xMxjMckcsK0uYPnq9Hz7lidw5PQP5Tps1OuilZaHrXh97EdKi+TOjVoUb0p4B8AfGZv4d2tICftIrFRWNCyuyon32sa6BjXDpSRAYpfHHa/z0uX42UTz608RSC1OCor/6F/9mTPv80GX53Ytnej1tVfxxdAckkpM1HwpKWkKFSnhFI8PgIoRN3HeHssQ7LizizjsQRf8Fwa91fSzCUeOxcfvlV0INI="

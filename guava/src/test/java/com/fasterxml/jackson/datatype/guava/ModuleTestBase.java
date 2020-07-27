@@ -44,6 +44,10 @@ public abstract class ModuleTestBase extends junit.framework.TestCase
                         .configureAbsentsAsNulls(absentsAsNulls));
     }
 
+    protected String a2q(String json) {
+        return aposToQuotes(json);
+    }
+
     protected String aposToQuotes(String json) {
         return json.replace("'", "\"");
     }

@@ -2,14 +2,12 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import com.google.common.collect.ImmutableList;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 public class ImmutableListDeserializer extends
-        GuavaImmutableCollectionDeserializer<ImmutableList<Object>>
+    GuavaImmutableCollectionDeserializer<ImmutableList<Object>>
 {
     public ImmutableListDeserializer(JavaType selfType,
             JsonDeserializer<?> deser, TypeDeserializer typeDeser,
@@ -36,12 +34,12 @@ public class ImmutableListDeserializer extends
     }
 
     @Override
-    protected ImmutableList<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+    protected ImmutableList<Object> _createEmpty(DeserializationContext ctxt) {
         return ImmutableList.of();
     }
 
     @Override
-    protected ImmutableList<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+    protected ImmutableList<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) {
         return ImmutableList.of(value);
     }
 }

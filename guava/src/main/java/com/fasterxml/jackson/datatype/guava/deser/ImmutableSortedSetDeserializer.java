@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -41,12 +39,12 @@ public class ImmutableSortedSetDeserializer
     }
 
     @Override
-    protected ImmutableSortedSet<Object> _createEmpty(DeserializationContext ctxt) throws IOException {
+    protected ImmutableSortedSet<Object> _createEmpty(DeserializationContext ctxt) {
         return ImmutableSortedSet.of();
     }
 
     @Override
-    protected ImmutableSortedSet<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) throws IOException {
+    protected ImmutableSortedSet<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) {
         return (ImmutableSortedSet<Object>) createBuilder()
                 .add(value)
                 .build();

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-
+import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.google.common.collect.ImmutableMap;
 
 abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Object>> extends
@@ -22,6 +22,12 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller) {
         super(type, keyDeser, valueDeser, valueTypeDeser, nuller);
+    }
+
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        // immutable, hence:
+        return AccessPattern.CONSTANT;
     }
 
     protected abstract ImmutableMap.Builder<Object, Object> createBuilder();

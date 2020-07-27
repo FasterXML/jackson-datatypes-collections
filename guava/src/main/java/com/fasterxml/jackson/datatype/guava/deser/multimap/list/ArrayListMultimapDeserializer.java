@@ -18,8 +18,6 @@ import com.google.common.collect.ArrayListMultimap;
 public class ArrayListMultimapDeserializer
     extends GuavaMultimapDeserializer<ArrayListMultimap<Object,Object>>
 {
-    private static final long serialVersionUID = 1L;
-
     public ArrayListMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -15,6 +16,11 @@ import java.util.List;
 
 public class RangeSetDeserializer extends JsonDeserializer<RangeSet<Comparable<?>>> {
     private JavaType genericRangeListType;
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Collection;
+    }
 
     @Override
     public RangeSet<Comparable<?>> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
 import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
+
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -27,8 +28,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
     @Override
     public ValueInstantiator findValueInstantiator(
-            DeserializationConfig config, BeanDescription beanDesc,
-            ValueInstantiator defaultInstantiator
+            DeserializationConfig config, BeanDescription beanDesc
     ) {
         Class<?> beanClass = beanDesc.getBeanClass();
         ValueInstantiator purePrimitive = PURE_PRIMITIVE_INSTANTIATORS.get(beanClass);
@@ -52,10 +52,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig dconfig) {
                     JavaType oneType = beanType.containedType(0);
                     JavaType twoType = beanType.containedType(1);
-                    return makeProperties(ctxt, oneType, twoType);
+                    return makeProperties(dconfig, oneType, twoType);
                 }
 
                 @Override
@@ -73,9 +73,9 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                 }
 
                 @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig dconfig) {
                     JavaType memberType = beanType.containedType(0);
-                    return makeProperties(ctxt, memberType, memberType);
+                    return makeProperties(dconfig, memberType, memberType);
                 }
 
                 @Override
@@ -85,7 +85,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             };
         }
 
-        return defaultInstantiator;
+        return null;
     }
 
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
@@ -106,10 +106,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
-                JavaType oneType = ctxt.constructType(one);
+            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                JavaType oneType = config.constructType(one);
                 JavaType twoType = inputType.containedType(0);
-                return makeProperties(ctxt, oneType, twoType);
+                return makeProperties(config, oneType, twoType);
             }
 
             @Override
@@ -131,10 +131,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
+            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
                 JavaType oneType = inputType.containedType(0);
-                JavaType twoType = ctxt.constructType(two);
-                return makeProperties(ctxt, oneType, twoType);
+                JavaType twoType = config.constructType(two);
+                return makeProperties(config, oneType, twoType);
             }
 
             @Override
@@ -156,10 +156,10 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             }
 
             @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationContext ctxt) {
-                JavaType oneType = ctxt.constructType(one);
-                JavaType twoType = ctxt.constructType(two);
-                return makeProperties(ctxt, oneType, twoType);
+            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                JavaType oneType = config.constructType(one);
+                JavaType twoType = config.constructType(two);
+                return makeProperties(config, oneType, twoType);
             }
 
             @Override
@@ -169,33 +169,32 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         });
     }
 
-    private static SettableBeanProperty[] makeProperties(
-            DeserializationContext ctxt,
+    private static SettableBeanProperty[] makeProperties(DeserializationConfig config,
             JavaType oneType,
             JavaType twoType
     ) {
-        try {
-            return new SettableBeanProperty[]{
-                    new CreatorProperty(
-                            PropertyName.construct("one"),
-                            oneType,
+        // 08-Jun-2020, tatu: as per [databind#2748] do not have access to DeserializationContext
+        //    so can not get `TypeDeserializer`s...
+        //  Must be changed to use `ValueInstantiator.createContextual()` (added in 2.12)
+        //  to get access
+        return new SettableBeanProperty[]{
+                    CreatorProperty.construct(
+                            PropertyName.construct("one"), oneType, null,
+// as per above:
+//     config.findTypeDeserializer(oneType),
                             null,
-                            ctxt.findTypeDeserializer(oneType),
-                            AnnotationCollector.emptyAnnotations(),
-                            null, 0, null, PropertyMetadata.STD_REQUIRED
+                            AnnotationCollector.emptyAnnotations(), null,
+                            0, null, PropertyMetadata.STD_REQUIRED
                     ),
-                    new CreatorProperty(
-                            PropertyName.construct("two"),
-                            twoType,
+                    CreatorProperty.construct(
+                            PropertyName.construct("two"), twoType, null,
+ // as per above:
+//                          config.findTypeDeserializer(oneType),
                             null,
-                            ctxt.findTypeDeserializer(twoType),
-                            AnnotationCollector.emptyAnnotations(),
-                            null, 1, null, PropertyMetadata.STD_REQUIRED
+                            AnnotationCollector.emptyAnnotations(), null,
+                            1, null, PropertyMetadata.STD_REQUIRED
                     )
             };
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     static {

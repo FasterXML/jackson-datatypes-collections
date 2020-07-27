@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.MapType;
 import org.pcollections.PMap;
 
@@ -46,6 +47,11 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
         _keyDeserializer = keyDeser;
         _typeDeserializerForValue = typeDeser;
         _valueDeserializer = deser;
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Map;
     }
 
     /**

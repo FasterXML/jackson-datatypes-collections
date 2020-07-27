@@ -1,4 +1,4 @@
-Project: jackson-modules-base
+Project: jackson-datatypes-collections
 Modules:
   jackson-datatype-guava
   jackson-datatype-hppc
@@ -9,10 +9,21 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.11.0 (not yet released)
+2.12.0 (not yet released)
 
--
+- Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 
+2.11.1 (25-Jun-2020)
+2.11.0 (26-Apr-2020)
+
+No changes since 2.10.x
+
+2.10.5 (21-Jul-2020)
+
+#67: Guava collection deserialization failure with `Nulls.AS_EMPTY`
+ (reported by ari-talja-rovio@github)
+
+2.10.4 (03-May-2020)
 2.10.3 (03-Mar-2020)
 2.10.2 (05-Jan-2020)
 

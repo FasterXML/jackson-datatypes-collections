@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.LogicalType;
+
 import org.pcollections.PCollection;
 
 public abstract class PCollectionsCollectionDeserializer<T extends PCollection<Object>>
@@ -45,6 +47,11 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
      */
     public abstract PCollectionsCollectionDeserializer<T> withResolved(
             TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return LogicalType.Collection;
+    }
 
     /*
     /**********************************************************
