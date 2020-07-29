@@ -21,14 +21,23 @@ All modules are licensed under [Apache License 2.0](http://www.apache.org/licens
 ## Usage
 
 Like all standard Jackson modules (libraries that implement Module interface), registration for Collections
-datatypes is done as follows:
+datatypes is done using one of 2 mechanisms:
 
 ```java
-ObjectMapper mapper = new ObjectMapper()
+ObjectMapper mapper;
+
+// New; 2.10.x / 3.0:
+mapper = JsonMapper.builder() // or mapper for other formats
+    .addModule(new GuavaModule())
+    .addModule(new HppcModule())
+    .addModule(new PCollectionsModule())
+    .build();
+
+// Old (2.x)
+mapper = new ObjectMapper() // or mapper for other formats
     .registerModule(new GuavaModule())
     .registerModule(new HppcModule())
-    .registerModule(new PCollectionsModule())
-    ;
+    .registerModule(new PCollectionsModule());
 ```
 
 after which datatype read/write support is available for all normal Jackson operations,
