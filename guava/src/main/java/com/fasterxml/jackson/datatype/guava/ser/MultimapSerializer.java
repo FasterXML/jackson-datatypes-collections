@@ -203,9 +203,7 @@ public class MultimapSerializer
         boolean sortKeys = false;
 
         if (intr != null && propertyAcc != null) {
-            // 28-Jul-2020, tatu: Change in 2.12 to use `findPropertyIgnoralByName()`
-//            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
