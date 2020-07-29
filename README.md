@@ -42,26 +42,25 @@ that depends on them).
 ### Registration with ObjectMapper
 
 Like all standard Jackson modules (libraries that implement Module interface), registration for Collections
-datatypes is done as follows (with 2.x up to 2.9 the only method)
+datatypes is done using one of 2 mechanisms:
 
 ```java
-ObjectMapper mapper = new ObjectMapper()
+ObjectMapper mapper;
+
+// New; 2.10.x / 3.0:
+mapper = JsonMapper.builder() // or mapper for other formats
+    .addModule(new GuavaModule())
+    .addModule(new HppcModule())
+    .addModule(new PCollectionsModule())
+    .build();
+
+// Old (2.x), not available on 3.x:
+mapper = new ObjectMapper() // or mapper for other formats
     .registerModule(new GuavaModule())
     .registerModule(new HppcModule())
     .registerModule(new PCollectionsModule())
     .registerModule(new EclipseCollectionsModule())
     ;
-```
-
-OR, with 2.10.0 and later (the only method in upcoming 3.x):
-
-```
-ObjectMapper mapper = JsonMapper.builder()
-    .registerModule(new GuavaModule())
-    .registerModule(new HppcModule())
-    .registerModule(new PCollectionsModule())
-    .registerModule(new EclipseCollectionsModule())
-    .build();
 ```
 
 after which datatype read/write support is available for all normal Jackson operations,

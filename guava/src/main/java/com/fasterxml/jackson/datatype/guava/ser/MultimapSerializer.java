@@ -183,7 +183,7 @@ public class MultimapSerializer
         boolean sortKeys = false;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {

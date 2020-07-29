@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
