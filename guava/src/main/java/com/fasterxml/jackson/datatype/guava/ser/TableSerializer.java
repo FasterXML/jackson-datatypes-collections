@@ -72,24 +72,22 @@ public class TableSerializer
                 _type.containedTypeOrUnknown(1), _type.containedTypeOrUnknown(2));
 
         JsonSerializer<?> columnAndValueSerializer = 
-                MapSerializer.construct((Set<String>) null,
-                                        columnAndValueType,
-                                        false,
-                                        _valueTypeSerializer,
-                                        _columnSerializer,
-                                        _valueSerializer,
-                                        null);
+                MapSerializer.construct(columnAndValueType, false,
+                        _valueTypeSerializer,
+                        _columnSerializer,
+                        _valueSerializer,
+                        null,
+                        (Set<String>) null, (Set<String>) null);
 
         final MapType rowMapType = typeFactory.constructMapType(Map.class,
                 _type.containedTypeOrUnknown(0), columnAndValueType);
         _rowMapSerializer =
-                MapSerializer.construct((Set<String>) null,
-                                        rowMapType,
-                                        false,
-                                        null,
-                                        _rowSerializer,
-                                        (JsonSerializer<Object>) columnAndValueSerializer,
-                                        null);
+                MapSerializer.construct(rowMapType, false,
+                        null,
+                        _rowSerializer,
+                        (JsonSerializer<Object>) columnAndValueSerializer,
+                        null,
+                        (Set<String>) null, (Set<String>) null);
     }
 
     protected TableSerializer(final TableSerializer src, TypeSerializer typeSer)
