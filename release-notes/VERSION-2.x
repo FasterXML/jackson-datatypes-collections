@@ -12,6 +12,7 @@ Modules:
 2.12.0 (not yet released)
 
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
+- Update "preferred" Guava version to 21.0
 
 2.11.2 (not yet released)
 
