@@ -13,6 +13,11 @@ Modules:
 
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 
+2.11.2 (not yet released)
+
+#68: Support for Guava 29
+ (suggested by Mark W)
+
 2.11.1 (25-Jun-2020)
 2.11.0 (26-Apr-2020)
 
