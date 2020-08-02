@@ -14,7 +14,7 @@ Modules:
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 - Update "preferred" Guava version to 21.0
 
-2.11.2 (not yet released)
+2.11.2 (02-Aug-2020)
 
 #68: Support for Guava 29
  (suggested by Mark W)
