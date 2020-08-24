@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDeserializer;
@@ -167,7 +169,20 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
     ) throws JsonMappingException {
-        //noinspection SuspiciousMethodCalls
+        if (REFERENCE_TYPES.contains(type.getRawClass())) {
+            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
+        }
+        return null;
+    }
+
+    @Override
+    public JsonDeserializer<?> findCollectionLikeDeserializer(
+            CollectionLikeType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc,
+            TypeDeserializer elementTypeDeserializer,
+            JsonDeserializer<?> elementDeserializer
+    ) throws JsonMappingException {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
         }
@@ -183,7 +198,18 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
     ) throws JsonMappingException {
+        return findBeanDeserializer(type, config, beanDesc);
+    }
 
+    @Override
+    public JsonDeserializer<?> findMapLikeDeserializer(
+            MapLikeType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc,
+            KeyDeserializer keyDeserializer,
+            TypeDeserializer elementTypeDeserializer,
+            JsonDeserializer<?> elementDeserializer
+    ) throws JsonMappingException {
         return findBeanDeserializer(type, config, beanDesc);
     }
 
