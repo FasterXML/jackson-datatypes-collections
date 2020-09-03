@@ -5,6 +5,13 @@ Modules:
   jackson-datatype-pcollections
   jackson-datatype-eclipse-collections (since 2.10)
 
+Active Maintainers:
+
+* Steven Schlansker (@stevenschlansker): original author of Guava module
+* Jonas Konrad (@yawkat): author of Eclipse Collections module
+* Tatu Saloranta (@cowtowncoder): author for HPPC, Pcollections modules;
+   co-author for Guava, Eclipse collections
+
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
