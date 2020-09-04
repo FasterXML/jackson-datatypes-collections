@@ -9,6 +9,13 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.11.3 (not yet released)
+
+
+#71 (eclipse-collections) Can not deserialize concrete class instance inside nested
+  immutable eclipse-collection
+ (fixed by yawkat)
+
 2.11.2 (02-Aug-2020)
 
 #68: Support for Guava 29
