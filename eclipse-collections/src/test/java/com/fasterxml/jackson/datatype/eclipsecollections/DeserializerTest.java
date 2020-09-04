@@ -567,6 +567,32 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
+    public void typeInfoNestedMapList() throws IOException {
+        // test case for jackson-datatypes-collections#71
+        ImmutableMap<String, ImmutableList<A>> property =
+                Maps.immutable.of("foo", Lists.immutable.of(new B()));
+        Assert.assertEquals(
+                mapperWithModule().readValue(
+                        "{\"foo\": [{\"@c\": \".DeserializerTest$B\"}]}",
+                        new TypeReference<ImmutableMap<String, ImmutableList<A>>>() {}),
+                property
+        );
+    }
+
+    @Test
+    public void typeInfoNestedMapMap() throws IOException {
+        // auxiliary test case for jackson-datatypes-collections#71 - also worked before fix
+        ImmutableMap<String, ImmutableMap<String, A>> property =
+                Maps.immutable.of("foo", Maps.immutable.of("bar", new B()));
+        Assert.assertEquals(
+                mapperWithModule().readValue(
+                        "{\"foo\": {\"bar\": {\"@c\": \".DeserializerTest$B\"}}}",
+                        new TypeReference<ImmutableMap<String, ImmutableMap<String, A>>>() {}),
+                property
+        );
+    }
+
+    @Test
     public void primitivePairs() throws Exception {
         List<Class<?>> types = Arrays.asList(
                 Object.class,
