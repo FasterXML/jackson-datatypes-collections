@@ -1,19 +1,21 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-
-import java.io.IOException;
 
 /**
  * Unit tests to verify serialization of Guava {@link Range}s.
@@ -67,7 +69,7 @@ public class TestRange extends ModuleTestBase {
 
     public void testSerializationWithPropertyNamingStrategy() throws Exception
     {
-        ObjectMapper mappper = builderWithModule().propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE).build();
+        ObjectMapper mappper = builderWithModule().propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE).build();
         testSerialization(mappper, RangeFactory.open(1, 10));
         testSerialization(mappper, RangeFactory.openClosed(1, 10));
         testSerialization(mappper, RangeFactory.closedOpen(1, 10));
@@ -290,7 +292,7 @@ public class TestRange extends ModuleTestBase {
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
 
         @SuppressWarnings("unchecked")
