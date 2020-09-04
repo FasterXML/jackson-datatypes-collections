@@ -5,6 +5,13 @@ Modules:
   jackson-datatype-pcollections
   jackson-datatype-eclipse-collections (since 2.10)
 
+Active Maintainers:
+
+* Steven Schlansker (@stevenschlansker): original author of Guava module
+* Jonas Konrad (@yawkat): author of Eclipse Collections module
+* Tatu Saloranta (@cowtowncoder): author for HPPC, Pcollections modules;
+   co-author for Guava, Eclipse collections
+
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
@@ -14,7 +21,7 @@ Modules:
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 - Update "preferred" Guava version to 21.0
 
-2.11.2 (not yet released)
+2.11.2 (02-Aug-2020)
 
 #68: Support for Guava 29
  (suggested by Mark W)
