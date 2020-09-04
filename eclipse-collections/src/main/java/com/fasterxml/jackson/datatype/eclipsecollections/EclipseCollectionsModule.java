@@ -30,6 +30,8 @@ public class EclipseCollectionsModule extends Module {
         context.addSerializers(new EclipseCollectionsSerializers());
 
         context.addValueInstantiators(new PairInstantiators());
+
+        context.addTypeModifier(new EclipseCollectionsTypeModifier());
     }
 
     @Override
