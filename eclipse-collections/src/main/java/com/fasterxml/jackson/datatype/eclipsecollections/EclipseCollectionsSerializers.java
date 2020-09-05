@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.BooleanIterableSerializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.ByteIterableSerializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.CharIterableSerializer;
@@ -28,6 +31,7 @@ import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.LongIterable;
 import org.eclipse.collections.api.PrimitiveIterable;
 import org.eclipse.collections.api.ShortIterable;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.primitive.ByteObjectMap;
 import org.eclipse.collections.api.map.primitive.CharObjectMap;
@@ -47,6 +51,25 @@ import org.eclipse.collections.api.map.primitive.PrimitiveObjectMap;
 import org.eclipse.collections.api.map.primitive.ShortObjectMap;
 
 public final class EclipseCollectionsSerializers extends Serializers.Base {
+    @Override
+    public JsonSerializer<?> findCollectionLikeSerializer(
+            SerializationConfig config,
+            CollectionLikeType type,
+            BeanDescription beanDesc,
+            TypeSerializer elementTypeSerializer,
+            JsonSerializer<Object> elementValueSerializer
+    ) {
+        if (ImmutableCollection.class.isAssignableFrom(type.getRawClass())) {
+            return new CollectionSerializer(
+                    type.getContentType(),
+                    false,
+                    elementTypeSerializer,
+                    elementValueSerializer
+            );
+        }
+        return null;
+    }
+
     @Override
     public JsonSerializer<?> findSerializer(
             SerializationConfig config, JavaType type, BeanDescription beanDesc
