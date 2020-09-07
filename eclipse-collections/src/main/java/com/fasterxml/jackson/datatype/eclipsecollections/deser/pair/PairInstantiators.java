@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
 import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
 
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.tuple.Tuples;
@@ -44,43 +45,42 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             return keyOrValueObjectLambda.apply(beanType);
         }
 
+        // object->object
         if (beanClass == Pair.class) {
-            return new ValueInstantiator.Base(beanType) {
-                @Override
-                public boolean canCreateFromObjectWith() {
-                    return true;
-                }
-
-                @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig dconfig) {
-                    JavaType oneType = beanType.containedType(0);
-                    JavaType twoType = beanType.containedType(1);
-                    return makeProperties(dconfig, oneType, twoType);
-                }
-
+            return new PairInstantiator(beanType) {
                 @Override
                 public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                     return Tuples.pair(args[0], args[1]);
                 }
+
+                @Override
+                JavaType oneType(DeserializationConfig config) {
+                    return beanType.containedType(0);
+                }
+
+                @Override
+                JavaType twoType(DeserializationConfig config) {
+                    return beanType.containedType(1);
+                }
             };
         }
 
+        // object->object
         if (beanClass == Twin.class) {
-            return new ValueInstantiator.Base(beanType) {
-                @Override
-                public boolean canCreateFromObjectWith() {
-                    return true;
-                }
-
-                @Override
-                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig dconfig) {
-                    JavaType memberType = beanType.containedType(0);
-                    return makeProperties(dconfig, memberType, memberType);
-                }
-
+            return new PairInstantiator(beanType) {
                 @Override
                 public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                     return Tuples.twin(args[0], args[1]);
+                }
+
+                @Override
+                JavaType oneType(DeserializationConfig config) {
+                    return beanType.containedType(0);
+                }
+
+                @Override
+                JavaType twoType(DeserializationConfig config) {
+                    return beanType.containedType(0);
                 }
             };
         }
@@ -94,107 +94,137 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         KEY_OR_VALUE_OBJECT_LAMBDAS.put(objectKeyOrValuePairClass, lambda);
     }
 
+    /**
+     * primitive->object
+     */
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static <P> ValueInstantiator primitiveObjectInstantiator(
             JavaType inputType, Class<?> one,
             BiFunction<Object, Object, P> factory
     ) {
-        return new ValueInstantiator.Base(inputType) {
-            @Override
-            public boolean canCreateFromObjectWith() {
-                return true;
-            }
-
-            @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-                JavaType oneType = config.constructType(one);
-                JavaType twoType = inputType.containedType(0);
-                return makeProperties(config, oneType, twoType);
-            }
-
+        return new PairInstantiator(inputType) {
             @Override
             public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                 return factory.apply(args[0], args[1]);
             }
+
+            @Override
+            JavaType oneType(DeserializationConfig config) {
+                return config.constructType(one);
+            }
+
+            @Override
+            JavaType twoType(DeserializationConfig config) {
+                return inputType.containedType(0);
+            }
         };
     }
 
+    /**
+     * object->primitive
+     */
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static <P> ValueInstantiator objectPrimitiveInstantiator(
             JavaType inputType, Class<?> two,
             BiFunction<Object, Object, P> factory
     ) {
-        return new ValueInstantiator.Base(inputType) {
-            @Override
-            public boolean canCreateFromObjectWith() {
-                return true;
-            }
-
-            @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-                JavaType oneType = inputType.containedType(0);
-                JavaType twoType = config.constructType(two);
-                return makeProperties(config, oneType, twoType);
-            }
-
+        return new PairInstantiator(inputType) {
             @Override
             public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                 return factory.apply(args[0], args[1]);
             }
+
+            @Override
+            JavaType oneType(DeserializationConfig config) {
+                return inputType.containedType(0);
+            }
+
+            @Override
+            JavaType twoType(DeserializationConfig config) {
+                return config.constructType(two);
+            }
         };
     }
 
+    /**
+     * primitive->primitive
+     */
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static <P> void purePrimitiveInstantiator(
             Class<P> pairClass, Class<?> one, Class<?> two,
             BiFunction<Object, Object, P> factory
     ) {
-        PURE_PRIMITIVE_INSTANTIATORS.put(pairClass, new ValueInstantiator.Base(pairClass) {
-            @Override
-            public boolean canCreateFromObjectWith() {
-                return true;
-            }
-
-            @Override
-            public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-                JavaType oneType = config.constructType(one);
-                JavaType twoType = config.constructType(two);
-                return makeProperties(config, oneType, twoType);
-            }
-
+        PURE_PRIMITIVE_INSTANTIATORS.put(pairClass, new PairInstantiator(pairClass) {
             @Override
             public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                 return factory.apply(args[0], args[1]);
             }
+
+            @Override
+            JavaType oneType(DeserializationConfig config) {
+                return config.constructType(one);
+            }
+
+            @Override
+            JavaType twoType(DeserializationConfig config) {
+                return config.constructType(two);
+            }
         });
     }
 
-    private static SettableBeanProperty[] makeProperties(DeserializationConfig config,
-            JavaType oneType,
-            JavaType twoType
-    ) {
-        // 08-Jun-2020, tatu: as per [databind#2748] do not have access to DeserializationContext
-        //    so can not get `TypeDeserializer`s...
-        //  Must be changed to use `ValueInstantiator.createContextual()` (added in 2.12)
-        //  to get access
-        return new SettableBeanProperty[]{
+    static abstract class PairInstantiator extends ValueInstantiator.Base {
+        public PairInstantiator(Class<?> type) {
+            super(type);
+        }
+
+        public PairInstantiator(JavaType type) {
+            super(type);
+        }
+
+        abstract JavaType oneType(DeserializationConfig config);
+        abstract JavaType twoType(DeserializationConfig config);
+
+        @Override
+        public final boolean canCreateFromObjectWith() {
+            return true;
+        }
+
+        @Override
+        public final SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+            return getFromObjectArguments(config, null, null);
+        }
+
+        final SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config,
+                                                            TypeDeserializer typeDeserOne,
+                                                            TypeDeserializer typeDeserTwo) {
+            return new SettableBeanProperty[]{
                     CreatorProperty.construct(
-                            PropertyName.construct("one"), oneType, null,
-// as per above:
-//     config.findTypeDeserializer(oneType),
-                            null,
+                            PropertyName.construct("one"), oneType(config), null,
+                            typeDeserOne,
                             AnnotationCollector.emptyAnnotations(), null,
                             0, null, PropertyMetadata.STD_REQUIRED
                     ),
                     CreatorProperty.construct(
-                            PropertyName.construct("two"), twoType, null,
- // as per above:
-//                          config.findTypeDeserializer(oneType),
-                            null,
+                            PropertyName.construct("two"), twoType(config), null,
+                            typeDeserTwo,
                             AnnotationCollector.emptyAnnotations(), null,
                             1, null, PropertyMetadata.STD_REQUIRED
                     )
             };
+        }
+
+        @Override
+        public ValueInstantiator createContextual(DeserializationContext ctxt, BeanDescription beanDesc)
+                throws JsonMappingException {
+            TypeDeserializer typeDeserOne = ctxt.findTypeDeserializer(oneType(ctxt.getConfig()));
+            TypeDeserializer typeDeserTwo = ctxt.findTypeDeserializer(twoType(ctxt.getConfig()));
+            return new ValueInstantiator.Delegating(this) {
+                @Override
+                public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
+                    return PairInstantiator.this.getFromObjectArguments(config, typeDeserOne, typeDeserTwo);
+                }
+            };
+        }
     }
 
     static {
