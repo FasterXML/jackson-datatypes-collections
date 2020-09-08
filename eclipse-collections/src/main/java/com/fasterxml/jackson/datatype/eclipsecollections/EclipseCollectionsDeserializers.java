@@ -166,7 +166,8 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             JsonDeserializer<?> elementDeserializer
     ) throws JsonMappingException {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return findReferenceDeserializer(type, type.getContentType(),
+                                             elementTypeDeserializer, elementDeserializer);
         }
         return null;
     }
@@ -180,7 +181,8 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             JsonDeserializer<?> elementDeserializer
     ) throws JsonMappingException {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return findReferenceDeserializer(type, type.getContentType(),
+                                             elementTypeDeserializer, elementDeserializer);
         }
         return null;
     }
@@ -238,7 +240,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         }
 
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return findReferenceDeserializer(type, type.containedTypeOrUnknown(0), elementTypeDeserializer, elementDeserializer);
         }
 
         return EclipseMapDeserializers.createDeserializer(type); // May return null
@@ -247,10 +249,11 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention" })
     private JsonDeserializer<?> findReferenceDeserializer(
             JavaType containerType,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer
+            JavaType elementType,
+            TypeDeserializer elementTypeDeserializer,
+            JsonDeserializer<?> elementDeserializer
     ) {
         Class<?> rawClass = containerType.getRawClass();
-        JavaType elementType = containerType.containedTypeOrUnknown(0);
 
         // bags
         if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {
