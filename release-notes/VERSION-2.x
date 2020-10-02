@@ -9,8 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.11.3 (not yet released)
-
+2.11.3 (02-Oct-2020)
 
 #71 (eclipse-collections) Can not deserialize concrete class instance inside nested
   immutable eclipse-collection
