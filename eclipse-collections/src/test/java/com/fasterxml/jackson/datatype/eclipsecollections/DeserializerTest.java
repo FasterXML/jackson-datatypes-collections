@@ -316,6 +316,10 @@ public final class DeserializerTest extends ModuleTestBase {
         testCollection(Lists.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableCollection<String>>() {});
+        //noinspection rawtypes
+        testCollection(Lists.mutable.of("1", "2", "3"),
+                       "[\"1\", \"2\", \"3\"]",
+                       new TypeReference<MutableCollection>() {});
         testCollection(BooleanLists.mutable.of(true, false, true),
                        "[true, false, true]",
                        MutableBooleanCollection.class);
@@ -335,6 +339,10 @@ public final class DeserializerTest extends ModuleTestBase {
         testCollection(Lists.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableCollection<String>>() {});
+        //noinspection rawtypes
+        testCollection(Lists.immutable.of("1", "2", "3"),
+                       "[\"1\", \"2\", \"3\"]",
+                       new TypeReference<ImmutableCollection>() {});
         testCollection(BooleanLists.immutable.of(true, false, true),
                        "[true, false, true]",
                        ImmutableBooleanCollection.class);
