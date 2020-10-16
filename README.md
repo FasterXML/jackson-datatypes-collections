@@ -5,7 +5,7 @@ Datatype modules to support 3rd party Collection libraries.
 
 Currently included are:
 
-* [Guava](guava/) datatype (for [Guava](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
+* [Guava](guava/) datatype (for [Guava library](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
 * [HPPC](hppc/) datatype (for [High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
 * [PCollections](pcollections/) datatype (for [Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
 * [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.9.6)
@@ -18,7 +18,7 @@ All modules are licensed under [Apache License 2.0](http://www.apache.org/licens
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-datatypes-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatypes-collections)
 
-## Usage
+## Usage, general
 
 ### Maven dependencies
 
@@ -28,11 +28,14 @@ To use these format backends Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-[COLLECTION]</artifactId>
-  <version>2.9.5</version>
+  <version>2.11.3</version>
 </dependency>
 ```
 
 where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, or `eclipse-collections`.
+
+You may also use [jackson-bom](https://github.com/FasterXML/jackson-bom) for defining
+consistent sets of versions of various Jackson components.
 
 NOTE! Parent pom itself only specifies defaults to individual modules but
 DOES NOT include them, so you CAN NOT just add dependency to `jackson-datatypes-collections`.
@@ -65,6 +68,16 @@ mapper = new ObjectMapper() // or mapper for other formats
 
 after which datatype read/write support is available for all normal Jackson operations,
 including support for nested types.
+
+## Usage, per-datatype
+
+See READMEs of individual modules for datatype-specific configuration, options
+and so on:
+
+* [jackson-datype-guava](guava/)
+* [jackson-datatype-hpcc](hppc/)
+* [jackson-datatype-pcollections](pcollections/)
+* [jackson-datatype-eclipse-collections](eclipse-collections/)
 
 ### Usage with Spring Boot
 
