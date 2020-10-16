@@ -12,7 +12,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-guava</artifactId>
-  <version>2.11.1</version>
+  <version>2.11.3</version>
 </dependency>
 ```
 
@@ -20,12 +20,26 @@ To use module on Maven-based projects, use following dependency:
 
 ### Guava compatibility
 
-Jackson 2.x versions up to and including 2.11.x:
+Although specific version of this module is built against particular Guava library version,
+and similarly defines dependency to just that version, module itself works against wider
+range of Guava versions.
 
-* Should work on Guava versions `15.0` and later (currently up to 29.0-jre)
-* Require Guava version `20.0` or later to build (some tests depend on newer versions for verification)
+Following table shows the tested working ranges for recent module versions.
 
-Minimum supported version is likely to be increased for Jackson 2.12 or later.
+| Module version | Min Guava | Default Guava | Max Guava |
+| -------------- | --------- | ------------- | --------- |
+| 2.12           | 14.0      | 21.0          | 29.0-jre  |
+| 2.11           | 14.0      | 20.0          | 29.0-jre  |
+| 2.10           | 14.0      | 20.0          | 29.0-jre  |
+| 2.9            | 12.0      | 18.0          | 29.0-jre  |
+
+Notes:
+
+* At the point of testing, `29.0-jre` was the latest available Guava library
+version, so all versions work with the latest Guava
+* "Min Guava" means the earliest version that integration tests passed with
+* "Default Guava" is the dependency specified in module's `pom.xml`: it is used for build, unit tests
+    * note: building, unit tests work on a range but typically require higher version than "Min Guava"
 
 ### Registering module
 
