@@ -149,32 +149,32 @@ public class RangeDeserializer
         try {
             if ((lowerEndpoint != null) && (upperEndpoint != null)) {
                 Preconditions.checkState(lowerEndpoint.getClass() == upperEndpoint.getClass(),
-                                         "Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
-                                         _fieldNames.lowerEndpoint,
-                                         lowerEndpoint.getClass().getName(),
-                                         _fieldNames.upperEndpoint,
-                                         upperEndpoint.getClass().getName());
+                        "Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
+                        _fieldNames.lowerEndpoint,
+                        lowerEndpoint.getClass().getName(),
+                        _fieldNames.upperEndpoint,
+                        upperEndpoint.getClass().getName());
                 Preconditions.checkState(lowerBoundType != null,
-                                         "'%s' field found, but not '%s'",
-                                         _fieldNames.lowerEndpoint,
-                                         _fieldNames.lowerBoundType);
+                        "'%s' field found, but not '%s'",
+                        _fieldNames.lowerEndpoint,
+                        _fieldNames.lowerBoundType);
                 Preconditions.checkState(upperBoundType != null,
-                                         "'%s' field found, but not '%s'",
-                                         _fieldNames.upperEndpoint,
-                                         _fieldNames.upperBoundType);
+                        "'%s' field found, but not '%s'",
+                        _fieldNames.upperEndpoint,
+                        _fieldNames.upperBoundType);
                 return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
             }
             if (lowerEndpoint != null) {
                 Preconditions.checkState(lowerBoundType != null,
-                                         "'%s' field found, but not '%s'",
-                                         _fieldNames.lowerEndpoint,
-                                         _fieldNames.lowerBoundType);
+                        "'%s' field found, but not '%s'",
+                        _fieldNames.lowerEndpoint,
+                        _fieldNames.lowerBoundType);
                 return RangeFactory.downTo(lowerEndpoint, lowerBoundType);
             }
             if (upperEndpoint != null) {
                 Preconditions.checkState(upperBoundType != null,
-                                         "'%s' field found, but not '%s'",
-                                         _fieldNames.lowerEndpoint);
+                        "'%s' field found, but not '%s'",
+                        _fieldNames.lowerEndpoint);
                 return RangeFactory.upTo(upperEndpoint, upperBoundType);
             }
             return RangeFactory.all();
