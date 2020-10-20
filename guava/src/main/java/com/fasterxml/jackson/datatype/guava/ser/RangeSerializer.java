@@ -55,12 +55,6 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     @Override
-    @Deprecated
-    public boolean isEmpty(Range<?> value) {
-        return isEmpty(null, value);
-    }
-
-    @Override
     public boolean isEmpty(SerializerProvider prov, Range<?> value) {
         return value.isEmpty();
     }

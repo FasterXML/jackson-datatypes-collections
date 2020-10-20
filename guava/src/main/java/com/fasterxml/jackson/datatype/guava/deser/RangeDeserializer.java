@@ -43,25 +43,18 @@ public class RangeDeserializer
      * @since 2.10
      */
     protected final RangeHelper.RangeProperties _fieldNames;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public RangeDeserializer(JavaType rangeType) {
-        this(null, rangeType);
-    }
-
     public RangeDeserializer(BoundType defaultBoundType, JavaType rangeType) {
         this(rangeType, null, defaultBoundType);
     }
 
+    @Deprecated // since 2.12
     public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser) {
         this(rangeType, endpointDeser, null);
     }
@@ -124,7 +117,7 @@ public class RangeDeserializer
     /* Actual deserialization
     /**********************************************************
      */
-    
+
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
@@ -178,9 +171,9 @@ public class RangeDeserializer
         try {
             if ((lowerEndpoint != null) && (upperEndpoint != null)) {
                 Preconditions.checkState(lowerEndpoint.getClass() == upperEndpoint.getClass(),
-                                         "Endpoint types are not the same - 'lowerEndpoint' deserialized to [%s], and 'upperEndpoint' deserialized to [%s].",
-                                         lowerEndpoint.getClass().getName(),
-                                         upperEndpoint.getClass().getName());
+                        "Endpoint types are not the same - 'lowerEndpoint' deserialized to [%s], and 'upperEndpoint' deserialized to [%s].",
+                        lowerEndpoint.getClass().getName(),
+                        upperEndpoint.getClass().getName());
                 Preconditions.checkState(lowerBoundType != null, "'lowerEndpoint' field found, but not 'lowerBoundType'");
                 Preconditions.checkState(upperBoundType != null, "'upperEndpoint' field found, but not 'upperBoundType'");
                 return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
