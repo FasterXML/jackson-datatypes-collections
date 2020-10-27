@@ -30,6 +30,11 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
     <!-- 02-Aug-2020, tatu: 2.12 raises baseline from 20.0 to 21.0 -->
     <version.guava>21.0</version.guava>
 
+    <!-- Guava 21.0 and later are Java 8 (JRE variant; android one not)
+      -->
+    <javac.src.version>1.8</javac.src.version>
+    <javac.target.version>1.8</javac.target.version>
+
     <!-- 31-Jul-2020, tatu: remove upper limit for Jackson 2.12; tested up to 29.0-jre -->
     <version.guava.osgi>[${version.guava}.0,99)</version.guava.osgi>
 
