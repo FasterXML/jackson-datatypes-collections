@@ -18,6 +18,8 @@ Active Maintainers:
 
 2.12.0 (not yet released)
 
+#25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap by default
+ (requested by Tommy B; fix contributed by Migwel G)
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 - Update "preferred" Guava version to 21.0
 
