@@ -24,7 +24,9 @@ import org.eclipse.collections.api.map.MapIterable;
 /**
  * @author yawkat
  */
-public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?, ?>> implements ContextualSerializer {
+public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?, ?>> implements ContextualSerializer
+{
+    private static final long serialVersionUID = 1L;
 
     private final JavaType _type;
     private final BeanProperty _property;
@@ -158,7 +160,7 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
         Set<String> ignored = _ignoredEntries;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
