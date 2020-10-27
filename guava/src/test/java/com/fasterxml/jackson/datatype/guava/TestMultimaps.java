@@ -319,6 +319,13 @@ public class TestMultimaps extends ModuleTestBase
         assertEquals(Maps.immutableEntry("a", 7), iterator.next());
         assertEquals(Maps.immutableEntry("a", 8), iterator.next());
     }
+
+    // [Issue#25]
+    public void testDefaultSetMultiMap() throws IOException {
+        @SuppressWarnings("unchecked")
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, new TypeReference<SetMultimap>() {});
+        assertTrue(map instanceof LinkedHashMultimap);
+    }
     
     public void testPolymorphicValue() throws IOException {
         ImmutableMultimapWrapper input = new ImmutableMultimapWrapper(ImmutableMultimap.of("add", new AddOp(3, 2), "mul", new MulOp(4, 6)));

@@ -247,7 +247,7 @@ public class GuavaDeserializers
             }
 
             // TODO: Remove the default fall-through once all implementations are covered.
-            return new HashMultimapDeserializer(type, keyDeserializer, elementTypeDeserializer,
+            return new LinkedHashMultimapDeserializer(type, keyDeserializer, elementTypeDeserializer,
                     elementDeserializer);
         }
 
