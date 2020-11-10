@@ -20,6 +20,8 @@ Active Maintainers:
 
 #25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap by default
  (requested by Tommy B; fix contributed by Migwel G)
+#79: (guava)  Guava's RangeHelper causing NPE in PropertyNamingStrategy
+ (reported by arpit-pp@github)
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 - Update "preferred" Guava version to 21.0
 

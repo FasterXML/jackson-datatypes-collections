@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.datatype.guava.deser.util;
 
+import java.lang.reflect.Field;
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 
 /**
  * @since 2.10
@@ -14,7 +18,12 @@ public class RangeHelper
 
         public final String lowerEndpoint, upperEndpoint;
         public final String lowerBoundType, upperBoundType;
-        
+
+        protected RangeProperties() {
+            this("lowerEndpoint", "upperEndpoint",
+                    "lowerBoundType", "upperBoundType");
+        }
+
         public RangeProperties(String lowerEP, String upperEP,
                 String lowerBT, String upperBT) {
             lowerEndpoint = lowerEP;
@@ -22,24 +31,49 @@ public class RangeHelper
             lowerBoundType = lowerBT;
             upperBoundType = upperBT;
         }
+
+        protected Field[] fields() {
+            return new Field[] {
+                    _field(lowerEndpoint),
+                    _field(upperEndpoint),
+                    _field(lowerBoundType),
+                    _field(upperBoundType)
+            };
+        }
+
+        private Field _field(String name) {
+            try {
+                return getClass().getField(name);
+            } catch (Exception e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
     }
 
-    private final static RangeProperties STD_NAMES = getPropertyNames(null, null);
-    
+    private final static RangeProperties STD_NAMES = new RangeProperties();
+
+    private final static Field[] FIELDS = STD_NAMES.fields();
+
     public static RangeProperties standardNames() {
         return STD_NAMES;
     }
 
     public static RangeProperties getPropertyNames(MapperConfig<?> config, PropertyNamingStrategy pns) {
+        if (pns == null) {
+            return STD_NAMES;
+        }
+        final TypeResolutionContext typeCtxt = new TypeResolutionContext.Empty(config.getTypeFactory());
         return new RangeProperties(
-                _find(config, pns, "lowerEndpoint"),
-                _find(config, pns, "upperEndpoint"),
-                _find(config, pns, "lowerBoundType"),
-                _find(config, pns, "upperBoundType")
+                _find(config, typeCtxt, pns, FIELDS[0]),
+                _find(config, typeCtxt, pns, FIELDS[1]),
+                _find(config, typeCtxt, pns, FIELDS[2]),
+                _find(config, typeCtxt, pns, FIELDS[3])
         );
     }
 
-    private static String _find(MapperConfig<?> config, PropertyNamingStrategy pns, String origName) {
-        return (pns == null) ? origName : pns.nameForField(config, null, origName);
+    private static String _find(MapperConfig<?> config, TypeResolutionContext typeCtxt,
+            PropertyNamingStrategy pns, Field field) {
+        AnnotatedField af = new AnnotatedField(typeCtxt, field, null);
+        return pns.nameForField(config, af, field.getName());
     }
 }
