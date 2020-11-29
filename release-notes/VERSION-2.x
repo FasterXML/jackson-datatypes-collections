@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.12.0 (not yet released)
+2.12.0 (29-Nov-2020)
 
 #25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap by default
  (requested by Tommy B; fix contributed by Migwel G)
