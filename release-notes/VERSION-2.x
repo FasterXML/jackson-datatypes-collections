@@ -9,6 +9,11 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.11.4 (not yet released)
+
+* Add missing "LICENSE" file for Guava- and Eclipse-collections modules
+* Add missing SPI metadata for auto-detecti Eclipse-collections module
+
 2.11.3 (02-Oct-2020)
 
 #71 (eclipse-collections) Can not deserialize concrete class instance inside nested
