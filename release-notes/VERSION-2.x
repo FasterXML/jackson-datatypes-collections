@@ -25,7 +25,12 @@ Active Maintainers:
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 - Update "preferred" Guava version to 21.0
 
-2.11.3 (not yet released)
+2.11.4 (not yet released)
+
+* Add missing "LICENSE" file for Guava- and Eclipse-collections modules
+* Add missing SPI metadata for auto-detecti Eclipse-collections module
+
+2.11.3 (02-Oct-2020)
 
 #71 (eclipse-collections) Can not deserialize concrete class instance inside nested
   immutable eclipse-collection
