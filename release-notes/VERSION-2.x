@@ -9,7 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.11.4 (not yet released)
+2.11.4 (12-Dec-2020)
 
 * Add missing "LICENSE" file for Guava- and Eclipse-collections modules
 * Add missing SPI metadata for auto-detecti Eclipse-collections module
