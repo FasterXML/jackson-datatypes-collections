@@ -16,6 +16,10 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.12.1 (08-Jan-2021)
+
+No changes since 2.12.0
+
 2.12.0 (29-Nov-2020)
 
 #25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap by default
@@ -25,7 +29,7 @@ Active Maintainers:
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
 - Update "preferred" Guava version to 21.0
 
-2.11.4 (not yet released)
+2.11.4 (12-Dec-2020)
 
 * Add missing "LICENSE" file for Guava- and Eclipse-collections modules
 * Add missing SPI metadata for auto-detecti Eclipse-collections module
