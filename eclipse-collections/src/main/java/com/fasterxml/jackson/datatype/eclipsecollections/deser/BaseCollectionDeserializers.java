@@ -1,15 +1,17 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser;
 
+import java.util.Arrays;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseCollectionDeserializer;
+
 import org.eclipse.collections.api.*;
 import org.eclipse.collections.api.collection.primitive.*;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 public final class BaseCollectionDeserializers {
 
@@ -23,7 +25,8 @@ public final class BaseCollectionDeserializers {
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getBooleanValue());
         }
     }
@@ -35,7 +38,9 @@ public final class BaseCollectionDeserializers {
         }
 
         @Override
-        public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public T deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
             if (p.currentToken() == JsonToken.VALUE_STRING ||
                 p.currentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
 
@@ -49,34 +54,40 @@ public final class BaseCollectionDeserializers {
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getByteValue());
         }
     }
 
     public abstract static class Short<T extends ShortIterable, Intermediate extends MutableShortCollection>
-            extends BaseCollectionDeserializer<T, Intermediate> {
+            extends BaseCollectionDeserializer<T, Intermediate>
+    {
         protected Short(Class<? super T> cls) {
             super(cls);
         }
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getShortValue());
         }
     }
 
     public abstract static class Char<T extends CharIterable, Intermediate extends MutableCharCollection>
-            extends BaseCharCollectionDeserializer<T, Intermediate> {
+            extends BaseCharCollectionDeserializer<T, Intermediate>
+    {
         private static final int BATCH_COPY_SIZE = 4096;
 
         protected Char(Class<? super T> cls) {
             super(cls);
         }
 
+        @Override
         protected abstract Intermediate createIntermediate();
 
+        @Override
         protected abstract T finish(Intermediate intermediate);
 
         @Override
@@ -109,53 +120,61 @@ public final class BaseCollectionDeserializers {
     }
 
     public abstract static class Int<T extends IntIterable, Intermediate extends MutableIntCollection>
-            extends BaseCollectionDeserializer<T, Intermediate> {
+            extends BaseCollectionDeserializer<T, Intermediate>
+    {
         protected Int(Class<? super T> cls) {
             super(cls);
         }
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getIntValue());
         }
     }
 
     public abstract static class Float<T extends FloatIterable, Intermediate extends MutableFloatCollection>
-            extends BaseCollectionDeserializer<T, Intermediate> {
+            extends BaseCollectionDeserializer<T, Intermediate>
+    {
         protected Float(Class<? super T> cls) {
             super(cls);
         }
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getFloatValue());
         }
     }
 
     public abstract static class Long<T extends LongIterable, Intermediate extends MutableLongCollection>
-            extends BaseCollectionDeserializer<T, Intermediate> {
+            extends BaseCollectionDeserializer<T, Intermediate>
+    {
         protected Long(Class<? super T> cls) {
             super(cls);
         }
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getLongValue());
         }
     }
 
     public abstract static class Double<T extends DoubleIterable, Intermediate extends MutableDoubleCollection>
-            extends BaseCollectionDeserializer<T, Intermediate> {
+            extends BaseCollectionDeserializer<T, Intermediate>
+    {
         protected Double(Class<? super T> cls) {
             super(cls);
         }
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+            throws JacksonException
+        {
             intermediate.add(parser.getDoubleValue());
         }
     }

@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-public final class EclipseMapDeserializers {
+public final class EclipseMapDeserializers
+{
     private static final Map<Class<?>, Entry<?, ?, ?, ?>> ENTRIES = new HashMap<>();
 
     public static MapDeserializer<?, ?, ?, ?> createDeserializer(JavaType type) {

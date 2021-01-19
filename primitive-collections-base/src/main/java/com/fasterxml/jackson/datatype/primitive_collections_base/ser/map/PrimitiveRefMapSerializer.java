@@ -1,17 +1,18 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-
-import java.io.IOException;
 
 /**
  * @author yawkat
  */
 public abstract class PrimitiveRefMapSerializer<T, V>
-        extends PrimitiveMapSerializer<T> {
+        extends PrimitiveMapSerializer<T>
+{
     protected final JavaType _type;
     protected final BeanProperty _property;
     protected final TypeSerializer _valueTypeSerializer;
@@ -52,7 +53,9 @@ public abstract class PrimitiveRefMapSerializer<T, V>
         return withResolved(vts, property, vs);
     }
 
-    protected void _serializeValue(V value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    protected void _serializeValue(V value, JsonGenerator gen, SerializerProvider serializers)
+        throws JacksonException
+    {
         JsonSerializer<Object> valueSer = _valueSerializer;
         if (valueSer == null) {
             Class<?> cc = value.getClass();
@@ -69,8 +72,8 @@ public abstract class PrimitiveRefMapSerializer<T, V>
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(
-            PropertySerializerMap map, JavaType type, SerializerProvider provider
-    ) throws JsonMappingException {
+            PropertySerializerMap map, JavaType type, SerializerProvider provider)
+    {
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(
                 type, provider, _property);
         if (map != result.map) {

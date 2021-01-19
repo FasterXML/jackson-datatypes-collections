@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -140,7 +138,7 @@ public abstract class GuavaMapDeserializer<T>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // note: call "...FromObject" because expected output structure
         // for value is JSON Object (regardless of contortions used for type id)
@@ -150,7 +148,7 @@ public abstract class GuavaMapDeserializer<T>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();
@@ -175,8 +173,8 @@ public abstract class GuavaMapDeserializer<T>
 
     // Force abstract-ness for subclasses
     @Override
-    public abstract Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException;
+    public abstract Object getEmptyValue(DeserializationContext ctxt);
 
     protected abstract T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
-        throws IOException;
+        throws JacksonException;
 }

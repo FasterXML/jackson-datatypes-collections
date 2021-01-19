@@ -1,14 +1,15 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
 
-import java.io.IOException;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * @author yawkat
  */
-public abstract class RefPrimitiveMapSerializer<T, K> extends PrimitiveMapSerializer<T> {
+public abstract class RefPrimitiveMapSerializer<T, K> extends PrimitiveMapSerializer<T>
+{
     protected final JavaType _type;
     protected final BeanProperty _property;
     protected final JsonSerializer<Object> _keySerializer;
@@ -26,14 +27,16 @@ public abstract class RefPrimitiveMapSerializer<T, K> extends PrimitiveMapSerial
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-            throws JsonMappingException {
+    {
         JsonSerializer<Object> ks = _keySerializer == null ?
                 prov.findKeySerializer(_type.containedTypeOrUnknown(0), property) :
                 _keySerializer;
         return withResolved(property, ks);
     }
 
-    protected void _serializeKey(K key, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    protected void _serializeKey(K key, JsonGenerator gen, SerializerProvider provider)
+        throws JacksonException
+    {
         if (key == null) {
             provider.findNullKeySerializer(_type.getKeyType(), _property)
                     .serialize(null, gen, provider);

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.optional;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -8,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -17,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
+
 import com.google.common.base.Optional;
 
 public class OptionalBasicTest extends ModuleTestBase
@@ -72,7 +71,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }
@@ -82,8 +81,7 @@ public class OptionalBasicTest extends ModuleTestBase
         public LowerCasingDeserializer() { super(String.class); }
 
         @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
             return p.getText().toLowerCase();
         }
     }

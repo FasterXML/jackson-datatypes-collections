@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser.multimap;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -137,7 +137,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             JsonDeserializer<?> vd, Method method, NullValueProvider np);
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         //check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
@@ -147,7 +148,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         return deserializeContents(p, ctxt);
     }
 
-    private T deserializeContents(JsonParser p, DeserializationContext ctxt) throws IOException
+    private T deserializeContents(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         T multimap = createMultimap();
 
@@ -196,7 +198,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     }
 
     private T deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         T multimap = createMultimap();
 
@@ -247,7 +249,6 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     }
 
     private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException
     {
         if (p.currentToken() == JsonToken.VALUE_NULL) {
             return null;
@@ -258,7 +259,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         return _valueDeserializer.deserialize(p, ctxt);
     }
 
-    private void expect(JsonParser p, JsonToken token) throws IOException {
+    private void expect(JsonParser p, JsonToken token) {
         if (p.currentToken() != token) {
             throw new JsonMappingException(p, "Expecting " + token + ", found " + p.currentToken(),
                     p.getCurrentLocation());

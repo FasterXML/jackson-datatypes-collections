@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -96,7 +96,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-            throws IOException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -104,7 +104,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         // Should usually point to START_ARRAY
         if (p.isExpectedStartArrayToken()) {
@@ -118,7 +118,8 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     }
 
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
+        throws JacksonException
+    {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
@@ -145,7 +146,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     }
 
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;

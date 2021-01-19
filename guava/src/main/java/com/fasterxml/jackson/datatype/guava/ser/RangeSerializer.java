@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -31,7 +30,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     /**********************************************************
      */
 
-    public RangeSerializer(JavaType type) { this(type, null, RangeHelper.standardNames()); }
+    public RangeSerializer(JavaType type) {
+        this(type, null, RangeHelper.standardNames());
+    }
 
     @SuppressWarnings("unchecked")
     protected RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
@@ -50,7 +51,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(prov.getConfig(),
                 prov.getConfig().getPropertyNamingStrategy());
@@ -71,14 +72,14 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws JacksonException
     {
         gen.writeStartObject(value);
         _writeContents(value, gen, provider);
@@ -89,7 +90,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     @Override
     public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
@@ -99,7 +100,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
@@ -126,7 +127,6 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         if (visitor != null) {
             JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);

@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -73,7 +72,7 @@ public abstract class ContainerSerializerBase<T>
     
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.setCurrentValue(value);
         gen.writeStartArray();
@@ -82,12 +81,12 @@ public abstract class ContainerSerializerBase<T>
     }
 
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException;
+        throws JacksonException;
     
     @Override
     public void serializeWithType(T value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,

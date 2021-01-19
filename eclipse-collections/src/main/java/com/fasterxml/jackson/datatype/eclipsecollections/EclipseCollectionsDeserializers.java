@@ -246,7 +246,6 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         return EclipseMapDeserializers.createDeserializer(type); // May return null
     }
 
-    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention" })
     private JsonDeserializer<?> findReferenceDeserializer(
             JavaType containerType,
             JavaType elementType,
@@ -258,11 +257,14 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         // bags
         if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {
             return new MutableBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableBag.class) {
+        }
+        if (rawClass == ImmutableBag.class) {
             return new ImmutableBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == MutableSortedBag.class || rawClass == SortedBag.class) {
+        }
+        if (rawClass == MutableSortedBag.class || rawClass == SortedBag.class) {
             return new MutableSortedBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableSortedBag.class) {
+        }
+        if (rawClass == ImmutableSortedBag.class) {
             return new ImmutableSortedBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
 
@@ -271,9 +273,11 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             rawClass == OrderedIterable.class || rawClass == ReversibleIterable.class ||
             rawClass == RichIterable.class || rawClass == InternalIterable.class) {
             return new MutableListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableList.class || rawClass == ImmutableCollection.class) {
+        }
+        if (rawClass == ImmutableList.class || rawClass == ImmutableCollection.class) {
             return new ImmutableListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == FixedSizeList.class || rawClass == FixedSizeCollection.class) {
+        }
+        if (rawClass == FixedSizeList.class || rawClass == FixedSizeCollection.class) {
             return new FixedSizeListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
 
@@ -281,11 +285,14 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         if (rawClass == MutableSet.class || rawClass == MutableSetIterable.class ||
             rawClass == SetIterable.class || rawClass == UnsortedSetIterable.class) {
             return new MutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
+        }
+        if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
             return new ImmutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == MutableSortedSet.class || rawClass == SortedSetIterable.class) {
+        }
+        if (rawClass == MutableSortedSet.class || rawClass == SortedSetIterable.class) {
             return new MutableSortedSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableSortedSet.class) {
+        }
+        if (rawClass == ImmutableSortedSet.class) {
             return new ImmutableSortedSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
 

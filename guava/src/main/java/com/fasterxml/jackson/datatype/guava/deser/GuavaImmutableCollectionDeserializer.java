@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -28,12 +26,12 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     protected abstract ImmutableCollection.Builder<Object> createBuilder();
 
     // Can not modify Immutable collections now can we
-    @Override // since 2.10
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
     }
 
-    @Override // since 2.10
+    @Override
     public AccessPattern getEmptyAccessPattern() {
         // But we should be able to just share immutable empty instance
         return AccessPattern.CONSTANT;
@@ -46,7 +44,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
 
     @Override
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        throws JacksonException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
@@ -77,10 +75,8 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         return collection;
     }
 
-    /**
-     * @since 2.10
-     */
-    protected Object _resolveNullToValue(DeserializationContext ctxt) throws IOException
+    protected Object _resolveNullToValue(DeserializationContext ctxt)
+        throws JacksonException
     {
         Object value = _nullProvider.getNullValue(ctxt);
 

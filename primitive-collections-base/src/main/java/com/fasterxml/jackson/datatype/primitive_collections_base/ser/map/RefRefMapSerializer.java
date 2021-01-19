@@ -1,19 +1,21 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.BiConsumer;
 
 /**
  * @author yawkat
@@ -171,7 +173,8 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+        throws JacksonException
+    {
         gen.writeStartObject(value);
         if (!isEmpty(provider, value)) {
             serializeFields(value, gen, provider);
@@ -180,10 +183,10 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     }
 
     @Override
-    public void serializeWithType(
-            T value, JsonGenerator gen,
-            SerializerProvider ctxt, TypeSerializer typeSer
-    ) throws IOException {
+    public void serializeWithType(T value, JsonGenerator gen,
+            SerializerProvider ctxt, TypeSerializer typeSer)
+        throws JacksonException
+    {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
@@ -198,38 +201,34 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     private void serializeFields(T value, JsonGenerator gen, SerializerProvider provider) {
         Set<String> ignored = _ignoredEntries;
         forEachKeyValue(value, (key, v) -> {
-            try {
-                // First, serialize key
-                if ((ignored != null) && ignored.contains(key)) {
-                    return;
-                }
-                if (key == null) {
-                    provider.findNullKeySerializer(getKeyType(), _property)
-                            .serialize(null, gen, provider);
-                } else {
-                    _keySerializer.serialize(key, gen, provider);
-                }
-                if (v == null) {
-                    provider.defaultSerializeNullValue(gen);
-                    return;
-                }
-                JsonSerializer<Object> valueSer = _valueSerializer;
-                if (valueSer == null) {
-                    valueSer = _findSerializer(provider, v);
-                }
-                if (_valueTypeSerializer == null) {
-                    valueSer.serialize(v, gen, provider);
-                } else {
-                    valueSer.serializeWithType(v, gen, provider, _valueTypeSerializer);
-                }
-            } catch (IOException e) {
-                rethrowUnchecked(e);
+            // First, serialize key
+            if ((ignored != null) && ignored.contains(key)) {
+                return;
+            }
+            if (key == null) {
+                provider.findNullKeySerializer(getKeyType(), _property)
+                        .serialize(null, gen, provider);
+            } else {
+                _keySerializer.serialize(key, gen, provider);
+            }
+            if (v == null) {
+                provider.defaultSerializeNullValue(gen);
+                return;
+            }
+            JsonSerializer<Object> valueSer = _valueSerializer;
+            if (valueSer == null) {
+                valueSer = _findSerializer(provider, v);
+            }
+            if (_valueTypeSerializer == null) {
+                valueSer.serialize(v, gen, provider);
+            } else {
+                valueSer.serializeWithType(v, gen, provider, _valueTypeSerializer);
             }
         });
     }
 
     private JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
-            Object value) throws JsonMappingException
+        Object value)
     {
         final Class<?> cc = value.getClass();
         JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
@@ -241,11 +240,6 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
                     ctxt.constructSpecializedType(_valueType, cc));
         }
         return _findAndAddDynamic(ctxt, cc);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
-        throw (E) e;
     }
 }
 

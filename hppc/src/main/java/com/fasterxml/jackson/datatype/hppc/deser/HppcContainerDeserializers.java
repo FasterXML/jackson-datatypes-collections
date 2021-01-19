@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.hppc.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -112,7 +111,7 @@ public class HppcContainerDeserializers
         @Override
         public void deserializeContents(JsonParser p, DeserializationContext ctxt,
                 T container)
-            throws IOException
+            throws JacksonException
         {
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {

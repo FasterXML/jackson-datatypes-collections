@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -13,6 +11,7 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+
 import com.google.common.collect.ImmutableMap;
 
 abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Object>> extends
@@ -34,7 +33,7 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
 
     @Override
     protected T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<?> valueDes = _valueDeserializer;

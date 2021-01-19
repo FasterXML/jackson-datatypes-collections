@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 /**
  * @author yawkat
  */
-public interface ValueHandler<V extends ValueHandler<V>> {
-    V createContextualValue(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException;
+public interface ValueHandler<V extends ValueHandler<V>>
+{
+    V createContextualValue(DeserializationContext ctxt, BeanProperty property)
+        throws JsonMappingException;
 
-    // TYPE value(DeserializationContext ctx, JsonParser parser) throws IOException
+    // TYPE value(DeserializationContext ctx, JsonParser parser)
 }

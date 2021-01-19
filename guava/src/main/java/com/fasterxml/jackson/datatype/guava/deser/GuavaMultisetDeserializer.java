@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -11,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+
 import com.google.common.collect.Multiset;
 
 abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
@@ -36,8 +36,8 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     }
 
     @Override
-    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt) throws IOException,
-            IOException
+    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
