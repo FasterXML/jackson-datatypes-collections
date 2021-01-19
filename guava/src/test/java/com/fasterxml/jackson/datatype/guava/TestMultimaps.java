@@ -322,10 +322,10 @@ public class TestMultimaps extends ModuleTestBase
         assertEquals(Maps.immutableEntry("a", 8), iterator.next());
     }
 
-    // [Issue#25]
     public void testDefaultSetMultiMap() throws IOException {
         @SuppressWarnings("unchecked")
-        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, new TypeReference<SetMultimap>() {});
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP,
+                new TypeReference<SetMultimap<?,?>>() {});
         assertTrue(map instanceof LinkedHashMultimap);
     }
     

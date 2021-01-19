@@ -27,9 +27,9 @@ public class OptionalSchema83Test
     }
 
     static class VisitorWrapper implements JsonFormatVisitorWrapper {
-        private SerializerProvider serializerProvider;
-        private final String baseName;
-        private final Set<String> traversedProperties;
+        SerializerProvider serializerProvider;
+        final String baseName;
+        final Set<String> traversedProperties;
 
         public VisitorWrapper(SerializerProvider serializerProvider, String baseName, Set<String> traversedProperties) {
             this.serializerProvider = serializerProvider;
@@ -37,7 +37,7 @@ public class OptionalSchema83Test
             this.traversedProperties = traversedProperties;
         }
 
-        private VisitorWrapper createSubtraverser(String bn) {
+        VisitorWrapper createSubtraverser(String bn) {
             return new VisitorWrapper(getProvider(), bn, traversedProperties);
         }
 

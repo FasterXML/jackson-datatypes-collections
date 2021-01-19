@@ -5,8 +5,6 @@ import java.io.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.core.util.VersionUtil;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
-import com.fasterxml.jackson.datatype.guava.PackageVersion;
 
 public class TestVersions extends ModuleTestBase
 {

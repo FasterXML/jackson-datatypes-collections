@@ -215,7 +215,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
         @Override
         public ValueInstantiator createContextual(DeserializationContext ctxt, BeanDescription beanDesc)
-                throws JsonMappingException {
+        {
             TypeDeserializer typeDeserOne = ctxt.findTypeDeserializer(oneType(ctxt.getConfig()));
             TypeDeserializer typeDeserTwo = ctxt.findTypeDeserializer(twoType(ctxt.getConfig()));
             return new ValueInstantiator.Delegating(this) {

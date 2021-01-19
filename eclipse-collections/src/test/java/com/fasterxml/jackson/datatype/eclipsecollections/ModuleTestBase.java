@@ -1,14 +1,16 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.Assert.fail;
 
