@@ -1,33 +1,34 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import java.io.IOException;
 
 /**
  * @author yawkat
  */
-public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> implements KeyHandler<H>, ValueHandler<H> {
+public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> implements KeyHandler<H>, ValueHandler<H>
+{
     @SuppressWarnings("unchecked")
     @Override
-    public H createContextualKey(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException {
+    public H createContextualKey(DeserializationContext ctxt, BeanProperty property) {
         return (H) this;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public H createContextualValue(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException {
+    public H createContextualValue(DeserializationContext ctxt, BeanProperty property) {
         return (H) this;
     }
 
-    public static final class Boolean extends PrimitiveKVHandler<Boolean> {
+    public static final class Boolean extends PrimitiveKVHandler<Boolean>
+    {
         public static final Boolean INSTANCE = new Boolean();
 
-        public boolean value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public boolean value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getBooleanValue();
         }
     }
@@ -39,7 +40,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return java.lang.Byte.parseByte(key);
         }
 
-        public byte value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public byte value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getByteValue();
         }
     }
@@ -51,7 +52,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return java.lang.Short.parseShort(key);
         }
 
-        public short value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public short value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getShortValue();
         }
     }
@@ -68,7 +69,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return key.charAt(0);
         }
 
-        public char value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public char value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             String valueAsString = parser.getValueAsString();
             if (valueAsString.length() != 1) {
                 ctx.reportInputMismatch(char.class,
@@ -86,7 +87,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return Integer.parseInt(key);
         }
 
-        public int value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public int value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getIntValue();
         }
     }
@@ -98,7 +99,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return java.lang.Float.parseFloat(key);
         }
 
-        public float value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public float value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getFloatValue();
         }
     }
@@ -110,7 +111,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return java.lang.Long.parseLong(key);
         }
 
-        public long value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public long value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getLongValue();
         }
     }
@@ -122,7 +123,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             return java.lang.Double.parseDouble(key);
         }
 
-        public double value(DeserializationContext ctx, JsonParser parser) throws IOException {
+        public double value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
             return parser.getDoubleValue();
         }
     }

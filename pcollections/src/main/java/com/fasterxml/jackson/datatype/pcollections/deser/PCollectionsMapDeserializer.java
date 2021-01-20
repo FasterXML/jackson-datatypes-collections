@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -9,6 +7,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.MapType;
+
 import org.pcollections.PMap;
 
 public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>>
@@ -109,7 +108,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // note: call "...FromObject" because expected output structure
         // for value is JSON Object (regardless of contortions used for type id)
@@ -119,7 +118,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();
@@ -135,7 +134,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     protected abstract T createEmptyMap();
 
     protected T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<?> valueDes = _valueDeserializer;
@@ -173,8 +172,8 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * could be to throw an exception.
      */
     protected T _handleNull(DeserializationContext ctxt, Object key,
-            JsonDeserializer<?> valueDeser,
-            T map) throws IOException
+            JsonDeserializer<?> valueDeser, T map)
+        throws JacksonException
     {
         // TODO: allow reporting problem via a feature, in future?
 

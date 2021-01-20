@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
@@ -21,8 +23,9 @@ import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitivePrimit
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.PrimitiveRefMapSerializers;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefPrimitiveMapSerializers;
 import com.fasterxml.jackson.datatype.eclipsecollections.ser.map.RefRefMapIterableSerializer;
-import java.util.Map;
+
 import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
+
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
 import org.eclipse.collections.api.CharIterable;

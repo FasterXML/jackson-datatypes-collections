@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
 import java.util.Locale;
+
+import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+
 import com.google.common.hash.HashCode;
 
 public class HashCodeDeserializer extends FromStringDeserializer<HashCode>
@@ -15,7 +17,8 @@ public class HashCodeDeserializer extends FromStringDeserializer<HashCode>
 
     @Override
     protected HashCode _deserialize(String value, DeserializationContext ctxt)
-            throws IOException {
+        throws JacksonException
+    {
         return HashCode.fromString(value.toLowerCase(Locale.ENGLISH));
     }
 }

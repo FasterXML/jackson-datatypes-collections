@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser;
 
-import java.io.IOException;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
@@ -48,20 +48,22 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     protected abstract Intermediate createIntermediate();
 
     protected abstract void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-            throws IOException;
+            throws JacksonException;
 
     protected abstract T finish(Intermediate intermediate);
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-            throws IOException {
+            throws JacksonException
+    {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
+        throws JacksonException
+{
         // Should usually point to START_ARRAY
         if (p.isExpectedStartArrayToken()) {
             return _deserializeContents(p, ctxt);
@@ -74,7 +76,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     }
 
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
+            throws JacksonException {
         Intermediate collection = createIntermediate();
 
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -84,7 +86,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     }
 
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
+            throws JacksonException {
         Intermediate intermediate = createIntermediate();
         add(intermediate, p, ctxt);
         return finish(intermediate);
@@ -98,7 +100,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getBooleanValue());
         }
     }
@@ -110,7 +112,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
         }
 
         @Override
-        public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             if (p.currentToken() == JsonToken.VALUE_STRING ||
                 p.currentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
 
@@ -124,7 +126,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getByteValue());
         }
     }
@@ -137,7 +139,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getShortValue());
         }
     }
@@ -158,13 +160,13 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-                throws IOException {
+                throws JacksonException {
             return typeDeserializer.deserializeTypedFromScalar(p, ctxt);
         }
 
         @Override
         public T deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+                throws JacksonException {
             Intermediate intermediate = createIntermediate();
 
             if (p.isExpectedStartArrayToken()) {
@@ -221,7 +223,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getIntValue());
         }
     }
@@ -234,7 +236,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getFloatValue());
         }
     }
@@ -247,7 +249,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getLongValue());
         }
     }
@@ -260,7 +262,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             intermediate.add(parser.getDoubleValue());
         }
     }
@@ -309,7 +311,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-                throws IOException {
+                throws JacksonException {
             Object value;
             if (parser.currentToken() == JsonToken.VALUE_NULL) {
                 value = null;

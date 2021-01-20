@@ -1,16 +1,17 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.deser;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+
 public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Collection<Object>>
-        extends BaseCollectionDeserializer<T, Intermediate>
+    extends BaseCollectionDeserializer<T, Intermediate>
 {
     protected final JavaType _elementType;
     protected final JsonDeserializer<?> _valueDeserializer;
@@ -53,7 +54,8 @@ public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Coll
 
     @Override
     protected void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
-            throws IOException {
+        throws JacksonException
+    {
         Object value;
         if (parser.currentToken() == JsonToken.VALUE_NULL) {
             value = null;

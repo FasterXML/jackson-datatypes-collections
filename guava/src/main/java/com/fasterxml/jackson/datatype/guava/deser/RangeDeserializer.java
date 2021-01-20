@@ -2,8 +2,6 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import static java.util.Arrays.asList;
 
-import java.io.IOException;
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -69,7 +67,7 @@ public class RangeDeserializer
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
                 ctxt.getConfig().getPropertyNamingStrategy());
@@ -99,14 +97,14 @@ public class RangeDeserializer
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     @Override
     public Range<?> deserialize(JsonParser p, DeserializationContext context)
-            throws IOException
+        throws JacksonException
     {
         // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
         JsonToken t = p.currentToken();
@@ -183,7 +181,8 @@ public class RangeDeserializer
         }
     }
 
-    private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
+    private BoundType deserializeBoundType(DeserializationContext context, JsonParser p)
+        throws JacksonException
     {
         expect(context, JsonToken.VALUE_STRING, p.currentToken());
         String name = p.getText();
@@ -196,7 +195,8 @@ public class RangeDeserializer
         }
     }
 
-    private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p) throws IOException
+    private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
+        throws JacksonException
     {
         Object obj = _endpointDeserializer.deserialize(p, context);
         if (!(obj instanceof Comparable)) {
@@ -210,7 +210,7 @@ public class RangeDeserializer
         return (Comparable<?>) obj;
     }
 
-    private void expect(DeserializationContext context, JsonToken expected, JsonToken actual) throws JsonMappingException
+    private void expect(DeserializationContext context, JsonToken expected, JsonToken actual)
     {
         if (actual != expected) {
             context.reportInputMismatch(this, String.format("Problem deserializing %s: expecting %s, found %s",

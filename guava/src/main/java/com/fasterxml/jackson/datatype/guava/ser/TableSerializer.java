@@ -1,17 +1,18 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import com.google.common.collect.Table;
 
 /**
@@ -121,8 +122,7 @@ public class TableSerializer
 
     @Override
     public JsonSerializer<?> createContextual(final SerializerProvider provider,
-            final BeanProperty property )
-        throws JsonMappingException
+            final BeanProperty property)
     {
         JsonSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
@@ -188,10 +188,10 @@ public class TableSerializer
     @Override
     public void serialize(final Table<?, ?, ?> value,
             final JsonGenerator gen, final SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeStartObject(value);
-        if ( !value.isEmpty()) {
+        if (!value.isEmpty()) {
             serializeFields(value, gen, provider);
         }
         gen.writeEndObject();
@@ -200,7 +200,8 @@ public class TableSerializer
     @Override
     public void serializeWithType(final Table<?, ?, ?> value,
             final JsonGenerator gen, final SerializerProvider ctxt,
-            final TypeSerializer typeSer) throws IOException
+            final TypeSerializer typeSer)
+        throws JacksonException
     {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
@@ -210,7 +211,7 @@ public class TableSerializer
     }
 
     private final void serializeFields( final Table<?, ?, ?> table, final JsonGenerator jgen, final SerializerProvider provider )
-        throws IOException
+        throws JacksonException
     {
         _rowMapSerializer.serializeFields(table.rowMap(), jgen, provider);
     }

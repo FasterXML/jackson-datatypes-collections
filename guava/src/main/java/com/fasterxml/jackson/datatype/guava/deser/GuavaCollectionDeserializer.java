@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -117,7 +116,7 @@ public abstract class GuavaCollectionDeserializer<T>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -125,7 +124,7 @@ public abstract class GuavaCollectionDeserializer<T>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         // Should usually point to START_ARRAY
         if (p.isExpectedStartArrayToken()) {
@@ -150,19 +149,17 @@ public abstract class GuavaCollectionDeserializer<T>
 
     // Force abstract-ness for subclasses
     @Override
-    public abstract Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException;
+    public abstract Object getEmptyValue(DeserializationContext ctxt);
 
     protected abstract T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException;
+        throws JacksonException;
 
     /**
      * Method used to support implicit coercion from a single non-array value
      * into single-element collection.
-     * 
-     * @since 2.3
      */
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        throws JacksonException
     {
         final JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -184,9 +181,7 @@ public abstract class GuavaCollectionDeserializer<T>
 
     }
 
-    // Note: 'throws IOException' dropped from 2.10.5
     protected abstract T _createEmpty(DeserializationContext ctxt);
 
-    // Note: 'throws IOException' dropped from 2.12.0
     protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
 }

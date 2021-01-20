@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.hppc.deser;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 
 import com.fasterxml.jackson.core.*;
@@ -30,14 +29,14 @@ public abstract class ContainerDeserializerBase<T>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Ok: usually must point to START_ARRAY (or equivalent)
         // (note: caller handles nulls)
@@ -51,7 +50,7 @@ public abstract class ContainerDeserializerBase<T>
 
     @SuppressWarnings("unchecked")
     protected T handleNonArray(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // default impl will just throw an exception; except if 'accept single as collection' is enabled...
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
@@ -64,7 +63,7 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     protected T createContainerInstance(DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         try {
             return _defaultCtor.newInstance();
@@ -74,7 +73,7 @@ public abstract class ContainerDeserializerBase<T>
     }
     
     protected T handleSingleAsArray(JsonParser p, DeserializationContext ctxt, T container)
-        throws IOException
+        throws JacksonException
     {
         return null;
     }
@@ -82,5 +81,5 @@ public abstract class ContainerDeserializerBase<T>
     // // // Abstract methods for sub-classes to implement
 
     public abstract void deserializeContents(JsonParser p, DeserializationContext ctxt, T container)
-        throws IOException;
+        throws JacksonException;
 }

@@ -1,18 +1,20 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
+import java.util.function.Function;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-
-import java.io.IOException;
-import java.util.function.Function;
 
 /**
  * @author yawkat
  */
 public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandler<V>>
-        extends JsonDeserializer<T> {
+        extends JsonDeserializer<T>
+{
     public static <T, I, K extends KeyHandler<K>, V extends ValueHandler<V>> MapDeserializer<T, I, K, V> create(
             JavaType keyType, JavaType valueType, TypeHandlerPair<I, K, V> typeHandlerPair,
             Function<I, T> finish) {
@@ -47,8 +49,9 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
             I target,
             DeserializationContext ctx,
             String key,
-            JsonParser valueParser
-    ) throws IOException {
+            JsonParser valueParser)
+        throws JacksonException
+    {
         typeHandlerPair.add(target, keyHandler, valueHandler, ctx, key, valueParser);
     }
 
@@ -73,9 +76,9 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
     @Override
     public Object deserializeWithType(
             JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer
-    )
-            throws IOException {
+            TypeDeserializer typeDeserializer)
+        throws JacksonException
+    {
         // note: call "...FromObject" because expected output structure
         // for value is JSON Object (regardless of contortions used for type id)
         return typeDeserializer.deserializeTypedFromObject(p, ctxt);
@@ -84,7 +87,7 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         // Ok: must point to START_OBJECT or FIELD_NAME
         JsonToken t = p.currentToken();

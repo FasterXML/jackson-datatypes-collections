@@ -1,13 +1,14 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import org.eclipse.collections.api.DoubleIterable;
 import org.eclipse.collections.api.iterator.DoubleIterator;
-
-import java.io.IOException;
 
 public final class DoubleIterableSerializer extends EclipsePrimitiveIterableSerializer<DoubleIterable> {
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(double.class);
@@ -22,7 +23,9 @@ public final class DoubleIterableSerializer extends EclipsePrimitiveIterableSeri
     }
 
     @Override
-    protected void serializeContents(DoubleIterable value, JsonGenerator gen) throws IOException {
+    protected void serializeContents(DoubleIterable value, JsonGenerator gen)
+        throws JacksonException
+    {
         DoubleIterator iterator = value.doubleIterator();
         while (iterator.hasNext()) {
             gen.writeNumber(iterator.next());

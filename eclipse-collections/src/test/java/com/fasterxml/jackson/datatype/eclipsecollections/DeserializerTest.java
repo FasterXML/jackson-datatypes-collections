@@ -183,7 +183,7 @@ public final class DeserializerTest extends ModuleTestBase {
         //noinspection rawtypes
         testCollection(Lists.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
-                       new TypeReference<MutableCollection>() {});
+                       new TypeReference<MutableCollection<?>>() {});
         testCollection(BooleanLists.mutable.of(true, false, true),
                        "[true, false, true]",
                        MutableBooleanCollection.class);
@@ -206,7 +206,7 @@ public final class DeserializerTest extends ModuleTestBase {
         //noinspection rawtypes
         testCollection(Lists.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
-                       new TypeReference<ImmutableCollection>() {});
+                       new TypeReference<ImmutableCollection<?>>() {});
         testCollection(BooleanLists.immutable.of(true, false, true),
                        "[true, false, true]",
                        ImmutableBooleanCollection.class);
@@ -419,11 +419,11 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @JsonSubTypes(@JsonSubTypes.Type(B.class))
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-    private static abstract class A {
+    static abstract class A {
 
     }
 
-    private static class B extends A {
+    static class B extends A {
         public B() {
         }
 

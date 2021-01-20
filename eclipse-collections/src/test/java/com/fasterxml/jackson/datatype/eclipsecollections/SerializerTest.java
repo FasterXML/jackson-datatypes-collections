@@ -149,16 +149,16 @@ public final class SerializerTest extends ModuleTestBase {
         );
     }
 
-    private static class Container {
+    static class Container {
         public final IntObjectMap<A> map = IntObjectMaps.immutable.of(0, new B());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-    private static abstract class A {
+    static abstract class A {
 
     }
 
-    private static class B extends A {
+    static class B extends A {
 
     }
 }

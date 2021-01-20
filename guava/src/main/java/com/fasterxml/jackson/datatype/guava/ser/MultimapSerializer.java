@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -243,7 +242,7 @@ public class MultimapSerializer
     
     @Override
     public void serialize(Multimap<?, ?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeStartObject();
         // [databind#631]: Assign current value, to be accessible by custom serializers
@@ -267,7 +266,7 @@ public class MultimapSerializer
     @Override
     public void serializeWithType(Multimap<?,?> value, JsonGenerator gen,
             SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         gen.setCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
@@ -289,7 +288,7 @@ public class MultimapSerializer
 
     private final void serializeFields(Multimap<?, ?> mmap, JsonGenerator
             gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final Set<String> ignored = _ignoredEntries;
         for (Entry<?, ? extends Collection<?>> entry : mmap.asMap().entrySet()) {
@@ -330,7 +329,7 @@ public class MultimapSerializer
     }
 
     private final void serializeFilteredFields(Multimap<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+        throws JacksonException
     {
         final Set<String> ignored = _ignoredEntries;
         PropertyFilter filter = findPropertyFilter(provider, _filterId, mmap);  

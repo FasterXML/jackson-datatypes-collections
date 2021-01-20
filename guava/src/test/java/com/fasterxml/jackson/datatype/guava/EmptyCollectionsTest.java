@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

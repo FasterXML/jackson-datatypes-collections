@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+
 import com.google.common.net.HostAndPort;
 
 public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
@@ -16,7 +15,7 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
 
     @Override
     public HostAndPort deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // Need to override this method, which otherwise would work just fine,
         // since we have legacy JSON Object format to support too:
@@ -36,7 +35,8 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
 
     @Override
     protected HostAndPort _deserialize(String value, DeserializationContext ctxt)
-            throws IOException {
+        throws JacksonException
+    {
         return HostAndPort.fromString(value);
     }
 }
