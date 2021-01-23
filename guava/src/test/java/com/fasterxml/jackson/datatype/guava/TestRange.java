@@ -6,10 +6,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 import com.fasterxml.jackson.datatype.guava.testutil.NoCheckSubTypeValidator;
 
@@ -19,8 +20,8 @@ import com.google.common.collect.Range;
 /**
  * Unit tests to verify serialization of Guava {@link Range}s.
  */
-public class TestRange extends ModuleTestBase {
-
+public class TestRange extends ModuleTestBase
+{
     private final ObjectMapper MAPPER = mapperWithModule();
 
     protected static class Untyped
@@ -133,7 +134,7 @@ public class TestRange extends ModuleTestBase {
         try {
             MAPPER.readValue(json, Range.class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "'lowerEndpoint' field found, but not 'lowerBoundType'");
         }
     }
@@ -163,7 +164,7 @@ public class TestRange extends ModuleTestBase {
         try {
             MAPPER.readValue(json, Range.class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "'upperEndpoint' field found, but not 'upperBoundType'");
         }
     }
@@ -192,7 +193,7 @@ public class TestRange extends ModuleTestBase {
         try {
             MAPPER.readValue(json, Range.class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "'lowerEndpoint' field found, but not 'lowerBoundType'");
         }
     }

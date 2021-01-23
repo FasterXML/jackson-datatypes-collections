@@ -128,7 +128,7 @@ public class RangeDeserializer
 
     @Override
     public Range<?> deserialize(JsonParser p, DeserializationContext context)
-            throws IOException
+        throws IOException
     {
         // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
         JsonToken t = p.getCurrentToken();
@@ -164,8 +164,8 @@ public class RangeDeserializer
                     context.handleUnknownProperty(p, this, Range.class, fieldName);
                 }
             } catch (IllegalStateException e) {
-                // !!! 01-Oct-2016, tatu: Should figure out semantically better exception/reporting
-                throw JsonMappingException.from(p, e.getMessage());
+                context.reportBadDefinition(handledType(), e.getMessage());
+                return null;
             }
         }
         try {
@@ -188,7 +188,8 @@ public class RangeDeserializer
             }
             return RangeFactory.all();
         } catch (IllegalStateException e) {
-            throw JsonMappingException.from(p, e.getMessage());
+            context.reportBadDefinition(handledType(), e.getMessage());
+            return null;
         }
     }
 

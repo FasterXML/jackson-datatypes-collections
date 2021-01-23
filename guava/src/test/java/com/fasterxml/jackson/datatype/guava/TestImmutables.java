@@ -3,19 +3,20 @@ package com.fasterxml.jackson.datatype.guava;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+
 import com.google.common.collect.*;
 
 /**
  * Unit tests for verifying that various immutable types
  * (like {@link ImmutableList}, {@link ImmutableMap} and {@link ImmutableSet})
  * work as expected.
- * 
- * @author tsaloranta
  */
 public class TestImmutables extends ModuleTestBase
 {
@@ -66,32 +67,32 @@ public class TestImmutables extends ModuleTestBase
             mapper.readValue("[1,2,3]",
                     new TypeReference<ImmutableList<Integer>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<ImmutableSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<ImmutableSortedSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
         
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<ImmutableMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
     }
-        
+
     /*
     /**********************************************************************
     /* Unit tests for actual registered module

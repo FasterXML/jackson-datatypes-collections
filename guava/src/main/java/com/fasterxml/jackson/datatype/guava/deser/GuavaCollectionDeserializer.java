@@ -166,7 +166,7 @@ public abstract class GuavaCollectionDeserializer<T>
      * @since 2.3
      */
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        throws IOException
     {
         final JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

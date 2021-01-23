@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
@@ -142,8 +141,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             JsonDeserializer<?> vd, Method method, NullValueProvider np);
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException,
-            JsonProcessingException {
+    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
 
     	//check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {

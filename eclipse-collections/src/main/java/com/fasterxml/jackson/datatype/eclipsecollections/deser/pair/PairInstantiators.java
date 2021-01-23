@@ -1,21 +1,19 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
+
+import com.fasterxml.jackson.core.JacksonException;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
 import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
+
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.api.tuple.primitive.BooleanBooleanPair;
@@ -314,7 +312,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
                             null, 1, null, PropertyMetadata.STD_REQUIRED
                     )
             };
-        } catch (JsonMappingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
     }

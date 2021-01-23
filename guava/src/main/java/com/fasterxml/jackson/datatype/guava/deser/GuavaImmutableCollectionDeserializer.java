@@ -3,7 +3,6 @@ package com.fasterxml.jackson.datatype.guava.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -48,7 +47,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
 
     @Override
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
