@@ -46,7 +46,6 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
 
@@ -147,7 +146,6 @@ public class GuavaDeserializers
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer valueTypeDeserializer, JsonDeserializer<?> valueDeserializer)
-        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
 
@@ -189,7 +187,6 @@ public class GuavaDeserializers
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer, TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
 
@@ -302,7 +299,6 @@ public class GuavaDeserializers
     @Override
     public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
         if (valueType.getName().startsWith("com.google.")) {
-System.err.println("DEBUG: hasDeserializerFor? "+valueType+"...");    
             return (valueType == Optional.class)
                     || (valueType == RangeSet.class)
                     || (valueType == HostAndPort.class)

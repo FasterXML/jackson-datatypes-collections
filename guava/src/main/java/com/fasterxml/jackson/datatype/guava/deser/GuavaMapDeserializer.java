@@ -84,7 +84,7 @@ public abstract class GuavaMapDeserializer<T>
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
         JsonDeserializer<?> valueDeser = _valueDeserializer;

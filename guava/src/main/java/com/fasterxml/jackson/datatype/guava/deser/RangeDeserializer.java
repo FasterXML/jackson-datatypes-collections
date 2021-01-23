@@ -141,7 +141,7 @@ public class RangeDeserializer
                 }
             } catch (IllegalStateException e) {
                 // !!! 01-Oct-2016, tatu: Should figure out semantically better exception/reporting
-                throw JsonMappingException.from(p, e.getMessage());
+                throw DatabindException.from(p, e.getMessage());
             }
         }
         try {
@@ -177,7 +177,7 @@ public class RangeDeserializer
             }
             return RangeFactory.all();
         } catch (IllegalStateException e) {
-            throw JsonMappingException.from(p, e.getMessage());
+            throw DatabindException.from(p, e.getMessage());
         }
     }
 

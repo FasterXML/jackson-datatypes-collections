@@ -110,7 +110,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
@@ -188,11 +188,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             @SuppressWarnings("unchecked")
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
-        } catch (InvocationTargetException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
             throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
         }
     }
@@ -239,11 +235,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             @SuppressWarnings("unchecked")
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
-        } catch (InvocationTargetException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
             throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
         }
     }
