@@ -6,8 +6,8 @@ import java.util.Iterator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 import org.junit.Test;
 import org.pcollections.*;
@@ -64,21 +64,21 @@ public class TestPCollections extends ModuleTestBase
             mapper.readValue("[1,2,3]",
                     new TypeReference<PSequence<Integer>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<PSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
 
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<PMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
     }

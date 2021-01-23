@@ -413,7 +413,7 @@ public final class DeserializerTest extends ModuleTestBase {
         );
     }
 
-    private static class Container {
+    static class Container {
         public IntObjectMap<A> map;
     }
 

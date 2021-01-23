@@ -2,7 +2,6 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import static java.util.Arrays.asList;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -103,7 +102,7 @@ public class RangeDeserializer
     }
 
     @Override
-    public Range<?> deserialize(JsonParser p, DeserializationContext context)
+    public Range<?> deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
@@ -118,67 +117,77 @@ public class RangeDeserializer
         BoundType upperBoundType = _defaultBoundType;
 
         for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
-            expect(context, JsonToken.FIELD_NAME, t);
+            expect(ctxt, JsonToken.FIELD_NAME, t);
             String fieldName = p.currentName();
-            try {
+//            try {
                 if (fieldName.equals(_fieldNames.lowerEndpoint)) {
                     p.nextToken();
-                    lowerEndpoint = deserializeEndpoint(context, p);
+                    lowerEndpoint = deserializeEndpoint(ctxt, p);
                 } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
                     p.nextToken();
-                    upperEndpoint = deserializeEndpoint(context, p);
+                    upperEndpoint = deserializeEndpoint(ctxt, p);
                 } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
                     p.nextToken();
-                    lowerBoundType = deserializeBoundType(context, p);
+                    lowerBoundType = deserializeBoundType(ctxt, p);
                 } else if (fieldName.equals(_fieldNames.upperBoundType)) {
                     p.nextToken();
-                    upperBoundType = deserializeBoundType(context, p);
+                    upperBoundType = deserializeBoundType(ctxt, p);
                 } else {
                     // Note: should either return `true`, iff problem is handled (and
                     // content processed or skipped) or throw exception. So if we
                     // get back, we ought to be fine...
-                    context.handleUnknownProperty(p, this, Range.class, fieldName);
+                    ctxt.handleUnknownProperty(p, this, Range.class, fieldName);
                 }
+                /*
             } catch (IllegalStateException e) {
                 // !!! 01-Oct-2016, tatu: Should figure out semantically better exception/reporting
                 throw DatabindException.from(p, e.getMessage());
             }
+            */
         }
-        try {
-            if ((lowerEndpoint != null) && (upperEndpoint != null)) {
-                Preconditions.checkState(lowerEndpoint.getClass() == upperEndpoint.getClass(),
-                        "Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
+
+        if ((lowerEndpoint != null) && (upperEndpoint != null)) {
+            if (lowerEndpoint.getClass() != upperEndpoint.getClass()) {
+                return ctxt.reportBadDefinition(getValueType(ctxt), String.format(
+"Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
                         _fieldNames.lowerEndpoint,
                         lowerEndpoint.getClass().getName(),
                         _fieldNames.upperEndpoint,
-                        upperEndpoint.getClass().getName());
-                Preconditions.checkState(lowerBoundType != null,
-                        "'%s' field found, but not '%s'",
-                        _fieldNames.lowerEndpoint,
-                        _fieldNames.lowerBoundType);
-                Preconditions.checkState(upperBoundType != null,
-                        "'%s' field found, but not '%s'",
-                        _fieldNames.upperEndpoint,
-                        _fieldNames.upperBoundType);
-                return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
+                        upperEndpoint.getClass().getName()));
             }
-            if (lowerEndpoint != null) {
-                Preconditions.checkState(lowerBoundType != null,
-                        "'%s' field found, but not '%s'",
-                        _fieldNames.lowerEndpoint,
-                        _fieldNames.lowerBoundType);
-                return RangeFactory.downTo(lowerEndpoint, lowerBoundType);
+            if (lowerBoundType == null) {
+                return ctxt.reportInputMismatch(getValueType(ctxt), String.format(
+                    "'%s' field found, but not '%s'",
+                    _fieldNames.lowerEndpoint,
+                    _fieldNames.lowerBoundType));
             }
-            if (upperEndpoint != null) {
-                Preconditions.checkState(upperBoundType != null,
-                        "'%s' field found, but not '%s'",
-                        _fieldNames.lowerEndpoint);
-                return RangeFactory.upTo(upperEndpoint, upperBoundType);
+            if (upperBoundType == null) {
+                return ctxt.reportInputMismatch(getValueType(ctxt), String.format(
+                    "'%s' field found, but not '%s'",
+                    _fieldNames.upperEndpoint,
+                    _fieldNames.upperBoundType));
             }
-            return RangeFactory.all();
-        } catch (IllegalStateException e) {
-            throw DatabindException.from(p, e.getMessage());
+            return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
         }
+
+        if (lowerEndpoint != null) {
+            if (lowerBoundType == null) {
+                return ctxt.reportInputMismatch(getValueType(ctxt), String.format(
+                        "'%s' field found, but not '%s'",
+                        _fieldNames.lowerEndpoint,
+                        _fieldNames.lowerBoundType));
+            }
+            return RangeFactory.downTo(lowerEndpoint, lowerBoundType);
+        }
+        if (upperEndpoint != null) {
+            if (upperBoundType == null) {
+                return ctxt.reportInputMismatch(getValueType(ctxt), String.format(
+                        "'%s' field found, but not '%s'",
+                        _fieldNames.lowerEndpoint));
+            }
+            return RangeFactory.upTo(upperEndpoint, upperBoundType);
+        }
+        return RangeFactory.all();
     }
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p)

@@ -21,7 +21,10 @@ public class RangeSetDeserializer
 {
     private final JavaType genericRangeListType;
 
-    public RangeSetDeserializer() { this(null); }
+    public RangeSetDeserializer() {
+        super(RangeSet.class);
+        genericRangeListType = null;
+    }
 
     protected RangeSetDeserializer(JavaType grlType) {
         super(grlType);

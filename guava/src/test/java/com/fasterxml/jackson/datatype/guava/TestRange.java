@@ -7,11 +7,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.DefaultTyping;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 
 import com.google.common.collect.BoundType;
@@ -142,7 +143,7 @@ public class TestRange extends ModuleTestBase {
         try {
             MAPPER.readValue(json, Range.class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "'lowerEndpoint' field found, but not 'lowerBoundType'");
         }
     }
@@ -172,7 +173,7 @@ public class TestRange extends ModuleTestBase {
         try {
             MAPPER.readValue(json, Range.class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "'upperEndpoint' field found, but not 'upperBoundType'");
         }
     }
@@ -201,7 +202,7 @@ public class TestRange extends ModuleTestBase {
         try {
             MAPPER.readValue(json, Range.class);
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "'lowerEndpoint' field found, but not 'lowerBoundType'");
         }
     }

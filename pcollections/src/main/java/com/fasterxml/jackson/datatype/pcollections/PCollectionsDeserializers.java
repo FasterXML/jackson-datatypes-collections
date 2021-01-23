@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.datatype.pcollections.deser.*;
+
 import org.pcollections.*;
 
 /**
@@ -21,7 +22,6 @@ public class PCollectionsDeserializers
     public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
 
@@ -53,7 +53,6 @@ public class PCollectionsDeserializers
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
 

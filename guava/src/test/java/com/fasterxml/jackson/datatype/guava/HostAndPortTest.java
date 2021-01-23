@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+
 import com.google.common.net.HostAndPort;
 
 public class HostAndPortTest extends ModuleTestBase
@@ -40,7 +41,7 @@ public class HostAndPortTest extends ModuleTestBase
         try {
             result = MAPPER.readValue("[ ]", HostAndPort.class);
             fail("Should not deserialize from boolean: got "+result);
-        } catch (JsonProcessingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
         }
     }

@@ -5,12 +5,8 @@ import java.util.Arrays;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
@@ -294,7 +290,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException {
+        {
             JsonDeserializer<?> deser = _valueDeserializer;
             TypeDeserializer typeDeser = _typeDeserializerForValue;
             if (deser == null) {

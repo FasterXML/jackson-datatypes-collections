@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import java.util.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -20,8 +22,6 @@ import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSetD
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSortedSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSortedSetDeserializer;
-
-import java.util.*;
 
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
@@ -164,7 +164,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
+    ) {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, type.getContentType(),
                                              elementTypeDeserializer, elementDeserializer);
@@ -179,7 +179,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
+    ) {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
             return findReferenceDeserializer(type, type.getContentType(),
                                              elementTypeDeserializer, elementDeserializer);
@@ -195,7 +195,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
+    ) {
         return findBeanDeserializer(type, config, beanDesc);
     }
 
@@ -207,7 +207,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer
-    ) throws JsonMappingException {
+    ) {
         return findBeanDeserializer(type, config, beanDesc);
     }
 
