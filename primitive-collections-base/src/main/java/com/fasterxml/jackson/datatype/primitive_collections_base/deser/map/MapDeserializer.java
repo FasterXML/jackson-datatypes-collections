@@ -62,7 +62,7 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException {
+    {
         K kc = keyHandler.createContextualKey(ctxt, property);
         V vc = valueHandler.createContextualValue(ctxt, property);
         //noinspection ObjectEquality

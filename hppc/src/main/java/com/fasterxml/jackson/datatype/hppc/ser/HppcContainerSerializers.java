@@ -67,7 +67,8 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
             // Logical content byte array/stream, but physically a JSON String so:
             if (visitor != null) visitor.expectStringFormat(typeHint);
         }
@@ -129,7 +130,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -196,7 +196,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -208,7 +207,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws JacksonException, JsonGenerationException
+           throws JacksonException
         {
             value.forEach(new IntProcedure() {
                 @Override
@@ -237,7 +236,6 @@ public class HppcContainerSerializers
 
             @Override
             public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                    throws JsonMappingException
             {
                 if (visitor != null) {
                     JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -249,7 +247,7 @@ public class HppcContainerSerializers
             
             @Override
             protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializerProvider provider)
-                   throws JacksonException, JsonGenerationException
+               throws JacksonException
             {
                 int[] array;
                 if (value instanceof IntArrayList) {
@@ -285,7 +283,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -297,7 +294,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final LongContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws JacksonException, JsonGenerationException
+           throws JacksonException
         {
             if (value instanceof LongIndexedContainer) {
                 LongIndexedContainer list = (LongIndexedContainer) value;
@@ -357,7 +354,7 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException {
+        {
             // Logical content byte array/stream, but physically a JSON String so:
             if (visitor != null) visitor.expectStringFormat(typeHint);
         }
@@ -416,7 +413,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -428,7 +424,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final FloatContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws JacksonException, JsonGenerationException
+           throws JacksonException
         {
             if (value instanceof FloatIndexedContainer) {
                 FloatIndexedContainer list = (FloatIndexedContainer) value;
@@ -464,7 +460,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -476,7 +471,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final DoubleContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws JacksonException, JsonGenerationException
+           throws JacksonException
         {
             if (value instanceof DoubleIndexedContainer) {
                 DoubleIndexedContainer list = (DoubleIndexedContainer) value;
@@ -527,7 +522,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);

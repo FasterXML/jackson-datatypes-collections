@@ -61,8 +61,7 @@ public abstract class ContainerSerializerBase<T>
     }
 
     @Override
-    public abstract void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException;
+    public abstract void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint);
 
     /*
     /**********************************************************

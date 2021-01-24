@@ -73,7 +73,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
         JsonDeserializer<?> deser = _valueDeserializer;

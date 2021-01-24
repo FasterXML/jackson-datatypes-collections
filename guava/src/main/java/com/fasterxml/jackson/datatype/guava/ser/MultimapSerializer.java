@@ -119,7 +119,7 @@ public class MultimapSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
@@ -366,7 +366,6 @@ public class MultimapSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         JsonMapFormatVisitor v2 = (visitor == null) ? null : visitor.expectMapFormat(typeHint);        
         if (v2 != null) {
@@ -381,9 +380,7 @@ public class MultimapSerializer
             v2.valueFormat(new JsonFormatVisitable() {
                 final JavaType arrayType = prov.getTypeFactory().constructArrayType(vt);
                 @Override
-                public void acceptJsonFormatVisitor(
-                        JsonFormatVisitorWrapper v3, JavaType hint3)
-                    throws JsonMappingException
+                public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper v3, JavaType hint3)
                 {
                     JsonArrayFormatVisitor v4 = v3.expectArrayFormat(arrayType);
                     if (v4 != null) {

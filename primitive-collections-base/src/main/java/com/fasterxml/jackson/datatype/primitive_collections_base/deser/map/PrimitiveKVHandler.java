@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * @author yawkat
@@ -57,10 +56,12 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
         }
     }
 
-    public static final class Char extends PrimitiveKVHandler<Char> {
+    public static final class Char extends PrimitiveKVHandler<Char>
+    {
         public static final Char INSTANCE = new Char();
 
-        public char key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public char key(DeserializationContext ctx, String key)
+        {
             if (key.length() != 1) {
                 ctx.reportInputMismatch(char.class,
                                         "Cannot convert a JSON String of length %d into a char key of map",

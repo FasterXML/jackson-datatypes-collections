@@ -37,7 +37,7 @@ public abstract class PrimitiveRefMapSerializer<T, V>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-            throws JsonMappingException {
+    {
         JavaType containedType = _type.containedTypeOrUnknown(0);
         TypeSerializer vts = (_valueTypeSerializer == null)
                 ? prov.findTypeSerializer(containedType) : _valueTypeSerializer;

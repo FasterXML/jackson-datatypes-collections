@@ -37,7 +37,7 @@ public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Coll
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException {
+    {
         JsonDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _typeDeserializerForValue;
         if (deser == null) {

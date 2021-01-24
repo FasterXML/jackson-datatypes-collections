@@ -70,7 +70,6 @@ public class ObjectContainerSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         _delegate.acceptJsonFormatVisitor(visitor, typeHint);
     }
@@ -111,7 +110,8 @@ public class ObjectContainerSerializer
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property) throws JsonMappingException {
+            BeanProperty property)
+    {
         return withDelegate((ObjectArraySerializer) _delegate.createContextual(prov, property));
     }
 

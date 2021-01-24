@@ -35,13 +35,13 @@ public class GuavaOptionalDeserializer
     }
 
     @Override
-    public Optional<?> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Optional<?> getNullValue(DeserializationContext ctxt) {
         // 07-May-2019, tatu: [databind#2303]: make sure to delegate
         return Optional.fromNullable(_valueDeserializer.getNullValue(ctxt));
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return getEmptyValue(ctxt);
     }
 

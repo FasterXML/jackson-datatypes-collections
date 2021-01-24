@@ -85,7 +85,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         JsonSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:

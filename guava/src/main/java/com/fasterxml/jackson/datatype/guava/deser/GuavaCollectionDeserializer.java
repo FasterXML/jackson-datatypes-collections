@@ -60,7 +60,7 @@ public abstract class GuavaCollectionDeserializer<T>
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty property)
     {
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);

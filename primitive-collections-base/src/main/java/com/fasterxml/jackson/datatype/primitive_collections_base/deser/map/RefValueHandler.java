@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -34,7 +33,7 @@ public class RefValueHandler implements ValueHandler<RefValueHandler>
 
     @Override
     public RefValueHandler createContextualValue(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException {
+    {
         JsonDeserializer<?> deser;
         if (_valueDeserializer == null) {
             deser = ctxt.findContextualValueDeserializer(_valueType, property);
