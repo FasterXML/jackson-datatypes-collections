@@ -151,10 +151,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private T deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        T multimap = createMultimap();
+        expect(ctxt, p, JsonToken.START_OBJECT);
 
-        expect(p, JsonToken.START_OBJECT);
-
+        final T multimap = createMultimap();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (_keyDeserializer != null) {
@@ -164,7 +163,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             }
 
             p.nextToken();
-            expect(p, JsonToken.START_ARRAY);
+            expect(ctxt, p, JsonToken.START_ARRAY);
 
             while (p.nextToken() != JsonToken.END_ARRAY) {
                 final Object value;
@@ -189,17 +188,18 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleInstantiationProblem(handledType(), multimap, e);
+            return result;
         }
     }
 
     private T deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        T multimap = createMultimap();
+        expect(ctxt, p, JsonToken.START_OBJECT);
 
-        expect(p, JsonToken.START_OBJECT);
-
+        final T multimap = createMultimap();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (_keyDeserializer != null) {
@@ -236,7 +236,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleInstantiationProblem(handledType(), multimap, e);
+            return result;
         }
     }
 
@@ -251,17 +253,12 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         return _valueDeserializer.deserialize(p, ctxt);
     }
 
-    private void expect(JsonParser p, JsonToken token) {
+    private void expect(DeserializationContext ctxt, JsonParser p, JsonToken token)
+    {
         if (p.currentToken() != token) {
-            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.currentToken(),
-                    p.getCurrentLocation());
+            ctxt.reportInputMismatch(handledType(),
+"Expecting %s, encountered %s",
+token, p.currentToken());
         }
-    }
-
-    private Throwable _peel(Throwable t) {
-        while (t.getCause() != null) {
-            t = t.getCause();
-        }
-        return t;
     }
 }
