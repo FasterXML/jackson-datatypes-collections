@@ -73,7 +73,7 @@ public abstract class ContainerSerializerBase<T>
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         gen.writeStartArray();
         serializeContents(value, gen, provider);
         gen.writeEndArray();
@@ -87,7 +87,7 @@ public abstract class ContainerSerializerBase<T>
             TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, gen, ctxt);

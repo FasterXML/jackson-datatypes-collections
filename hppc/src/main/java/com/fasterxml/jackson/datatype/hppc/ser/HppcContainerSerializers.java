@@ -87,7 +87,7 @@ public class HppcContainerSerializers
         public void serialize(ByteContainer value, JsonGenerator gen, SerializerProvider provider)
             throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             serializeContents(value, gen, provider);
         }
         
@@ -96,7 +96,7 @@ public class HppcContainerSerializers
                 TypeSerializer typeSer)
             throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                     typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
             serializeContents(value, gen, ctxt);
@@ -363,7 +363,7 @@ public class HppcContainerSerializers
         public void serialize(CharContainer value, JsonGenerator gen, SerializerProvider ctxt)
             throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             serializeContents(value, gen, ctxt);
         }
         
@@ -372,7 +372,7 @@ public class HppcContainerSerializers
                 TypeSerializer typeSer)
             throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                     typeSer.typeId(value, JsonToken.VALUE_STRING));
             serializeContents(value, gen, ctxt);

@@ -246,7 +246,7 @@ public class MultimapSerializer
     {
         gen.writeStartObject();
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         if (!value.isEmpty()) {
  // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
 //          plugged in...
@@ -268,7 +268,7 @@ public class MultimapSerializer
             SerializerProvider ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {

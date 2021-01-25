@@ -25,9 +25,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     private final RangeHelper.RangeProperties _fieldNames;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public RangeSerializer(JavaType type) {
@@ -92,7 +92,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         _writeContents(value, gen, ctxt);

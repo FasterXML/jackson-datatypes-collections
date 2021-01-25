@@ -47,7 +47,7 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
             TypeSerializer typeSer)
         throws JacksonException
     {
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         WritableTypeId typeIdDef;
         if (ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
             typeIdDef = typeSer.writeTypePrefix(g, ctxt, typeSer.typeId(value, JsonToken.START_ARRAY));

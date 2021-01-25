@@ -36,9 +36,9 @@ public class TableSerializer
     private final MapSerializer _rowMapSerializer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializer lifecycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     public TableSerializer(JavaType type)
@@ -154,9 +154,9 @@ public class TableSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessor API
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -180,9 +180,9 @@ public class TableSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Main serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -203,7 +203,7 @@ public class TableSerializer
             final TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeFields(value, gen, ctxt);

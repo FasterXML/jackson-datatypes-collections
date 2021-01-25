@@ -39,7 +39,8 @@ public abstract class ModuleTestBase {
     }
 
     protected final <T> void testCollection(
-            T expected, String json, TypeReference<?>... types) throws IOException {
+            T expected, String json, TypeReference<?>... types)
+    {
         for (TypeReference<?> type : types) {
             ObjectMapper objectMapper = mapperWithModule();
             Object value = objectMapper.readValue(json, type);
@@ -51,7 +52,7 @@ public abstract class ModuleTestBase {
     }
 
     protected final <T> void testCollection(T expected, String json, Class<?>... types)
-            throws IOException {
+    {
         for (Class<?> type : types) {
             Object value = mapperWithModule().readValue(json, type);
             Assert.assertEquals(expected, value);

@@ -68,7 +68,7 @@ public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer
     public void serializeWithType(C value, JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt, typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g);
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);

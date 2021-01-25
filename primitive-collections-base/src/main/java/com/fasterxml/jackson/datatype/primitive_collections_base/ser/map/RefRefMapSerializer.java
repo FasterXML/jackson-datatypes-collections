@@ -187,7 +187,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
             SerializerProvider ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!isEmpty(ctxt, value)) {
