@@ -104,24 +104,24 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     {
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
-                g.writeFieldName(_fieldNames.lowerEndpoint);
+                g.writeName(_fieldNames.lowerEndpoint);
                 _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
                 provider.defaultSerializeField(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
             }
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
-            g.writeStringField(_fieldNames.lowerBoundType, value.lowerBoundType().name());
+            g.writeStringProperty(_fieldNames.lowerBoundType, value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
-                g.writeFieldName(_fieldNames.upperEndpoint);
+                g.writeName(_fieldNames.upperEndpoint);
                 _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
             } else {
                 provider.defaultSerializeField(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
-            g.writeStringField(_fieldNames.upperBoundType, value.upperBoundType().name());
+            g.writeStringProperty(_fieldNames.upperBoundType, value.upperBoundType().name());
         }
     }
 

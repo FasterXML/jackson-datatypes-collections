@@ -32,16 +32,16 @@ public final class PrimitivePrimitiveMapSerializers {
     private static final PrimitiveMapSerializer<ByteShortMap> BYTE_SHORT =
             new PrimitiveMapSerializer<ByteShortMap>(ByteShortMap.class) {
                 @Override
-                protected void serializeEntries(ByteShortMap value, JsonGenerator gen, SerializerProvider serializers)
+                protected void serializeEntries(ByteShortMap value, JsonGenerator g, SerializerProvider serializers)
                 {
                     value.forEachKeyValue((k, v) -> {
-                        gen.writeFieldName(String.valueOf(k));
+                        g.writeName(String.valueOf(k));
                         /* if !(char|boolean value) */
-                        gen.writeNumber(v);
+                        g.writeNumber(v);
                         /* elif char value //
-                        gen.writeString(new char[]{v}, 0, 1);
+                        g.writeString(new char[]{v}, 0, 1);
                         /* elif boolean value //
-                        gen.writeBoolean(v);
+                        g.writeBoolean(v);
                         // endif */
                     });
                 }

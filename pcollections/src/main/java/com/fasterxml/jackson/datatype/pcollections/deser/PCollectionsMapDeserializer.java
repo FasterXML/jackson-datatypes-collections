@@ -120,12 +120,12 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     public T deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        // Ok: must point to START_OBJECT or FIELD_NAME
+        // Ok: must point to START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }
-        if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+        if (t != JsonToken.PROPERTY_NAME && t != JsonToken.END_OBJECT) {
             return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         return _deserializeEntries(p, ctxt);
@@ -141,7 +141,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
 
         T map = createEmptyMap();
-        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();
             Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);

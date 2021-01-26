@@ -25,11 +25,11 @@ public final class PrimitiveRefMapSerializers
         }
 
         @Override
-        protected void serializeEntries(CharObjectMap<V> value, JsonGenerator gen, SerializerProvider serializers)
+        protected void serializeEntries(CharObjectMap<V> value, JsonGenerator g, SerializerProvider serializers)
         {
             value.forEachKeyValue((k, v) -> {
-                gen.writeFieldName(String.valueOf(k));
-                _serializeValue(v, gen, serializers);
+                g.writeName(String.valueOf(k));
+                _serializeValue(v, g, serializers);
             });
         }
 

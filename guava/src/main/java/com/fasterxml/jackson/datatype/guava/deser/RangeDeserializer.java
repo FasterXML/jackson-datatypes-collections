@@ -105,7 +105,7 @@ public class RangeDeserializer
     public Range<?> deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
+        // NOTE: either START_OBJECT _or_ PROPERTY_NAME fine; latter for polymorphic cases
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
@@ -117,7 +117,7 @@ public class RangeDeserializer
         BoundType upperBoundType = _defaultBoundType;
 
         for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
-            expect(ctxt, JsonToken.FIELD_NAME, t);
+            expect(ctxt, JsonToken.PROPERTY_NAME, t);
             String fieldName = p.currentName();
 //            try {
                 if (fieldName.equals(_fieldNames.lowerEndpoint)) {

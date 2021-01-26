@@ -89,19 +89,19 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
     public T deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        // Ok: must point to START_OBJECT or FIELD_NAME
+        // Ok: must point to START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }
-        if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+        if (t != JsonToken.PROPERTY_NAME && t != JsonToken.END_OBJECT) {
             // !!! 16-Sep-2019, tatu: Should use full generic type, for error message,
             //   but would require more refactoring (to extend `StdDeserializer` f.ex)
             return (T) ctxt.handleUnexpectedToken(ctxt.constructType(handledType()), p);
         }
 
         I map = createIntermediate();
-        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();
             p.nextToken();
