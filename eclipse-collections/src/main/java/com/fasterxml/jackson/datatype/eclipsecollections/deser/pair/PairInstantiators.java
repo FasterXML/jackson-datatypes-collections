@@ -214,11 +214,14 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         }
 
         @Override
-        public ValueInstantiator createContextual(DeserializationContext ctxt, BeanDescription beanDesc)
+        public ValueInstantiator createContextual(DeserializationContext ctxt,
+                BeanDescription beanDesc)
         {
             TypeDeserializer typeDeserOne = ctxt.findTypeDeserializer(oneType(ctxt.getConfig()));
             TypeDeserializer typeDeserTwo = ctxt.findTypeDeserializer(twoType(ctxt.getConfig()));
             return new ValueInstantiator.Delegating(this) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
                     return PairInstantiator.this.getFromObjectArguments(config, typeDeserOne, typeDeserTwo);

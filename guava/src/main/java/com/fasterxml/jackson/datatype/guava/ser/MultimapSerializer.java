@@ -79,9 +79,6 @@ public class MultimapSerializer
         _sortKeys = false;
     }
 
-    /**
-     * @since 2.5
-     */
     @SuppressWarnings("unchecked")
     protected MultimapSerializer(MultimapSerializer src, BeanProperty property,
                 JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
@@ -112,9 +109,9 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing (contextualization)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -209,9 +206,9 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors for ContainerSerializer
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -235,9 +232,9 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing (contextualization)
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -350,7 +347,7 @@ public class MultimapSerializer
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {
-                filter.serializeAsField(mmap, gen, provider, prop);
+                filter.serializeAsProperty(mmap, gen, provider, prop);
             } catch (Exception e) {
                 String keyDesc = ""+key;
                 wrapAndThrow(provider, e, value, keyDesc);
@@ -359,9 +356,9 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema related functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

@@ -107,7 +107,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                 g.writeName(_fieldNames.lowerEndpoint);
                 _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
+                provider.defaultSerializeProperty(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
             }
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
@@ -118,7 +118,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                 g.writeName(_fieldNames.upperEndpoint);
                 _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
             } else {
-                provider.defaultSerializeField(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
+                provider.defaultSerializeProperty(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
             g.writeStringProperty(_fieldNames.upperBoundType, value.upperBoundType().name());

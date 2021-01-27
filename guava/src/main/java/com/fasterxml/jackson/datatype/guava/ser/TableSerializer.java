@@ -192,27 +192,28 @@ public class TableSerializer
     {
         gen.writeStartObject(value);
         if (!value.isEmpty()) {
-            serializeFields(value, gen, provider);
+            serializeEntries(value, gen, provider);
         }
         gen.writeEndObject();
     }
 
     @Override
     public void serializeWithType(final Table<?, ?, ?> value,
-            final JsonGenerator gen, final SerializerProvider ctxt,
+            final JsonGenerator g, final SerializerProvider ctxt,
             final TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.assignCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
+        g.assignCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        serializeFields(value, gen, ctxt);
-        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
+        serializeEntries(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    private final void serializeFields( final Table<?, ?, ?> table, final JsonGenerator jgen, final SerializerProvider provider )
+    private final void serializeEntries( final Table<?, ?, ?> table, final JsonGenerator g,
+            final SerializerProvider provider )
         throws JacksonException
     {
-        _rowMapSerializer.serializeFields(table.rowMap(), jgen, provider);
+        _rowMapSerializer.serializeEntries(table.rowMap(), g, provider);
     }
 }
