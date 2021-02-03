@@ -7,7 +7,7 @@ import com.google.common.collect.BoundType;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Basic Jackson {@link com.fasterxml.jackson.databind.Module} that adds support for Guava types.
+ * Basic Jackson {@link com.fasterxml.jackson.databind.JacksonModule} that adds support for Guava types.
  *<p>
  * Current configurability includes:
  *<ul>
@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *  </li>
  *</ul>
  */
-public class GuavaModule extends com.fasterxml.jackson.databind.Module // can't use just SimpleModule, due to generic types
+public class GuavaModule extends com.fasterxml.jackson.databind.JacksonModule // can't use just SimpleModule, due to generic types
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;

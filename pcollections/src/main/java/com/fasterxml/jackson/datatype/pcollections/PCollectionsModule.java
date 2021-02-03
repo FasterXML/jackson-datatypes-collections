@@ -5,9 +5,9 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Basic Jackson {@link Module} that adds support for PCollections types.
+ * Basic Jackson {@link JacksonModule} that adds support for PCollections types.
  */
-public class PCollectionsModule extends com.fasterxml.jackson.databind.Module
+public class PCollectionsModule extends com.fasterxml.jackson.databind.JacksonModule
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
