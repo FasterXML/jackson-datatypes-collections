@@ -5,8 +5,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
+import com.fasterxml.jackson.databind.ser.jdk.ObjectArraySerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.*;
 
 import com.carrotsearch.hppc.*;
@@ -54,7 +54,7 @@ public class ObjectContainerSerializer
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         ObjectArraySerializer ser = (ObjectArraySerializer) _delegate._withValueTypeSerializer(vts);
         if (ser == _delegate) {
             return this;

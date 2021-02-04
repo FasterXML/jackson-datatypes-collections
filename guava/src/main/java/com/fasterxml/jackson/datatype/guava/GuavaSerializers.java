@@ -15,6 +15,12 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSetSerializer;
+
+import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
+import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
+import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
+import com.fasterxml.jackson.datatype.guava.ser.TableSerializer;
+
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
@@ -26,10 +32,6 @@ import com.google.common.collect.Table;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
-import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
-import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
-import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
-import com.fasterxml.jackson.datatype.guava.ser.TableSerializer;
 
 public class GuavaSerializers extends Serializers.Base
     implements Serializable

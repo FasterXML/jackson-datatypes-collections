@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 
-public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer<C>
+public abstract class PrimitiveIterableSerializer<C> extends StdContainerSerializer<C>
 {
     protected final JavaType _elementType;
     protected final BeanProperty _property;
@@ -42,7 +42,7 @@ public abstract class PrimitiveIterableSerializer<C> extends ContainerSerializer
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         // no type info for primitives
         return this;
     }

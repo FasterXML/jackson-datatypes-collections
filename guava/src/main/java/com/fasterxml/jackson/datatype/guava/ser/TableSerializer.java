@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -20,7 +20,7 @@ import com.google.common.collect.Table;
  * @author tatu - Some refactoring to streamline code
  */
 public class TableSerializer
-    extends ContainerSerializer<Table<?, ?, ?>>
+    extends StdContainerSerializer<Table<?, ?, ?>>
 {
     /**
      * Type declaration that defines parameters; may be a supertype of actual
@@ -115,7 +115,7 @@ public class TableSerializer
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(final TypeSerializer typeSer)
+    protected StdContainerSerializer<?> _withValueTypeSerializer(final TypeSerializer typeSer)
     {
         return new TableSerializer(this, typeSer);
     }

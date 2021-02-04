@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
-import com.fasterxml.jackson.databind.ser.std.MapProperty;
+import com.fasterxml.jackson.databind.ser.jdk.MapProperty;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 
 import com.google.common.collect.Multimap;
@@ -39,7 +39,7 @@ import com.google.common.collect.Multimap;
  * </ul>
  */
 public class MultimapSerializer
-    extends ContainerSerializer<Multimap<?, ?>>
+    extends StdContainerSerializer<Multimap<?, ?>>
 {
     private final MapLikeType _type;
     private final JsonSerializer<Object> _keySerializer;
@@ -103,7 +103,7 @@ public class MultimapSerializer
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
         return new MultimapSerializer(this, _property, _keySerializer,
                 typeSer, _valueSerializer, _ignoredEntries, _filterId, _sortKeys);
     }

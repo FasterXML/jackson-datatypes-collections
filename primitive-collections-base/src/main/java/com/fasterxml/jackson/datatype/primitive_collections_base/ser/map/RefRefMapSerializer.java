@@ -14,13 +14,13 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * @author yawkat
  */
-public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
+public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
 {
     private final JavaType _type;
     private final JavaType _keyType, _valueType;

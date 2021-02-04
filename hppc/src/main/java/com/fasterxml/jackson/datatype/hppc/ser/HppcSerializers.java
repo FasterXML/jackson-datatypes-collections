@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
-import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
+import com.fasterxml.jackson.databind.ser.jdk.ObjectArraySerializer;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
 
 import com.carrotsearch.hppc.ObjectContainer;

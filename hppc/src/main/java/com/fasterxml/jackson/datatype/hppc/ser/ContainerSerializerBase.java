@@ -6,13 +6,13 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 
 /**
  * Base class for various container (~= Collection) serializers.
  */
 public abstract class ContainerSerializerBase<T>
-    extends ContainerSerializer<T>
+    extends StdContainerSerializer<T>
 {
     protected final String _schemeElementType;
 
@@ -49,7 +49,7 @@ public abstract class ContainerSerializerBase<T>
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         // May or may not be supportable, but for now fail loudly, not quietly
         throw new UnsupportedOperationException();
     }

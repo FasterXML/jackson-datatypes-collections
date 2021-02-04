@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.RefRefMapSerializer;
 import org.eclipse.collections.api.map.MapIterable;
 
@@ -43,7 +43,7 @@ public final class RefRefMapIterableSerializer extends RefRefMapSerializer<MapIt
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
         return new RefRefMapIterableSerializer(this, _property, _keySerializer,
                                        typeSer, _valueSerializer, _ignoredEntries);
     }
