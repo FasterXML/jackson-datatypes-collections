@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.list;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.BaseCollectionDeserializers;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
@@ -18,7 +18,7 @@ public final class MutableListDeserializer {
 
     public static final class Ref extends
             BaseRefCollectionDeserializer<MutableList<?>, MutableList<Object>> {
-        public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
+        public Ref(JavaType elementType, TypeDeserializer typeDeserializer, ValueDeserializer<?> deserializer) {
             super(MutableList.class, elementType, typeDeserializer, deserializer);
         }
 
@@ -35,7 +35,7 @@ public final class MutableListDeserializer {
         @Override
         protected Ref withResolved(
                 TypeDeserializer typeDeserializerForValue,
-                JsonDeserializer<?> valueDeserializer
+                ValueDeserializer<?> valueDeserializer
         ) {
             return new MutableListDeserializer.Ref(_elementType, typeDeserializerForValue, valueDeserializer);
         }

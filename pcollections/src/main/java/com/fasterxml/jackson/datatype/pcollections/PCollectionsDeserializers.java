@@ -19,9 +19,9 @@ public class PCollectionsDeserializers
      * We have plenty of collection types to support...
      */
     @Override
-    public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
+    public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         Class<?> raw = type.getRawClass();
 
@@ -49,10 +49,10 @@ public class PCollectionsDeserializers
     }
 
     @Override
-    public JsonDeserializer<?> findMapDeserializer(MapType type,
+    public ValueDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         Class<?> raw = type.getRawClass();
 

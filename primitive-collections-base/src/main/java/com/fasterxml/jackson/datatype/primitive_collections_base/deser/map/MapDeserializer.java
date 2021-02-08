@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  * @author yawkat
  */
 public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandler<V>>
-        extends JsonDeserializer<T>
+        extends ValueDeserializer<T>
 {
     public static <T, I, K extends KeyHandler<K>, V extends ValueHandler<V>> MapDeserializer<T, I, K, V> create(
             JavaType keyType, JavaType valueType, TypeHandlerPair<I, K, V> typeHandlerPair,
@@ -61,7 +61,7 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
         K kc = keyHandler.createContextualKey(ctxt, property);
         V vc = valueHandler.createContextualValue(ctxt, property);

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -18,7 +18,7 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
         GuavaMapDeserializer<T>
 {
     GuavaImmutableMapDeserializer(JavaType type, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller) {
         super(type, keyDeser, valueDeser, valueTypeDeser, nuller);
     }
@@ -36,7 +36,7 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
         throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
     
         ImmutableMap.Builder<Object, Object> builder = createBuilder();

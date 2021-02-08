@@ -267,7 +267,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
             extends BaseCollectionDeserializer<T, Intermediate>
     {
         protected final JavaType _elementType;
-        protected final JsonDeserializer<?> _valueDeserializer;
+        protected final ValueDeserializer<?> _valueDeserializer;
         protected final TypeDeserializer _typeDeserializerForValue;
 
         protected Ref(
@@ -275,7 +275,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
                 Class<? super T> containerType,
                 JavaType elementType,
                 TypeDeserializer typeDeserializer,
-                JsonDeserializer<?> deserializer
+                ValueDeserializer<?> deserializer
         ) {
             super(containerType);
             this._elementType = elementType;
@@ -285,13 +285,13 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
         protected abstract Ref<?, ?> withResolved(
                 TypeDeserializer typeDeserializerForValue,
-                JsonDeserializer<?> valueDeserializer
+                ValueDeserializer<?> valueDeserializer
         );
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         {
-            JsonDeserializer<?> deser = _valueDeserializer;
+            ValueDeserializer<?> deser = _valueDeserializer;
             TypeDeserializer typeDeser = _typeDeserializerForValue;
             if (deser == null) {
                 deser = ctxt.findContextualValueDeserializer(_elementType, property);

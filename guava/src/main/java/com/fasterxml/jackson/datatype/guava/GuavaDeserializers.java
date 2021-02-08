@@ -43,9 +43,9 @@ public class GuavaDeserializers
      * We have plenty of collection types to support...
      */
     @Override
-    public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
+    public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         Class<?> raw = type.getRawClass();
 
@@ -142,10 +142,10 @@ public class GuavaDeserializers
      * A few Map types to support.
      */
     @Override
-    public JsonDeserializer<?> findMapDeserializer(MapType type,
+    public ValueDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer valueTypeDeserializer, JsonDeserializer<?> valueDeserializer)
+            TypeDeserializer valueTypeDeserializer, ValueDeserializer<?> valueDeserializer)
     {
         Class<?> raw = type.getRawClass();
 
@@ -183,10 +183,10 @@ public class GuavaDeserializers
     }
 
     @Override
-    public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+    public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer, TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer)
+            ValueDeserializer<?> elementDeserializer)
     {
         Class<?> raw = type.getRawClass();
 
@@ -261,9 +261,9 @@ public class GuavaDeserializers
     }
 
     @Override // since 2.7
-    public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
+    public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
+            TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
     {
         // 28-Oct-2016, tatu: Should try to support subtypes too, with ValueInstantiators, but
         //   not 100% clear how this could work at this point
@@ -275,7 +275,7 @@ public class GuavaDeserializers
     }
 
     @Override
-    public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
+    public ValueDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
         if (type.hasRawClass(RangeSet.class)) {

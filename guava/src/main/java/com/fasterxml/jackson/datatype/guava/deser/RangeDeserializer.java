@@ -29,7 +29,7 @@ public class RangeDeserializer
 {
     protected final JavaType _rangeType;
 
-    protected final JsonDeserializer<Object> _endpointDeserializer;
+    protected final ValueDeserializer<Object> _endpointDeserializer;
     protected final BoundType _defaultBoundType;
 
     protected final RangeHelper.RangeProperties _fieldNames;
@@ -45,12 +45,12 @@ public class RangeDeserializer
     }
 
     @SuppressWarnings("unchecked")
-    protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
+    protected RangeDeserializer(JavaType rangeType, ValueDeserializer<?> endpointDeser,
             BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
     {
         super(rangeType);
         _rangeType = rangeType;
-        _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
+        _endpointDeserializer = (ValueDeserializer<Object>) endpointDeser;
         _defaultBoundType = defaultBoundType;
         _fieldNames = fieldNames;
     }
@@ -65,12 +65,12 @@ public class RangeDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
                 ctxt.getConfig().getPropertyNamingStrategy());
-        JsonDeserializer<?> deser = _endpointDeserializer;
+        ValueDeserializer<?> deser = _endpointDeserializer;
         if (deser == null) {
             JavaType endpointType = _rangeType.containedType(0);
             if (endpointType == null) { // should this ever occur?

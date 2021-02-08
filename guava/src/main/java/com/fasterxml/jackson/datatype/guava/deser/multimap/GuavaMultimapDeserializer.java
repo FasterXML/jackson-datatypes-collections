@@ -29,7 +29,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
     private final KeyDeserializer _keyDeserializer;
     private final TypeDeserializer _valueTypeDeserializer;
-    private final JsonDeserializer<Object> _valueDeserializer;
+    private final ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * Since we have to use a method to transform from a known multi-map type into actual one, we'll
@@ -39,20 +39,20 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private final Method creatorMethod;
 
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
         this(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
                 findTransformer(type.getRawClass()), null);
     }
 
     @SuppressWarnings("unchecked")
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
             Method creatorMethod, NullValueProvider nvp)
     {
         super(type, nvp, null);
         this._keyDeserializer = keyDeserializer;
         this._valueTypeDeserializer = elementTypeDeserializer;
-        this._valueDeserializer = (JsonDeserializer<Object>) elementDeserializer;
+        this._valueDeserializer = (ValueDeserializer<Object>) elementDeserializer;
         this.creatorMethod = creatorMethod;
     }
 
@@ -100,7 +100,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     }
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
 
@@ -109,14 +109,14 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
      * deserializers, as well as type deserializers.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
             kd = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType vt = _containerType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);
@@ -132,9 +132,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
                 findContentNullProvider(ctxt, property, valueDeser));
     }
 
-    protected abstract JsonDeserializer<?> _createContextual(JavaType t,
+    protected abstract ValueDeserializer<?> _createContextual(JavaType t,
             KeyDeserializer kd, TypeDeserializer vtd,
-            JsonDeserializer<?> vd, Method method, NullValueProvider np);
+            ValueDeserializer<?> vd, Method method, NullValueProvider np);
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)

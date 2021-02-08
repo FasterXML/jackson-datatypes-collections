@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -20,7 +20,7 @@ import com.google.common.collect.RangeSet;
 public class RangeSetDeserializer
     extends StdDeserializer<RangeSet<?>>
 {
-    private final JsonDeserializer<Object> _deserializer;
+    private final ValueDeserializer<Object> _deserializer;
 
     public RangeSetDeserializer() {
         super(RangeSet.class);
@@ -28,7 +28,7 @@ public class RangeSetDeserializer
     }
 
     protected RangeSetDeserializer(RangeSetDeserializer base,
-            JsonDeserializer<Object> deser)
+            ValueDeserializer<Object> deser)
     {
         super(base);
         _deserializer = deser;
@@ -40,7 +40,7 @@ public class RangeSetDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
         JavaType genericType = _findType(ctxt, ctxt.getContextualType());
         if (genericType == null) {
@@ -52,7 +52,7 @@ public class RangeSetDeserializer
                 return this;
             }
         }
-        JsonDeserializer<Object> deser = ctxt.findContextualValueDeserializer(genericType, property);
+        ValueDeserializer<Object> deser = ctxt.findContextualValueDeserializer(genericType, property);
         return new RangeSetDeserializer(this, deser);
     }
 

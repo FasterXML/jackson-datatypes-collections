@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
@@ -18,7 +18,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         extends GuavaCollectionDeserializer<T>
 {
     GuavaImmutableCollectionDeserializer(JavaType selfType,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
@@ -46,7 +46,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        JsonDeserializer<?> valueDes = _valueDeserializer;
+        ValueDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         // No way to pass actual type parameter; but does not matter, just

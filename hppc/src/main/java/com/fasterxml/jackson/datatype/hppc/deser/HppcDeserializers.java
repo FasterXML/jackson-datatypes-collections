@@ -3,13 +3,13 @@ package com.fasterxml.jackson.datatype.hppc.deser;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 
 public class HppcDeserializers extends Deserializers.Base
 {
     @Override
-    public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+    public ValueDeserializer<?> findBeanDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription beanDesc)
     {
         return HppcContainerDeserializers.findDeserializer(config, type);

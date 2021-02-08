@@ -2,7 +2,7 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -12,13 +12,13 @@ import com.google.common.collect.ImmutableSortedMultiset;
 public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectionDeserializer<ImmutableSortedMultiset<Object>>
 {
     public ImmutableSortedMultisetDeserializer(JavaType selfType,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     @Override
-    public GuavaCollectionDeserializer<ImmutableSortedMultiset<Object>> withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+    public GuavaCollectionDeserializer<ImmutableSortedMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableSortedMultisetDeserializer(_containerType,
                 valueDeser, typeDeser, nuller, unwrapSingle);

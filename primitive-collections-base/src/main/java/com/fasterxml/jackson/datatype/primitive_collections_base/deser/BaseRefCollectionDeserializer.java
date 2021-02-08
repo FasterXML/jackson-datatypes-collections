@@ -14,7 +14,7 @@ public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Coll
     extends BaseCollectionDeserializer<T, Intermediate>
 {
     protected final JavaType _elementType;
-    protected final JsonDeserializer<?> _valueDeserializer;
+    protected final ValueDeserializer<?> _valueDeserializer;
     protected final TypeDeserializer _typeDeserializerForValue;
 
     protected BaseRefCollectionDeserializer(
@@ -22,7 +22,7 @@ public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Coll
             Class<? super T> containerType,
             JavaType elementType,
             TypeDeserializer typeDeserializer,
-            JsonDeserializer<?> deserializer
+            ValueDeserializer<?> deserializer
     ) {
         super(containerType);
         this._elementType = Objects.requireNonNull(elementType);
@@ -32,13 +32,13 @@ public abstract class BaseRefCollectionDeserializer<T, Intermediate extends Coll
 
     protected abstract BaseRefCollectionDeserializer<?, ?> withResolved(
             TypeDeserializer typeDeserializerForValue,
-            JsonDeserializer<?> valueDeserializer
+            ValueDeserializer<?> valueDeserializer
     );
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
-        JsonDeserializer<?> deser = _valueDeserializer;
+        ValueDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _typeDeserializerForValue;
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_elementType, property);

@@ -22,7 +22,7 @@ public abstract class GuavaMapDeserializer<T>
     /**
      * Value deserializer.
      */
-    protected JsonDeserializer<?> _valueDeserializer;
+    protected ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -37,7 +37,7 @@ public abstract class GuavaMapDeserializer<T>
      */
     
     protected GuavaMapDeserializer(JavaType type, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
     {
         super(type, nuller, null);
@@ -51,7 +51,7 @@ public abstract class GuavaMapDeserializer<T>
      * instances.
      */
     public abstract GuavaMapDeserializer<T> withResolved(KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller);
 
     /*
@@ -62,8 +62,8 @@ public abstract class GuavaMapDeserializer<T>
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
-        return (JsonDeserializer<Object>) _valueDeserializer;
+    public ValueDeserializer<Object> getContentDeserializer() {
+        return (ValueDeserializer<Object>) _valueDeserializer;
     }
 
     @Override // since 2.12
@@ -83,11 +83,11 @@ public abstract class GuavaMapDeserializer<T>
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
 
         // First: fetch and/or contextualize deserializers (key, value, value type)

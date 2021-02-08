@@ -24,7 +24,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     /**
      * Value deserializer.
      */
-    protected JsonDeserializer<?> _valueDeserializer;
+    protected ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -39,7 +39,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      */
     
     protected PCollectionsMapDeserializer(MapType type, KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(type);
         _mapType = type;
@@ -58,7 +58,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * instances.
      */
     public abstract PCollectionsMapDeserializer<T> withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
+            TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser);
     
     /*
     /**********************************************************
@@ -72,11 +72,11 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
-        JsonDeserializer<?> deser = _valueDeserializer;
+        ValueDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _typeDeserializerForValue;
         // Do we need any contextualization?
         if ((keyDeser != null) && (deser != null) && (typeDeser == null)) { // nope
@@ -137,7 +137,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
         throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
 
         T map = createEmptyMap();
@@ -172,7 +172,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * could be to throw an exception.
      */
     protected T _handleNull(DeserializationContext ctxt, Object key,
-            JsonDeserializer<?> valueDeser, T map)
+            ValueDeserializer<?> valueDeser, T map)
         throws JacksonException
     {
         // TODO: allow reporting problem via a feature, in future?

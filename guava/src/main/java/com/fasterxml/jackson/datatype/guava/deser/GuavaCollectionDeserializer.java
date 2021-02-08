@@ -21,7 +21,7 @@ public abstract class GuavaCollectionDeserializer<T>
      * Deserializer used for values contained in collection being deserialized;
      * either assigned on constructor, or during resolve().
      */
-    protected final JsonDeserializer<?> _valueDeserializer;
+    protected final ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -37,7 +37,7 @@ public abstract class GuavaCollectionDeserializer<T>
      */
 
     protected GuavaCollectionDeserializer(JavaType selfType,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(selfType, nuller, unwrapSingle);
@@ -50,7 +50,7 @@ public abstract class GuavaCollectionDeserializer<T>
      * instances.
      */
     public abstract GuavaCollectionDeserializer<T> withResolved(
-            JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser, 
+            ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser, 
             NullValueProvider nuller, Boolean unwrapSingle);
 
     /**
@@ -59,13 +59,13 @@ public abstract class GuavaCollectionDeserializer<T>
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
@@ -93,8 +93,8 @@ public abstract class GuavaCollectionDeserializer<T>
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
-        return (JsonDeserializer<Object>) _valueDeserializer;
+    public ValueDeserializer<Object> getContentDeserializer() {
+        return (ValueDeserializer<Object>) _valueDeserializer;
     }
 
     @Override // since 2.12
@@ -161,7 +161,7 @@ public abstract class GuavaCollectionDeserializer<T>
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         final JsonToken t = p.currentToken();
 

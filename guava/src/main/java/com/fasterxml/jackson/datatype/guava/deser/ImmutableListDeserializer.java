@@ -10,13 +10,13 @@ public class ImmutableListDeserializer extends
     GuavaImmutableCollectionDeserializer<ImmutableList<Object>>
 {
     public ImmutableListDeserializer(JavaType selfType,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
     @Override
-    public ImmutableListDeserializer withResolved(JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+    public ImmutableListDeserializer withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableListDeserializer(_containerType,
                 valueDeser, typeDeser, nuller, unwrapSingle);

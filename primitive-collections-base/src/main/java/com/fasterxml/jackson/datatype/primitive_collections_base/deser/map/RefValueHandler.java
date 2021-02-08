@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -16,12 +16,12 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class RefValueHandler implements ValueHandler<RefValueHandler>
 {
     private final JavaType _valueType;
-    private final JsonDeserializer<?> _valueDeserializer;
+    private final ValueDeserializer<?> _valueDeserializer;
     private final TypeDeserializer _typeDeserializerForValue;
 
     public RefValueHandler(
             JavaType valueType,
-            JsonDeserializer<?> _valueDeserializer,
+            ValueDeserializer<?> _valueDeserializer,
             TypeDeserializer _typeDeserializerForValue
     ) {
         if (valueType == null) { throw new IllegalArgumentException("valueType == null"); }
@@ -34,7 +34,7 @@ public class RefValueHandler implements ValueHandler<RefValueHandler>
     @Override
     public RefValueHandler createContextualValue(DeserializationContext ctxt, BeanProperty property)
     {
-        JsonDeserializer<?> deser;
+        ValueDeserializer<?> deser;
         if (_valueDeserializer == null) {
             deser = ctxt.findContextualValueDeserializer(_valueType, property);
         } else {

@@ -34,7 +34,7 @@ public class HppcContainerDeserializers
      * Method called to see if this serializer (or a serializer this serializer
      * knows) should be used for given type; if not, null is returned.
      */
-    public static JsonDeserializer<?> findDeserializer(DeserializationConfig config,
+    public static ValueDeserializer<?> findDeserializer(DeserializationConfig config,
             final JavaType origType)
     {
         JavaType type = origType;

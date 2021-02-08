@@ -17,7 +17,7 @@ public class GuavaOptionalDeserializer
      */
 
     public GuavaOptionalDeserializer(JavaType fullType, ValueInstantiator inst,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(fullType, inst, typeDeser, deser);
     }
@@ -29,7 +29,7 @@ public class GuavaOptionalDeserializer
      */
 
     @Override
-    public GuavaOptionalDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+    public GuavaOptionalDeserializer withResolved(TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser) {
         return new GuavaOptionalDeserializer(_fullType, _valueInstantiator,
                 typeDeser, valueDeser);
     }
