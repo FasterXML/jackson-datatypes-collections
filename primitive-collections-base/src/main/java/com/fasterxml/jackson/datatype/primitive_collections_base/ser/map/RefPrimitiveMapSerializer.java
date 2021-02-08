@@ -12,9 +12,9 @@ public abstract class RefPrimitiveMapSerializer<T, K> extends PrimitiveMapSerial
 {
     protected final JavaType _type;
     protected final BeanProperty _property;
-    protected final JsonSerializer<Object> _keySerializer;
+    protected final ValueSerializer<Object> _keySerializer;
 
-    protected RefPrimitiveMapSerializer(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
+    protected RefPrimitiveMapSerializer(JavaType type, BeanProperty property, ValueSerializer<Object> keySerializer) {
         super(type);
         this._type = type;
         this._property = property;
@@ -22,13 +22,13 @@ public abstract class RefPrimitiveMapSerializer<T, K> extends PrimitiveMapSerial
     }
 
     protected abstract RefPrimitiveMapSerializer<T, K> withResolved(
-            BeanProperty property, JsonSerializer<Object> keySerializer
+            BeanProperty property, ValueSerializer<Object> keySerializer
     );
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
     {
-        JsonSerializer<Object> ks = _keySerializer == null ?
+        ValueSerializer<Object> ks = _keySerializer == null ?
                 prov.findKeySerializer(_type.containedTypeOrUnknown(0), property) :
                 _keySerializer;
         return withResolved(property, ks);

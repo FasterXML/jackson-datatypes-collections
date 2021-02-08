@@ -5,7 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -56,13 +56,13 @@ import org.eclipse.collections.api.map.primitive.ShortObjectMap;
 
 public final class EclipseCollectionsSerializers extends Serializers.Base {
     @Override
-    public JsonSerializer<?> findCollectionLikeSerializer(
+    public ValueSerializer<?> findCollectionLikeSerializer(
             SerializationConfig config,
             CollectionLikeType type,
             BeanDescription beanDesc,
             JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer,
-            JsonSerializer<Object> elementValueSerializer
+            ValueSerializer<Object> elementValueSerializer
     ) {
         if (ImmutableCollection.class.isAssignableFrom(type.getRawClass())) {
             return new CollectionSerializer(
@@ -76,7 +76,7 @@ public final class EclipseCollectionsSerializers extends Serializers.Base {
     }
 
     @Override
-    public JsonSerializer<?> findSerializer(SerializationConfig config,
+    public ValueSerializer<?> findSerializer(SerializationConfig config,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         Class<?> rawClass = type.getRawClass();

@@ -81,7 +81,7 @@ public class ObjectContainerSerializer
      */
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _delegate.getContentSerializer();
     }
 
@@ -109,7 +109,7 @@ public class ObjectContainerSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property)
     {
         return withDelegate((ObjectArraySerializer) _delegate.createContextual(prov, property));

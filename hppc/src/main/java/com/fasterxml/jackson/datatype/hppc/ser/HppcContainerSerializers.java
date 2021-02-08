@@ -35,11 +35,11 @@ public class HppcContainerSerializers
      * Method called to see if this serializer (or a serializer this serializer
      * knows) should be used for given type; if not, null is returned.
      */
-    public static JsonSerializer<?> getMatchingSerializer(SerializationConfig config,
+    public static ValueSerializer<?> getMatchingSerializer(SerializationConfig config,
             JavaType type)
     {
         for (ContainerSerializerBase<?> ser : _primitiveSerializers) {
-            JsonSerializer<?> actual = ser.getSerializer(type);
+            ValueSerializer<?> actual = ser.getSerializer(type);
             if (actual != null) {
                 return actual;
             }
@@ -173,9 +173,9 @@ public class HppcContainerSerializers
 
         // Overridden to allow use of more optimized serialized for indexed variant
         @Override
-        public JsonSerializer<?> getSerializer(JavaType type)
+        public ValueSerializer<?> getSerializer(JavaType type)
         {
-            JsonSerializer<?> ser = super.getSerializer(type);
+            ValueSerializer<?> ser = super.getSerializer(type);
             if (ser != null) {
                 if (IntIndexedContainer.class.isAssignableFrom(type.getClass())) {
                     return new Indexed();

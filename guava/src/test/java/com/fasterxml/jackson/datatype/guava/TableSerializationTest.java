@@ -22,7 +22,7 @@ public class TableSerializationTest extends ModuleTestBase
 
         public ComplexKeyModule()
         {
-            this.addKeySerializer(ComplexKey.class, new JsonSerializer<ComplexKey>() {
+            this.addKeySerializer(ComplexKey.class, new ValueSerializer<ComplexKey>() {
                 @Override
                 public void serialize( final ComplexKey value, final JsonGenerator g, final SerializerProvider provider )
                 {

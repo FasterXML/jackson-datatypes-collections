@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.RefPrimitiveMapSerializer;
@@ -24,13 +24,13 @@ public final class RefPrimitiveMapSerializers
 
     public static final class Char<K> extends RefPrimitiveMapSerializer<ObjectCharMap<K>, K>
     {
-        public Char(JavaType type, BeanProperty property, JsonSerializer<Object> keySerializer) {
+        public Char(JavaType type, BeanProperty property, ValueSerializer<Object> keySerializer) {
             super(type, property, keySerializer);
         }
 
         @Override
         protected RefPrimitiveMapSerializer<ObjectCharMap<K>, K> withResolved(
-                BeanProperty property, JsonSerializer<Object> keySerializer
+                BeanProperty property, ValueSerializer<Object> keySerializer
         ) {
             return new Char<>(_type, property, keySerializer);
         }

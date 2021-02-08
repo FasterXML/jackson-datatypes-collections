@@ -20,7 +20,7 @@ public final class PrimitiveRefMapSerializers
 
     public static class Char<V> extends PrimitiveRefMapSerializer<CharObjectMap<V>, V>
     {
-        public Char(JavaType type, BeanProperty property, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
+        public Char(JavaType type, BeanProperty property, TypeSerializer vts, ValueSerializer<Object> valueSerializer) {
             super(type, property, vts, valueSerializer);
         }
 
@@ -37,7 +37,7 @@ public final class PrimitiveRefMapSerializers
         protected PrimitiveRefMapSerializer<CharObjectMap<V>, V> withResolved(
                 TypeSerializer vts,
                 BeanProperty property,
-                JsonSerializer<Object> valueSerializer
+                ValueSerializer<Object> valueSerializer
         ) {
             return new Char<>(_type, property, vts, valueSerializer);
         }

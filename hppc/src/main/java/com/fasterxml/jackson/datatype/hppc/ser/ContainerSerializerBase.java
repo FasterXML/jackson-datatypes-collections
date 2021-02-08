@@ -43,7 +43,7 @@ public abstract class ContainerSerializerBase<T>
     public abstract boolean isEmpty(SerializerProvider provider, T value);
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         // We are not delegating, for most part, so while not dynamic claim we don't have it
         return null;
     }
@@ -100,7 +100,7 @@ public abstract class ContainerSerializerBase<T>
     /**********************************************************
      */
     
-    protected JsonSerializer<?> getSerializer(JavaType type)
+    protected ValueSerializer<?> getSerializer(JavaType type)
     {
         if (_handledType.isAssignableFrom(type.getRawClass())) {
             return this;

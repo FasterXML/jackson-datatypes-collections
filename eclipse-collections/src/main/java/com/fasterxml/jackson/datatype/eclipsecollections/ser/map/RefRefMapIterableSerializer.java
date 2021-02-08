@@ -2,7 +2,7 @@ package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
@@ -19,7 +19,7 @@ public final class RefRefMapIterableSerializer extends RefRefMapSerializer<MapIt
 {
     public RefRefMapIterableSerializer(
             JavaType type,
-            JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
+            ValueSerializer<Object> keySerializer, TypeSerializer vts, ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(type, MapIterable.class, keySerializer, vts, valueSerializer, ignoredEntries);
@@ -27,7 +27,7 @@ public final class RefRefMapIterableSerializer extends RefRefMapSerializer<MapIt
 
     protected RefRefMapIterableSerializer(
             RefRefMapIterableSerializer src, BeanProperty property,
-            JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            ValueSerializer<?> keySerializer, TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(src, property, keySerializer, vts, valueSerializer, ignoredEntries);
@@ -36,7 +36,7 @@ public final class RefRefMapIterableSerializer extends RefRefMapSerializer<MapIt
     @Override
     protected RefRefMapIterableSerializer withResolved(
             BeanProperty property,
-            JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
+            ValueSerializer<?> keySer, TypeSerializer vts, ValueSerializer<?> valueSer,
             Set<String> ignored
     ) {
         return new RefRefMapIterableSerializer(this, property, keySer, vts, valueSer, ignored);

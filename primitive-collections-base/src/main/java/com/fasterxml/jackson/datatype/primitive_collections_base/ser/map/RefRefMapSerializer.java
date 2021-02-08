@@ -25,9 +25,9 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
     private final JavaType _type;
     private final JavaType _keyType, _valueType;
 
-    protected final JsonSerializer<Object> _keySerializer;
+    protected final ValueSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
-    protected final JsonSerializer<Object> _valueSerializer;
+    protected final ValueSerializer<Object> _valueSerializer;
 
     /**
      * Set of entries to omit during serialization, if any
@@ -36,7 +36,7 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
 
     public RefRefMapSerializer(
             JavaType type, Class<? super T> mapClass,
-            JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
+            ValueSerializer<Object> keySerializer, TypeSerializer vts, ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(type, null);
@@ -57,23 +57,23 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
     @SuppressWarnings("unchecked")
     protected RefRefMapSerializer(
             RefRefMapSerializer<?> src, BeanProperty property,
-            JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            ValueSerializer<?> keySerializer, TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(src, property);
         _type = src._type;
         _keyType = src._keyType;
         _valueType = src._valueType;
-        _keySerializer = (JsonSerializer<Object>) keySerializer;
+        _keySerializer = (ValueSerializer<Object>) keySerializer;
         _valueTypeSerializer = vts;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _ignoredEntries = ignoredEntries;
     }
 
     protected abstract RefRefMapSerializer<?> withResolved(
             BeanProperty property,
-            JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
+            ValueSerializer<?> keySer, TypeSerializer vts, ValueSerializer<?> valueSer,
             Set<String> ignored
     );
 
@@ -84,10 +84,10 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
     {
-        JsonSerializer<?> valueSer = _valueSerializer;
+        ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = getContentType();
             if (valueType.isFinal()) {
@@ -100,7 +100,7 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
         final SerializationConfig config = provider.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
-        JsonSerializer<?> keySer = null;
+        ValueSerializer<?> keySer = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (propertyAcc != null && intr != null) {
@@ -158,7 +158,7 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -215,7 +215,7 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
                 provider.defaultSerializeNullValue(gen);
                 return;
             }
-            JsonSerializer<Object> valueSer = _valueSerializer;
+            ValueSerializer<Object> valueSer = _valueSerializer;
             if (valueSer == null) {
                 valueSer = _findSerializer(provider, v);
             }
@@ -227,11 +227,11 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
         });
     }
 
-    private JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
+    private ValueSerializer<Object> _findSerializer(SerializerProvider ctxt,
         Object value)
     {
         final Class<?> cc = value.getClass();
-        JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
+        ValueSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
         if (valueSer != null) {
             return valueSer;
         }

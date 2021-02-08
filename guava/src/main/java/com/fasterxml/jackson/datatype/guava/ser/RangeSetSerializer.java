@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -14,14 +14,14 @@ import com.google.common.collect.RangeSet;
 
 public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
 {
-    private final JsonSerializer<Object> _serializer;
+    private final ValueSerializer<Object> _serializer;
 
     public RangeSetSerializer() {
         super(RangeSet.class);
         _serializer = null;
     }
 
-    protected RangeSetSerializer(RangeSetSerializer base, JsonSerializer<Object> ser) {
+    protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<Object> ser) {
         super(base);
         _serializer = ser;
     }
@@ -38,13 +38,13 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
     {
         // 23-Jan-2021, tatu: Should really improve upon this to handle more complex
         //   values, but this simplified version passes existing unit tests so has to do.
        
         
-        JsonSerializer<Object> ser = ctxt.findContentValueSerializer(List.class, property);
+        ValueSerializer<Object> ser = ctxt.findContentValueSerializer(List.class, property);
         return new RangeSetSerializer(this, ser);
 
         // Old (Jackson 2.x) implementation was along lines of

@@ -28,10 +28,10 @@ public class TableSerializer
      */
     private final JavaType _type;
 
-    private final JsonSerializer<Object> _rowSerializer;
-    private final JsonSerializer<Object> _columnSerializer;
+    private final ValueSerializer<Object> _rowSerializer;
+    private final ValueSerializer<Object> _columnSerializer;
     private final TypeSerializer _valueTypeSerializer;
-    private final JsonSerializer<Object> _valueSerializer;
+    private final ValueSerializer<Object> _valueSerializer;
 
     private final MapSerializer _rowMapSerializer;
 
@@ -57,22 +57,22 @@ public class TableSerializer
     protected TableSerializer(final TableSerializer src,
             final BeanProperty property,
             final TypeFactory typeFactory,
-            final JsonSerializer<?> rowKeySerializer,
-            final JsonSerializer<?> columnKeySerializer,
+            final ValueSerializer<?> rowKeySerializer,
+            final ValueSerializer<?> columnKeySerializer,
             final TypeSerializer valueTypeSerializer,
-            final JsonSerializer<?> valueSerializer)
+            final ValueSerializer<?> valueSerializer)
     {
         super(src, property);
         _type = src._type;
-        _rowSerializer = (JsonSerializer<Object>) rowKeySerializer;
-        _columnSerializer = (JsonSerializer<Object>) columnKeySerializer;
+        _rowSerializer = (ValueSerializer<Object>) rowKeySerializer;
+        _columnSerializer = (ValueSerializer<Object>) columnKeySerializer;
         _valueTypeSerializer = valueTypeSerializer;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         
         final MapType columnAndValueType = typeFactory.constructMapType(Map.class,
                 _type.containedTypeOrUnknown(1), _type.containedTypeOrUnknown(2));
 
-        JsonSerializer<?> columnAndValueSerializer = 
+        ValueSerializer<?> columnAndValueSerializer = 
                 MapSerializer.construct(columnAndValueType, false,
                         _valueTypeSerializer,
                         _columnSerializer,
@@ -86,7 +86,7 @@ public class TableSerializer
                 MapSerializer.construct(rowMapType, false,
                         null,
                         _rowSerializer,
-                        (JsonSerializer<Object>) columnAndValueSerializer,
+                        (ValueSerializer<Object>) columnAndValueSerializer,
                         null,
                         (Set<String>) null, (Set<String>) null);
     }
@@ -105,10 +105,10 @@ public class TableSerializer
 
     protected TableSerializer withResolved(final BeanProperty property,
             final TypeFactory typeFactory,
-            final JsonSerializer<?> rowKeySer,
-            final JsonSerializer<?> columnKeySer,
+            final ValueSerializer<?> rowKeySer,
+            final ValueSerializer<?> columnKeySer,
             final TypeSerializer vts,
-            final JsonSerializer<?> valueSer )
+            final ValueSerializer<?> valueSer )
     {
         return new TableSerializer(this, property, typeFactory,
                 rowKeySer, columnKeySer, vts, valueSer);
@@ -121,10 +121,10 @@ public class TableSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(final SerializerProvider provider,
+    public ValueSerializer<?> createContextual(final SerializerProvider provider,
             final BeanProperty property)
     {
-        JsonSerializer<?> valueSer = _valueSerializer;
+        ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             final JavaType valueType = _type.containedTypeOrUnknown(2);
             if (valueType.isFinal()) {
@@ -133,13 +133,13 @@ public class TableSerializer
         } else {
             valueSer = provider.handleSecondaryContextualization(valueSer, property);
         }
-        JsonSerializer<?> rowKeySer = _rowSerializer;
+        ValueSerializer<?> rowKeySer = _rowSerializer;
         if (rowKeySer == null) {
             rowKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(0), property);
         } else {
             rowKeySer = provider.handleSecondaryContextualization(rowKeySer, property);
         }
-        JsonSerializer<?> columnKeySer = _columnSerializer;
+        ValueSerializer<?> columnKeySer = _columnSerializer;
         if (columnKeySer == null) {
             columnKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(1), property);
         } else {
@@ -165,7 +165,7 @@ public class TableSerializer
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 

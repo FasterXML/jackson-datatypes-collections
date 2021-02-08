@@ -20,7 +20,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 {
     protected final JavaType _rangeType;
 
-    protected final JsonSerializer<Object> _endpointSerializer;
+    protected final ValueSerializer<Object> _endpointSerializer;
 
     private final RangeHelper.RangeProperties _fieldNames;
 
@@ -35,12 +35,12 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     @SuppressWarnings("unchecked")
-    protected RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
+    protected RangeSerializer(JavaType type, ValueSerializer<?> endpointSer,
             RangeHelper.RangeProperties fieldNames)
     {
         super(type);
         _rangeType = type;
-        _endpointSerializer = (JsonSerializer<Object>) endpointSer;
+        _endpointSerializer = (ValueSerializer<Object>) endpointSer;
         _fieldNames = fieldNames;
     }
 
@@ -50,12 +50,12 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property)
     {
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(prov.getConfig(),
                 prov.getConfig().getPropertyNamingStrategy());
-        JsonSerializer<?> endpointSer = _endpointSerializer;
+        ValueSerializer<?> endpointSer = _endpointSerializer;
         if (endpointSer == null) {
             JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
@@ -135,7 +135,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
                     JavaType endpointType = _rangeType.containedType(0);
                     JavaType btType = visitor.getProvider().constructType(BoundType.class);
                     // should probably keep track of `property`...
-                    JsonSerializer<?> btSer = visitor.getProvider()
+                    ValueSerializer<?> btSer = visitor.getProvider()
                             .findContentValueSerializer(btType, null);
                     objectVisitor.property(_fieldNames.lowerEndpoint, _endpointSerializer, endpointType);
                     objectVisitor.property(_fieldNames.lowerBoundType, btSer, btType);

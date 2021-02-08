@@ -42,9 +42,9 @@ public class MultimapSerializer
     extends StdContainerSerializer<Multimap<?, ?>>
 {
     private final MapLikeType _type;
-    private final JsonSerializer<Object> _keySerializer;
+    private final ValueSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
-    private final JsonSerializer<Object> _valueSerializer;
+    private final ValueSerializer<Object> _valueSerializer;
 
     /**
      * Set of entries to omit during serialization, if any
@@ -65,8 +65,8 @@ public class MultimapSerializer
     protected final boolean _sortKeys;
     
     public MultimapSerializer(MapLikeType type, BeanDescription beanDesc,
-            JsonSerializer<Object> keySerializer, TypeSerializer vts,
-            JsonSerializer<Object> valueSerializer,
+            ValueSerializer<Object> keySerializer, TypeSerializer vts,
+            ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries, Object filterId)
     {
         super(type, null);
@@ -81,21 +81,21 @@ public class MultimapSerializer
 
     @SuppressWarnings("unchecked")
     protected MultimapSerializer(MultimapSerializer src, BeanProperty property,
-                JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+                ValueSerializer<?> keySerializer, TypeSerializer vts, ValueSerializer<?> valueSerializer,
                 Set<String> ignoredEntries, Object filterId, boolean sortKeys)
     {
         super(src, property);
         _type = src._type;
-        _keySerializer = (JsonSerializer<Object>) keySerializer;
+        _keySerializer = (ValueSerializer<Object>) keySerializer;
         _valueTypeSerializer = vts;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         _ignoredEntries = ignoredEntries;
         _filterId = filterId;
         _sortKeys = sortKeys;
     }
 
     protected MultimapSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
+            ValueSerializer<?> keySer, TypeSerializer vts, ValueSerializer<?> valueSer,
             Set<String> ignored, Object filterId, boolean sortKeys)
     {
         return new MultimapSerializer(this, property, keySer, vts, valueSer,
@@ -115,10 +115,10 @@ public class MultimapSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
     {
-        JsonSerializer<?> valueSer = _valueSerializer;
+        ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = _type.getContentType();
             if (valueType.isFinal()) {
@@ -131,7 +131,7 @@ public class MultimapSerializer
         final SerializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
-        JsonSerializer<?> keySer = null;
+        ValueSerializer<?> keySer = null;
         Object filterId = _filterId;
         
         // First: if we have a property, may have property-annotation overrides
@@ -212,7 +212,7 @@ public class MultimapSerializer
      */
     
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -307,7 +307,7 @@ public class MultimapSerializer
                     provider.defaultSerializeNullValue(gen);
                     continue;
                 }
-                JsonSerializer<Object> valueSer = _valueSerializer;
+                ValueSerializer<Object> valueSer = _valueSerializer;
                 if (valueSer == null) {
                     Class<?> cc = vv.getClass();
                     valueSer = _dynamicValueSerializers.serializerFor(cc);
@@ -338,7 +338,7 @@ public class MultimapSerializer
                 continue;
             }
             Collection<?> value = entry.getValue();
-            JsonSerializer<Object> valueSer;
+            ValueSerializer<Object> valueSer;
             if (value == null) {
                 // !!! TODO: null suppression?
                 valueSer = provider.getDefaultNullValueSerializer();
@@ -367,13 +367,13 @@ public class MultimapSerializer
         JsonMapFormatVisitor v2 = (visitor == null) ? null : visitor.expectMapFormat(typeHint);        
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _type.getKeyType());
-            JsonSerializer<?> valueSer = _valueSerializer;
+            ValueSerializer<?> valueSer = _valueSerializer;
             final JavaType vt = _type.getContentType();
             final SerializerProvider prov = visitor.getProvider();
             if (valueSer == null) {
                 valueSer = _findAndAddDynamic(prov, vt);
             }
-            final JsonSerializer<?> valueSer2 = valueSer;
+            final ValueSerializer<?> valueSer2 = valueSer;
             v2.valueFormat(new JsonFormatVisitable() {
                 final JavaType arrayType = prov.getTypeFactory().constructArrayType(vt);
                 @Override
