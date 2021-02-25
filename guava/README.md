@@ -12,17 +12,46 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-guava</artifactId>
-  <version>2.9.9</version>
+  <version>2.11.3</version>
 </dependency>
 ```
 
 (or whatever version is most up-to-date at the moment)
+
+### Guava compatibility
+
+Although specific version of this module is built against particular Guava library version,
+and similarly defines dependency to just that version, module itself works against wider
+range of Guava versions.
+
+Following table shows the tested working ranges for recent module versions.
+
+| Module version | Min Guava | Default Guava | Max Guava |
+| -------------- | --------- | ------------- | --------- |
+| 2.12           | 14.0      | 21.0          | 29.0-jre  |
+| 2.11           | 14.0      | 20.0          | 29.0-jre  |
+| 2.10           | 14.0      | 20.0          | 29.0-jre  |
+| 2.9            | 12.0      | 18.0          | 29.0-jre  |
+
+Notes:
+
+* At the point of testing, `29.0-jre` was the latest available Guava library
+version, so all versions work with the latest Guava
+* "Min Guava" means the earliest version that integration tests passed with
+* "Default Guava" is the dependency specified in module's `pom.xml`: it is used for build, unit tests
+    * note: building, unit tests work on a range but typically require higher version than "Min Guava"
 
 ### Registering module
 
 Like all standard Jackson modules (libraries that implement Module interface), registration is done as follows (Jackson 2.x up to 2.9)
 
 ```java
+// New (2.10+)
+ObjectMapper mapper = JsonMapper.builder()
+    .addModule(new GuavaModule())
+    .build();
+
+// Old (before 2.10, but works on all 2.x)
 ObjectMapper mapper = new ObjectMapper()
     .registerModule(new GuavaModule());
 ```

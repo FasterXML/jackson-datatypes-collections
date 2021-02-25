@@ -1,51 +1,90 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import java.util.Collection;
+import java.util.List;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
-import java.io.IOException;
-import java.util.List;
+public class RangeSetDeserializer
+    extends StdDeserializer<RangeSet<?>>
+{
+    private final ValueDeserializer<Object> _deserializer;
 
-public class RangeSetDeserializer extends JsonDeserializer<RangeSet<Comparable<?>>> {
-    private JavaType genericRangeListType;
+    public RangeSetDeserializer() {
+        super(RangeSet.class);
+        _deserializer = null;
+    }
 
-    @Override // since 2.12
+    protected RangeSetDeserializer(RangeSetDeserializer base,
+            ValueDeserializer<Object> deser)
+    {
+        super(base);
+        _deserializer = deser;
+    }
+
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Collection;
     }
 
     @Override
-    public RangeSet<Comparable<?>> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        if (genericRangeListType == null) {
-            throw new JsonParseException(p, "RangeSetJsonSerializer was not contextualized (no deserialize target type). " +
-                    "You need to specify the generic type down to the generic parameter of RangeSet.");
-        } else {
-            @SuppressWarnings("unchecked") final Iterable<Range<Comparable<?>>> ranges
-                    = (Iterable<Range<Comparable<?>>>) ctxt
-                    .findContextualValueDeserializer(genericRangeListType, null).deserialize(p, ctxt);
-            ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
-            for (Range<Comparable<?>> range : ranges) {
-                builder.add(range);
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    {
+        JavaType genericType = _findType(ctxt, ctxt.getContextualType());
+        if (genericType == null) {
+            if (property != null) {
+                genericType = _findType(ctxt, property.getType());
             }
-            return builder.build();
+            // Cannot locate generic type to use? Leave as-is, fail on attempt to deserialize
+            if (genericType == null) {
+                return this;
+            }
         }
+        ValueDeserializer<Object> deser = ctxt.findContextualValueDeserializer(genericType, property);
+        return new RangeSetDeserializer(this, deser);
+    }
+
+    private JavaType _findType(DeserializationContext ctxt, JavaType base)
+    {
+        Class<?> raw = base.getRawClass();
+        final TypeFactory tf = ctxt.getTypeFactory();
+        if (RangeSet.class.isAssignableFrom(raw)) {
+            JavaType valueType = tf.findFirstTypeParameter(base, RangeSet.class);
+            if (valueType != null) {
+                JavaType rangeType = tf.constructParametricType(Range.class, valueType);
+                return tf.constructCollectionType(List.class, rangeType);
+            }
+        }
+        return null;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
-        final JavaType genericType = ctxt.getContextualType().containedType(0);
-        if (genericType == null) return this;
-        final RangeSetDeserializer deserializer = new RangeSetDeserializer();
-        deserializer.genericRangeListType = ctxt.getTypeFactory().constructCollectionType(List.class,
-                ctxt.getTypeFactory().constructParametricType(Range.class, genericType));
-        return deserializer;
+    public RangeSet<?> deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        if (_deserializer == null) {
+            ctxt.reportBadDefinition(handledType(),
+"Not contextualized to have value deserializer or value type of `RangeSet` was not available via type parameters");
+        }
+        final Collection<?> ranges = (Collection<?>) _deserializer.deserialize(p, ctxt);
+        ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
+        for (Object ob : ranges) {
+            @SuppressWarnings("unchecked")
+            Range<Comparable<?>> range = (Range<Comparable<?>>) ob;
+            builder.add(range);
+        }
+        return builder.build();
     }
 }

@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.io.IOException;
+
 import org.eclipse.collections.api.ShortIterable;
 import org.eclipse.collections.api.iterator.ShortIterator;
 
@@ -21,7 +23,9 @@ public final class ShortIterableSerializer extends EclipsePrimitiveIterableSeria
     }
 
     @Override
-    protected void serializeContents(ShortIterable value, JsonGenerator gen) throws IOException {
+    protected void serializeContents(ShortIterable value, JsonGenerator gen)
+        throws JacksonException
+    {
         ShortIterator iterator = value.shortIterator();
         while (iterator.hasNext()) {
             gen.writeNumber(iterator.next());

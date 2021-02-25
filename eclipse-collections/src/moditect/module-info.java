@@ -17,4 +17,7 @@ module jackson.datatype.eclipse.collections {
     exports com.fasterxml.jackson.datatype.eclipsecollections.deser.set;
     exports com.fasterxml.jackson.datatype.eclipsecollections.ser;
     exports com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
+
+    provides com.fasterxml.jackson.databind.JacksonModule with
+        com.fasterxml.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
 }

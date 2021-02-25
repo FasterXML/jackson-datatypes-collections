@@ -5,7 +5,7 @@ Datatype modules to support 3rd party Collection libraries.
 
 Currently included are:
 
-* [Guava](guava/) datatype (for [Guava](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
+* [Guava](guava/) datatype (for [Guava library](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
 * [HPPC](hppc/) datatype (for [High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
 * [PCollections](pcollections/) datatype (for [Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
 * [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.9.6)
@@ -18,7 +18,7 @@ All modules are licensed under [Apache License 2.0](http://www.apache.org/licens
 
 [![Build Status](https://travis-ci.org/FasterXML/jackson-datatypes-collections.svg)](https://travis-ci.org/FasterXML/jackson-datatypes-collections)
 
-## Usage
+## Usage, general
 
 ### Maven dependencies
 
@@ -28,11 +28,14 @@ To use these format backends Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-[COLLECTION]</artifactId>
-  <version>2.9.5</version>
+  <version>2.11.3</version>
 </dependency>
 ```
 
 where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, or `eclipse-collections`.
+
+You may also use [jackson-bom](https://github.com/FasterXML/jackson-bom) for defining
+consistent sets of versions of various Jackson components.
 
 NOTE! Parent pom itself only specifies defaults to individual modules but
 DOES NOT include them, so you CAN NOT just add dependency to `jackson-datatypes-collections`.
@@ -42,10 +45,20 @@ that depends on them).
 ### Registration with ObjectMapper
 
 Like all standard Jackson modules (libraries that implement Module interface), registration for Collections
-datatypes is done as follows (with 2.x up to 2.9 the only method)
+datatypes is done using one of 2 mechanisms:
 
 ```java
-ObjectMapper mapper = new ObjectMapper()
+ObjectMapper mapper;
+
+// New; 2.10.x / 3.0:
+mapper = JsonMapper.builder() // or mapper for other formats
+    .addModule(new GuavaModule())
+    .addModule(new HppcModule())
+    .addModule(new PCollectionsModule())
+    .build();
+
+// Old (2.x), not available on 3.x:
+mapper = new ObjectMapper() // or mapper for other formats
     .registerModule(new GuavaModule())
     .registerModule(new HppcModule())
     .registerModule(new PCollectionsModule())
@@ -53,19 +66,18 @@ ObjectMapper mapper = new ObjectMapper()
     ;
 ```
 
-OR, with 2.10.0 and later (the only method in upcoming 3.x):
-
-```
-ObjectMapper mapper = JsonMapper.builder()
-    .registerModule(new GuavaModule())
-    .registerModule(new HppcModule())
-    .registerModule(new PCollectionsModule())
-    .registerModule(new EclipseCollectionsModule())
-    .build();
-```
-
 after which datatype read/write support is available for all normal Jackson operations,
 including support for nested types.
+
+## Usage, per-datatype
+
+See READMEs of individual modules for datatype-specific configuration, options
+and so on:
+
+* [jackson-datype-guava](guava/)
+* [jackson-datatype-hpcc](hppc/)
+* [jackson-datatype-pcollections](pcollections/)
+* [jackson-datatype-eclipse-collections](eclipse-collections/)
 
 ### Usage with Spring Boot
 

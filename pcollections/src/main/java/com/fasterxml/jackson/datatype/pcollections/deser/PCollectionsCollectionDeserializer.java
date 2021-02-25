@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -21,7 +21,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
      * Deserializer used for values contained in collection being deserialized;
      * either assigned on constructor, or during resolve().
      */
-    protected final JsonDeserializer<?> _valueDeserializer;
+    protected final ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -31,7 +31,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     protected final TypeDeserializer _typeDeserializerForValue;
 
     protected PCollectionsCollectionDeserializer(CollectionType type,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(type);
         _containerType = type;
@@ -46,7 +46,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
      * instances.
      */
     public abstract PCollectionsCollectionDeserializer<T> withResolved(
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
+            TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser);
 
     @Override // since 2.12
     public LogicalType logicalType() {
@@ -65,10 +65,10 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
     {
-        JsonDeserializer<?> deser = _valueDeserializer;
+        ValueDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _typeDeserializerForValue;
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
@@ -96,7 +96,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-            throws IOException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -104,7 +104,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         // Should usually point to START_ARRAY
         if (p.isExpectedStartArrayToken()) {
@@ -118,8 +118,9 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     }
 
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
-        JsonDeserializer<?> valueDes = _valueDeserializer;
+        throws JacksonException
+    {
+        ValueDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
         // No way to pass actual type parameter; but does not matter, just
@@ -145,9 +146,9 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
     }
 
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
-        JsonDeserializer<?> valueDes = _valueDeserializer;
+        ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
         JsonToken t = p.currentToken();
 

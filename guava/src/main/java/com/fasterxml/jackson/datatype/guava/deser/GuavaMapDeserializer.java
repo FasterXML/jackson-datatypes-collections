@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -24,7 +22,7 @@ public abstract class GuavaMapDeserializer<T>
     /**
      * Value deserializer.
      */
-    protected JsonDeserializer<?> _valueDeserializer;
+    protected ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -39,7 +37,7 @@ public abstract class GuavaMapDeserializer<T>
      */
     
     protected GuavaMapDeserializer(JavaType type, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
     {
         super(type, nuller, null);
@@ -53,7 +51,7 @@ public abstract class GuavaMapDeserializer<T>
      * instances.
      */
     public abstract GuavaMapDeserializer<T> withResolved(KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller);
 
     /*
@@ -64,8 +62,8 @@ public abstract class GuavaMapDeserializer<T>
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
-        return (JsonDeserializer<Object>) _valueDeserializer;
+    public ValueDeserializer<Object> getContentDeserializer() {
+        return (ValueDeserializer<Object>) _valueDeserializer;
     }
 
     @Override // since 2.12
@@ -85,11 +83,11 @@ public abstract class GuavaMapDeserializer<T>
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
 
         // First: fetch and/or contextualize deserializers (key, value, value type)
@@ -140,7 +138,7 @@ public abstract class GuavaMapDeserializer<T>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // note: call "...FromObject" because expected output structure
         // for value is JSON Object (regardless of contortions used for type id)
@@ -150,14 +148,14 @@ public abstract class GuavaMapDeserializer<T>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
-        // Ok: must point to START_OBJECT or FIELD_NAME
+        // Ok: must point to START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }
-        if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+        if (t != JsonToken.PROPERTY_NAME && t != JsonToken.END_OBJECT) {
             return (T) ctxt.handleUnexpectedToken(_containerType, p);
         }
         return _deserializeEntries(p, ctxt);
@@ -175,8 +173,8 @@ public abstract class GuavaMapDeserializer<T>
 
     // Force abstract-ness for subclasses
     @Override
-    public abstract Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException;
+    public abstract Object getEmptyValue(DeserializationContext ctxt);
 
     protected abstract T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
-        throws IOException;
+        throws JacksonException;
 }

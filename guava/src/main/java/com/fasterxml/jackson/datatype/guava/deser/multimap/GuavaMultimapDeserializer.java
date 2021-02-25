@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser.multimap;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -29,7 +29,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
     private final KeyDeserializer _keyDeserializer;
     private final TypeDeserializer _valueTypeDeserializer;
-    private final JsonDeserializer<Object> _valueDeserializer;
+    private final ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * Since we have to use a method to transform from a known multi-map type into actual one, we'll
@@ -39,20 +39,20 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private final Method creatorMethod;
 
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
         this(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
                 findTransformer(type.getRawClass()), null);
     }
 
     @SuppressWarnings("unchecked")
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
             Method creatorMethod, NullValueProvider nvp)
     {
         super(type, nvp, null);
         this._keyDeserializer = keyDeserializer;
         this._valueTypeDeserializer = elementTypeDeserializer;
-        this._valueDeserializer = (JsonDeserializer<Object>) elementDeserializer;
+        this._valueDeserializer = (ValueDeserializer<Object>) elementDeserializer;
         this.creatorMethod = creatorMethod;
     }
 
@@ -100,7 +100,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     }
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
 
@@ -109,14 +109,14 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
      * deserializers, as well as type deserializers.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
     {
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
             kd = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType vt = _containerType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);
@@ -132,12 +132,13 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
                 findContentNullProvider(ctxt, property, valueDeser));
     }
 
-    protected abstract JsonDeserializer<?> _createContextual(JavaType t,
+    protected abstract ValueDeserializer<?> _createContextual(JavaType t,
             KeyDeserializer kd, TypeDeserializer vtd,
-            JsonDeserializer<?> vd, Method method, NullValueProvider np);
+            ValueDeserializer<?> vd, Method method, NullValueProvider np);
 
     @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         //check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
         if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
@@ -147,12 +148,12 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         return deserializeContents(p, ctxt);
     }
 
-    private T deserializeContents(JsonParser p, DeserializationContext ctxt) throws IOException
+    private T deserializeContents(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        T multimap = createMultimap();
+        expect(ctxt, p, JsonToken.START_OBJECT);
 
-        expect(p, JsonToken.START_OBJECT);
-
+        final T multimap = createMultimap();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (_keyDeserializer != null) {
@@ -162,7 +163,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             }
 
             p.nextToken();
-            expect(p, JsonToken.START_ARRAY);
+            expect(ctxt, p, JsonToken.START_ARRAY);
 
             while (p.nextToken() != JsonToken.END_ARRAY) {
                 final Object value;
@@ -186,22 +187,19 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             @SuppressWarnings("unchecked")
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
-        } catch (InvocationTargetException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalAccessException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleInstantiationProblem(handledType(), multimap, e);
+            return result;
         }
     }
 
     private T deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
-        T multimap = createMultimap();
+        expect(ctxt, p, JsonToken.START_OBJECT);
 
-        expect(p, JsonToken.START_OBJECT);
-
+        final T multimap = createMultimap();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (_keyDeserializer != null) {
@@ -237,17 +235,14 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             @SuppressWarnings("unchecked")
             T map = (T) creatorMethod.invoke(null, multimap);
             return map;
-        } catch (InvocationTargetException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
-        } catch (IllegalAccessException e) {
-            throw new JsonMappingException(p, "Could not map to " + _containerType, _peel(e));
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
+            @SuppressWarnings("unchecked")
+            T result = (T) ctxt.handleInstantiationProblem(handledType(), multimap, e);
+            return result;
         }
     }
 
     private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException
     {
         if (p.currentToken() == JsonToken.VALUE_NULL) {
             return null;
@@ -258,17 +253,12 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         return _valueDeserializer.deserialize(p, ctxt);
     }
 
-    private void expect(JsonParser p, JsonToken token) throws IOException {
+    private void expect(DeserializationContext ctxt, JsonParser p, JsonToken token)
+    {
         if (p.currentToken() != token) {
-            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.currentToken(),
-                    p.getCurrentLocation());
+            ctxt.reportInputMismatch(handledType(),
+"Expecting %s, encountered %s",
+token, p.currentToken());
         }
-    }
-
-    private Throwable _peel(Throwable t) {
-        while (t.getCause() != null) {
-            t = t.getCause();
-        }
-        return t;
     }
 }

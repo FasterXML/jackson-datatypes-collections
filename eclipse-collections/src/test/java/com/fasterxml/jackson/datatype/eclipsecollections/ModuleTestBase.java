@@ -1,14 +1,16 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import java.io.IOException;
+import java.util.Arrays;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 import static org.junit.Assert.fail;
 
@@ -37,7 +39,8 @@ public abstract class ModuleTestBase {
     }
 
     protected final <T> void testCollection(
-            T expected, String json, TypeReference<?>... types) throws IOException {
+            T expected, String json, TypeReference<?>... types)
+    {
         for (TypeReference<?> type : types) {
             ObjectMapper objectMapper = mapperWithModule();
             Object value = objectMapper.readValue(json, type);
@@ -49,7 +52,7 @@ public abstract class ModuleTestBase {
     }
 
     protected final <T> void testCollection(T expected, String json, Class<?>... types)
-            throws IOException {
+    {
         for (Class<?> type : types) {
             Object value = mapperWithModule().readValue(json, type);
             Assert.assertEquals(expected, value);

@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import java.io.IOException;
+
 import org.eclipse.collections.api.PrimitiveIterable;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MapIterable;
@@ -28,7 +29,7 @@ import org.junit.Test;
 
 public final class SerializerTest extends ModuleTestBase {
     @Test
-    public void ref() throws JsonProcessingException {
+    public void ref() throws IOException {
         Assert.assertEquals(
                 "[\"a\",\"b\",\"c\"]",
                 mapperWithModule().writeValueAsString(Sets.immutable.of("a", "b", "c"))
@@ -36,7 +37,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void primitive() throws JsonProcessingException {
+    public void primitive() throws IOException {
         Assert.assertEquals("[true,false,true]", mapperWithModule().writeValueAsString(
                 BooleanLists.immutable.of(true, false, true)));
         Assert.assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
@@ -63,7 +64,9 @@ public final class SerializerTest extends ModuleTestBase {
                         .writeValueAsString(CharLists.immutable.of('1', '2', '3')));
     }
 
-    private void primitiveTypeSer(String data, PrimitiveIterable iterable) throws JsonProcessingException {
+    private void primitiveTypeSer(String data, PrimitiveIterable iterable)
+        throws IOException
+    {
         primitiveTypeSer(data, iterable, mapperWithModule());
     }
 
@@ -71,7 +74,7 @@ public final class SerializerTest extends ModuleTestBase {
             String data,
             PrimitiveIterable iterable,
             ObjectMapper objectMapper
-    ) throws JsonProcessingException {
+    ) throws IOException {
         class Wrapper {
             @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
             Object object;
@@ -84,7 +87,8 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void primitiveTypeSer() throws JsonProcessingException {
+    public void primitiveTypeSer() throws IOException
+    {
         primitiveTypeSer("[true,false,true]", BooleanLists.immutable.of(true, false, true));
         primitiveTypeSer("[1,2,3]", ShortLists.immutable.of((short) 1, (short) 2, (short) 3));
         primitiveTypeSer("[1,2,3]", IntLists.immutable.of(1, 2, 3));
@@ -108,7 +112,8 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void primitiveMaps() throws Exception {
+    public void primitiveMaps() throws Exception
+    {
         DeserializerTest.primitiveMaps0(mapperWithModule(), true);
     }
 
@@ -142,23 +147,23 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void typeInfoObjectMap() throws JsonProcessingException {
+    public void typeInfoObjectMap() throws IOException {
         Assert.assertEquals(
                 "{\"map\":{\"0\":{\"@c\":\".SerializerTest$B\"}}}",
                 mapperWithModule().writeValueAsString(new Container())
         );
     }
 
-    private static class Container {
+    static class Container {
         public final IntObjectMap<A> map = IntObjectMaps.immutable.of(0, new B());
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-    private static abstract class A {
+    static abstract class A {
 
     }
 
-    private static class B extends A {
+    static class B extends A {
 
     }
 }

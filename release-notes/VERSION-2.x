@@ -5,13 +5,53 @@ Modules:
   jackson-datatype-pcollections
   jackson-datatype-eclipse-collections (since 2.10)
 
+Active Maintainers:
+
+* Steven Schlansker (@stevenschlansker): original author of Guava module
+* Jonas Konrad (@yawkat): author of Eclipse Collections module
+* Tatu Saloranta (@cowtowncoder): author for HPPC, Pcollections modules;
+   co-author for Guava, Eclipse collections
+
 ------------------------------------------------------------------------
 === Releases ===
 ------------------------------------------------------------------------
 
-2.12.0 (not yet released)
+2.13.0 (not yet released)
 
+No changes since 2.12
+
+2.12.2 (not yet released)
+
+- Add missing "provides Module" for eclipse-collections module-info (JPMS)
+
+2.12.1 (08-Jan-2021)
+
+No changes since 2.12.0
+
+2.12.0 (29-Nov-2020)
+
+#25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap by default
+ (requested by Tommy B; fix contributed by Migwel G)
+#79: (guava)  Guava's RangeHelper causing NPE in PropertyNamingStrategy
+ (reported by arpit-pp@github)
 - Add Gradle Module Metadata (https://blog.gradle.org/alignment-with-gradle-module-metadata)
+- Update "preferred" Guava version to 21.0
+
+2.11.4 (12-Dec-2020)
+
+* Add missing "LICENSE" file for Guava- and Eclipse-collections modules
+* Add missing SPI metadata for auto-detecti Eclipse-collections module
+
+2.11.3 (02-Oct-2020)
+
+#71 (eclipse-collections) Can not deserialize concrete class instance inside nested
+  immutable eclipse-collection
+ (fixed by yawkat)
+
+2.11.2 (02-Aug-2020)
+
+#68: Support for Guava 29
+ (suggested by Mark W)
 
 2.11.1 (25-Jun-2020)
 2.11.0 (26-Apr-2020)

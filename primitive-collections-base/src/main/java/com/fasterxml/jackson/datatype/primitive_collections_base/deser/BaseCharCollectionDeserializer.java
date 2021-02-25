@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.deser;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-
-import java.io.IOException;
 
 /**
  * This class doesn't extend {@link BaseCollectionDeserializer} because we serialize from/to strings
@@ -27,13 +27,15 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-            throws IOException {
+        throws JacksonException
+    {
         return typeDeserializer.deserializeTypedFromScalar(p, ctxt);
     }
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
+        throws JacksonException
+    {
         Intermediate intermediate = createIntermediate();
 
         if (p.isExpectedStartArrayToken()) {

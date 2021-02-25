@@ -180,6 +180,10 @@ public final class DeserializerTest extends ModuleTestBase {
         testCollection(Lists.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableCollection<String>>() {});
+        //noinspection rawtypes
+        testCollection(Lists.mutable.of("1", "2", "3"),
+                       "[\"1\", \"2\", \"3\"]",
+                       new TypeReference<MutableCollection<?>>() {});
         testCollection(BooleanLists.mutable.of(true, false, true),
                        "[true, false, true]",
                        MutableBooleanCollection.class);
@@ -199,6 +203,10 @@ public final class DeserializerTest extends ModuleTestBase {
         testCollection(Lists.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableCollection<String>>() {});
+        //noinspection rawtypes
+        testCollection(Lists.immutable.of("1", "2", "3"),
+                       "[\"1\", \"2\", \"3\"]",
+                       new TypeReference<ImmutableCollection<?>>() {});
         testCollection(BooleanLists.immutable.of(true, false, true),
                        "[true, false, true]",
                        ImmutableBooleanCollection.class);
@@ -405,17 +413,17 @@ public final class DeserializerTest extends ModuleTestBase {
         );
     }
 
-    private static class Container {
+    static class Container {
         public IntObjectMap<A> map;
     }
 
     @JsonSubTypes(@JsonSubTypes.Type(B.class))
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
-    private static abstract class A {
+    static abstract class A {
 
     }
 
-    private static class B extends A {
+    static class B extends A {
         public B() {
         }
 
@@ -428,6 +436,32 @@ public final class DeserializerTest extends ModuleTestBase {
         public int hashCode() {
             return 1;
         }
+    }
+
+    @Test
+    public void typeInfoNestedMapList() throws IOException {
+        // test case for jackson-datatypes-collections#71
+        ImmutableMap<String, ImmutableList<A>> property =
+                Maps.immutable.of("foo", Lists.immutable.of(new B()));
+        Assert.assertEquals(
+                mapperWithModule().readValue(
+                        "{\"foo\": [{\"@c\": \".DeserializerTest$B\"}]}",
+                        new TypeReference<ImmutableMap<String, ImmutableList<A>>>() {}),
+                property
+        );
+    }
+
+    @Test
+    public void typeInfoNestedMapMap() throws IOException {
+        // auxiliary test case for jackson-datatypes-collections#71 - also worked before fix
+        ImmutableMap<String, ImmutableMap<String, A>> property =
+                Maps.immutable.of("foo", Maps.immutable.of("bar", new B()));
+        Assert.assertEquals(
+                mapperWithModule().readValue(
+                        "{\"foo\": {\"bar\": {\"@c\": \".DeserializerTest$B\"}}}",
+                        new TypeReference<ImmutableMap<String, ImmutableMap<String, A>>>() {}),
+                property
+        );
     }
 
     @Test

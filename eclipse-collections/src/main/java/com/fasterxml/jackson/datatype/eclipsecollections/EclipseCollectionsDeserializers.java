@@ -1,9 +1,15 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
+import java.util.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.*;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapLikeType;
+import com.fasterxml.jackson.databind.type.MapType;
+import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.MutableBagDeserializer;
@@ -16,8 +22,6 @@ import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSetD
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.ImmutableSortedSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSetDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.set.MutableSortedSetDeserializer;
-
-import java.util.*;
 
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.ByteIterable;
@@ -148,72 +152,77 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     // are faster to construct.
 
     // initialized below
-    private static final Map<Class<? extends PrimitiveIterable>, JsonDeserializer<?>> PRIMITIVE_DESERIALIZERS
+    private static final Map<Class<? extends PrimitiveIterable>, ValueDeserializer<?>> PRIMITIVE_DESERIALIZERS
             = new HashMap<>();
     @SuppressWarnings("rawtypes")
     private static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
 
     @Override
-    public JsonDeserializer<?> findCollectionDeserializer(
+    public ValueDeserializer<?> findCollectionDeserializer(
             CollectionType type,
             DeserializationConfig config,
             BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer
+            ValueDeserializer<?> elementDeserializer
     ) {
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return findReferenceDeserializer(type, type.getContentType(),
+                                             elementTypeDeserializer, elementDeserializer);
         }
         return null;
     }
 
     @Override
-    public JsonDeserializer<?> findCollectionLikeDeserializer(
+    public ValueDeserializer<?> findCollectionLikeDeserializer(
             CollectionLikeType type,
             DeserializationConfig config,
             BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer) {
-        return findAnyEclipseDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            ValueDeserializer<?> elementDeserializer
+    ) {
+        if (REFERENCE_TYPES.contains(type.getRawClass())) {
+            return findReferenceDeserializer(type, type.getContentType(),
+                                             elementTypeDeserializer, elementDeserializer);
+        }
+        return null;
     }
 
     @Override
-    public JsonDeserializer<?> findMapDeserializer(
+    public ValueDeserializer<?> findMapDeserializer(
             MapType type,
             DeserializationConfig config,
             BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer
+            ValueDeserializer<?> elementDeserializer
     ) {
-        // TODO: use keyDeserializer, elementTypeDeserializer, and elementDeserializer
         return findBeanDeserializer(type, config, beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> findMapLikeDeserializer(
+    public ValueDeserializer<?> findMapLikeDeserializer(
             MapLikeType type,
             DeserializationConfig config,
             BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer) {
-        // TODO: use keyDeserializer, elementTypeDeserializer, and elementDeserializer
+            ValueDeserializer<?> elementDeserializer
+    ) {
         return findBeanDeserializer(type, config, beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> findReferenceDeserializer(
+    public ValueDeserializer<?> findReferenceDeserializer(
             ReferenceType refType,
             DeserializationConfig config,
             BeanDescription beanDesc,
             TypeDeserializer contentTypeDeserializer,
-            JsonDeserializer<?> contentDeserializer) {
+            ValueDeserializer<?> contentDeserializer) {
         return findAnyEclipseDeserializer(refType, contentTypeDeserializer, contentDeserializer);
     }
 
     @Override
-    public JsonDeserializer<?> findBeanDeserializer(
+    public ValueDeserializer<?> findBeanDeserializer(
             JavaType type, DeserializationConfig config, BeanDescription beanDesc
     ) {
         return findAnyEclipseDeserializer(type, null, null);
@@ -223,36 +232,39 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
      * @param elementTypeDeserializer may be null
      * @param elementDeserializer may be null
      */
-    private JsonDeserializer<?> findAnyEclipseDeserializer(JavaType type,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) {
-        JsonDeserializer<?> deserializer = PRIMITIVE_DESERIALIZERS.get(type.getRawClass());
+    private ValueDeserializer<?> findAnyEclipseDeserializer(JavaType type,
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        ValueDeserializer<?> deserializer = PRIMITIVE_DESERIALIZERS.get(type.getRawClass());
         if (deserializer != null) {
             return deserializer;
         }
 
         if (REFERENCE_TYPES.contains(type.getRawClass())) {
-            return findReferenceDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            return findReferenceDeserializer(type, type.containedTypeOrUnknown(0), elementTypeDeserializer, elementDeserializer);
         }
 
         return EclipseMapDeserializers.createDeserializer(type); // May return null
     }
 
-    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention" })
-    private JsonDeserializer<?> findReferenceDeserializer(
+    private ValueDeserializer<?> findReferenceDeserializer(
             JavaType containerType,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer
+            JavaType elementType,
+            TypeDeserializer elementTypeDeserializer,
+            ValueDeserializer<?> elementDeserializer
     ) {
         Class<?> rawClass = containerType.getRawClass();
-        JavaType elementType = containerType.containedTypeOrUnknown(0);
 
         // bags
         if (rawClass == MutableBag.class || rawClass == Bag.class || rawClass == UnsortedBag.class) {
             return new MutableBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableBag.class) {
+        }
+        if (rawClass == ImmutableBag.class) {
             return new ImmutableBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == MutableSortedBag.class || rawClass == SortedBag.class) {
+        }
+        if (rawClass == MutableSortedBag.class || rawClass == SortedBag.class) {
             return new MutableSortedBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableSortedBag.class) {
+        }
+        if (rawClass == ImmutableSortedBag.class) {
             return new ImmutableSortedBagDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
 
@@ -261,9 +273,11 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             rawClass == OrderedIterable.class || rawClass == ReversibleIterable.class ||
             rawClass == RichIterable.class || rawClass == InternalIterable.class) {
             return new MutableListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableList.class || rawClass == ImmutableCollection.class) {
+        }
+        if (rawClass == ImmutableList.class || rawClass == ImmutableCollection.class) {
             return new ImmutableListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == FixedSizeList.class || rawClass == FixedSizeCollection.class) {
+        }
+        if (rawClass == FixedSizeList.class || rawClass == FixedSizeCollection.class) {
             return new FixedSizeListDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
 
@@ -271,11 +285,14 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         if (rawClass == MutableSet.class || rawClass == MutableSetIterable.class ||
             rawClass == SetIterable.class || rawClass == UnsortedSetIterable.class) {
             return new MutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
+        }
+        if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
             return new ImmutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == MutableSortedSet.class || rawClass == SortedSetIterable.class) {
+        }
+        if (rawClass == MutableSortedSet.class || rawClass == SortedSetIterable.class) {
             return new MutableSortedSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
-        } else if (rawClass == ImmutableSortedSet.class) {
+        }
+        if (rawClass == ImmutableSortedSet.class) {
             return new ImmutableSortedSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
 

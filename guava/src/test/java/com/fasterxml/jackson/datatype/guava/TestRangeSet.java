@@ -21,7 +21,6 @@ public class TestRangeSet extends ModuleTestBase {
         rangeSet.add(Range.openClosed(3, 4));
 
         final String json = MAPPER.writeValueAsString(rangeSet);
-
         final TypeFactory tf = MAPPER.getTypeFactory();
         final JavaType type = tf.constructParametricType(RangeSet.class, Integer.class);
         final ObjectReader reader = MAPPER.readerFor(type);
@@ -29,7 +28,5 @@ public class TestRangeSet extends ModuleTestBase {
         final RangeSet<Integer> deserialized = reader.readValue(json);
 
         assertEquals(rangeSet, deserialized);
-
     }
-
 }

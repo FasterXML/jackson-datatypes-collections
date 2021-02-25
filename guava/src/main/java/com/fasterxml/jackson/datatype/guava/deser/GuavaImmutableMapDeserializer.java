@@ -1,25 +1,24 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+
 import com.google.common.collect.ImmutableMap;
 
 abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Object>> extends
         GuavaMapDeserializer<T>
 {
     GuavaImmutableMapDeserializer(JavaType type, KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller) {
         super(type, keyDeser, valueDeser, valueTypeDeser, nuller);
     }
@@ -34,14 +33,14 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
 
     @Override
     protected T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
     
         ImmutableMap.Builder<Object, Object> builder = createBuilder();
-        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();
             Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);

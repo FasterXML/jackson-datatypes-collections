@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -9,6 +7,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.MapType;
+
 import org.pcollections.PMap;
 
 public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>>
@@ -25,7 +24,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     /**
      * Value deserializer.
      */
-    protected JsonDeserializer<?> _valueDeserializer;
+    protected ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -40,7 +39,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      */
     
     protected PCollectionsMapDeserializer(MapType type, KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(type);
         _mapType = type;
@@ -59,7 +58,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * instances.
      */
     public abstract PCollectionsMapDeserializer<T> withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser);
+            TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser);
     
     /*
     /**********************************************************
@@ -73,11 +72,11 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
-        JsonDeserializer<?> deser = _valueDeserializer;
+        ValueDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _typeDeserializerForValue;
         // Do we need any contextualization?
         if ((keyDeser != null) && (deser != null) && (typeDeser == null)) { // nope
@@ -109,7 +108,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // note: call "...FromObject" because expected output structure
         // for value is JSON Object (regardless of contortions used for type id)
@@ -119,14 +118,14 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
-        // Ok: must point to START_OBJECT or FIELD_NAME
+        // Ok: must point to START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) { // If START_OBJECT, move to next; may also be END_OBJECT
             t = p.nextToken();
         }
-        if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+        if (t != JsonToken.PROPERTY_NAME && t != JsonToken.END_OBJECT) {
             return (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         return _deserializeEntries(p, ctxt);
@@ -135,14 +134,14 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
     protected abstract T createEmptyMap();
 
     protected T _deserializeEntries(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+        throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
 
         T map = createEmptyMap();
-        for (; p.currentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
+        for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();
             Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);
@@ -173,8 +172,8 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
      * could be to throw an exception.
      */
     protected T _handleNull(DeserializationContext ctxt, Object key,
-            JsonDeserializer<?> valueDeser,
-            T map) throws IOException
+            ValueDeserializer<?> valueDeser, T map)
+        throws JacksonException
     {
         // TODO: allow reporting problem via a feature, in future?
 

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.hppc.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -35,9 +34,8 @@ public class HppcContainerDeserializers
      * Method called to see if this serializer (or a serializer this serializer
      * knows) should be used for given type; if not, null is returned.
      */
-    public static JsonDeserializer<?> findDeserializer(DeserializationConfig config,
+    public static ValueDeserializer<?> findDeserializer(DeserializationConfig config,
             final JavaType origType)
-        throws JsonMappingException
     {
         JavaType type = origType;
         Class<?> raw = type.getRawClass();
@@ -63,7 +61,7 @@ public class HppcContainerDeserializers
                 return new IntDequeDeserializer(type, config);
             }
             // how about this? should we signal an error?
-            throw JsonMappingException.from((JsonParser)null, "Unrecognized HPPC IntContainer type: "+origType);
+            throw DatabindException.from((JsonParser)null, "Unrecognized HPPC IntContainer type: "+origType);
         } else if (LongContainer.class.isAssignableFrom(raw)) {
             // !!! TBI
         } else if (FloatContainer.class.isAssignableFrom(raw)) {
@@ -78,9 +76,8 @@ public class HppcContainerDeserializers
             // !!! TBI
         }
         return null;
-    }        
+    }
 
-    // @since 2.11
     public static boolean hasDeserializerFor(DeserializationConfig config,
             final Class<?> rawType) {
         return IntContainer.class.isAssignableFrom(rawType);
@@ -112,7 +109,7 @@ public class HppcContainerDeserializers
         @Override
         public void deserializeContents(JsonParser p, DeserializationContext ctxt,
                 T container)
-            throws IOException
+            throws JacksonException
         {
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {

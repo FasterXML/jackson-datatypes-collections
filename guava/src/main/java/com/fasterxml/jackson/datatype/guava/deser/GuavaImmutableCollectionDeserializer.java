@@ -1,25 +1,24 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+
 import com.google.common.collect.ImmutableCollection;
 
 abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollection<Object>>
         extends GuavaCollectionDeserializer<T>
 {
     GuavaImmutableCollectionDeserializer(JavaType selfType,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
@@ -27,12 +26,12 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     protected abstract ImmutableCollection.Builder<Object> createBuilder();
 
     // Can not modify Immutable collections now can we
-    @Override // since 2.10
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
     }
 
-    @Override // since 2.10
+    @Override
     public AccessPattern getEmptyAccessPattern() {
         // But we should be able to just share immutable empty instance
         return AccessPattern.CONSTANT;
@@ -45,9 +44,9 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
 
     @Override
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        throws JacksonException
     {
-        JsonDeserializer<?> valueDes = _valueDeserializer;
+        ValueDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         // No way to pass actual type parameter; but does not matter, just
@@ -76,10 +75,8 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         return collection;
     }
 
-    /**
-     * @since 2.10
-     */
-    protected Object _resolveNullToValue(DeserializationContext ctxt) throws IOException
+    protected Object _resolveNullToValue(DeserializationContext ctxt)
+        throws JacksonException
     {
         Object value = _nullProvider.getNullValue(ctxt);
 

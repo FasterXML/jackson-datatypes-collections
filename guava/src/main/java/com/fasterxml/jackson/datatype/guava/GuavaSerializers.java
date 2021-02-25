@@ -4,20 +4,23 @@ import java.io.Serializable;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Value;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSetSerializer;
-import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
+
+import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
+import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
+import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
+import com.fasterxml.jackson.datatype.guava.ser.TableSerializer;
+
 import com.google.common.base.Optional;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
@@ -49,9 +52,9 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public JsonSerializer<?> findReferenceSerializer(SerializationConfig config, 
+    public ValueSerializer<?> findReferenceSerializer(SerializationConfig config,
             ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentValueSerializer)
+            TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer)
     {
         final Class<?> raw = refType.getRawClass();
         if (Optional.class.isAssignableFrom(raw)) {
@@ -64,7 +67,7 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
+    public ValueSerializer<?> findSerializer(SerializationConfig config, JavaType type,
             BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         Class<?> raw = type.getRawClass();
@@ -98,10 +101,10 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
+    public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
             MapLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            JsonSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+            ValueSerializer<Object> keySerializer,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         if (Multimap.class.isAssignableFrom(type.getRawClass())) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();

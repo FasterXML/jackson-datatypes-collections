@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 
 // [datatypes-collections#56]: support naming strategy
 public class Range56Test extends ModuleTestBase
@@ -21,7 +19,7 @@ public class Range56Test extends ModuleTestBase
         GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
-                .propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
 
         @SuppressWarnings("unchecked")

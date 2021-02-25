@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
@@ -12,7 +10,11 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import com.carrotsearch.hppc.*;
-import com.carrotsearch.hppc.predicates.*;
+import com.carrotsearch.hppc.procedures.DoubleProcedure;
+import com.carrotsearch.hppc.procedures.FloatProcedure;
+import com.carrotsearch.hppc.procedures.IntProcedure;
+import com.carrotsearch.hppc.procedures.LongProcedure;
+import com.carrotsearch.hppc.procedures.ShortProcedure;
 
 public class HppcContainerSerializers
 {
@@ -33,11 +35,11 @@ public class HppcContainerSerializers
      * Method called to see if this serializer (or a serializer this serializer
      * knows) should be used for given type; if not, null is returned.
      */
-    public static JsonSerializer<?> getMatchingSerializer(SerializationConfig config,
+    public static ValueSerializer<?> getMatchingSerializer(SerializationConfig config,
             JavaType type)
     {
         for (ContainerSerializerBase<?> ser : _primitiveSerializers) {
-            JsonSerializer<?> actual = ser.getSerializer(type);
+            ValueSerializer<?> actual = ser.getSerializer(type);
             if (actual != null) {
                 return actual;
             }
@@ -65,7 +67,8 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
             // Logical content byte array/stream, but physically a JSON String so:
             if (visitor != null) visitor.expectStringFormat(typeHint);
         }
@@ -82,18 +85,18 @@ public class HppcContainerSerializers
 
         @Override
         public void serialize(ByteContainer value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+            throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             serializeContents(value, gen, provider);
         }
         
         @Override
         public void serializeWithType(ByteContainer value, JsonGenerator gen, SerializerProvider ctxt,
                 TypeSerializer typeSer)
-            throws IOException
+            throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                     typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
             serializeContents(value, gen, ctxt);
@@ -102,7 +105,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final ByteContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException
+               throws JacksonException
         {
             gen.writeBinary(value.toArray());
         }
@@ -127,7 +130,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -139,7 +141,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final ShortContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException
+               throws JacksonException
         {
             if (value instanceof ShortIndexedContainer) {
                 ShortIndexedContainer list = (ShortIndexedContainer) value;
@@ -148,20 +150,12 @@ public class HppcContainerSerializers
                 }
                 return;
             }
-            final ExceptionHolder holder = new ExceptionHolder();
-            value.forEach(new ShortPredicate() {
+            value.forEach(new ShortProcedure() {
                 @Override
-                public boolean apply(short v) {
-                    try {
-                        gen.writeNumber(v);
-                    } catch (IOException e) {
-                        holder.assignException(e);
-                        return false;
-                    }
-                    return true;
+                public void apply(short v) {
+                    gen.writeNumber(v);
                 }
             });
-            holder.throwHeld();
         }
     }
 
@@ -179,9 +173,9 @@ public class HppcContainerSerializers
 
         // Overridden to allow use of more optimized serialized for indexed variant
         @Override
-        public JsonSerializer<?> getSerializer(JavaType type)
+        public ValueSerializer<?> getSerializer(JavaType type)
         {
-            JsonSerializer<?> ser = super.getSerializer(type);
+            ValueSerializer<?> ser = super.getSerializer(type);
             if (ser != null) {
                 if (IntIndexedContainer.class.isAssignableFrom(type.getClass())) {
                     return new Indexed();
@@ -202,7 +196,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -214,23 +207,14 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException, JsonGenerationException
+           throws JacksonException
         {
-            // doh. Can't throw checked exceptions through; hence need convoluted handling...
-            final ExceptionHolder holder = new ExceptionHolder();
-            value.forEach(new IntPredicate() {
+            value.forEach(new IntProcedure() {
                 @Override
-                public boolean apply(int v) {
-                    try {
-                        gen.writeNumber(v);
-                    } catch (IOException e) {
-                        holder.assignException(e);
-                        return false;
-                    }
-                    return true;
+                public void apply(int v) {
+                    gen.writeNumber(v);
                 }
             });
-            holder.throwHeld();
         }
 
         // Specialized variant to support indexed int container with more efficient accessor
@@ -252,7 +236,6 @@ public class HppcContainerSerializers
 
             @Override
             public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                    throws JsonMappingException
             {
                 if (visitor != null) {
                     JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -264,7 +247,7 @@ public class HppcContainerSerializers
             
             @Override
             protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializerProvider provider)
-                   throws IOException, JsonGenerationException
+               throws JacksonException
             {
                 int[] array;
                 if (value instanceof IntArrayList) {
@@ -300,7 +283,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -312,7 +294,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final LongContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException, JsonGenerationException
+           throws JacksonException
         {
             if (value instanceof LongIndexedContainer) {
                 LongIndexedContainer list = (LongIndexedContainer) value;
@@ -327,21 +309,12 @@ public class HppcContainerSerializers
                 }
                 return;
             }
-            // doh. Can't throw checked exceptions through; hence need convoluted handling...
-            final ExceptionHolder holder = new ExceptionHolder();
-            value.forEach(new LongPredicate() {
+            value.forEach(new LongProcedure() {
                 @Override
-                public boolean apply(long v) {
-                    try {
-                        gen.writeNumber(v);
-                    } catch (IOException e) {
-                        holder.assignException(e);
-                        return false;
-                    }
-                    return true;
+                public void apply(long v) {
+                    gen.writeNumber(v);
                 }
             });
-            holder.throwHeld();
         }
     }
 
@@ -381,25 +354,25 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException {
+        {
             // Logical content byte array/stream, but physically a JSON String so:
             if (visitor != null) visitor.expectStringFormat(typeHint);
         }
         
         @Override
         public void serialize(CharContainer value, JsonGenerator gen, SerializerProvider ctxt)
-            throws IOException
+            throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             serializeContents(value, gen, ctxt);
         }
         
         @Override
         public void serializeWithType(CharContainer value, JsonGenerator gen, SerializerProvider ctxt,
                 TypeSerializer typeSer)
-            throws IOException
+            throws JacksonException
         {
-            gen.setCurrentValue(value);
+            gen.assignCurrentValue(value);
             WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                     typeSer.typeId(value, JsonToken.VALUE_STRING));
             serializeContents(value, gen, ctxt);
@@ -408,7 +381,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final CharContainer value, final JsonGenerator gen, SerializerProvider ctxt)
-               throws IOException
+               throws JacksonException
         {
             char[] ch = value.toArray();
             gen.writeString(ch, 0, ch.length);
@@ -440,7 +413,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -452,7 +424,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final FloatContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException, JsonGenerationException
+           throws JacksonException
         {
             if (value instanceof FloatIndexedContainer) {
                 FloatIndexedContainer list = (FloatIndexedContainer) value;
@@ -461,21 +433,12 @@ public class HppcContainerSerializers
                 }
                 return;
             }
-            // doh. Can't throw checked exceptions through; hence need convoluted handling...
-            final ExceptionHolder holder = new ExceptionHolder();
-            value.forEach(new FloatPredicate() {
+            value.forEach(new FloatProcedure() {
                 @Override
-                public boolean apply(float v) {
-                    try {
-                        gen.writeNumber(v);
-                    } catch (IOException e) {
-                        holder.assignException(e);
-                        return false;
-                    }
-                    return true;
+                public void apply(float v) {
+                    gen.writeNumber(v);
                 }
             });
-            holder.throwHeld();
         }
     }
 
@@ -497,7 +460,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -509,7 +471,7 @@ public class HppcContainerSerializers
 
         @Override
         protected void serializeContents(final DoubleContainer value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException, JsonGenerationException
+           throws JacksonException
         {
             if (value instanceof DoubleIndexedContainer) {
                 DoubleIndexedContainer list = (DoubleIndexedContainer) value;
@@ -519,20 +481,12 @@ public class HppcContainerSerializers
                 return;
             }
             // doh. Can't throw checked exceptions through; hence need convoluted handling...
-            final ExceptionHolder holder = new ExceptionHolder();
-            value.forEach(new DoublePredicate() {
+            value.forEach(new DoubleProcedure() {
                 @Override
-                public boolean apply(double v) {
-                    try {
-                        gen.writeNumber(v);
-                    } catch (IOException e) {
-                        holder.assignException(e);
-                        return false;
-                    }
-                    return true;
+                public void apply(double v) {
+                    gen.writeNumber(v);
                 }
             });
-            holder.throwHeld();
         }
     }
 
@@ -568,7 +522,6 @@ public class HppcContainerSerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -580,7 +533,7 @@ public class HppcContainerSerializers
         
         @Override
         protected void serializeContents(final BitSet value, final JsonGenerator gen, SerializerProvider provider)
-               throws IOException
+           throws JacksonException
         {
             // is size() close enough to the last set bit?
             if (!value.isEmpty()) {

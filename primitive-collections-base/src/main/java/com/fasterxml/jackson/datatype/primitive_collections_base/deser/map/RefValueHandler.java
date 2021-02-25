@@ -1,26 +1,27 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import java.io.IOException;
 
 /**
  * @author yawkat
  */
-public class RefValueHandler implements ValueHandler<RefValueHandler> {
+public class RefValueHandler implements ValueHandler<RefValueHandler>
+{
     private final JavaType _valueType;
-    private final JsonDeserializer<?> _valueDeserializer;
+    private final ValueDeserializer<?> _valueDeserializer;
     private final TypeDeserializer _typeDeserializerForValue;
 
     public RefValueHandler(
             JavaType valueType,
-            JsonDeserializer<?> _valueDeserializer,
+            ValueDeserializer<?> _valueDeserializer,
             TypeDeserializer _typeDeserializerForValue
     ) {
         if (valueType == null) { throw new IllegalArgumentException("valueType == null"); }
@@ -32,8 +33,8 @@ public class RefValueHandler implements ValueHandler<RefValueHandler> {
 
     @Override
     public RefValueHandler createContextualValue(DeserializationContext ctxt, BeanProperty property)
-            throws JsonMappingException {
-        JsonDeserializer<?> deser;
+    {
+        ValueDeserializer<?> deser;
         if (_valueDeserializer == null) {
             deser = ctxt.findContextualValueDeserializer(_valueType, property);
         } else {
@@ -51,7 +52,9 @@ public class RefValueHandler implements ValueHandler<RefValueHandler> {
         return new RefValueHandler(_valueType, deser, typeDeser);
     }
 
-    public Object value(DeserializationContext ctx, JsonParser parser) throws IOException {
+    public Object value(DeserializationContext ctx, JsonParser parser)
+        throws JacksonException
+    {
         if (parser.currentToken() == JsonToken.VALUE_NULL) {
             return _valueDeserializer.getNullValue(ctx);
         }

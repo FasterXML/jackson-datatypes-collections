@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -22,7 +21,7 @@ public abstract class GuavaCollectionDeserializer<T>
      * Deserializer used for values contained in collection being deserialized;
      * either assigned on constructor, or during resolve().
      */
-    protected final JsonDeserializer<?> _valueDeserializer;
+    protected final ValueDeserializer<?> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -38,7 +37,7 @@ public abstract class GuavaCollectionDeserializer<T>
      */
 
     protected GuavaCollectionDeserializer(JavaType selfType,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(selfType, nuller, unwrapSingle);
@@ -51,7 +50,7 @@ public abstract class GuavaCollectionDeserializer<T>
      * instances.
      */
     public abstract GuavaCollectionDeserializer<T> withResolved(
-            JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser, 
+            ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser, 
             NullValueProvider nuller, Boolean unwrapSingle);
 
     /**
@@ -60,13 +59,13 @@ public abstract class GuavaCollectionDeserializer<T>
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
     {
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
@@ -94,8 +93,8 @@ public abstract class GuavaCollectionDeserializer<T>
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
-        return (JsonDeserializer<Object>) _valueDeserializer;
+    public ValueDeserializer<Object> getContentDeserializer() {
+        return (ValueDeserializer<Object>) _valueDeserializer;
     }
 
     @Override // since 2.12
@@ -117,7 +116,7 @@ public abstract class GuavaCollectionDeserializer<T>
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
@@ -125,7 +124,7 @@ public abstract class GuavaCollectionDeserializer<T>
     @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
     {
         // Should usually point to START_ARRAY
         if (p.isExpectedStartArrayToken()) {
@@ -150,21 +149,19 @@ public abstract class GuavaCollectionDeserializer<T>
 
     // Force abstract-ness for subclasses
     @Override
-    public abstract Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException;
+    public abstract Object getEmptyValue(DeserializationContext ctxt);
 
     protected abstract T _deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException;
+        throws JacksonException;
 
     /**
      * Method used to support implicit coercion from a single non-array value
      * into single-element collection.
-     * 
-     * @since 2.3
      */
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        throws JacksonException
     {
-        final JsonDeserializer<?> valueDes = _valueDeserializer;
+        final ValueDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         final JsonToken t = p.currentToken();
 
@@ -184,9 +181,7 @@ public abstract class GuavaCollectionDeserializer<T>
 
     }
 
-    // Note: 'throws IOException' dropped from 2.10.5
     protected abstract T _createEmpty(DeserializationContext ctxt);
 
-    // Note: 'throws IOException' dropped from 2.12.0
     protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
 }

@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import java.io.IOException;
-
-import com.google.common.net.InternetDomainName;
+import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+
+import com.google.common.net.InternetDomainName;
 
 public class InternetDomainNameDeserializer extends FromStringDeserializer<InternetDomainName>
 {
@@ -15,7 +15,8 @@ public class InternetDomainNameDeserializer extends FromStringDeserializer<Inter
 
     @Override
     protected InternetDomainName _deserialize(String value, DeserializationContext ctxt)
-            throws IOException {
+        throws JacksonException
+    {
         return InternetDomainName.from(value);
     }
 }

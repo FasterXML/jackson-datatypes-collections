@@ -8,6 +8,6 @@ module com.fasterxml.jackson.datatype.hppc {
     exports com.fasterxml.jackson.datatype.hppc.deser;
     exports com.fasterxml.jackson.datatype.hppc.ser;
 
-    provides com.fasterxml.jackson.databind.Module with
+    provides com.fasterxml.jackson.databind.JacksonModule with
         com.fasterxml.jackson.datatype.hppc.HppcModule;
 }

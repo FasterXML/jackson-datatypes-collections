@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.guava;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
-
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.google.common.collect.*;
 
 /**
@@ -44,7 +44,7 @@ public class TestMultisets extends ModuleTestBase
             /*Multiset<String> set =*/ mapper.readValue("[\"abc\",\"abc\",\"foo\"]",
                     new TypeReference<Multiset<String>>() { });
             fail("Should have failed");
-        } catch (JsonMappingException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot find a deserializer");
         }
     }

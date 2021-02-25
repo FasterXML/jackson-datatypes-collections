@@ -1,15 +1,17 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.iterator.BooleanIterator;
 
-import java.io.IOException;
-
-public final class BooleanIterableSerializer extends EclipsePrimitiveIterableSerializer<BooleanIterable> {
+public final class BooleanIterableSerializer extends EclipsePrimitiveIterableSerializer<BooleanIterable>
+{
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(boolean.class);
 
     public BooleanIterableSerializer(BeanProperty property, Boolean unwrapSingle) {
@@ -22,7 +24,9 @@ public final class BooleanIterableSerializer extends EclipsePrimitiveIterableSer
     }
 
     @Override
-    protected void serializeContents(BooleanIterable value, JsonGenerator gen) throws IOException {
+    protected void serializeContents(BooleanIterable value, JsonGenerator gen)
+        throws JacksonException
+    {
         BooleanIterator iterator = value.booleanIterator();
         while (iterator.hasNext()) {
             gen.writeBoolean(iterator.next());

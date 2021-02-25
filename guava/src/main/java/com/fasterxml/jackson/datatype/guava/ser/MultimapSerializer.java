@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -17,9 +16,9 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
-import com.fasterxml.jackson.databind.ser.std.MapProperty;
+import com.fasterxml.jackson.databind.ser.jdk.MapProperty;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 
 import com.google.common.collect.Multimap;
@@ -40,12 +39,12 @@ import com.google.common.collect.Multimap;
  * </ul>
  */
 public class MultimapSerializer
-    extends ContainerSerializer<Multimap<?, ?>>
+    extends StdContainerSerializer<Multimap<?, ?>>
 {
     private final MapLikeType _type;
-    private final JsonSerializer<Object> _keySerializer;
+    private final ValueSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
-    private final JsonSerializer<Object> _valueSerializer;
+    private final ValueSerializer<Object> _valueSerializer;
 
     /**
      * Set of entries to omit during serialization, if any
@@ -66,8 +65,8 @@ public class MultimapSerializer
     protected final boolean _sortKeys;
     
     public MultimapSerializer(MapLikeType type, BeanDescription beanDesc,
-            JsonSerializer<Object> keySerializer, TypeSerializer vts,
-            JsonSerializer<Object> valueSerializer,
+            ValueSerializer<Object> keySerializer, TypeSerializer vts,
+            ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries, Object filterId)
     {
         super(type, null);
@@ -80,26 +79,23 @@ public class MultimapSerializer
         _sortKeys = false;
     }
 
-    /**
-     * @since 2.5
-     */
     @SuppressWarnings("unchecked")
     protected MultimapSerializer(MultimapSerializer src, BeanProperty property,
-                JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+                ValueSerializer<?> keySerializer, TypeSerializer vts, ValueSerializer<?> valueSerializer,
                 Set<String> ignoredEntries, Object filterId, boolean sortKeys)
     {
         super(src, property);
         _type = src._type;
-        _keySerializer = (JsonSerializer<Object>) keySerializer;
+        _keySerializer = (ValueSerializer<Object>) keySerializer;
         _valueTypeSerializer = vts;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         _ignoredEntries = ignoredEntries;
         _filterId = filterId;
         _sortKeys = sortKeys;
     }
 
     protected MultimapSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
+            ValueSerializer<?> keySer, TypeSerializer vts, ValueSerializer<?> valueSer,
             Set<String> ignored, Object filterId, boolean sortKeys)
     {
         return new MultimapSerializer(this, property, keySer, vts, valueSer,
@@ -107,22 +103,22 @@ public class MultimapSerializer
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer typeSer) {
         return new MultimapSerializer(this, _property, _keySerializer,
                 typeSer, _valueSerializer, _ignoredEntries, _filterId, _sortKeys);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing (contextualization)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
+            BeanProperty property)
     {
-        JsonSerializer<?> valueSer = _valueSerializer;
+        ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = _type.getContentType();
             if (valueType.isFinal()) {
@@ -135,7 +131,7 @@ public class MultimapSerializer
         final SerializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
-        JsonSerializer<?> keySer = null;
+        ValueSerializer<?> keySer = null;
         Object filterId = _filterId;
         
         // First: if we have a property, may have property-annotation overrides
@@ -183,7 +179,7 @@ public class MultimapSerializer
         boolean sortKeys = false;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
@@ -210,13 +206,13 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors for ContainerSerializer
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -236,18 +232,18 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Post-processing (contextualization)
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
     public void serialize(Multimap<?, ?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeStartObject();
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         if (!value.isEmpty()) {
  // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
 //          plugged in...
@@ -267,9 +263,9 @@ public class MultimapSerializer
     @Override
     public void serializeWithType(Multimap<?,?> value, JsonGenerator gen,
             SerializerProvider ctxt, TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
@@ -289,7 +285,7 @@ public class MultimapSerializer
 
     private final void serializeFields(Multimap<?, ?> mmap, JsonGenerator
             gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         final Set<String> ignored = _ignoredEntries;
         for (Entry<?, ? extends Collection<?>> entry : mmap.asMap().entrySet()) {
@@ -311,7 +307,7 @@ public class MultimapSerializer
                     provider.defaultSerializeNullValue(gen);
                     continue;
                 }
-                JsonSerializer<Object> valueSer = _valueSerializer;
+                ValueSerializer<Object> valueSer = _valueSerializer;
                 if (valueSer == null) {
                     Class<?> cc = vv.getClass();
                     valueSer = _dynamicValueSerializers.serializerFor(cc);
@@ -330,7 +326,7 @@ public class MultimapSerializer
     }
 
     private final void serializeFilteredFields(Multimap<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+        throws JacksonException
     {
         final Set<String> ignored = _ignoredEntries;
         PropertyFilter filter = findPropertyFilter(provider, _filterId, mmap);  
@@ -342,7 +338,7 @@ public class MultimapSerializer
                 continue;
             }
             Collection<?> value = entry.getValue();
-            JsonSerializer<Object> valueSer;
+            ValueSerializer<Object> valueSer;
             if (value == null) {
                 // !!! TODO: null suppression?
                 valueSer = provider.getDefaultNullValueSerializer();
@@ -351,7 +347,7 @@ public class MultimapSerializer
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {
-                filter.serializeAsField(mmap, gen, provider, prop);
+                filter.serializeAsProperty(mmap, gen, provider, prop);
             } catch (Exception e) {
                 String keyDesc = ""+key;
                 wrapAndThrow(provider, e, value, keyDesc);
@@ -360,31 +356,28 @@ public class MultimapSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema related functionality
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         JsonMapFormatVisitor v2 = (visitor == null) ? null : visitor.expectMapFormat(typeHint);        
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _type.getKeyType());
-            JsonSerializer<?> valueSer = _valueSerializer;
+            ValueSerializer<?> valueSer = _valueSerializer;
             final JavaType vt = _type.getContentType();
             final SerializerProvider prov = visitor.getProvider();
             if (valueSer == null) {
                 valueSer = _findAndAddDynamic(prov, vt);
             }
-            final JsonSerializer<?> valueSer2 = valueSer;
+            final ValueSerializer<?> valueSer2 = valueSer;
             v2.valueFormat(new JsonFormatVisitable() {
                 final JavaType arrayType = prov.getTypeFactory().constructArrayType(vt);
                 @Override
-                public void acceptJsonFormatVisitor(
-                        JsonFormatVisitorWrapper v3, JavaType hint3)
-                    throws JsonMappingException
+                public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper v3, JavaType hint3)
                 {
                     JsonArrayFormatVisitor v4 = v3.expectArrayFormat(arrayType);
                     if (v4 != null) {

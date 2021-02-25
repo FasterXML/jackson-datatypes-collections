@@ -1,36 +1,71 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-
-import java.io.IOException;
 import java.util.List;
 
-public class RangeSetSerializer extends JsonSerializer<RangeSet<Comparable<?>>> {
-    private JavaType genericRangeListType;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
 
-    @Override
-    public void serialize(RangeSet<Comparable<?>> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        if (genericRangeListType == null) {
-            serializers.findValueSerializer(List.class).serialize(value.asRanges(), gen, serializers);
-        } else {
-            serializers.findValueSerializer(genericRangeListType).serialize(value.asRanges(), gen, serializers);
-        }
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.ValueSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import com.google.common.collect.RangeSet;
+
+public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
+{
+    private final ValueSerializer<Object> _serializer;
+
+    public RangeSetSerializer() {
+        super(RangeSet.class);
+        _serializer = null;
+    }
+
+    protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<Object> ser) {
+        super(base);
+        _serializer = ser;
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) {
-        if (property == null) return this;
-        final RangeSetSerializer serializer = new RangeSetSerializer();
-        serializer.genericRangeListType = prov.getTypeFactory()
+    public void serialize(RangeSet<Comparable<?>> value, JsonGenerator g,
+            SerializerProvider ctxt)
+        throws JacksonException
+    {
+        if (_serializer == null) {
+            ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
+        }
+        _serializer.serialize(value.asRanges(), g, ctxt);
+    }
+
+    @Override
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
+    {
+        // 23-Jan-2021, tatu: Should really improve upon this to handle more complex
+        //   values, but this simplified version passes existing unit tests so has to do.
+       
+        
+        ValueSerializer<Object> ser = ctxt.findContentValueSerializer(List.class, property);
+        return new RangeSetSerializer(this, ser);
+
+        // Old (Jackson 2.x) implementation was along lines of
+        /*
+        if (property == null) {
+            return this;
+        }
+
+        final JavaType grlType = prov.getTypeFactory()
                 .constructCollectionType(List.class,
                         prov.getTypeFactory().constructParametricType(
                                 Range.class, property.getType().containedType(0)));
-        return serializer;
+        return new RangeSetSerializer(grlType);
+
+        if (genericRangeListType == null) {
+            ser = serializers.findValueSerializer(List.class);
+        } else {
+            serializers.findValueSerializer(genericRangeListType);
+        }
+        ser.serialize(value.asRanges(), gen, serializers);
+        
+        */
     }
 }

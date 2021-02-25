@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
-import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
+import com.fasterxml.jackson.databind.ser.jdk.ObjectArraySerializer;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
 
 import com.carrotsearch.hppc.ObjectContainer;
@@ -19,9 +19,9 @@ public class HppcSerializers extends Serializers.Base
     public HppcSerializers() { }
     
     @Override
-    public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
+    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType containerType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         if (ObjectContainer.class.isAssignableFrom(containerType.getRawClass())) {
             // hmmh. not sure if we can find 'forceStaticTyping' anywhere...
@@ -49,7 +49,7 @@ public class HppcSerializers extends Serializers.Base
      * will end up here...
      */
     @Override
-    public JsonSerializer<?> findSerializer(SerializationConfig config,
+    public ValueSerializer<?> findSerializer(SerializationConfig config,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         return HppcContainerSerializers.getMatchingSerializer(config, type);

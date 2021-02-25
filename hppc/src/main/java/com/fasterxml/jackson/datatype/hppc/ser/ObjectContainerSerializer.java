@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer;
+import com.fasterxml.jackson.databind.ser.jdk.ObjectArraySerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.*;
+
 import com.carrotsearch.hppc.*;
 
 /**
@@ -54,7 +54,7 @@ public class ObjectContainerSerializer
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+    protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         ObjectArraySerializer ser = (ObjectArraySerializer) _delegate._withValueTypeSerializer(vts);
         if (ser == _delegate) {
             return this;
@@ -70,7 +70,6 @@ public class ObjectContainerSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
     {
         _delegate.acceptJsonFormatVisitor(visitor, typeHint);
     }
@@ -82,7 +81,7 @@ public class ObjectContainerSerializer
      */
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _delegate.getContentSerializer();
     }
 
@@ -110,8 +109,9 @@ public class ObjectContainerSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property) throws JsonMappingException {
+    public ValueSerializer<?> createContextual(SerializerProvider prov,
+            BeanProperty property)
+    {
         return withDelegate((ObjectArraySerializer) _delegate.createContextual(prov, property));
     }
 
@@ -123,7 +123,7 @@ public class ObjectContainerSerializer
     
     @Override
     public void serialize(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         _delegate.serialize(value.toArray(), gen, provider);
     }
@@ -131,14 +131,14 @@ public class ObjectContainerSerializer
     @Override
     public void serializeWithType(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         _delegate.serializeWithType(value.toArray(), gen, provider, typeSer);
     }
 
     @Override
     protected void serializeContents(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         throw new IllegalStateException();
     }

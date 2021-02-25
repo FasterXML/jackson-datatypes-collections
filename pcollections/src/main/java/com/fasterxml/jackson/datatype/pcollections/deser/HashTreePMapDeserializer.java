@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
 
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.MapType;
@@ -12,14 +12,14 @@ public class HashTreePMapDeserializer
  extends PCollectionsMapDeserializer<HashPMap<Object, Object>>
 {
     public HashTreePMapDeserializer(MapType type, KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(type, keyDeser, typeDeser, deser);
     }
 
     @Override
     public HashTreePMapDeserializer withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+            TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser) {
         return new HashTreePMapDeserializer(_mapType, keyDeser,
                 typeDeser, valueDeser);
     }

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.datatype.guava;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -23,18 +22,17 @@ public class TableSerializationTest extends ModuleTestBase
 
         public ComplexKeyModule()
         {
-            this.addKeySerializer(ComplexKey.class, new JsonSerializer<ComplexKey>() {
+            this.addKeySerializer(ComplexKey.class, new ValueSerializer<ComplexKey>() {
                 @Override
-                public void serialize( final ComplexKey value, final JsonGenerator jgen, final SerializerProvider provider )
-                    throws IOException, JsonProcessingException
+                public void serialize( final ComplexKey value, final JsonGenerator g, final SerializerProvider provider )
                 {
-                    jgen.writeFieldName(value.getKey1() + ":" + value.getKey2());
+                    g.writeName(value.getKey1() + ":" + value.getKey2());
                 }
             });
 
             this.addKeyDeserializer(ComplexKey.class, new KeyDeserializer() {
                 @Override
-                public Object deserializeKey( final String key, final DeserializationContext ctxt ) throws IOException, JsonProcessingException
+                public Object deserializeKey( final String key, final DeserializationContext ctxt )
                 {
                     final String[] split = key.split(":");
                     return new ComplexKey(split[0], split[1]);

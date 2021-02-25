@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+
 import com.google.common.hash.HashCode;
 
 public class HashCodeTest extends ModuleTestBase
@@ -25,7 +26,7 @@ public class HashCodeTest extends ModuleTestBase
         try {
             result = MAPPER.readValue(quote("ghijklmn0123456789"), HashCode.class);
             fail("Should not deserialize from non-hex string: got "+result);
-        } catch (JsonProcessingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Illegal hexadecimal character");
         }
     }

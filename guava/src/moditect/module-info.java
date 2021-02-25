@@ -16,6 +16,6 @@ module com.fasterxml.jackson.datatype.guava {
     exports com.fasterxml.jackson.datatype.guava.deser.util;
     exports com.fasterxml.jackson.datatype.guava.ser;
 
-    provides com.fasterxml.jackson.databind.Module with
+    provides com.fasterxml.jackson.databind.JacksonModule with
         com.fasterxml.jackson.datatype.guava.GuavaModule;
 }

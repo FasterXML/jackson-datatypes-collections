@@ -27,8 +27,8 @@ public class RawDeserializationTest extends ModuleTestBase {
     @Test
     public void objectObjectMap() throws IOException {
         testCollection(Maps.mutable.of("a", 1, "b", Collections.emptyMap()), "{\"a\":1, \"b\":{}}",
-                new TypeReference<MutableMap>() {},
-                new TypeReference<ImmutableMap>() {});
+                new TypeReference<MutableMap<?,?>>() {},
+                new TypeReference<ImmutableMap<?,?>>() {});
         testCollection(Maps.mutable.of("a", 1, "b", Collections.emptyMap()), "{\"a\":1, \"b\":{}}",
                 MutableMap.class,
                 ImmutableMap.class);
@@ -37,11 +37,11 @@ public class RawDeserializationTest extends ModuleTestBase {
     @Test
     public void objectList() throws IOException {
         testCollection(Lists.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
-                new TypeReference<MutableList>() {},
-                new TypeReference<ImmutableList>() {},
-                new TypeReference<MutableCollection>() {},
-                new TypeReference<ImmutableCollection>() {},
-                new TypeReference<RichIterable>() {});
+                new TypeReference<MutableList<?>>() {},
+                new TypeReference<ImmutableList<?>>() {},
+                new TypeReference<MutableCollection<?>>() {},
+                new TypeReference<ImmutableCollection<?>>() {},
+                new TypeReference<RichIterable<?>>() {});
         testCollection(Lists.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
                 MutableList.class,
                 ImmutableList.class,
@@ -53,8 +53,8 @@ public class RawDeserializationTest extends ModuleTestBase {
     @Test
     public void objectSet() throws IOException {
         testCollection(Sets.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
-                new TypeReference<MutableSet>() {},
-                new TypeReference<ImmutableSet>() {});
+                new TypeReference<MutableSet<?>>() {},
+                new TypeReference<ImmutableSet<?>>() {});
         testCollection(Sets.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
                 MutableSet.class,
                 ImmutableSet.class);
@@ -63,9 +63,9 @@ public class RawDeserializationTest extends ModuleTestBase {
     @Test
     public void objectBag() throws IOException {
         testCollection(Bags.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
-                new TypeReference<Bag>() {},
-                new TypeReference<MutableBag>() {},
-                new TypeReference<ImmutableBag>() {});
+                new TypeReference<Bag<?>>() {},
+                new TypeReference<MutableBag<?>>() {},
+                new TypeReference<ImmutableBag<?>>() {});
         testCollection(Bags.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
                 Bag.class,
                 MutableBag.class,

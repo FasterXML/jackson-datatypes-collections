@@ -17,7 +17,7 @@ public class GuavaOptionalDeserializer
      */
 
     public GuavaOptionalDeserializer(JavaType fullType, ValueInstantiator inst,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(fullType, inst, typeDeser, deser);
     }
@@ -29,19 +29,19 @@ public class GuavaOptionalDeserializer
      */
 
     @Override
-    public GuavaOptionalDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+    public GuavaOptionalDeserializer withResolved(TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser) {
         return new GuavaOptionalDeserializer(_fullType, _valueInstantiator,
                 typeDeser, valueDeser);
     }
 
     @Override
-    public Optional<?> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Optional<?> getNullValue(DeserializationContext ctxt) {
         // 07-May-2019, tatu: [databind#2303]: make sure to delegate
         return Optional.fromNullable(_valueDeserializer.getNullValue(ctxt));
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return getEmptyValue(ctxt);
     }
 

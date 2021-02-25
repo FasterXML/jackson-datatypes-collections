@@ -2,8 +2,7 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -15,13 +14,13 @@ public class ImmutableBiMapDeserializer
     extends GuavaImmutableMapDeserializer<ImmutableBiMap<Object, Object>>
 {
     public ImmutableBiMapDeserializer(JavaType type, KeyDeserializer keyDeser,
-            JsonDeserializer<?> deser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller) {
         super(type, keyDeser, deser, typeDeser, nuller);
     }
 
     @Override
-    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public Object getEmptyValue(DeserializationContext ctxt) {
         return ImmutableBiMap.of();
     }
 
@@ -32,7 +31,7 @@ public class ImmutableBiMapDeserializer
 
     @Override
     public GuavaMapDeserializer<ImmutableBiMap<Object, Object>> withResolved(KeyDeserializer keyDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer typeDeser,
+            ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller) {
         return new ImmutableBiMapDeserializer(_containerType, keyDeser, valueDeser, typeDeser, nuller);
     }

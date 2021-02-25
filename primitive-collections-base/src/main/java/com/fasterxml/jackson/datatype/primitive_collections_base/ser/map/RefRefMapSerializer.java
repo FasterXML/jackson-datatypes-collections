@@ -1,31 +1,33 @@
 package com.fasterxml.jackson.datatype.primitive_collections_base.ser.map;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+
 /**
  * @author yawkat
  */
-public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
+public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
 {
     private final JavaType _type;
     private final JavaType _keyType, _valueType;
 
-    protected final JsonSerializer<Object> _keySerializer;
+    protected final ValueSerializer<Object> _keySerializer;
     private final TypeSerializer _valueTypeSerializer;
-    protected final JsonSerializer<Object> _valueSerializer;
+    protected final ValueSerializer<Object> _valueSerializer;
 
     /**
      * Set of entries to omit during serialization, if any
@@ -34,7 +36,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 
     public RefRefMapSerializer(
             JavaType type, Class<? super T> mapClass,
-            JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
+            ValueSerializer<Object> keySerializer, TypeSerializer vts, ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(type, null);
@@ -55,23 +57,23 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     @SuppressWarnings("unchecked")
     protected RefRefMapSerializer(
             RefRefMapSerializer<?> src, BeanProperty property,
-            JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            ValueSerializer<?> keySerializer, TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Set<String> ignoredEntries
     ) {
         super(src, property);
         _type = src._type;
         _keyType = src._keyType;
         _valueType = src._valueType;
-        _keySerializer = (JsonSerializer<Object>) keySerializer;
+        _keySerializer = (ValueSerializer<Object>) keySerializer;
         _valueTypeSerializer = vts;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _ignoredEntries = ignoredEntries;
     }
 
     protected abstract RefRefMapSerializer<?> withResolved(
             BeanProperty property,
-            JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
+            ValueSerializer<?> keySer, TypeSerializer vts, ValueSerializer<?> valueSer,
             Set<String> ignored
     );
 
@@ -82,10 +84,10 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
-            BeanProperty property) throws JsonMappingException
+    public ValueSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
     {
-        JsonSerializer<?> valueSer = _valueSerializer;
+        ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = getContentType();
             if (valueType.isFinal()) {
@@ -98,7 +100,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
         final SerializationConfig config = provider.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
-        JsonSerializer<?> keySer = null;
+        ValueSerializer<?> keySer = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (propertyAcc != null && intr != null) {
@@ -143,7 +145,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
         Set<String> ignored = _ignoredEntries;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnorals(config, propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(config, propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
@@ -156,7 +158,7 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -171,7 +173,8 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
 
     @Override
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException {
+        throws JacksonException
+    {
         gen.writeStartObject(value);
         if (!isEmpty(provider, value)) {
             serializeFields(value, gen, provider);
@@ -180,11 +183,11 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     }
 
     @Override
-    public void serializeWithType(
-            T value, JsonGenerator gen,
-            SerializerProvider ctxt, TypeSerializer typeSer
-    ) throws IOException {
-        gen.setCurrentValue(value);
+    public void serializeWithType(T value, JsonGenerator gen,
+            SerializerProvider ctxt, TypeSerializer typeSer)
+        throws JacksonException
+    {
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!isEmpty(ctxt, value)) {
@@ -198,41 +201,37 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
     private void serializeFields(T value, JsonGenerator gen, SerializerProvider provider) {
         Set<String> ignored = _ignoredEntries;
         forEachKeyValue(value, (key, v) -> {
-            try {
-                // First, serialize key
-                if ((ignored != null) && ignored.contains(key)) {
-                    return;
-                }
-                if (key == null) {
-                    provider.findNullKeySerializer(getKeyType(), _property)
-                            .serialize(null, gen, provider);
-                } else {
-                    _keySerializer.serialize(key, gen, provider);
-                }
-                if (v == null) {
-                    provider.defaultSerializeNullValue(gen);
-                    return;
-                }
-                JsonSerializer<Object> valueSer = _valueSerializer;
-                if (valueSer == null) {
-                    valueSer = _findSerializer(provider, v);
-                }
-                if (_valueTypeSerializer == null) {
-                    valueSer.serialize(v, gen, provider);
-                } else {
-                    valueSer.serializeWithType(v, gen, provider, _valueTypeSerializer);
-                }
-            } catch (IOException e) {
-                rethrowUnchecked(e);
+            // First, serialize key
+            if ((ignored != null) && ignored.contains(key)) {
+                return;
+            }
+            if (key == null) {
+                provider.findNullKeySerializer(getKeyType(), _property)
+                        .serialize(null, gen, provider);
+            } else {
+                _keySerializer.serialize(key, gen, provider);
+            }
+            if (v == null) {
+                provider.defaultSerializeNullValue(gen);
+                return;
+            }
+            ValueSerializer<Object> valueSer = _valueSerializer;
+            if (valueSer == null) {
+                valueSer = _findSerializer(provider, v);
+            }
+            if (_valueTypeSerializer == null) {
+                valueSer.serialize(v, gen, provider);
+            } else {
+                valueSer.serializeWithType(v, gen, provider, _valueTypeSerializer);
             }
         });
     }
 
-    private JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
-            Object value) throws JsonMappingException
+    private ValueSerializer<Object> _findSerializer(SerializerProvider ctxt,
+        Object value)
     {
         final Class<?> cc = value.getClass();
-        JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
+        ValueSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
         if (valueSer != null) {
             return valueSer;
         }
@@ -241,11 +240,6 @@ public abstract class RefRefMapSerializer<T> extends ContainerSerializer<T>
                     ctxt.constructSpecializedType(_valueType, cc));
         }
         return _findAndAddDynamic(ctxt, cc);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void rethrowUnchecked(IOException e) throws E {
-        throw (E) e;
     }
 }
 

@@ -69,6 +69,16 @@ Jon Freedman (jonfreedman@github)
    (2.10.0)
 
 Philip Leonard (philleonard@github)
-  * Reported#56, contributed fix: Range property name (de)serialisation doesn't
+  * Reported #56, contributed fix: Range property name (de)serialisation doesn't
     respect property naming strategy
    (2.10.0)
+
+Tommy Becker (twbecker@github)
+  * Reported #25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap by default
+   (2.12.0)
+
+Migwel Gonzalez (Migwel@github)
+  * Contributed fix for #25: (guava) SetMultimap should be deserialized to a LinkedHashMultimap
+    by default
+   (2.12.0)
+

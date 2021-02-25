@@ -1,17 +1,18 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
 import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import com.google.common.collect.Table;
 
 /**
@@ -19,7 +20,7 @@ import com.google.common.collect.Table;
  * @author tatu - Some refactoring to streamline code
  */
 public class TableSerializer
-    extends ContainerSerializer<Table<?, ?, ?>>
+    extends StdContainerSerializer<Table<?, ?, ?>>
 {
     /**
      * Type declaration that defines parameters; may be a supertype of actual
@@ -27,17 +28,17 @@ public class TableSerializer
      */
     private final JavaType _type;
 
-    private final JsonSerializer<Object> _rowSerializer;
-    private final JsonSerializer<Object> _columnSerializer;
+    private final ValueSerializer<Object> _rowSerializer;
+    private final ValueSerializer<Object> _columnSerializer;
     private final TypeSerializer _valueTypeSerializer;
-    private final JsonSerializer<Object> _valueSerializer;
+    private final ValueSerializer<Object> _valueSerializer;
 
     private final MapSerializer _rowMapSerializer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializer lifecycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     public TableSerializer(JavaType type)
@@ -56,40 +57,38 @@ public class TableSerializer
     protected TableSerializer(final TableSerializer src,
             final BeanProperty property,
             final TypeFactory typeFactory,
-            final JsonSerializer<?> rowKeySerializer,
-            final JsonSerializer<?> columnKeySerializer,
+            final ValueSerializer<?> rowKeySerializer,
+            final ValueSerializer<?> columnKeySerializer,
             final TypeSerializer valueTypeSerializer,
-            final JsonSerializer<?> valueSerializer)
+            final ValueSerializer<?> valueSerializer)
     {
         super(src, property);
         _type = src._type;
-        _rowSerializer = (JsonSerializer<Object>) rowKeySerializer;
-        _columnSerializer = (JsonSerializer<Object>) columnKeySerializer;
+        _rowSerializer = (ValueSerializer<Object>) rowKeySerializer;
+        _columnSerializer = (ValueSerializer<Object>) columnKeySerializer;
         _valueTypeSerializer = valueTypeSerializer;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         
         final MapType columnAndValueType = typeFactory.constructMapType(Map.class,
                 _type.containedTypeOrUnknown(1), _type.containedTypeOrUnknown(2));
 
-        JsonSerializer<?> columnAndValueSerializer = 
-                MapSerializer.construct((Set<String>) null,
-                                        columnAndValueType,
-                                        false,
-                                        _valueTypeSerializer,
-                                        _columnSerializer,
-                                        _valueSerializer,
-                                        null);
+        ValueSerializer<?> columnAndValueSerializer = 
+                MapSerializer.construct(columnAndValueType, false,
+                        _valueTypeSerializer,
+                        _columnSerializer,
+                        _valueSerializer,
+                        null,
+                        (Set<String>) null, (Set<String>) null);
 
         final MapType rowMapType = typeFactory.constructMapType(Map.class,
                 _type.containedTypeOrUnknown(0), columnAndValueType);
         _rowMapSerializer =
-                MapSerializer.construct((Set<String>) null,
-                                        rowMapType,
-                                        false,
-                                        null,
-                                        _rowSerializer,
-                                        (JsonSerializer<Object>) columnAndValueSerializer,
-                                        null);
+                MapSerializer.construct(rowMapType, false,
+                        null,
+                        _rowSerializer,
+                        (ValueSerializer<Object>) columnAndValueSerializer,
+                        null,
+                        (Set<String>) null, (Set<String>) null);
     }
 
     protected TableSerializer(final TableSerializer src, TypeSerializer typeSer)
@@ -106,27 +105,26 @@ public class TableSerializer
 
     protected TableSerializer withResolved(final BeanProperty property,
             final TypeFactory typeFactory,
-            final JsonSerializer<?> rowKeySer,
-            final JsonSerializer<?> columnKeySer,
+            final ValueSerializer<?> rowKeySer,
+            final ValueSerializer<?> columnKeySer,
             final TypeSerializer vts,
-            final JsonSerializer<?> valueSer )
+            final ValueSerializer<?> valueSer )
     {
         return new TableSerializer(this, property, typeFactory,
                 rowKeySer, columnKeySer, vts, valueSer);
     }
 
     @Override
-    protected ContainerSerializer<?> _withValueTypeSerializer(final TypeSerializer typeSer)
+    protected StdContainerSerializer<?> _withValueTypeSerializer(final TypeSerializer typeSer)
     {
         return new TableSerializer(this, typeSer);
     }
 
     @Override
-    public JsonSerializer<?> createContextual(final SerializerProvider provider,
-            final BeanProperty property )
-        throws JsonMappingException
+    public ValueSerializer<?> createContextual(final SerializerProvider provider,
+            final BeanProperty property)
     {
-        JsonSerializer<?> valueSer = _valueSerializer;
+        ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             final JavaType valueType = _type.containedTypeOrUnknown(2);
             if (valueType.isFinal()) {
@@ -135,13 +133,13 @@ public class TableSerializer
         } else {
             valueSer = provider.handleSecondaryContextualization(valueSer, property);
         }
-        JsonSerializer<?> rowKeySer = _rowSerializer;
+        ValueSerializer<?> rowKeySer = _rowSerializer;
         if (rowKeySer == null) {
             rowKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(0), property);
         } else {
             rowKeySer = provider.handleSecondaryContextualization(rowKeySer, property);
         }
-        JsonSerializer<?> columnKeySer = _columnSerializer;
+        ValueSerializer<?> columnKeySer = _columnSerializer;
         if (columnKeySer == null) {
             columnKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(1), property);
         } else {
@@ -156,9 +154,9 @@ public class TableSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessor API
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -167,7 +165,7 @@ public class TableSerializer
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -182,38 +180,40 @@ public class TableSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Main serialization methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
     public void serialize(final Table<?, ?, ?> value,
             final JsonGenerator gen, final SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeStartObject(value);
-        if ( !value.isEmpty()) {
-            serializeFields(value, gen, provider);
+        if (!value.isEmpty()) {
+            serializeEntries(value, gen, provider);
         }
         gen.writeEndObject();
     }
 
     @Override
     public void serializeWithType(final Table<?, ?, ?> value,
-            final JsonGenerator gen, final SerializerProvider ctxt,
-            final TypeSerializer typeSer) throws IOException
+            final JsonGenerator g, final SerializerProvider ctxt,
+            final TypeSerializer typeSer)
+        throws JacksonException
     {
-        gen.setCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
+        g.assignCurrentValue(value);
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
-        serializeFields(value, gen, ctxt);
-        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
+        serializeEntries(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    private final void serializeFields( final Table<?, ?, ?> table, final JsonGenerator jgen, final SerializerProvider provider )
-        throws IOException
+    private final void serializeEntries( final Table<?, ?, ?> table, final JsonGenerator g,
+            final SerializerProvider provider )
+        throws JacksonException
     {
-        _rowMapSerializer.serializeFields(table.rowMap(), jgen, provider);
+        _rowMapSerializer.serializeEntries(table.rowMap(), g, provider);
     }
 }

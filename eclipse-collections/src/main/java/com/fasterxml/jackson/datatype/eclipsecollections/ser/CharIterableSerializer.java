@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import java.io.IOException;
+
 import org.eclipse.collections.api.CharIterable;
 import org.eclipse.collections.api.iterator.CharIterator;
 
@@ -24,7 +26,9 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
     }
 
     @Override
-    public void serialize(CharIterable value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(CharIterable value, JsonGenerator gen, SerializerProvider provider)
+            throws JacksonException
+    {
         if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
             gen.writeStartArray();
             writeContentsAsArray(value, gen);
@@ -40,9 +44,10 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
             CharIterable value,
             JsonGenerator g,
             SerializerProvider ctxt,
-            TypeSerializer typeSer
-    ) throws IOException {
-        g.setCurrentValue(value);
+            TypeSerializer typeSer)
+        throws JacksonException
+    {
+        g.assignCurrentValue(value);
         WritableTypeId typeIdDef;
         if (ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
             typeIdDef = typeSer.writeTypePrefix(g, ctxt, typeSer.typeId(value, JsonToken.START_ARRAY));
@@ -55,7 +60,9 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    private void writeContentsAsArray(CharIterable value, JsonGenerator g) throws IOException {
+    private void writeContentsAsArray(CharIterable value, JsonGenerator g)
+        throws JacksonException
+    {
         char[] buf = new char[1];
         CharIterator iterator = value.charIterator();
         while (iterator.hasNext()) {
