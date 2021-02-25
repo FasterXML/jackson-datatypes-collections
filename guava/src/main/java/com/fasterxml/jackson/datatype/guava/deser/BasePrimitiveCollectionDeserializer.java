@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,20 +30,20 @@ public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveL
     }
 
     protected abstract void add(IntermediateCollection intermediateCollection, JsonParser parser,
-                                DeserializationContext context) throws IOException;
+                                DeserializationContext context) throws JacksonException;
 
     protected abstract PrimitiveList finish(IntermediateCollection intermediateCollection);
 
     @Override
     public Object deserializeWithType(JsonParser parser, DeserializationContext context,
-                                      TypeDeserializer typeDeserializer) throws IOException {
+                                      TypeDeserializer typeDeserializer) throws JacksonException {
         return typeDeserializer.deserializeTypedFromArray(parser, context);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public PrimitiveList deserialize(JsonParser parser, DeserializationContext context)
-            throws IOException {
+            throws JacksonException {
         // Should usually point to START_ARRAY
         if (parser.isExpectedStartArrayToken()) {
             return _deserializeContents(parser, context);
@@ -56,7 +56,7 @@ public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveL
     }
 
     protected PrimitiveList _deserializeContents(JsonParser parser, DeserializationContext context)
-            throws IOException {
+            throws JacksonException {
         IntermediateCollection collection = createIntermediateCollection();
 
         while (parser.nextToken() != JsonToken.END_ARRAY) {
@@ -66,7 +66,7 @@ public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveL
     }
 
     protected PrimitiveList _deserializeFromSingleValue(JsonParser parser, DeserializationContext ctxt)
-            throws IOException {
+            throws JacksonException {
         IntermediateCollection intermediateCollection = createIntermediateCollection();
         add(intermediateCollection, parser, ctxt);
         return finish(intermediateCollection);

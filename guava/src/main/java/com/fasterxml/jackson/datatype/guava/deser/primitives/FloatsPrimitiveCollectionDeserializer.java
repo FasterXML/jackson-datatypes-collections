@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser.primitives;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import com.google.common.primitives.Floats;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class FloatsPrimitiveCollectionDeserializer
     }
 
     @Override
-    protected Float asPrimitive(JsonParser parser) throws IOException {
+    protected Float asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getFloatValue();
     }
 

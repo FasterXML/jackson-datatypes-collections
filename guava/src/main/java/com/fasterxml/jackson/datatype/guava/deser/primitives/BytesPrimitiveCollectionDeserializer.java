@@ -1,14 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser.primitives;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.datatype.guava.deser.BasePrimitiveCollectionDeserializer;
 import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
-import com.google.common.primitives.Booleans;
 import com.google.common.primitives.Bytes;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,7 +15,7 @@ public class BytesPrimitiveCollectionDeserializer
     }
 
     @Override
-    protected Byte asPrimitive(JsonParser parser) throws IOException {
+    protected Byte asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getByteValue();
     }
 

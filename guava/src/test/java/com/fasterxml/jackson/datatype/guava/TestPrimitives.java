@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
@@ -91,21 +91,21 @@ public class TestPrimitives extends ModuleTestBase {
         try {
             mapper.readValue("[true,false,true]", PrimitiveTypes.BooleansTypeReference);
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (JacksonException e) {
             verifyException(e, PrimitiveTypes.BooleansTypeName);
         }
 
         try {
             mapper.readValue("[1,2,3]", PrimitiveTypes.IntsTypeReference);
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (JacksonException e) {
             verifyException(e, PrimitiveTypes.IntsTypeName);
         }
 
         try {
             mapper.readValue("[1,2,3]", PrimitiveTypes.LongsTypeReference);
             fail("Expected failure for missing deserializer");
-        } catch (JsonMappingException e) {
+        } catch (JacksonException e) {
             verifyException(e, PrimitiveTypes.LongsTypeName);
         }
 

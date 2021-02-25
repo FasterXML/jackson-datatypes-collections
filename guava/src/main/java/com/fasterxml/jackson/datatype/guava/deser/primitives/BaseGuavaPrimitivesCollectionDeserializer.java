@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser.primitives;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.datatype.guava.deser.BasePrimitiveCollectionDeserializer;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,9 +22,9 @@ public abstract class BaseGuavaPrimitivesCollectionDeserializer<ObjectType, Prim
     }
 
     @Override
-    protected void add(IntermediateCollection intermediateCollection, JsonParser parser, DeserializationContext context) throws IOException {
+    protected void add(IntermediateCollection intermediateCollection, JsonParser parser, DeserializationContext context) throws JacksonException {
         intermediateCollection.add(asPrimitive(parser));
     }
 
-    protected abstract ObjectType asPrimitive(JsonParser parser) throws IOException;
+    protected abstract ObjectType asPrimitive(JsonParser parser) throws JacksonException;
 }

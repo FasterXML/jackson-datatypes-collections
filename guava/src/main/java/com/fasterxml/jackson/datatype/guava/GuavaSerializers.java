@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -32,10 +34,6 @@ import com.google.common.collect.Table;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
-import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
-import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
-import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
-import com.fasterxml.jackson.datatype.guava.ser.TableSerializer;
 
 public class GuavaSerializers extends Serializers.Base
     implements Serializable
@@ -119,12 +117,12 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config, CollectionLikeType type,
-            BeanDescription beanDesc, Value formatOverrides, TypeSerializer elementTypeSerializer,
-            JsonSerializer<Object> elementValueSerializer)
+    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config, CollectionLikeType type,
+            BeanDescription beanDesc, JsonFormat.Value formatOverrides, TypeSerializer elementTypeSerializer,
+           ValueSerializer<Object> elementValueSerializer)
     {
         Class<?> raw = type.getRawClass();
-        Optional<JsonSerializer<?>> primitiveSerializer = PrimitiveTypes.isAssignableFromPrimitive(raw)
+        Optional<ValueSerializer<?>> primitiveSerializer = PrimitiveTypes.isAssignableFromPrimitive(raw)
                 .transform((ignore) -> ToStringSerializer.instance);
 
         return primitiveSerializer
@@ -132,7 +130,7 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     private JavaType _findDeclared(JavaType subtype, Class<?> target) {
-        JavaType decl = subtype.findSuperType(target);
+            JavaType decl = subtype.findSuperType(target);
         if (decl == null) { // should never happen but
             throw new IllegalArgumentException("Strange "+target.getName()+" sub-type, "+subtype+", can not find type parameters");
         }
