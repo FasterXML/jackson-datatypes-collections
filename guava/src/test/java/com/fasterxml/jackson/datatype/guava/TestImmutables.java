@@ -3,19 +3,20 @@ package com.fasterxml.jackson.datatype.guava;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.google.common.collect.*;
 
 /**
  * Unit tests for verifying that various immutable types
  * (like {@link ImmutableList}, {@link ImmutableMap} and {@link ImmutableSet})
  * work as expected.
- * 
- * @author tsaloranta
  */
 public class TestImmutables extends ModuleTestBase
 {
@@ -54,6 +55,14 @@ public class TestImmutables extends ModuleTestBase
         ImmutableMap<String,Integer> map = ImmutableMap.<String,Integer>builder()
             .put("a", 1).put("b", 2).build();
         assertEquals("{\"a\":1,\"b\":2}", MAPPER.writeValueAsString(map));
+
+        assertEquals(a2q("{'message':'Hello, world!'}"),
+                MAPPER.writeValueAsString(ImmutableMap.of("message", "Hello, world!")));
+        assertEquals(a2q("{'id':3,'name':'Bob'}"),
+                MAPPER.writeValueAsString(ImmutableMap.of("id", 3, "name", "Bob")));
+
+        assertEquals("[12,true,0.25]",
+                MAPPER.writeValueAsString(ImmutableList.of(12, true, 0.25)));
     }
 
     /**

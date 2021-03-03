@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.12.2 (not yet released)
+2.12.2 (03-Mar-2021)
 
 - Add missing "provides Module" for eclipse-collections module-info (JPMS)
 
