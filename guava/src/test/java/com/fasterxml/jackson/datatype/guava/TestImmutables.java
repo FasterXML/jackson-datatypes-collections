@@ -55,6 +55,14 @@ public class TestImmutables extends ModuleTestBase
         ImmutableMap<String,Integer> map = ImmutableMap.<String,Integer>builder()
             .put("a", 1).put("b", 2).build();
         assertEquals("{\"a\":1,\"b\":2}", MAPPER.writeValueAsString(map));
+
+        assertEquals(a2q("{'message':'Hello, world!'}"),
+                MAPPER.writeValueAsString(ImmutableMap.of("message", "Hello, world!")));
+        assertEquals(a2q("{'id':3,'name':'Bob'}"),
+                MAPPER.writeValueAsString(ImmutableMap.of("id", 3, "name", "Bob")));
+
+        assertEquals("[12,true,0.25]",
+                MAPPER.writeValueAsString(ImmutableList.of(12, true, 0.25)));
     }
 
     /**
