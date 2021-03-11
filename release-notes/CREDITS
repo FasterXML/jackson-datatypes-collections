@@ -1,0 +1,17 @@
+Here are people who have contributed to the development of Jackson JSON processor
+Std Collections
+(version numbers in brackets indicate release in which the problem was fixed)
+
+Tatu Saloranta (tatu.saloranta@iki.fi): author for HPPC, Pcollections modules;
+   co-author for Guava, Eclipse collections
+Steven Schlansker (steven@nesscomputing.com): author of Guava module
+Jonas Konrad (yawkat@github): author of Eclipse Collections module
+
+--------------------------------------------------------------------------------
+Fixes for 3.x (see CREDITS-2.x for 2.x)
+--------------------------------------------------------------------------------
+
+László-Róbert Albert (albertlr@github)
+
+* Contributed #69: (guava) Add support for Guava primitives during deserialization
+ [3.0.0]

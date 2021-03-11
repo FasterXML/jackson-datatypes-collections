@@ -11,4 +11,6 @@ Modules:
 
 3.0.0 (not yet released)
 
-- (guava) Upgrade guava dependency from 18 to 20
+#69: Add support for Guava primitives during deserialization
+ (contributed by László-Róbert A)
+- (guava) Update "preferred" Guava version to 25.1-jre
