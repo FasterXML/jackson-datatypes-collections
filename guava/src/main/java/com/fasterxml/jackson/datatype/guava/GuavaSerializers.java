@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -48,7 +50,7 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public ValueSerializer<?> findReferenceSerializer(SerializationConfig config, 
+    public ValueSerializer<?> findReferenceSerializer(SerializationConfig config,
             ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer)
     {
@@ -114,8 +116,21 @@ public class GuavaSerializers extends Serializers.Base
         return null;
     }
 
+    @Override
+    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config, CollectionLikeType type,
+            BeanDescription beanDesc, JsonFormat.Value formatOverrides, TypeSerializer elementTypeSerializer,
+           ValueSerializer<Object> elementValueSerializer)
+    {
+        Class<?> raw = type.getRawClass();
+        Optional<ValueSerializer<?>> primitiveSerializer = PrimitiveTypes.isAssignableFromPrimitive(raw)
+                .transform((ignore) -> ToStringSerializer.instance);
+
+        return primitiveSerializer
+                .or(() -> super.findCollectionLikeSerializer(config, type, beanDesc, formatOverrides, elementTypeSerializer, elementValueSerializer));
+    }
+
     private JavaType _findDeclared(JavaType subtype, Class<?> target) {
-        JavaType decl = subtype.findSuperType(target);
+            JavaType decl = subtype.findSuperType(target);
         if (decl == null) { // should never happen but
             throw new IllegalArgumentException("Strange "+target.getName()+" sub-type, "+subtype+", can not find type parameters");
         }

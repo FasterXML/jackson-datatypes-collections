@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import com.google.common.hash.HashCode;
@@ -20,6 +21,8 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.set.HashMultimapDeser
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
 
 import java.io.Serializable;
+
+import static com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes.isAssignableFromPrimitive;
 
 /**
  * Custom deserializers module offers.
@@ -127,7 +130,9 @@ public class GuavaDeserializers
                     null, null);
         }
 
-        return null;
+        return isAssignableFromPrimitive(raw)
+                .transform(PrimitiveTypes.Primitives::newDeserializer)
+                .orNull();
     }
 
     private void requireCollectionOfComparableElements(CollectionType actualType, String targetType) {
@@ -310,8 +315,10 @@ public class GuavaDeserializers
                     || ImmutableCollection.class.isAssignableFrom(valueType)
                     || ImmutableMap.class.isAssignableFrom(valueType)
                     || BiMap.class.isAssignableFrom(valueType)
+                    || isAssignableFromPrimitive(valueType).isPresent()
                     ;
         }
         return false;
     }
+
 }
