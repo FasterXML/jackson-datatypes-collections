@@ -131,6 +131,8 @@ import org.eclipse.collections.api.set.primitive.MutableLongSet;
 import org.eclipse.collections.api.set.primitive.MutableShortSet;
 import org.eclipse.collections.api.set.primitive.ShortSet;
 import org.eclipse.collections.api.tuple.Pair;
+import org.eclipse.collections.api.tuple.Triple;
+import org.eclipse.collections.api.tuple.Triplet;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.api.tuple.primitive.ObjectIntPair;
 import org.eclipse.collections.impl.factory.Bags;
@@ -693,5 +695,33 @@ public final class DeserializerTest extends ModuleTestBase {
                 new TypeReference<MutableMap<String, MutableMap<String, String>>>() {};
         Assert.assertEquals(json, mapperWithModule().writerFor(type).writeValueAsString(pair));
         Assert.assertEquals(pair, mapperWithModule().readValue(json, type));
+    }
+
+    @Test
+    public void triple() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
+        Triple<String, Integer, Boolean> triple = Tuples.triple("a", 2, false);
+        String actJson = mapper.writerFor(new TypeReference<Triple<String, Integer, Boolean>>() {})
+                .writeValueAsString(triple);
+        String expJson = "{\"one\":\"a\",\"two\":2,\"three\":false}";
+        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
+        Assert.assertEquals(
+                triple,
+                mapper.readValue(actJson, new TypeReference<Triple<String, Integer, Boolean>>() {})
+        );
+    }
+
+    @Test
+    public void triplet() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
+        Triplet<String> triple = Tuples.triplet("a", "b", "c");
+        String actJson = mapper.writerFor(new TypeReference<Triplet<String>>() {})
+                .writeValueAsString(triple);
+        String expJson = "{\"one\":\"a\",\"two\":\"b\",\"three\":\"c\"}";
+        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
+        Assert.assertEquals(
+                triple,
+                mapper.readValue(actJson, new TypeReference<Triplet<String>>() {})
+        );
     }
 }

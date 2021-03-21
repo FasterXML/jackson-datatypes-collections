@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.eclipse.collections</groupId>
             <artifactId>eclipse-collections</artifactId>
-            <version>9.1.0</version>
+            <version>10.4.0</version>
         </dependency>
     </dependencies>
 
