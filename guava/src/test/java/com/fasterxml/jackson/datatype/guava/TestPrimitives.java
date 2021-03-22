@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import com.google.common.primitives.Booleans;
 import com.google.common.primitives.Bytes;
@@ -84,6 +85,33 @@ public class TestPrimitives extends ModuleTestBase {
     }
 
     /**
+     * {@link ImmutableIntArray}, {@link ImmutableLongArray} and {@link ImmutableDoubleArray} cannot be serialized by
+     * default.
+     */
+    public void testImmutableArraysWithoutSerializers() {
+        ObjectMapper mapper = new ObjectMapper();
+        ImmutableIntArray intArray = ImmutableIntArray.of(1, 2, 3);
+        assertEquals("[1, 2, 3]", intArray.toString());
+        assertEquals("{\"empty\":false}", mapper.writeValueAsString(intArray));
+        ImmutableLongArray longArray = ImmutableLongArray.of(1, 2, 3);
+        assertEquals("[1, 2, 3]", longArray.toString());
+        assertEquals("{\"empty\":false}", mapper.writeValueAsString(longArray));
+        ImmutableDoubleArray doubleArray = ImmutableDoubleArray.of(1.5, 2.5, 3.5);
+        assertEquals("[1.5, 2.5, 3.5]", doubleArray.toString());
+        assertEquals("{\"empty\":false}", mapper.writeValueAsString(doubleArray));
+    }
+
+    /**
+     * {@link ImmutableIntArray}, {@link ImmutableLongArray} and {@link ImmutableDoubleArray} cannot be serialized by
+     * default, however having {@link GuavaModule} registered, it will successfully serialize them as plain arrays.
+     */
+    public void testImmutableArraysWithSerializers() {
+        assertEquals("[1,2,3]", MAPPER.writeValueAsString(ImmutableIntArray.of(1, 2, 3)));
+        assertEquals("[1,2,3]", MAPPER.writeValueAsString(ImmutableLongArray.of(1, 2, 3)));
+        assertEquals("[1.5,2.5,3.5]", MAPPER.writeValueAsString(ImmutableDoubleArray.of(1.5, 2.5, 3.5)));
+    }
+
+    /**
      * Deserialization will fail, however.
      */
     public void testWithoutDeserializers() throws Exception {
@@ -107,6 +135,34 @@ public class TestPrimitives extends ModuleTestBase {
             fail("Expected failure for missing deserializer");
         } catch (JacksonException e) {
             verifyException(e, PrimitiveTypes.LongsTypeName);
+        }
+
+    }
+
+    /**
+     * Deserialization will fail.
+     */
+    public void testImmutableArraysWithoutDeserializers() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.readValue("[1,2,3]", ImmutablePrimitiveTypes.ImmutableIntArrayType);
+            fail("Expected failure for missing deserializer");
+        } catch (JacksonException e) {
+            verifyException(e, ImmutablePrimitiveTypes.ImmutableIntArrayName);
+        }
+
+        try {
+            mapper.readValue("[1,2,3]", ImmutablePrimitiveTypes.ImmutableLongArrayType);
+            fail("Expected failure for missing deserializer");
+        } catch (JacksonException e) {
+            verifyException(e, ImmutablePrimitiveTypes.ImmutableLongArrayName);
+        }
+
+        try {
+            mapper.readValue("[1.5,2.5,3.5]", ImmutablePrimitiveTypes.ImmutableDoubleArrayType);
+            fail("Expected failure for missing deserializer");
+        } catch (JacksonException e) {
+            verifyException(e, ImmutablePrimitiveTypes.ImmutableDoubleArrayName);
         }
 
     }
@@ -200,6 +256,22 @@ public class TestPrimitives extends ModuleTestBase {
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.DoublesTypeName));
     }
 
+    public void testImmutableDoubleArray() throws Exception {
+        ImmutableDoubleArray list = MAPPER.readValue("[1.5,2.5,3.5]", ImmutablePrimitiveTypes.ImmutableDoubleArrayReference);
+        assertEquals(3, list.length());
+        assertEquals(Double.valueOf(1.5), list.get(0));
+        assertEquals(Double.valueOf(2.5), list.get(1));
+        assertEquals(Double.valueOf(3.5), list.get(2));
+        assertTrue(list.getClass().getName().equals(ImmutablePrimitiveTypes.ImmutableDoubleArrayName));
+    }
+
+    public void testImmutableDoubleArrayFromSingle() throws Exception {
+        ImmutableDoubleArray array = SINGLE_MAPPER.readValue("1", ImmutablePrimitiveTypes.ImmutableDoubleArrayType);
+        assertEquals(1, array.length());
+        assertEquals(Double.valueOf(1d), array.get(0));
+        assertTrue(array.getClass().getName().equals(ImmutablePrimitiveTypes.ImmutableDoubleArrayName));
+    }
+
     public void testInts() throws Exception {
         List<Integer> list = MAPPER.readValue("[1,2,3]", PrimitiveTypes.IntsTypeReference);
         assertEquals(3, list.size());
@@ -216,6 +288,22 @@ public class TestPrimitives extends ModuleTestBase {
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.IntsTypeName));
     }
 
+    public void testImmutableIntArray() throws Exception {
+        ImmutableIntArray array = MAPPER.readValue("[1,2,3]", ImmutablePrimitiveTypes.ImmutableIntArrayReference);
+        assertEquals(3, array.length());
+        assertEquals(1, array.get(0));
+        assertEquals(2, array.get(1));
+        assertEquals(3, array.get(2));
+        assertTrue(array.getClass().getName().equals(ImmutablePrimitiveTypes.ImmutableIntArrayName));
+    }
+
+    public void testImmutableIntArrayFromSingle() throws Exception {
+        ImmutableIntArray array = SINGLE_MAPPER.readValue("1", ImmutablePrimitiveTypes.ImmutableIntArrayReference);
+        assertEquals(1, array.length());
+        assertEquals(1, array.get(0));
+        assertTrue(array.getClass().getName().equals(ImmutablePrimitiveTypes.ImmutableIntArrayName));
+    }
+
     public void testLongs() throws Exception {
         List<Long> list = MAPPER.readValue("[1,2,3]", PrimitiveTypes.LongsTypeReference);
         assertEquals(3, list.size());
@@ -230,6 +318,22 @@ public class TestPrimitives extends ModuleTestBase {
         assertEquals(1, list.size());
         assertEquals(Long.valueOf(1), list.get(0));
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.LongsTypeName));
+    }
+
+    public void testImmutableLongArray() throws Exception {
+        ImmutableLongArray array = MAPPER.readValue("[1,2,3]", ImmutablePrimitiveTypes.ImmutableLongArrayReference);
+        assertEquals(3, array.length());
+        assertEquals(1L, array.get(0));
+        assertEquals(2L, array.get(1));
+        assertEquals(3L, array.get(2));
+        assertTrue(array.getClass().getName().equals(ImmutablePrimitiveTypes.ImmutableLongArrayName));
+    }
+
+    public void testImmutableLongArrayFromSingle() throws Exception {
+        ImmutableLongArray array = SINGLE_MAPPER.readValue("1", ImmutablePrimitiveTypes.ImmutableLongArrayReference);
+        assertEquals(1, array.length());
+        assertEquals(1L, array.get(0));
+        assertTrue(array.getClass().getName().equals(ImmutablePrimitiveTypes.ImmutableLongArrayName));
     }
 
     public void testShorts() throws Exception {
