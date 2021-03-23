@@ -9,10 +9,18 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
-import java.util.Collection;
-import java.util.List;
-
-public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveList extends List<ObjectType>, IntermediateCollection extends Collection<ObjectType>>
+/**
+ * Base deserializer of a primitive collection or an immutable primitive array.
+ *
+ * @param <ObjectType>            The base object type. Eg: {@code Long}
+ * @param <PrimitiveList>         The collection type that we deserialize. Eg: type of {@code Longs.asList(..)} or
+ *                                {@code ImmutableLongArray}
+ * @param <IntermediateContainer> The intermediate container where we collect the collection elements before returning
+ *                                it as the {@code PrimitiveList} type. Eg. in case of collections would be a
+ *                                {@code ArrayList<Long>} or in case of an immutable array would be
+ *                                {@code ImmutableLongArray.Builder}
+ */
+public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveList, IntermediateContainer>
         extends StdDeserializer<PrimitiveList> {
 
     protected BasePrimitiveCollectionDeserializer(Class<? extends PrimitiveList> cls, Class<? super ObjectType> itemType) {
@@ -23,16 +31,16 @@ public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveL
         super(type);
     }
 
-    protected abstract IntermediateCollection createIntermediateCollection();
+    protected abstract IntermediateContainer createIntermediateCollection();
 
-    protected IntermediateCollection createIntermediateCollection(int expectedSize) {
+    protected IntermediateContainer createIntermediateCollection(int expectedSize) {
         return createIntermediateCollection();
     }
 
-    protected abstract void add(IntermediateCollection intermediateCollection, JsonParser parser,
+    protected abstract void add(IntermediateContainer intermediateContainer, JsonParser parser,
                                 DeserializationContext context) throws JacksonException;
 
-    protected abstract PrimitiveList finish(IntermediateCollection intermediateCollection);
+    protected abstract PrimitiveList finish(IntermediateContainer intermediateContainer);
 
     @Override
     public Object deserializeWithType(JsonParser parser, DeserializationContext context,
@@ -57,7 +65,7 @@ public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveL
 
     protected PrimitiveList _deserializeContents(JsonParser parser, DeserializationContext context)
             throws JacksonException {
-        IntermediateCollection collection = createIntermediateCollection();
+        IntermediateContainer collection = createIntermediateCollection();
 
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             add(collection, parser, context);
@@ -67,9 +75,9 @@ public abstract class BasePrimitiveCollectionDeserializer<ObjectType, PrimitiveL
 
     protected PrimitiveList _deserializeFromSingleValue(JsonParser parser, DeserializationContext ctxt)
             throws JacksonException {
-        IntermediateCollection intermediateCollection = createIntermediateCollection();
-        add(intermediateCollection, parser, ctxt);
-        return finish(intermediateCollection);
+        IntermediateContainer intermediateContainer = createIntermediateCollection();
+        add(intermediateContainer, parser, ctxt);
+        return finish(intermediateContainer);
     }
 
 }

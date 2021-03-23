@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import java.io.Serializable;
 import java.util.Set;
@@ -95,7 +96,9 @@ public class GuavaSerializers extends Serializers.Base
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
         }
-        return null;
+        return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(raw)
+                .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newSerializer)
+                .orNull();
     }
 
     @Override

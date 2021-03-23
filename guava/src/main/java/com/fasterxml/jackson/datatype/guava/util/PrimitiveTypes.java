@@ -131,12 +131,11 @@ public class PrimitiveTypes {
     public static final String LongsTypeName = LongsType.getName();
     public static final String ShortsTypeName = ShortsType.getName();
 
-
-    private static <T> TypeReference<T> typeRefOf(Type type) {
+    static <T> TypeReference<T> typeRefOf(Type type) {
         return new PrimitiveTypeReference<>(type);
     }
 
-    private static class PrimitiveTypeReference<T> extends TypeReference<T> {
+    static class PrimitiveTypeReference<T> extends TypeReference<T> {
         private final Type primitiveType;
 
         private PrimitiveTypeReference(Type primitiveType) {
