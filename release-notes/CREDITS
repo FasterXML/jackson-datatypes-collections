@@ -13,5 +13,7 @@ Fixes for 3.x (see CREDITS-2.x for 2.x)
 
 László-Róbert Albert (albertlr@github)
 
+* Contributed #24: Support for Guava's Immutable{Double,Int,Long}Array
+ [3.0.0]
 * Contributed #69: (guava) Add support for Guava primitives during deserialization
  [3.0.0]
