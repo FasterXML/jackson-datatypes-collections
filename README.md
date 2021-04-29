@@ -5,10 +5,10 @@ Datatype modules to support 3rd party Collection libraries.
 
 Currently included are:
 
+* [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.10)
 * [Guava](guava/) datatype (for [Guava library](http://code.google.com/p/guava-libraries/)): `jackson-datatype-guava`
 * [HPPC](hppc/) datatype (for [High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
 * [PCollections](pcollections/) datatype (for [Persistent Java Collections](http://pcollections.org)): `jackson-datatype-pcollections`
-* [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.9.6)
 
 ## License
 
@@ -28,11 +28,12 @@ To use these format backends Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-[COLLECTION]</artifactId>
-  <version>2.11.3</version>
+  <version>2.13.3</version>
 </dependency>
 ```
 
-where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, or `eclipse-collections`.
+where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, or `eclipse-collections`
+(replace version with the latest available).
 
 You may also use [jackson-bom](https://github.com/FasterXML/jackson-bom) for defining
 consistent sets of versions of various Jackson components.
