@@ -5,10 +5,10 @@ Datatype modules to support 3rd party Collection libraries.
 
 Currently included are:
 
+* [Eclipse Collections](eclipse-collections/) datatype ([https://github.com/eclipse/eclipse-collections])
 * [Guava](guava/) datatype ([Guava](http://code.google.com/p/guava-libraries/))
 * [HPPC](hppc/) datatype ([High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html))
 * [PCollections](pcollections/) datatype ([Persistent Java Collections](http://pcollections.org))
-* [Eclipse Collections](eclipse-collections/) datatype ([https://github.com/eclipse/eclipse-collections])
 
 ## License
 
