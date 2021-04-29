@@ -28,14 +28,15 @@ Following table shows the tested working ranges for recent module versions.
 
 | Module version | Min Guava | Default Guava | Max Guava |
 | -------------- | --------- | ------------- | --------- |
-| 2.12           | 14.0      | 21.0          | 29.0-jre  |
-| 2.11           | 14.0      | 20.0          | 29.0-jre  |
-| 2.10           | 14.0      | 20.0          | 29.0-jre  |
-| 2.9            | 12.0      | 18.0          | 29.0-jre  |
+| 2.13           | 14.0      | 21.0          | 30.1-jre  |
+| 2.12           | 14.0      | 21.0          | 30.1-jre  |
+| 2.11           | 14.0      | 20.0          | 30.1-jre  |
+| 2.10           | 14.0      | 20.0          | 30.1-jre  |
+| 2.9            | 12.0      | 18.0          | 30.1-jre  |
 
 Notes:
 
-* At the point of testing, `29.0-jre` was the latest available Guava library
+* At the point of testing, `30.1-jre` was the latest available Guava library
 version, so all versions work with the latest Guava
 * "Min Guava" means the earliest version that integration tests pass with
 * "Default Guava" is the dependency specified in module's `pom.xml`: it is used for build, unit tests
