@@ -75,10 +75,10 @@ including support for nested types.
 See READMEs of individual modules for datatype-specific configuration, options
 and so on:
 
+* [jackson-datatype-eclipse-collections](eclipse-collections/)
 * [jackson-datype-guava](guava/)
 * [jackson-datatype-hpcc](hppc/)
 * [jackson-datatype-pcollections](pcollections/)
-* [jackson-datatype-eclipse-collections](eclipse-collections/)
 
 ### Usage with Spring Boot
 
