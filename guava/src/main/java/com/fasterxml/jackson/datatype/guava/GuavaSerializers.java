@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSetSerializer;
 import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.FluentIterable;
@@ -25,6 +26,7 @@ import com.google.common.collect.Table;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
+import com.fasterxml.jackson.datatype.guava.ser.CacheSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
@@ -90,6 +92,10 @@ public class GuavaSerializers extends Serializers.Base
         if (FluentIterable.class.isAssignableFrom(raw)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null);
+        }
+        // [datatypes-collections#90]: add minimal "as-empty" serializer for Caches
+        if (Cache.class.isAssignableFrom(raw)) {
+            return new CacheSerializer();
         }
         return super.findSerializer(config, type, beanDesc);
     }
