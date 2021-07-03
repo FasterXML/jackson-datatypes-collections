@@ -18,13 +18,14 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSetSerializer;
-
+import com.fasterxml.jackson.datatype.guava.ser.CacheSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.TableSerializer;
 
 import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.FluentIterable;
@@ -95,6 +96,12 @@ public class GuavaSerializers extends Serializers.Base
         if (FluentIterable.class.isAssignableFrom(raw)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
+        }
+        // [datatypes-collections#90]: add bogus "serialize as empty" serializer to avoid
+        // error on "no properties". If proper serialization (and deserialization) needed,
+        // would need to resolve type parameters here
+        if (Cache.class.isAssignableFrom(raw)) {
+            return new CacheSerializer();
         }
         return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(raw)
                 .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newSerializer)
