@@ -4,6 +4,8 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONException;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 /**
  * Unit tests to verify serialization of {@link FluentIterable}s.
@@ -25,6 +27,13 @@ public class FluentIterableTest extends ModuleTestBase
      * or Guava's implementation of FluentIterable changes.
      * @throws Exception
      */
+    private void assertJsonEqualsNonStrict(String json0, String json1) {
+        try {
+            JSONAssert.assertEquals(json0, json1, false);
+        } catch (JSONException jse) {
+            throw new IllegalArgumentException(jse.getMessage());
+        }
+    }
     public void testSerializationWithoutModule() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         FluentHolder holder = new FluentHolder();
@@ -34,13 +43,13 @@ public class FluentIterableTest extends ModuleTestBase
 
     public void testSerialization() throws Exception {
         String json = MAPPER.writeValueAsString(createFluentIterable());
-        assertEquals("[1,2,3]", json);
+        assertJsonEqualsNonStrict("[1,2,3]", json);
     }
 
     public void testWrappedSerialization() throws Exception {
         FluentHolder holder = new FluentHolder();
         String json = MAPPER.writeValueAsString(holder);
-        assertEquals("{\"value\":[1,2,3]}", json);
+        assertJsonEqualsNonStrict("{\"value\":[1,2,3]}", json);
     }
 
 }
