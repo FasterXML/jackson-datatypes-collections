@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import java.util.Arrays;
+
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Sets;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -17,7 +18,8 @@ public class FluentIterableTest extends ModuleTestBase
     }
 
     static FluentIterable<Integer> createFluentIterable() {
-        return FluentIterable.from(Sets.newHashSet(1, 2, 3));
+        // use List/array-based to ensure order
+        return FluentIterable.from(Arrays.asList(1, 2, 3));
     }
 
     /**
