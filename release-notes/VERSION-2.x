@@ -21,6 +21,7 @@ Active Maintainers:
 #85: (eclipse-collections) Update eclipse-collections to version 10 and implement Triple deserialization. Still compatible with older EC versions
 - (guava) Serialize `Cache` instances as empty Objects (see #90)
 
+2.12.5 (27-Aug-2021)
 2.12.4 (06-Jul-2021)
 2.12.3 (12-Apr-2021)
 
