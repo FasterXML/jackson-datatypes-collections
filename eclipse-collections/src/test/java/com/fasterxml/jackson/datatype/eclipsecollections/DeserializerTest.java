@@ -652,12 +652,16 @@ public final class DeserializerTest extends ModuleTestBase {
                     }
                 }
 
-                String expectedJson = "{\"one\":" + mapperWithModule().writeValueAsString(sampleOne)
+                String expectedJson1 = "{\"one\":" + mapperWithModule().writeValueAsString(sampleOne)
                                       + ",\"two\":" + mapperWithModule().writeValueAsString(sampleTwo) + "}";
+                String expectedJson2 = "{\"two\":" + mapperWithModule().writeValueAsString(sampleTwo)
+                                      + ",\"one\":" + mapperWithModule().writeValueAsString(sampleOne) + "}";
                 Object samplePair = factory.invoke(null, sampleOne, sampleTwo);
-
-                Assert.assertEquals(expectedJson, mapperWithModule().writeValueAsString(samplePair));
-                Assert.assertEquals(samplePair, mapperWithModule().readValue(expectedJson, pairType));
+                String writeValue = mapperWithModule().writeValueAsString(samplePair);
+                boolean assert1 = writeValue.equals(expectedJson1);
+                boolean assert2 = writeValue.equals(expectedJson2);
+                Assert.assertTrue(assert1 || assert2);
+                Assert.assertEquals(samplePair, mapperWithModule().readValue(expectedJson1, pairType));
             }
         }
     }
@@ -667,11 +671,16 @@ public final class DeserializerTest extends ModuleTestBase {
         final ObjectMapper mapper = mapperWithModule();
         Object sampleOne = randomSample(Object.class);
         Object sampleTwo = randomSample(Object.class);
-        String expectedJson = "{\"one\":" + mapper.writeValueAsString(sampleOne)
+        String expectedJson1 = "{\"one\":" + mapper.writeValueAsString(sampleOne)
                               + ",\"two\":" + mapper.writeValueAsString(sampleTwo) + "}";
+        String expectedJson2 = "{\"two\":" + mapper.writeValueAsString(sampleTwo)
+                              + ",\"one\":" + mapper.writeValueAsString(sampleOne) + "}";
         Twin<String> twin = Tuples.twin((String) sampleOne, (String) sampleTwo);
-        Assert.assertEquals(expectedJson, mapper.writeValueAsString(twin));
-        Assert.assertEquals(twin, mapper.readValue(expectedJson, new TypeReference<Twin<String>>() {}));
+        String writeValue = mapper.writeValueAsString(twin);
+        boolean assert1 = writeValue.equals(expectedJson1);
+        boolean assert2 = writeValue.equals(expectedJson2);
+        Assert.assertTrue(assert1 || assert2);
+        Assert.assertEquals(twin, mapper.readValue(expectedJson1, new TypeReference<Twin<String>>() {}));
     }
 
     @Test
