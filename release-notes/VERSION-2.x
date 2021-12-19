@@ -20,6 +20,10 @@ Active Maintainers:
 
 No changes since 2.13
 
+2.13.1 (19-Dec-2021)
+
+No changes since 2.13.0
+
 2.13.0 (30-Sep-2021)
 
 #85: (eclipse-collections) Update eclipse-collections to version 10 and implement Triple deserialization. Still compatible with older EC versions
