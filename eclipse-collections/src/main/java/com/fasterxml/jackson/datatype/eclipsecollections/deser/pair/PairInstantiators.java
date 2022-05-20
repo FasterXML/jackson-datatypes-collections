@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -104,6 +107,12 @@ import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
  */
 public final class PairInstantiators extends ValueInstantiators.Base {
     private static final Map<Class<?>, ValueInstantiator> PURE_PRIMITIVE_INSTANTIATORS = new HashMap<>();
+
+    private static final List<Class<?>> ALL_PAIR_CLASSES;
+
+    public static List<Class<?>> getAllPairClasses() {
+        return ALL_PAIR_CLASSES;
+    }
 
     @SuppressWarnings("serial")
     @Override
@@ -462,5 +471,30 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         purePrimitiveInstantiator(DoubleDoublePair.class, double.class, double.class,
                                   (one, two) -> PrimitiveTuples.pair((double) one, (double) two));
         //endregion
+
+        List<Class<?>> allPairClasses = new ArrayList<>(PURE_PRIMITIVE_INSTANTIATORS.keySet());
+        // primitive -> object
+        allPairClasses.add(BooleanObjectPair.class);
+        allPairClasses.add(ByteObjectPair.class);
+        allPairClasses.add(ShortObjectPair.class);
+        allPairClasses.add(CharObjectPair.class);
+        allPairClasses.add(IntObjectPair.class);
+        allPairClasses.add(FloatObjectPair.class);
+        allPairClasses.add(LongObjectPair.class);
+        allPairClasses.add(DoubleObjectPair.class);
+        // object -> primitive
+        allPairClasses.add(ObjectBooleanPair.class);
+        allPairClasses.add(ObjectBytePair.class);
+        allPairClasses.add(ObjectShortPair.class);
+        allPairClasses.add(ObjectCharPair.class);
+        allPairClasses.add(ObjectIntPair.class);
+        allPairClasses.add(ObjectFloatPair.class);
+        allPairClasses.add(ObjectLongPair.class);
+        allPairClasses.add(ObjectDoublePair.class);
+        // object -> object
+        allPairClasses.add(Pair.class);
+        allPairClasses.add(Twin.class);
+
+        ALL_PAIR_CLASSES = Collections.unmodifiableList(allPairClasses);
     }
 }
