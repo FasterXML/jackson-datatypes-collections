@@ -1,5 +1,12 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -12,11 +19,6 @@ import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.tuple.Tuples;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
 /**
  * @author yawkat
  */
@@ -24,6 +26,12 @@ public final class PairInstantiators extends ValueInstantiators.Base {
     private static final Map<Class<?>, ValueInstantiator> PURE_PRIMITIVE_INSTANTIATORS =
             new HashMap<>();
 
+    // !!! TODO: 20-May-2022, tatu: To fix; working around failed merge of #95
+    private static final List<Class<?>> ALL_PAIR_CLASSES = Collections.emptyList();
+
+    public static List<Class<?>> getAllPairClasses() {
+        return ALL_PAIR_CLASSES;
+    }    
     private static final Map<Class<?>, Function<JavaType, ValueInstantiator>> KEY_OR_VALUE_OBJECT_LAMBDAS =
             new HashMap<>();
 

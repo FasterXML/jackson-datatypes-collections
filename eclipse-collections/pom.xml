@@ -29,7 +29,7 @@
   </contributors>
 
   <properties>
-    <version.eclipse-collections>10.4.0</version.eclipse-collections>
+    <version.eclipse-collections>11.0.0</version.eclipse-collections>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/eclipsecollections</packageVersion.dir>

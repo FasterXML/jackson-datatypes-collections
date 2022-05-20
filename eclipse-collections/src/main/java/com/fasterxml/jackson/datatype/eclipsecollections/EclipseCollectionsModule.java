@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.JacksonModule;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.pair.PairInstantiators;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.pair.TripleInstantiators;
+import org.eclipse.collections.api.tuple.Triple;
 
 /**
  * Basic Jackson {@link JacksonModule} that adds support for eclipse-collections types.
@@ -31,13 +32,15 @@ public class EclipseCollectionsModule extends JacksonModule {
         context.addSerializers(new EclipseCollectionsSerializers());
 
         context.addValueInstantiators(new PairInstantiators());
-        try {
-            context.addValueInstantiators(new TripleInstantiators());
-        } catch (NoClassDefFoundError ignored) {
-            // triples were added in EC 10
-        }
+
+        context.addValueInstantiators(new TripleInstantiators());
+        context.setMixIn(Triple.class, TripleMixin.class);
 
         context.addTypeModifier(new EclipseCollectionsTypeModifier());
+
+        for (Class<?> pairClass : PairInstantiators.getAllPairClasses()) {
+            context.setMixIn(pairClass, PairMixin.class);
+        }
     }
 
     @Override
