@@ -20,6 +20,11 @@ Active Maintainers:
 
 No changes since 2.13
 
+2.13.4 (not yet released)
+
+#94: Eclipse Collection serialization for Pairs does not work when upgrading to EC version 11.0.0
+ (fixed by yawkat)
+
 2.13.3 (14-May-2022)
 2.13.2 (06-Mar-2022)
 2.13.1 (19-Dec-2021)
