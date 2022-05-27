@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -26,12 +23,13 @@ public final class PairInstantiators extends ValueInstantiators.Base {
     private static final Map<Class<?>, ValueInstantiator> PURE_PRIMITIVE_INSTANTIATORS =
             new HashMap<>();
 
-    // !!! TODO: 20-May-2022, tatu: To fix; working around failed merge of #95
-    private static final List<Class<?>> ALL_PAIR_CLASSES = Collections.emptyList();
+    private static final List<Class<?>> ALL_PAIR_CLASSES =
+            new ArrayList<>();
 
     public static List<Class<?>> getAllPairClasses() {
-        return ALL_PAIR_CLASSES;
-    }    
+        return Collections.unmodifiableList(ALL_PAIR_CLASSES);
+    }
+
     private static final Map<Class<?>, Function<JavaType, ValueInstantiator>> KEY_OR_VALUE_OBJECT_LAMBDAS =
             new HashMap<>();
 
@@ -99,6 +97,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
     static void add(Class<?> objectKeyOrValuePairClass,
             Function<JavaType, ValueInstantiator> lambda) {
+        ALL_PAIR_CLASSES.add(objectKeyOrValuePairClass);
         KEY_OR_VALUE_OBJECT_LAMBDAS.put(objectKeyOrValuePairClass, lambda);
     }
 
@@ -162,6 +161,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             Class<P> pairClass, Class<?> one, Class<?> two,
             BiFunction<Object, Object, P> factory
     ) {
+        ALL_PAIR_CLASSES.add(pairClass);
         PURE_PRIMITIVE_INSTANTIATORS.put(pairClass, new PairInstantiator(pairClass) {
             @Override
             public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
@@ -240,5 +240,8 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
     static {
         PairInstantiatorsPopulator.populate();
+        // these ones get special handling
+        ALL_PAIR_CLASSES.add(Pair.class);
+        ALL_PAIR_CLASSES.add(Twin.class);
     }
 }
