@@ -157,14 +157,16 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     {
         T multimap = createMultimap();
 
+        // 27-May-2022, tatu: Should probably also allow FIELD_NAME, if buffering
+        //     ever needed
         expect(p, JsonToken.START_OBJECT);
 
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (keyDeserializer != null) {
-                key = keyDeserializer.deserializeKey(p.getCurrentName(), ctxt);
+                key = keyDeserializer.deserializeKey(p.currentName(), ctxt);
             } else {
-                key = p.getCurrentName();
+                key = p.currentName();
             }
 
             p.nextToken();
@@ -172,7 +174,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
             while (p.nextToken() != JsonToken.END_ARRAY) {
                 final Object value;
-                if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
+                if (p.currentToken() == JsonToken.VALUE_NULL) {
                     if (skipNullValues) {
                         continue;
                     }
@@ -211,9 +213,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         while (p.nextToken() != JsonToken.END_OBJECT) {
             final Object key;
             if (keyDeserializer != null) {
-                key = keyDeserializer.deserializeKey(p.getCurrentName(), ctxt);
+                key = keyDeserializer.deserializeKey(p.currentName(), ctxt);
             } else {
-                key = p.getCurrentName();
+                key = p.currentName();
             }
 
             p.nextToken();
@@ -255,7 +257,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        if (p.getCurrentToken() == JsonToken.VALUE_NULL) {
+        if (p.currentToken() == JsonToken.VALUE_NULL) {
             return null;
         }
         if (elementTypeDeserializer != null) {
@@ -266,7 +268,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
     private void expect(JsonParser p, JsonToken token) throws IOException {
         if (p.getCurrentToken() != token) {
-            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.getCurrentToken(),
+            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.currentName(),
                     p.getCurrentLocation());
         }
     }

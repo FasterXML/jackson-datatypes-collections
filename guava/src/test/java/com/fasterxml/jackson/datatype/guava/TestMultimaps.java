@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.*;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -84,11 +85,12 @@ public class TestMultimaps extends ModuleTestBase
             final ImmutableMultimapWrapper other = (ImmutableMultimapWrapper) obj;
             return !(this.multimap != other.multimap && (this.multimap == null || !this.multimap.equals(other.multimap)));
         }
-
     }
-    
-    private static final String STRING_STRING_MULTIMAP =
-            "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}";
+
+    //Sample class for testing multimaps single value option
+    static class SampleMultiMapTest {
+        public HashMultimap<String, String> map;
+    }
 
     /*
     /**********************************************************
@@ -258,7 +260,8 @@ public class TestMultimaps extends ModuleTestBase
     private SetMultimap<String, String> _verifyMultiMapRead(TypeReference<?> type)
         throws IOException
     {
-        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, type);
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER
+                .readValue( "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}", type);
         assertEquals(3, map.size());
         assertTrue(map.containsEntry("first", "abc"));
         assertTrue(map.containsEntry("first", "foo"));
@@ -293,7 +296,8 @@ public class TestMultimaps extends ModuleTestBase
 
     @SuppressWarnings("unchecked")
     private ListMultimap<String, String> listBasedHelper(TypeReference<?> type) throws IOException {
-        ListMultimap<String, String> map = (ListMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, type);
+        ListMultimap<String, String> map = (ListMultimap<String, String>) MAPPER
+                .readValue( "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}", type);
         assertEquals(4, map.size());
         assertTrue(map.remove("first", "abc"));
         assertTrue(map.containsEntry("first", "abc"));
@@ -323,7 +327,9 @@ public class TestMultimaps extends ModuleTestBase
     // [Issue#25]
     public void testDefaultSetMultiMap() throws IOException {
         @SuppressWarnings("unchecked")
-        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, new TypeReference<SetMultimap>() {});
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER
+            .readValue( "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}",
+                SetMultimap.class);
         assertTrue(map instanceof LinkedHashMultimap);
     }
     
@@ -359,23 +365,37 @@ public class TestMultimaps extends ModuleTestBase
 
         // Make sure that our Value is still a String not [String]
         assertEquals(sampleTest.map.entries().iterator().next().getValue(), "val");
-
     }
     
     public void testFromMultiValueWithNoSingleValueOptionEnabled() throws Exception
     {
-        ObjectMapper mapper = mapperWithModule();
-        
-        SampleMultiMapTest sampleTest = mapper.readValue("{\"map\":{\"test\":[\"val\"],\"test1\":[\"val1\",\"val2\"]}}",
+        SampleMultiMapTest sampleTest = MAPPER.readValue("{\"map\":{\"test\":[\"val\"],\"test1\":[\"val1\",\"val2\"]}}",
                 new TypeReference<SampleMultiMapTest>() { });
         
         assertEquals(1, sampleTest.map.get("test").size());
         assertEquals(2, sampleTest.map.get("test1").size());
-        
     }
-    
-    //Sample class for testing multimaps single value option
-    static class SampleMultiMapTest {
-        public HashMultimap<String, String> map;
+
+    static class Pojo96 {
+        @JsonProperty
+        ArrayListMultimap<Long, Integer> multimap;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public Pojo96(@JsonProperty("multimap") ArrayListMultimap<Long, Integer> multimap) {
+            this.multimap = multimap;
+        }
+    }
+    // [datatype-collections#96]
+    public void testMultimapIssue96() throws Exception
+    {
+        ArrayListMultimap<Long, Integer> multimap = ArrayListMultimap.create();
+        multimap.put(1L, 1);
+        multimap.put(1L, 2);
+
+        String json = MAPPER.writeValueAsString(new Pojo96(multimap));
+//        System.out.println(json);
+        Pojo96 result = MAPPER.readValue(json, Pojo96.class);
+        assertEquals(2, result.multimap.size());
+        assertEquals(Collections.singleton(1L), result.multimap.keySet());
     }
 }
