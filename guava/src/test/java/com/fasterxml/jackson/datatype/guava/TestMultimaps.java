@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -94,16 +96,12 @@ public class TestMultimaps extends ModuleTestBase
             final ImmutableMultimapWrapper other = (ImmutableMultimapWrapper) obj;
             return !(this.multimap != other.multimap && (this.multimap == null || !this.multimap.equals(other.multimap)));
         }
-
     }
-    
-    private static final String STRING_STRING_MULTIMAP =
-            "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}";
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = mapperWithModule();
@@ -267,7 +265,8 @@ public class TestMultimaps extends ModuleTestBase
     @SuppressWarnings("unchecked")
     private SetMultimap<String, String> _verifyMultiMapRead(TypeReference<?> type)
     {
-        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, type);
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER
+                .readValue( "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}", type);
         assertEquals(3, map.size());
         assertTrue(map.containsEntry("first", "abc"));
         assertTrue(map.containsEntry("first", "foo"));
@@ -303,7 +302,8 @@ public class TestMultimaps extends ModuleTestBase
     @SuppressWarnings("unchecked")
     private ListMultimap<String, String> listBasedHelper(TypeReference<?> type)
     {
-        ListMultimap<String, String> map = (ListMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP, type);
+        ListMultimap<String, String> map = (ListMultimap<String, String>) MAPPER
+                .readValue("{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}", type);
         assertEquals(4, map.size());
         assertTrue(map.remove("first", "abc"));
         assertTrue(map.containsEntry("first", "abc"));
@@ -333,8 +333,9 @@ public class TestMultimaps extends ModuleTestBase
     public void testDefaultSetMultiMap()
     {
         @SuppressWarnings("unchecked")
-        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER.readValue(STRING_STRING_MULTIMAP,
-                new TypeReference<SetMultimap<?,?>>() {});
+        SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER
+            .readValue( "{\"first\":[\"abc\",\"abc\",\"foo\"]," + "\"second\":[\"bar\"]}",
+                SetMultimap.class);
         assertTrue(map instanceof LinkedHashMultimap);
     }
     
@@ -380,5 +381,28 @@ public class TestMultimaps extends ModuleTestBase
         
         assertEquals(1, sampleTest.map.get("test").size());
         assertEquals(2, sampleTest.map.get("test1").size());
+    }
+
+    static class Pojo96 {
+        @JsonProperty
+        ArrayListMultimap<Long, Integer> multimap;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public Pojo96(@JsonProperty("multimap") ArrayListMultimap<Long, Integer> multimap) {
+            this.multimap = multimap;
+        }
+    }
+    // [datatype-collections#96]
+    public void testMultimapIssue96() throws Exception
+    {
+        ArrayListMultimap<Long, Integer> multimap = ArrayListMultimap.create();
+        multimap.put(1L, 1);
+        multimap.put(1L, 2);
+
+        String json = MAPPER.writeValueAsString(new Pojo96(multimap));
+//        System.out.println(json);
+        Pojo96 result = MAPPER.readValue(json, Pojo96.class);
+        assertEquals(2, result.multimap.size());
+        assertEquals(Collections.singleton(1L), result.multimap.keySet());
     }
 }

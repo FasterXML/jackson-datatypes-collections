@@ -151,6 +151,8 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private T deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        // 27-May-2022, tatu: Should probably also allow FIELD_NAME, if buffering
+        //     ever needed
         expect(ctxt, p, JsonToken.START_OBJECT);
 
         final T multimap = createMultimap();
