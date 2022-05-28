@@ -157,11 +157,13 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     {
         T multimap = createMultimap();
 
-        // 27-May-2022, tatu: Should probably also allow FIELD_NAME, if buffering
-        //     ever needed
-        expect(p, JsonToken.START_OBJECT);
+        JsonToken currToken = p.currentToken();
+        if (currToken != JsonToken.FIELD_NAME) {
+            expect(p, JsonToken.START_OBJECT);
+            currToken = p.nextToken();
+        }
 
-        while (p.nextToken() != JsonToken.END_OBJECT) {
+        for (; currToken == JsonToken.FIELD_NAME; currToken = p.nextToken()) {
             final Object key;
             if (keyDeserializer != null) {
                 key = keyDeserializer.deserializeKey(p.currentName(), ctxt);
@@ -268,7 +270,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
     private void expect(JsonParser p, JsonToken token) throws IOException {
         if (p.getCurrentToken() != token) {
-            throw new JsonMappingException(p, "Expecting " + token + ", found " + p.currentName(),
+            throw new JsonMappingException(p, "Expecting " + token + " to start `MultiMap` value, found " + p.currentToken(),
                     p.getCurrentLocation());
         }
     }

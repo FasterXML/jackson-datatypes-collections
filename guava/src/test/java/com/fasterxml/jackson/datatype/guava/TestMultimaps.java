@@ -376,26 +376,48 @@ public class TestMultimaps extends ModuleTestBase
         assertEquals(2, sampleTest.map.get("test1").size());
     }
 
-    static class Pojo96 {
+    static class Pojo96Properties {
         @JsonProperty
         ArrayListMultimap<Long, Integer> multimap;
 
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-        public Pojo96(@JsonProperty("multimap") ArrayListMultimap<Long, Integer> multimap) {
+        public Pojo96Properties(@JsonProperty("multimap") ArrayListMultimap<Long, Integer> multimap) {
             this.multimap = multimap;
         }
     }
+
+    static class Pojo96Delegating {
+        ArrayListMultimap<Long, Integer> multimap;
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        public Pojo96Delegating(ArrayListMultimap<Long, Integer> multimap) {
+            this.multimap = multimap;
+        }
+
+        @JsonValue
+        ArrayListMultimap<Long, Integer> mapValue() {
+            return multimap;
+        }
+    }
+
     // [datatype-collections#96]
     public void testMultimapIssue96() throws Exception
     {
-        ArrayListMultimap<Long, Integer> multimap = ArrayListMultimap.create();
+        // First the original, properties case:
+        final ArrayListMultimap<Long, Integer> multimap = ArrayListMultimap.create();
         multimap.put(1L, 1);
         multimap.put(1L, 2);
 
-        String json = MAPPER.writeValueAsString(new Pojo96(multimap));
+        String json = MAPPER.writeValueAsString(new Pojo96Properties(multimap));
+        Pojo96Properties result1 = MAPPER.readValue(json, Pojo96Properties.class);
+        assertEquals(2, result1.multimap.size());
+        assertEquals(Collections.singleton(1L), result1.multimap.keySet());
+
+        // Then delegating
+        json = MAPPER.writeValueAsString(new Pojo96Delegating(multimap));
 //        System.out.println(json);
-        Pojo96 result = MAPPER.readValue(json, Pojo96.class);
-        assertEquals(2, result.multimap.size());
-        assertEquals(Collections.singleton(1L), result.multimap.keySet());
+        Pojo96Delegating result2 = MAPPER.readValue(json, Pojo96Delegating.class);
+        assertEquals(2, result2.multimap.size());
+        assertEquals(Collections.singleton(1L), result2.multimap.keySet());
     }
 }
