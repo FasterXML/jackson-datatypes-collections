@@ -151,12 +151,15 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private T deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        // 27-May-2022, tatu: Should probably also allow FIELD_NAME, if buffering
-        //     ever needed
-        expect(ctxt, p, JsonToken.START_OBJECT);
+        T multimap = createMultimap();
 
-        final T multimap = createMultimap();
-        while (p.nextToken() != JsonToken.END_OBJECT) {
+        JsonToken currToken = p.currentToken();
+        if (currToken != JsonToken.PROPERTY_NAME) {
+            expect(ctxt, p, JsonToken.START_OBJECT);
+            currToken = p.nextToken();
+        }
+
+        for (; currToken == JsonToken.PROPERTY_NAME; currToken = p.nextToken()) {
             final Object key;
             if (_keyDeserializer != null) {
                 key = _keyDeserializer.deserializeKey(p.currentName(), ctxt);
@@ -259,7 +262,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     {
         if (p.currentToken() != token) {
             ctxt.reportInputMismatch(handledType(),
-"Expecting %s, encountered %s",
+"Expecting %s to start `MultiMap` value, encountered %s",
 token, p.currentToken());
         }
     }
