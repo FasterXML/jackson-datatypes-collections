@@ -1,6 +1,6 @@
 One of standard [Jackson](../../../..jackson) Collection type [Datatype modules](../../..).
 Supports JSON serialization and deserialization of
-[Guava](http://code.google.com/p/guava-libraries/) data types.
+[Guava](https://github.com/google/guava) data types.
 
 ## Usage
 

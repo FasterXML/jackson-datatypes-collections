@@ -12,6 +12,13 @@
   <packaging>pom</packaging>
   <description>Parent pom for Jackson Collection datatype modules.
   </description>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <modules>
     <module>guava</module>
@@ -24,7 +31,7 @@
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-datatypes-collections.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatypes-collections.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-datatypes-collections</url>    
+    <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
     <tag>HEAD</tag>
   </scm>
 

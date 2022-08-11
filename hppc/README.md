@@ -1,13 +1,13 @@
 [Jackson](../../../jackson) datatype module (jar)
 to support JSON serialization and deserialization of
-[High-Performance Primitive Collections](http://labs.carrotsearch.com/hppc.html) datatypes.
+[High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html) datatypes.
 
-Licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
+Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Status
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-hppc.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-hppc.svg)](https://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc)
 
 Currently (2.7) following things are supported:
 
