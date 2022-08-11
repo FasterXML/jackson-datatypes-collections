@@ -18,6 +18,13 @@
         eclipse-collections (https://www.eclipse.org/collections/) types
     </description>
     <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <contributors>
         <contributor>

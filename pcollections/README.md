@@ -1,13 +1,13 @@
 [Jackson](../../../jackson) datatype module (jar)
 to support JSON serialization and deserialization of
-[PCollections](http://pcollections.org/) data types.
+[PCollections](https://pcollections.org/) data types.
 
-Licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
+Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 ## Status
 
 [![Maven Central](https://img.shields.io/maven-central/v/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-pcollections/)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-pcollections)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](https://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-pcollections)
 
 ## Usage
 

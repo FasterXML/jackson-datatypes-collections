@@ -14,9 +14,16 @@
   <name>Jackson datatype: pcollections</name>
   <packaging>bundle</packaging>
   <description>Add-on datatype-support module for Jackson (https://github.com/FasterXML/jackson) that handles
-PCollections (http://pcollections.org/) types
+PCollections (https://pcollections.org/) types
   </description>
   <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <contributors>
     <contributor>
