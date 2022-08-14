@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion> 
   <parent>
-    <groupId>com.fasterxml.jackson</groupId>
+    <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
-  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <groupId>tools.jackson.datatype</groupId>
   <artifactId>jackson-datatypes-collections</artifactId>
   <name>Jackson datatypes: collections</name>
   <version>3.0.0-SNAPSHOT</version>
@@ -31,21 +31,31 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
+      <groupId>tools.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
     </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find
        snapshot of parent... -->
+  <!-- 13-Aug-2022, tatu: Worse. We need both "new" and "old" Snapshot repositories
+       because "jackson-annotations" is published via "old"
+    -->
   <repositories>
     <repository>
       <id>sonatype-nexus-snapshots</id>
       <name>Sonatype Nexus Snapshots</name>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+    <repository>
+      <id>sonatype-old-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots (old)</name>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases><enabled>false</enabled></releases>
       <snapshots><enabled>true</enabled></snapshots>
@@ -72,7 +82,7 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <excludes>
-              <exclude>com/fasterxml/jackson/**/failing/*.java</exclude>
+              <exclude>**/jackson/**/failing/*.java</exclude>
             </excludes>
           </configuration>
         </plugin>

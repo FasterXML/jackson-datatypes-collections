@@ -1,12 +1,11 @@
-// Generated 20-Mar-2019 using Moditect maven plugin
 module jackson.datatype.pcollections {
-    requires com.fasterxml.jackson.core;
-    requires com.fasterxml.jackson.databind;
+    requires tools.jackson.core;
+    requires tools.jackson.databind;
     requires pcollections;
 
-    exports com.fasterxml.jackson.datatype.pcollections;
-    exports com.fasterxml.jackson.datatype.pcollections.deser;
+    exports tools.jackson.datatype.pcollections;
+    exports tools.jackson.datatype.pcollections.deser;
 
-    provides com.fasterxml.jackson.databind.JacksonModule with
-        com.fasterxml.jackson.datatype.pcollections.PCollectionsModule;
+    provides tools.jackson.databind.JacksonModule with
+        tools.jackson.datatype.pcollections.PCollectionsModule;
 }
