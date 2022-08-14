@@ -2,12 +2,12 @@ package com.fasterxml.jackson.datatype.primitive_collections_base.deser.map;
 
 import java.util.function.Function;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.*;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 
 /**
  * @author yawkat

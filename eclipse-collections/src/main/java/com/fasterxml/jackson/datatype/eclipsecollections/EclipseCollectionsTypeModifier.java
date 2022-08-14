@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
-import com.fasterxml.jackson.databind.type.TypeBindings;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.type.TypeModifier;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.type.CollectionLikeType;
+import tools.jackson.databind.type.TypeBindings;
+import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.type.TypeModifier;
 import java.lang.reflect.Type;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 

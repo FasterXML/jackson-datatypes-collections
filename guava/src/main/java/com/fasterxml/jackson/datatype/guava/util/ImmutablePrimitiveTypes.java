@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.primitives.BaseImmutableArrayDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.primitives.ImmutableDoubleArrayDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.primitives.ImmutableIntArrayDeserializer;

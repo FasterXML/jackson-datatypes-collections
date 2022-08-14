@@ -2,15 +2,15 @@ package com.fasterxml.jackson.datatype.hppc.ser;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ValueSerializer;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.Serializers;
-import com.fasterxml.jackson.databind.ser.jdk.ObjectArraySerializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.SerializationConfig;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.Serializers;
+import tools.jackson.databind.ser.jdk.ObjectArraySerializer;
+import tools.jackson.databind.type.CollectionLikeType;
 
 import com.carrotsearch.hppc.ObjectContainer;
 

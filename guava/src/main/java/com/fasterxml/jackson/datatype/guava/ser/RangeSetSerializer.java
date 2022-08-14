@@ -2,13 +2,13 @@ package com.fasterxml.jackson.datatype.guava.ser;
 
 import java.util.List;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.ValueSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 import com.google.common.collect.RangeSet;
 

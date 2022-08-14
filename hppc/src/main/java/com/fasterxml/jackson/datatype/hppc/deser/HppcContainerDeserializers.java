@@ -2,10 +2,10 @@ package com.fasterxml.jackson.datatype.hppc.deser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.LogicalType;
+import tools.jackson.databind.*;
+import tools.jackson.databind.type.LogicalType;
 import com.carrotsearch.hppc.*;
 
 public class HppcContainerDeserializers

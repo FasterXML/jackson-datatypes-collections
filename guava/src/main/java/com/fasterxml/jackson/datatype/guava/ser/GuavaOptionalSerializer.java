@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.ReferenceTypeSerializer;
-import com.fasterxml.jackson.databind.type.ReferenceType;
-import com.fasterxml.jackson.databind.util.NameTransformer;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.std.ReferenceTypeSerializer;
+import tools.jackson.databind.type.ReferenceType;
+import tools.jackson.databind.util.NameTransformer;
 import com.google.common.base.Optional;
 
 public class GuavaOptionalSerializer

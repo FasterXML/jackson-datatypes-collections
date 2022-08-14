@@ -2,14 +2,14 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.MapLikeType;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.databind.type.ReferenceType;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.Deserializers;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.CollectionLikeType;
+import tools.jackson.databind.type.CollectionType;
+import tools.jackson.databind.type.MapLikeType;
+import tools.jackson.databind.type.MapType;
+import tools.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDeserializer;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.bag.MutableBagDeserializer;

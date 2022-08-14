@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import com.google.common.collect.FluentIterable;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Unit tests to verify serialization of {@link FluentIterable}s.

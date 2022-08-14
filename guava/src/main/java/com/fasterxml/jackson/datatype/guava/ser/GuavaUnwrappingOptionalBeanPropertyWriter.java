@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.bean.UnwrappingBeanPropertyWriter;
-import com.fasterxml.jackson.databind.util.NameTransformer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.ser.bean.UnwrappingBeanPropertyWriter;
+import tools.jackson.databind.util.NameTransformer;
 import com.google.common.base.Optional;
 
 public class GuavaUnwrappingOptionalBeanPropertyWriter extends UnwrappingBeanPropertyWriter

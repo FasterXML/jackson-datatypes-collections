@@ -3,9 +3,9 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 
 import org.eclipse.collections.api.PrimitiveIterable;
 import org.eclipse.collections.api.map.ImmutableMap;

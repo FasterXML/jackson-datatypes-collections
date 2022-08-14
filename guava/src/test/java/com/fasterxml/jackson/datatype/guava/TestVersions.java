@@ -2,9 +2,9 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.Versioned;
-import com.fasterxml.jackson.core.util.VersionUtil;
+import tools.jackson.core.Version;
+import tools.jackson.core.Versioned;
+import tools.jackson.core.util.VersionUtil;
 
 public class TestVersions extends ModuleTestBase
 {

@@ -3,13 +3,13 @@ package com.fasterxml.jackson.datatype.guava.deser;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.util.AccessPattern;
+import tools.jackson.core.*;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 
 /**
  * Base class for Guava-specific collection deserializers.

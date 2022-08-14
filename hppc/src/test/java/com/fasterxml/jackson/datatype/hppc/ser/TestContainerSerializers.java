@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import com.carrotsearch.hppc.*;
 

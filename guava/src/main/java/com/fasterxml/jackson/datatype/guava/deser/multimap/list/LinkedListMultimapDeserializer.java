@@ -2,11 +2,11 @@ package com.fasterxml.jackson.datatype.guava.deser.multimap.list;
 
 import java.lang.reflect.Method;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ValueDeserializer;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.KeyDeserializer;
+import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.GuavaMultimapDeserializer;
 
 import com.google.common.collect.LinkedListMultimap;

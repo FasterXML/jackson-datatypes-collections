@@ -3,8 +3,8 @@ package com.fasterxml.jackson.datatype.guava;
 import java.io.Serializable;
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.*;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.type.*;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.*;

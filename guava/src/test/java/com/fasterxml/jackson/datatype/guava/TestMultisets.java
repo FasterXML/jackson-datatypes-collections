@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import com.google.common.collect.*;
 
 /**

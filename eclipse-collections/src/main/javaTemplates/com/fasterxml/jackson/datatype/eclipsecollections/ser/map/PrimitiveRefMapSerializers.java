@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser.map;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.*;
+import tools.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.datatype.primitive_collections_base.ser.map.PrimitiveRefMapSerializer;
 import org.eclipse.collections.api.map.primitive.*;
 

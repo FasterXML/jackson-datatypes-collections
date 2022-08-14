@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.datatype.guava.util;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.datatype.guava.deser.BasePrimitiveCollectionDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.primitives.BooleansPrimitiveCollectionDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.primitives.BytesPrimitiveCollectionDeserializer;

@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.map;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.type.TypeBindings;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.type.TypeBindings;
+import tools.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.KeyHandler;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.MapDeserializer;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.map.TypeHandlerPair;

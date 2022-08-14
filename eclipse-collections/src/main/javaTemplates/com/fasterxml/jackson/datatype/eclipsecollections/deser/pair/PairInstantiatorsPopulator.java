@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.deser.pair;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.deser.ValueInstantiator;
 
 import org.eclipse.collections.api.tuple.primitive.*;
 import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;

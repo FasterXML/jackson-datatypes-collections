@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import com.google.common.hash.HashCode;
 

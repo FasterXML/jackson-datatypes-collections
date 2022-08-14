@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.eclipsecollections.ser;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.datatype.primitive_collections_base.ser.PrimitiveIterableSerializer;
 import org.eclipse.collections.api.PrimitiveIterable;
 

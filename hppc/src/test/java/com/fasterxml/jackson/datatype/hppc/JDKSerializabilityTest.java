@@ -2,7 +2,7 @@ package com.fasterxml.jackson.datatype.hppc;
 
 import java.io.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import com.carrotsearch.hppc.ShortArrayList;
 

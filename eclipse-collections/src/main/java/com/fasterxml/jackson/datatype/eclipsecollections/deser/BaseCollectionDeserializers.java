@@ -2,11 +2,11 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser;
 
 import java.util.Arrays;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
 import com.fasterxml.jackson.datatype.primitive_collections_base.deser.BaseCollectionDeserializer;
 

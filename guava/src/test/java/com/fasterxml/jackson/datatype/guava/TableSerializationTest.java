@@ -2,11 +2,11 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.*;
+import tools.jackson.databind.module.SimpleModule;
 
 import com.google.common.collect.ImmutableTable;
 

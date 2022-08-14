@@ -2,8 +2,8 @@ package com.fasterxml.jackson.datatype.hppc;
 
 import java.util.Arrays;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public abstract class ModuleTestBase extends junit.framework.TestCase
 {

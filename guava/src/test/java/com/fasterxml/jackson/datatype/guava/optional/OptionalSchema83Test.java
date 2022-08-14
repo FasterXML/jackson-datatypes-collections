@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
+import tools.jackson.databind.*;
+import tools.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 import com.google.common.base.Optional;

@@ -2,9 +2,9 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import com.google.common.collect.ImmutableList;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 
 public class ImmutableListDeserializer extends
     GuavaImmutableCollectionDeserializer<ImmutableList<Object>>

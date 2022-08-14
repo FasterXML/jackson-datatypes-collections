@@ -5,8 +5,8 @@ import java.util.Map;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 public class TestOptionalWithPolymorphic extends ModuleTestBase

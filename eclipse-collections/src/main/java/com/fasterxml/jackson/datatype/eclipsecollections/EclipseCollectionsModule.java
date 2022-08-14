@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.JacksonModule;
+import tools.jackson.core.Version;
+import tools.jackson.databind.JacksonModule;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.pair.PairInstantiators;
 import com.fasterxml.jackson.datatype.eclipsecollections.deser.pair.TripleInstantiators;
 import org.eclipse.collections.api.tuple.Triple;

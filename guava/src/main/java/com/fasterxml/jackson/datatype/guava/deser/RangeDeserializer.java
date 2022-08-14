@@ -5,13 +5,13 @@ import static java.util.Arrays.asList;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.type.TypeFactory;
 
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;

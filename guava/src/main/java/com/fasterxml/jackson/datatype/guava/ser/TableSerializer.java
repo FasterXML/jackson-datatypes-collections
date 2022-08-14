@@ -3,15 +3,15 @@ package com.fasterxml.jackson.datatype.guava.ser;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
-import com.fasterxml.jackson.databind.type.MapType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.*;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.jdk.MapSerializer;
+import tools.jackson.databind.ser.std.StdContainerSerializer;
+import tools.jackson.databind.type.MapType;
+import tools.jackson.databind.type.TypeFactory;
 
 import com.google.common.collect.Table;
 

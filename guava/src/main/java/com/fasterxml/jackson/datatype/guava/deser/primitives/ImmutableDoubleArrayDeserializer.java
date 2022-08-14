@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.deser.primitives;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
 import com.fasterxml.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import com.google.common.primitives.ImmutableDoubleArray;
 

@@ -2,17 +2,17 @@ package com.fasterxml.jackson.datatype.hppc;
 
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.Version;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.*;
+import tools.jackson.databind.*;
+import tools.jackson.databind.type.*;
 
 import com.fasterxml.jackson.datatype.hppc.deser.HppcDeserializers;
 import com.fasterxml.jackson.datatype.hppc.ser.*;
 
 import com.carrotsearch.hppc.ObjectContainer;
 
-public class HppcModule extends com.fasterxml.jackson.databind.JacksonModule
+public class HppcModule extends JacksonModule
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;

@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.datatype.hppc.ser;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.jdk.ObjectArraySerializer;
-import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
-import com.fasterxml.jackson.databind.type.*;
+import tools.jackson.databind.*;
+import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.jdk.ObjectArraySerializer;
+import tools.jackson.databind.ser.std.StdContainerSerializer;
+import tools.jackson.databind.type.*;
 
 import com.carrotsearch.hppc.*;
 

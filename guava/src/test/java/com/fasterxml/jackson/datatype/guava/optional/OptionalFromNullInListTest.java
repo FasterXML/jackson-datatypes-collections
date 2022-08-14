@@ -2,8 +2,8 @@ package com.fasterxml.jackson.datatype.guava.optional;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 import com.google.common.collect.ImmutableList;
 

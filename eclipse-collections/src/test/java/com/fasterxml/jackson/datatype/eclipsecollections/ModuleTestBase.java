@@ -3,11 +3,11 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.cfg.MapperBuilder;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;

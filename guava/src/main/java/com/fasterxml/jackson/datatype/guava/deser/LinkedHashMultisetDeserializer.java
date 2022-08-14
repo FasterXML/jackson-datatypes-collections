@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ValueDeserializer;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 
 import com.google.common.collect.LinkedHashMultiset;
 

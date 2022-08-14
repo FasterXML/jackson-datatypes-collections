@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.deser.std.ReferenceTypeDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.deser.std.ReferenceTypeDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 
 import com.google.common.base.Optional;
 

@@ -6,20 +6,20 @@ import java.util.Map.Entry;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.PropertyFilter;
-import com.fasterxml.jackson.databind.ser.jdk.MapProperty;
-import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;
-import com.fasterxml.jackson.databind.type.MapLikeType;
+import tools.jackson.databind.*;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import tools.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.PropertyFilter;
+import tools.jackson.databind.ser.jdk.MapProperty;
+import tools.jackson.databind.ser.std.StdContainerSerializer;
+import tools.jackson.databind.type.MapLikeType;
 
 import com.google.common.collect.Multimap;
 

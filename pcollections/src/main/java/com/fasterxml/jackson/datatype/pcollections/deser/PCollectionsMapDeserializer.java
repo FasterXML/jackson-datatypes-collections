@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.type.MapType;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.type.MapType;
 
 import org.pcollections.PMap;
 

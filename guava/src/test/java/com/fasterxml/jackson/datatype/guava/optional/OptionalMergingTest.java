@@ -3,7 +3,7 @@ package com.fasterxml.jackson.datatype.guava.optional;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 import com.google.common.base.Optional;

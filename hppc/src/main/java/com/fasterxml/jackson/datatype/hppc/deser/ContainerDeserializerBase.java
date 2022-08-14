@@ -2,12 +2,12 @@ package com.fasterxml.jackson.datatype.hppc.deser;
 
 import java.lang.reflect.Constructor;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.util.ClassUtil;
 
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>

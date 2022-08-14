@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.datatype.hppc;
 
-import com.fasterxml.jackson.core.util.VersionUtil;
+import tools.jackson.core.util.VersionUtil;
 
 /**
  * Helper class used for finding and caching version information

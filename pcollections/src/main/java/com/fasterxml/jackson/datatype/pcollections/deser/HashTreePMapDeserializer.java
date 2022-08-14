@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
 
-import com.fasterxml.jackson.databind.ValueDeserializer;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.MapType;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.KeyDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.MapType;
 import org.pcollections.HashPMap;
 import org.pcollections.HashTreePMap;
 

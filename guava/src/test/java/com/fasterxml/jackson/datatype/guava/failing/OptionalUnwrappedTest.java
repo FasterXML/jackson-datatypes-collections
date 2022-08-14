@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.failing;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 import com.google.common.base.Optional;
 

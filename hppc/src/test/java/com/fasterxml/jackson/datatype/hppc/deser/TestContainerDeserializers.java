@@ -2,7 +2,7 @@ package com.fasterxml.jackson.datatype.hppc.deser;
 
 import java.util.Arrays;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 
 import org.junit.Assert;
 

@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;
-import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.ContextualKeyDeserializer;
+import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.deser.std.ContainerDeserializerBase;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 
 public abstract class GuavaMapDeserializer<T>
     extends ContainerDeserializerBase<T>

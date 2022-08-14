@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.guava.ser.primitives;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 
 public abstract class BaseImmutableArraySerializer<ImmutableArray> extends StdSerializer<ImmutableArray> {

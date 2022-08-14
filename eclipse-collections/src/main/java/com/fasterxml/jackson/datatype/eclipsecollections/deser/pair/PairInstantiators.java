@@ -4,14 +4,14 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.CreatorProperty;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.deser.ValueInstantiators;
-import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.CreatorProperty;
+import tools.jackson.databind.deser.SettableBeanProperty;
+import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.deser.ValueInstantiators;
+import tools.jackson.databind.introspect.AnnotationCollector;
 
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.api.tuple.Twin;
 import org.eclipse.collections.impl.tuple.Tuples;

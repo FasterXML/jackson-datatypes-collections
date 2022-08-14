@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import tools.jackson.databind.type.CollectionLikeType;
 import com.fasterxml.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import com.fasterxml.jackson.datatype.guava.util.PrimitiveTypes;
 import java.io.Serializable;
@@ -8,15 +8,15 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.Serializers;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.fasterxml.jackson.databind.type.MapLikeType;
-import com.fasterxml.jackson.databind.type.ReferenceType;
-import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
-import com.fasterxml.jackson.databind.util.StdConverter;
+import tools.jackson.databind.*;
+import tools.jackson.databind.introspect.Annotated;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.Serializers;
+import tools.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.type.MapLikeType;
+import tools.jackson.databind.type.ReferenceType;
+import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSetSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.CacheSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;

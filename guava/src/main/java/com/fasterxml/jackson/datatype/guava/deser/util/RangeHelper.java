@@ -2,10 +2,10 @@ package com.fasterxml.jackson.datatype.guava.deser.util;
 
 import java.lang.reflect.Field;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
+import tools.jackson.databind.PropertyNamingStrategy;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedField;
+import tools.jackson.databind.introspect.TypeResolutionContext;
 
 /**
  * @since 2.10

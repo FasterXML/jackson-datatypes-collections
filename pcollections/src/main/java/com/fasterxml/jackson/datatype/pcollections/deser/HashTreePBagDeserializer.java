@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.datatype.pcollections.deser;
 
-import com.fasterxml.jackson.databind.ValueDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.CollectionType;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.CollectionType;
 import org.pcollections.HashTreePBag;
 import org.pcollections.MapPBag;
 
