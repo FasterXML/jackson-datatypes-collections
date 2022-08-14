@@ -9,7 +9,7 @@
   <!-- do_not_remove: published-with-gradle-metadata -->
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.fasterxml.jackson.datatype</groupId>
+    <groupId>tools.jackson.datatype</groupId>
     <artifactId>jackson-datatypes-collections</artifactId>
     <version>3.0.0-SNAPSHOT</version>
   </parent>
@@ -32,7 +32,7 @@
     <version.eclipse-collections>11.0.0</version.eclipse-collections>
 
     <!-- Generate PackageVersion.java into this directory. -->
-    <packageVersion.dir>com/fasterxml/jackson/datatype/eclipsecollections</packageVersion.dir>
+    <packageVersion.dir>tools/jackson/datatype/eclipsecollections</packageVersion.dir>
     <packageVersion.package>${project.groupId}.eclipsecollections</packageVersion.package>
 
     <javac.src.version>1.8</javac.src.version>
@@ -41,7 +41,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <groupId>tools.jackson.datatype</groupId>
       <artifactId>jackson-datatype-primitive-collections-base</artifactId>
       <version>${project.version}</version>
     </dependency>
