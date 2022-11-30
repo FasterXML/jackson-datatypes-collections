@@ -12,7 +12,7 @@
   </parent>
   <artifactId>jackson-datatype-guava</artifactId>
   <name>Jackson datatype: Guava</name>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
   <description>Add-on datatype-support module for Jackson (https://github.com/FasterXML/jackson) that handles
 Guava (https://github.com/google/guava) types (currently mostly just collection ones)
   </description>
