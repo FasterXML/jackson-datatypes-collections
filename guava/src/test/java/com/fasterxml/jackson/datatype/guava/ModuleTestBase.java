@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 
 public abstract class ModuleTestBase extends junit.framework.TestCase
 {
