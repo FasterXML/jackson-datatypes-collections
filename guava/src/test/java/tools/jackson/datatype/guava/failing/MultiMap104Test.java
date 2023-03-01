@@ -15,18 +15,29 @@ public class MultiMap104Test extends ModuleTestBase
         public Object aProperty;
     }
 
+    private final ObjectMapper MAPPER = builderWithModule()
+            .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+            .build();
+
+    
     // [datatypes-collections#104]
-    public void testPolymorphicArrayMap() throws Exception
+    public void testPolymorphicArrayMapEmpty() throws Exception {
+        final ArrayListMultimap<String,Object> multimap = ArrayListMultimap.create();
+        multimap.put("aKey", 1);
+        _testPolymorphicArrayMap(multimap);
+    }
+
+    public void testPolymorphicArrayMapNonEmpty() throws Exception {
+        _testPolymorphicArrayMap(ArrayListMultimap.create());
+    }
+
+    private void _testPolymorphicArrayMap(ArrayListMultimap<String,Object> multimap)
+        throws Exception
     {
-        ObjectMapper mapper = builderWithModule()
-                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
-                .build();
-         final ArrayListMultimap<String,Object> multimap = ArrayListMultimap.create();
-         multimap.put("aKey", 1);
          final Outside104 outside = new Outside104();
          outside.aProperty = multimap;
-         final String s = mapper.writeValueAsString(outside);
-         Outside104 result = mapper.readValue(s, Outside104.class);
+         final String json = MAPPER.writeValueAsString(outside);
+         Outside104 result = MAPPER.readValue(json, Outside104.class);
          assertNotNull(result);
     }
 }
