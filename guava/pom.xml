@@ -26,8 +26,7 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
   </contributors>
 
   <properties>
-    <!-- In Jackson 2.12 was guava 21
-                    2.13 ... ?
+    <!-- In Jackson 2.15 was guava 23.x
       -->
     <version.guava>25.1-jre</version.guava>
 
