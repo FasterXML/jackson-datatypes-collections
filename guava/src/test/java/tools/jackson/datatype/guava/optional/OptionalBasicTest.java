@@ -351,7 +351,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
     public void testWithCustomDeserializer() throws Exception
     {
-        CaseChangingStringWrapper w = MAPPER.readValue(aposToQuotes("{'value':'FoobaR'}"),
+        CaseChangingStringWrapper w = MAPPER.readValue(a2q("{'value':'FoobaR'}"),
                 CaseChangingStringWrapper.class);
         assertEquals("foobar", w.value.get());
     }
@@ -360,6 +360,6 @@ public class OptionalBasicTest extends ModuleTestBase
     {
         final String VALUE = "fooBAR";
         String json = MAPPER.writeValueAsString(new CaseChangingStringWrapper(VALUE));
-        assertEquals(json, aposToQuotes("{'value':'FOOBAR'}"));
+        assertEquals(json, a2q("{'value':'FOOBAR'}"));
     }
 }

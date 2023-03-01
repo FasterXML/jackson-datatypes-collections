@@ -19,12 +19,12 @@ public class HashCodeTest extends ModuleTestBase
     public void testDeserialization() throws Exception
     {
         // success:
-        HashCode result = MAPPER.readValue(quote("0123456789cAfEbAbE"), HashCode.class);
+        HashCode result = MAPPER.readValue(q("0123456789cAfEbAbE"), HashCode.class);
         assertEquals("0123456789cafebabe", result.toString());
 
         // and ... error:
         try {
-            result = MAPPER.readValue(quote("ghijklmn0123456789"), HashCode.class);
+            result = MAPPER.readValue(q("ghijklmn0123456789"), HashCode.class);
             fail("Should not deserialize from non-hex string: got "+result);
         } catch (MismatchedInputException e) {
             verifyException(e, "Illegal hexadecimal character");

@@ -41,10 +41,10 @@ public class IterablesTest extends ModuleTestBase
                   }
                 });
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("['rm','ob','selgnaj']"), json);
+        assertEquals(a2q("['rm','ob','selgnaj']"), json);
 
         // and then as property?
         json = MAPPER.writeValueAsString(new IterableWrapper(input));
-        assertEquals(aposToQuotes("{'values':['rm','ob','selgnaj']}"), json);
+        assertEquals(a2q("{'values':['rm','ob','selgnaj']}"), json);
     }
 }

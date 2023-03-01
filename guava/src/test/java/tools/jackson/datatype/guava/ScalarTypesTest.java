@@ -11,14 +11,14 @@ public class ScalarTypesTest extends ModuleTestBase
     {
         final String INPUT = "google.com";
         InternetDomainName name = InternetDomainName.from(INPUT);
-        assertEquals(quote(INPUT), MAPPER.writeValueAsString(name));
+        assertEquals(q(INPUT), MAPPER.writeValueAsString(name));
     }
 
     public void testInternetDomainNameDeserialization() throws Exception
     {
         final String INPUT = "google.com";
 //        InternetDomainName name = MAPPER.readValue(quote(INPUT), InternetDomainName.class);
-        InternetDomainName name = new ObjectMapper().readValue(quote(INPUT), InternetDomainName.class);
+        InternetDomainName name = new ObjectMapper().readValue(q(INPUT), InternetDomainName.class);
         assertNotNull(name);
         assertEquals(INPUT, name.toString());
     }

@@ -50,21 +50,21 @@ public class OptionalMergingTest extends ModuleTestBase
 
     public void testStringReferenceMerging() throws Exception
     {
-        MergedStringReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),
+        MergedStringReference result = MAPPER.readValue(a2q("{'value':'override'}"),
                 MergedStringReference.class);
         assertEquals("override", result.value.get());
     }
 
     public void testPOJOReferenceMerging() throws Exception
     {
-        MergedPOJOReference result = MAPPER.readValue(aposToQuotes("{'value':{'y':-6}}"),
+        MergedPOJOReference result = MAPPER.readValue(a2q("{'value':{'y':-6}}"),
                 MergedPOJOReference.class);
         assertEquals(7, result.value.get().x);
         assertEquals(-6, result.value.get().y);
 
         // Also should retain values we pass
         result = MAPPER.readerForUpdating(new MergedPOJOReference(10, 20))
-                .readValue(aposToQuotes("{'value':{'x':11}}"));
+                .readValue(a2q("{'value':{'x':11}}"));
         assertEquals(11, result.value.get().x);
         assertEquals(20, result.value.get().y);
     }
