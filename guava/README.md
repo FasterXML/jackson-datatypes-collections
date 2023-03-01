@@ -12,7 +12,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-guava</artifactId>
-  <version>2.12.3</version>
+  <version>2.14.2</version>
 </dependency>
 ```
 
@@ -28,6 +28,8 @@ Following table shows the tested working ranges for recent module versions.
 
 | Module version | Min Guava | Default Guava | Max Guava |
 | -------------- | --------- | ------------- | --------- |
+| 2.15           | 14.0      | 23.6.1        | 31.1-jre  |
+| 2.14           | 14.0      | 21.0          | 31.1-jre  |
 | 2.13           | 14.0      | 21.0          | 30.1-jre  |
 | 2.12           | 14.0      | 21.0          | 30.1-jre  |
 | 2.11           | 14.0      | 20.0          | 30.1-jre  |
@@ -36,7 +38,7 @@ Following table shows the tested working ranges for recent module versions.
 
 Notes:
 
-* At the point of testing, `30.1-jre` was the latest available Guava library
+* At the point of testing, `31.1-jre` was the latest available Guava library
 version, so all versions work with the latest Guava
 * "Min Guava" means the earliest version that integration tests pass with
 * "Default Guava" is the dependency specified in module's `pom.xml`: it is used for build, unit tests
