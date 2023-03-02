@@ -16,6 +16,12 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.14.3 (not yet released)
+
+#104: `ArrayListMultimapDeserializer` does not support multimaps inside
+  another object as a property
+ (reported by @magical-l)
+
 2.14.2 (28-Jan-2023)
 2.14.1 (21-Nov-2022)
 
