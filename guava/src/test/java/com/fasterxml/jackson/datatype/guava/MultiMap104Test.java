@@ -1,8 +1,7 @@
-package com.fasterxml.jackson.datatype.guava.failing;
+package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 import com.google.common.collect.ArrayListMultimap;
 
 public class MultiMap104Test extends ModuleTestBase

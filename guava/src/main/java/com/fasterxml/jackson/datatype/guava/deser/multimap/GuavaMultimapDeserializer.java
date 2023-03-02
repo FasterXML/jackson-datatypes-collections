@@ -159,8 +159,11 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
 
         JsonToken currToken = p.currentToken();
         if (currToken != JsonToken.FIELD_NAME) {
-            expect(p, JsonToken.START_OBJECT);
-            currToken = p.nextToken();
+            // 01-Mar-2023, tatu: [datatypes-collections#104] Handle empty Maps too
+            if (currToken != JsonToken.END_OBJECT) {
+                expect(p, JsonToken.START_OBJECT);
+                currToken = p.nextToken();
+            }
         }
 
         for (; currToken == JsonToken.FIELD_NAME; currToken = p.nextToken()) {
