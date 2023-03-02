@@ -1,9 +1,8 @@
-package tools.jackson.datatype.guava.failing;
+package tools.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
-import tools.jackson.datatype.guava.ModuleTestBase;
 
 import com.google.common.collect.ArrayListMultimap;
 
