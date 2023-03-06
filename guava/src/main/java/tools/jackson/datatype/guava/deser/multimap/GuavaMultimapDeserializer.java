@@ -66,7 +66,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         // First, check type itself for matching methods
         for (String methodName : METHOD_NAMES) {
             try {
-                Method m = rawType.getMethod(methodName, Multimap.class);
+                Method m = rawType.getDeclaredMethod(methodName, Multimap.class);
                 if (m != null) {
                     return m;
                 }
