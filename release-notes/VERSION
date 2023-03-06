@@ -15,4 +15,5 @@ Modules:
  (contributed by László-Róbert A)
 #69: Add support for Guava primitives during deserialization
  (contributed by László-Róbert A)
+#98: Rename "com.fasterxml.jackson" -> "tools.jackson"
 - (guava) Update "preferred" Guava version to 25.1-jre
