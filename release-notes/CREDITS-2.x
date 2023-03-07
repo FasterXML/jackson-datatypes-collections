@@ -82,3 +82,12 @@ Migwel Gonzalez (Migwel@github)
     by default
    (2.12.0)
 
+Andrey Borisov (turbospaces@github)
+  * Requested #102: (guava) accept lowerCase enums for `Range` `BoundType`
+    serialization
+   (2.15.0)
+
+Joo Hyuk Kim (JooHyukKim@github)
+  * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
+    `BoundType` serialization
+   (2.15.0)

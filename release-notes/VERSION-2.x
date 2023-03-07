@@ -18,6 +18,9 @@ Active Maintainers:
 
 2.15.0 (not yet released)
 
+#102: (guava) accept lowerCase enums for `Range` `BoundType` serialization
+ (requested by Andrey B)
+ (fix contributed by Joo-Hyuk K)
 #105: (guava) Update Guava dependency to 23.6.1-jre (from 21.0)
 #106: (guava) There maybe a misusage in GuavaMultimapDeserializer.findTransformer method
  (contributed by @magical-l)

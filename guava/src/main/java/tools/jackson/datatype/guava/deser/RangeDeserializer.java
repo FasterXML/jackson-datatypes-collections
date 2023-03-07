@@ -1,6 +1,6 @@
 package tools.jackson.datatype.guava.deser;
 
-import static java.util.Arrays.asList;
+import java.util.Arrays;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -194,13 +194,26 @@ public class RangeDeserializer
     {
         expect(context, JsonToken.VALUE_STRING, p.currentToken());
         String name = p.getText();
-        try {
-            return BoundType.valueOf(name);
-        } catch (IllegalArgumentException e) {
-            return (BoundType) context.handleWeirdStringValue(BoundType.class, name,
-                    "not a valid BoundType name (should be one oF: %s)",
-                    asList(BoundType.values()));
+        if (name == null) {
+            name = "";
         }
+        switch (name) {
+        case "OPEN":
+            return BoundType.OPEN;
+        case "CLOSED":
+            return BoundType.CLOSED;
+        }
+        if (context.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)) {
+            if (name.equalsIgnoreCase("open")) {
+                return BoundType.OPEN;
+            }
+            if (name.equalsIgnoreCase("closed")) {
+                return BoundType.CLOSED;
+            }
+        }
+        return (BoundType) context.handleWeirdStringValue(BoundType.class, name,
+                "not a valid BoundType name (should be one of: %s)",
+                Arrays.asList(BoundType.values()));
     }
 
     private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
