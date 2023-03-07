@@ -198,6 +198,9 @@ public class RangeDeserializer
         expect(context, JsonToken.VALUE_STRING, p.getCurrentToken());
         String name = p.getText();
         try {
+            if (context.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS) && name != null) {
+                return BoundType.valueOf(name.toUpperCase());
+            }
             return BoundType.valueOf(name);
         } catch (IllegalArgumentException e) {
             return (BoundType) context.handleWeirdStringValue(BoundType.class, name,
