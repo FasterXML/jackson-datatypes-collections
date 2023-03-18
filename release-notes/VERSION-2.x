@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.15.0 (not yet released)
+2.15.0-rc1 (18-Mar-2023)
 
 #102: (guava) accept lowerCase enums for `Range` `BoundType` serialization
  (requested by Andrey B)
