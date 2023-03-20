@@ -426,13 +426,6 @@ public class MultimapSerializer
      */
     protected Multimap<?,?> _orderEntriesByKey(Multimap<?,?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         try {
-            if (value.containsKey(null)) {
-                return value;
-            }
-        } catch (NullPointerException e) {
-            return value;
-        }
-        try {
             return TreeMultimap.create((Multimap<? extends Comparable, ? extends Comparable>) value);
         } catch (ClassCastException e) {
             // Neither key or value seems to be an instance of comparable
