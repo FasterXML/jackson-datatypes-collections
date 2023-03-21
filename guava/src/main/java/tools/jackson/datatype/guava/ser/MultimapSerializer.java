@@ -22,6 +22,7 @@ import tools.jackson.databind.ser.std.StdContainerSerializer;
 import tools.jackson.databind.type.MapLikeType;
 
 import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 
 /**
  * Serializer for Guava's {@link Multimap} values. Output format encloses all
@@ -245,18 +246,16 @@ public class MultimapSerializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.assignCurrentValue(value);
         if (!value.isEmpty()) {
- // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
-//          plugged in...
-//            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-//                value = _orderEntries(value, gen, provider);
-//            }
+            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntriesByKey(value, gen, provider);
+            }
 
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider);
             } else {
                 serializeFields(value, gen, provider);
             }
-        }        
+        }
         gen.writeEndObject();
     }
 
@@ -269,11 +268,10 @@ public class MultimapSerializer
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
-// 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
-//     plugged in...
-//            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-//              value = _orderEntries(value, gen, provider);
-//          }
+            if (_sortKeys || ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntriesByKey(value, gen, ctxt);
+            }
+
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, ctxt);
             } else {
@@ -385,6 +383,28 @@ public class MultimapSerializer
                     }
                 }
             }, vt);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Internal helper methods
+    /**********************************************************************
+     */
+
+    protected Multimap<?,?> _orderEntriesByKey(Multimap<?,?> value, JsonGenerator gen, SerializerProvider ctxt)
+        throws JacksonException
+    {
+        try {
+            return TreeMultimap.create((Multimap<? extends Comparable, ? extends Comparable>) value);
+        } catch (ClassCastException e) {
+            // Either key or value type not Comparable?
+            // 20-Mar-2023, tatu: Should we actually wrap & propagate failure or... ?
+            return value;
+        } catch (NullPointerException e) {
+            // Most likely null key that TreeMultimap won't accept. So... ?
+            ctxt.reportMappingProblem("Failed to sort Multimap entries due to `NullPointerException`: `null` key?");
+            return null;
         }
     }
 }
