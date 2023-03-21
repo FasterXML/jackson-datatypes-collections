@@ -9,6 +9,8 @@ import com.google.common.collect.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertNotEquals;
+
 // [jackson-datatype-collections#7]: [Guava] Add support for WRITE_SORTED_MAP_ENTRIES
 public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase {
 /*
@@ -75,7 +77,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase {
             .without(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
             .writeValueAsString(multimap);
 
-        assertNotSame(a2q("{'a_key':[1],'b_key':[1],'c_key':[1],'d_key':[1],'e_key':[1]}"), jsonStr);
+        assertNotEquals(a2q("{'a_key':[1],'b_key':[1],'c_key':[1],'d_key':[1],'e_key':[1]}"), jsonStr);
     }
 
 
