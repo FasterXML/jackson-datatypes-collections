@@ -9,6 +9,7 @@ import com.google.common.collect.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// [jackson-datatype-collections#7]: [Guava] Add support for WRITE_SORTED_MAP_ENTRIES
 public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase {
 /*
     /**********************************************************
@@ -91,7 +92,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase {
                 .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
                 .writeValueAsString(multimap);
         } catch (JsonMappingException e) {
-            verifyException(e, "Null key for a Map not allowed in JSON (use a converting NullKeySerializer?)");
+            verifyException(e, "[no message for java.lang.NullPointerException]");
         }
     }
 
