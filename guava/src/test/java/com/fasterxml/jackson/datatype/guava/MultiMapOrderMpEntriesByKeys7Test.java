@@ -94,7 +94,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase {
                 .with(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
                 .writeValueAsString(multimap);
         } catch (JsonMappingException e) {
-            verifyException(e, "[no message for java.lang.NullPointerException]");
+            verifyException(e, "Failed to sort Multimap entries");
         }
     }
 

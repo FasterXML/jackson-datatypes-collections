@@ -424,12 +424,19 @@ public class MultimapSerializer
     /**
      * @since 2.15
      */
-    protected Multimap<?,?> _orderEntriesByKey(Multimap<?,?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    protected Multimap<?,?> _orderEntriesByKey(Multimap<?,?> value, JsonGenerator gen, SerializerProvider provider)
+            throws IOException
+    {
         try {
             return TreeMultimap.create((Multimap<? extends Comparable, ? extends Comparable>) value);
         } catch (ClassCastException e) {
-            // Neither key or value seems to be an instance of comparable
+            // Either key or value type not Comparable?
+            // 20-Mar-2023, tatu: Should we actually wrap & propagate failure or... ?
             return value;
+        } catch (NullPointerException e) {
+            // Most likely null key that TreeMultimap won't accept. So... ?
+            provider.reportMappingProblem("Failed to sort Multimap entries due to `NullPointerException`: `null` key?");
+            return null;
         }
     }
 
