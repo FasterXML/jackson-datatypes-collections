@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.std.MapProperty;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 
 /**
  * Serializer for Guava's {@link Multimap} values. Output format encloses all
@@ -269,18 +270,16 @@ public class MultimapSerializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         gen.setCurrentValue(value);
         if (!value.isEmpty()) {
- // 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
-//          plugged in...
-//            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-//                value = _orderEntries(value, gen, provider);
-//            }
+            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntriesByKey(value, gen, provider);
+            }
 
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider);
             } else {
                 serializeFields(value, gen, provider);
             }
-        }        
+        }
         gen.writeEndObject();
     }
 
@@ -293,11 +292,10 @@ public class MultimapSerializer
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {
-// 20-Mar-2017, tatu: And this is where [datatypes-collections#7] would be
-//     plugged in...
-//            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-//              value = _orderEntries(value, gen, provider);
-//          }
+            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntriesByKey(value, gen, provider);
+            }
+
             if (_filterId != null) {
                 serializeFilteredFields(value, gen, provider);
             } else {
@@ -422,7 +420,19 @@ public class MultimapSerializer
     /* Internal helper methods
     /**********************************************************
      */
-    
+
+    /**
+     * @since 2.15
+     */
+    protected Multimap<?,?> _orderEntriesByKey(Multimap<?,?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        try {
+            return TreeMultimap.create((Multimap<? extends Comparable, ? extends Comparable>) value);
+        } catch (ClassCastException e) {
+            // Neither key or value seems to be an instance of comparable
+            return value;
+        }
+    }
+
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
