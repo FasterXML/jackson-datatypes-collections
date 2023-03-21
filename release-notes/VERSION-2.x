@@ -16,6 +16,11 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released
+
+#7: (guava) Add support for `WRITE_SORTED_MAP_ENTRIES` for Guava `Multimap`s
+ (contributed by Joo-Hyuk K)
+
 2.15.0-rc1 (18-Mar-2023)
 
 #102: (guava) accept lowerCase enums for `Range` `BoundType` serialization
