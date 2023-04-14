@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.15.0-rc2 (28-Mar-2023)
+2.15.0-rc3 (14-Apr-2023)
 
 #7: (guava) Add support for `WRITE_SORTED_MAP_ENTRIES` for Guava `Multimap`s
  (contributed by Joo-Hyuk K)
