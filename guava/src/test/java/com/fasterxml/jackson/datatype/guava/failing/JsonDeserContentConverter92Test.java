@@ -89,7 +89,7 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     private final ObjectMapper MAPPER = mapperWithModule();
 
     public void testJsonSerialize() throws Exception {
-        String jsonStr = a2q("{'list':['doubled_2','doubled_4']}");
+        String jsonStr = a2q("{'list':[2,4]}");
 
         assertEquals(jsonStr, _write(new StandardWrapper(Arrays.asList(1, 2))));
         assertEquals(jsonStr, _write(new GuavaListWrapper(ImmutableList.of(1, 2))));
