@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,16 +20,6 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     /**********************************************************
      */
 
-    static class StandardHolder {
-        @JsonDeserialize(contentConverter = DoublingConverter.class)
-        public List<Integer> ints;
-    }
-
-    static class GuavaHolder {
-        @JsonDeserialize(contentConverter = DoublingConverter.class)
-        public ImmutableList<Integer> ints;
-    }
-
     static class DoublingConverter extends StdConverter<Integer, Integer> {
         @Override
         public Integer convert(Integer value) {
@@ -37,7 +28,7 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     }
 
     static class StandardWrapper {
-        @JsonSerialize(contentConverter = DoublingConverterSer.class)
+        @JsonSerialize(contentConverter = DoublingConverter.class)
         public List<Integer> list;
 
         public StandardWrapper(List<Integer> asList) {
@@ -46,7 +37,7 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     }
 
     static class GuavaListWrapper {
-        @JsonSerialize(contentConverter = DoublingConverterSer.class)
+        @JsonSerialize(contentConverter = DoublingConverter.class)
         public ImmutableList<Integer> list;
 
         public GuavaListWrapper(ImmutableList<Integer> asList) {
@@ -54,16 +45,44 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
         }
     }
 
-    static class DoublingConverterSer extends StdConverter<Integer, String> {
-        @Override
-        public String convert(Integer n) {
-            return "doubled_" + n * 2;
-        }
+    static class StandardHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public List<Integer> ints;
+    }
+
+    static class GuavaImmutableListHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public ImmutableList<Integer> ints;
+    }
+
+    static class GuavaImmutableSetHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public ImmutableSet<Integer> ints;
+    }
+
+    static class GuavaImmutableSortedSetHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public ImmutableSortedSet<Integer> ints;
+    }
+
+    static class GuavaImmutableMapHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public ImmutableMap<String, Integer> ints;
+    }
+
+    static class GuavaImmutableMultisetHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public ImmutableMultiset<Integer> ints;
+    }
+
+    static class GuavaImmutableBiMapHolder {
+        @JsonDeserialize(contentConverter = DoublingConverter.class)
+        public ImmutableBiMap<String, Integer> ints;
     }
 
     /*
     /**********************************************************
-    /* Test
+    /* Tests
     /**********************************************************
      */
 
@@ -72,27 +91,40 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     public void testJsonSerialize() throws Exception {
         String jsonStr = a2q("{'list':['doubled_2','doubled_4']}");
 
-        // serialization passes
-        assertEquals(jsonStr, MAPPER.writeValueAsString(new StandardWrapper(Arrays.asList(1, 2))));
-        assertEquals(jsonStr, MAPPER.writeValueAsString(new GuavaListWrapper(ImmutableList.of(1, 2))));
+        assertEquals(jsonStr, _write(new StandardWrapper(Arrays.asList(1, 2))));
+        assertEquals(jsonStr, _write(new GuavaListWrapper(ImmutableList.of(1, 2))));
     }
 
-    public void testFailingGuavaDoublingConverter() throws Exception {
-        String json = "{ \"ints\": [1,2,3] }";
+    public void testJsonDeserialize() throws Exception {
+        String withIntsArr = a2q("{'ints': [1,2,3] }");
+        String withIntsMap = a2q("{'ints': {'one':1, 'two':2, 'three':3}}");
 
-        // passes
-        StandardHolder stdHolder = MAPPER.readValue(json, StandardHolder.class);
-        containsExactly(stdHolder.ints, 2, 4, 6);
+        List<List<Integer>> inputs = new ArrayList<>();
+        inputs.add(_read(withIntsArr, StandardHolder.class).ints);
+        inputs.add(_read(withIntsArr, GuavaImmutableListHolder.class).ints);
+        inputs.add(_read(withIntsArr, GuavaImmutableSetHolder.class).ints.asList());
+        inputs.add(_read(withIntsArr, GuavaImmutableSortedSetHolder.class).ints.asList());
+        inputs.add(_read(withIntsArr, GuavaImmutableMultisetHolder.class).ints.asList());
+        inputs.add(_read(withIntsMap, GuavaImmutableMapHolder.class).ints.values().asList());
+        inputs.add(_read(withIntsMap, GuavaImmutableBiMapHolder.class).ints.values().asList());
 
-        // fails
-        GuavaHolder guavaHolder = MAPPER.readValue(json, GuavaHolder.class);
-        containsExactly(guavaHolder.ints, 2, 4, 6);
+        for (List<Integer> ints : inputs) {
+            containsExactly(ints, 2, 4, 6);
+        }
     }
 
-    private void containsExactly(List<Integer> ints, int a, int b, int c) {
-        assertEquals(3, ints.size());
-        assertEquals(a, ints.get(0).intValue());
-        assertEquals(b, ints.get(1).intValue());
-        assertEquals(c, ints.get(2).intValue());
+    private <T> String _write(T obj) throws Exception {
+        return MAPPER.writeValueAsString(obj);
+    }
+
+    private <T> T _read(String withIntsArr, Class<T> clazz) throws Exception {
+        return MAPPER.readValue(withIntsArr, clazz);
+    }
+
+    private void containsExactly(List<Integer> ints, Integer... expected) {
+        assertEquals(expected.length, ints.size());
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], ints.get(i));
+        }
     }
 }
