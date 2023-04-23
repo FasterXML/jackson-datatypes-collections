@@ -71,6 +71,7 @@ public abstract class GuavaCollectionDeserializer<T>
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 
         JsonDeserializer<?> valueDeser = _valueDeserializer;
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(_containerType.getContentType(), property);
