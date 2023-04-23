@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 
+// [datatype-guava#92] : JsonDeserialize contentConverter does not work for non-builtin collections
 public class JsonDeserContentConverter92Test extends ModuleTestBase {
 
     /*
@@ -54,7 +55,6 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     }
 
     static class DoublingConverterSer extends StdConverter<Integer, String> {
-
         @Override
         public String convert(Integer n) {
             return "doubled_" + n * 2;
