@@ -16,10 +16,13 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.15.0-rc3 (14-Apr-2023)
+2.15.0 (23-Apr-2023)
 
 #7: (guava) Add support for `WRITE_SORTED_MAP_ENTRIES` for Guava `Multimap`s
  (contributed by Joo-Hyuk K)
+#92: (guava) `@JsonDeserialize.contentConverter` does not work for non-builtin collections
+ (reported by Marcin W)
+ (fix contributed by Joo-Hyuk K)
 #102: (guava) accept lowerCase enums for `Range` `BoundType` serialization
  (requested by Andrey B)
  (fix contributed by Joo-Hyuk K)

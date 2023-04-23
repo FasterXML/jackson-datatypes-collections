@@ -87,10 +87,18 @@ Andrey Borisov (turbospaces@github)
     serialization
    (2.15.0)
 
-Joo Hyuk Kim (JooHyukKim@github)
-  * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
-    `BoundType` serialization
+Marcin Wisnicki (mwisnick@github)
+  * Reported #92: (guava) `@JsonDeserialize.contentConverter` does not work for non-builtin
+    collections
    (2.15.0)
+
+Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #7: (guava) Add support for `WRITE_SORTED_MAP_ENTRIES` for
     Guava `Multimap`s
+   (2.15.0)
+  * Contributed fix for #92: (guava) `@JsonDeserialize.contentConverter` does not work
+    for non-builtin collections
+   (2.15.0)
+  * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
+    `BoundType` serialization
    (2.15.0)

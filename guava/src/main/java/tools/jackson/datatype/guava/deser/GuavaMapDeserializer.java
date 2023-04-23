@@ -88,6 +88,7 @@ public abstract class GuavaMapDeserializer<T>
     {
         KeyDeserializer keyDeser = _keyDeserializer;
         ValueDeserializer<?> valueDeser = _valueDeserializer;
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
 
         // First: fetch and/or contextualize deserializers (key, value, value type)
