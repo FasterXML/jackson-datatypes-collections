@@ -32,6 +32,9 @@ Active Maintainers:
 
 2.14.3 (not yet released)
 
+#92: (guava) `@JsonDeserialize.contentConverter` does not work for non-builtin collections
+ (reported by Marcin W)
+ (fix contributed by Joo-Hyuk K)
 #104: `ArrayListMultimapDeserializer` does not support multimaps inside
   another object as a property
  (reported by @magical-l)
