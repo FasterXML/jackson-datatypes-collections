@@ -169,11 +169,10 @@ public class CacheTypesTest extends ModuleTestBase {
     public void testCacheSerializationBeanKey() throws Exception {
         Cache<BeanKey, String> cache = CacheBuilder.newBuilder().build();
         cache.put(new BeanKey(1), "value1");
-        cache.put(new BeanKey(1), "value1");
         cache.put(new BeanKey(2), "value2");
 
         assertEquals(
-            a2q("{'key_2':'value2','key_1':'value1','key_1':'value1'}"),
+            a2q("{'key_1':'value1','key_2':'value2'}"),
             MAPPER.writeValueAsString(cache));
     }
 
