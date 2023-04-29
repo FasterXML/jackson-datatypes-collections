@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
 import com.google.common.cache.Cache;
 
 import java.io.IOException;
@@ -16,8 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class CacheSerializer 
-    extends StdSerializer<Cache<?, ?>> 
+public class CacheSerializer extends StdSerializer<Cache<?, ?>>
     implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
@@ -34,7 +34,6 @@ public class CacheSerializer
     /* Life-cycle
     /**********************************************************
      */
-
     
     public CacheSerializer(Set<String> ignored) {
         super(Cache.class, false);
