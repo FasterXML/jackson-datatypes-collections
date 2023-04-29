@@ -57,7 +57,7 @@ public class CacheSerializer
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
-                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
+                    ignored = (ignored == null) ? new HashSet<>() : new HashSet<>(ignored);
                     ignored.addAll(newIgnored);
                 }
             }
@@ -111,11 +111,11 @@ public class CacheSerializer
             Object key = entry.getKey();
             Object value = entry.getValue();
             // ignore? 
-            if (ignored != null && ignored.contains(key)) {
+            if (ignored != null && ignored.contains(key.toString())) {
                 continue;
             }
-            gen.writeFieldName(String.valueOf(entry.getKey()));
-            provider.defaultSerializeValue(entry.getValue(), gen);
+            gen.writeFieldName(key.toString());
+            provider.defaultSerializeValue(value, gen);
         }
     }
 }
