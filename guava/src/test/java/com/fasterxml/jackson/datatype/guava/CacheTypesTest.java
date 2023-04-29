@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -58,6 +59,45 @@ public class CacheTypesTest extends ModuleTestBase {
         List<String> list = new ArrayList<String>();
         list.add(str);
         return list;
+    }
+
+    static class BeanKey {
+        public int age;
+
+        public BeanKey(int age) {
+            this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "key_" + age;
+        }
+    }
+
+    static class BeanKeyEquals {
+        public int age;
+
+        public BeanKeyEquals(int age) {
+            this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "key_" + age;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            BeanKeyEquals that = (BeanKeyEquals) o;
+            return age == that.age;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(age);
+        }
     }
     
     /*
@@ -123,6 +163,28 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{}"),
+            MAPPER.writeValueAsString(cache));
+    }
+
+    public void testCacheSerializationBeanKey() throws Exception {
+        Cache<BeanKey, String> cache = CacheBuilder.newBuilder().build();
+        cache.put(new BeanKey(1), "value1");
+        cache.put(new BeanKey(1), "value1");
+        cache.put(new BeanKey(2), "value2");
+
+        assertEquals(
+            a2q("{'key_2':'value2','key_1':'value1','key_1':'value1'}"),
+            MAPPER.writeValueAsString(cache));
+    }
+
+    public void testCacheSerializationBeanKeyEquals() throws Exception {
+        Cache<BeanKeyEquals, String> cache = CacheBuilder.newBuilder().build();
+        cache.put(new BeanKeyEquals(1), "value1");
+        cache.put(new BeanKeyEquals(1), "value1");
+        cache.put(new BeanKeyEquals(2), "value2");
+
+        assertEquals(
+            a2q("{'key_2':'value2','key_1':'value1'}"),
             MAPPER.writeValueAsString(cache));
     }
 }
