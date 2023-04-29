@@ -28,11 +28,48 @@ public class CacheSerializer
      * @since 2.16
      */
     protected Set<String> _ignoredEntries;
+    
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
 
+    
     public CacheSerializer(Set<String> ignored) {
         super(Cache.class, false);
         _ignoredEntries = ignored;
     }
+
+    private JsonSerializer<?> withResolved(Set<String> ignored) {
+        return new CacheSerializer(ignored);
+    }
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property) throws JsonMappingException {
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
+
+        // ignores
+        Set<String> ignored = _ignoredEntries;
+        if (intr != null && propertyAcc != null) {
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
+            if (ignorals != null) {
+                Set<String> newIgnored = ignorals.findIgnoredForSerialization();
+                if ((newIgnored != null) && !newIgnored.isEmpty()) {
+                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
+                    ignored.addAll(newIgnored);
+                }
+            }
+        }
+        return withResolved(ignored);
+    }
+    
+    /*
+    /**********************************************************
+    /* Abstract method implementations
+    /**********************************************************
+     */
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Cache<?, ?> value) {
@@ -59,8 +96,13 @@ public class CacheSerializer
         _writeContents(value, gen, ctxt);
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
+    
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
 
-    // Just a stub in case we have time to implement proper (if optional) serialization
     protected void _writeContents(Cache<?, ?> cache, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
@@ -69,44 +111,11 @@ public class CacheSerializer
             Object key = entry.getKey();
             Object value = entry.getValue();
             // ignore? 
-            if ((ignored != null) && ignored.contains(key)) {
+            if (ignored != null && ignored.contains(key)) {
                 continue;
             }
             gen.writeFieldName(String.valueOf(entry.getKey()));
             provider.defaultSerializeValue(entry.getValue(), gen);
         }
-    }
-    
-    /*
-    /**********************************************************
-    /* Post-processing (contextualization)
-    /**********************************************************
-     */
-
-    @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property) throws JsonMappingException {
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-        final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
-        
-        // ignores
-        Set<String> ignored = _ignoredEntries;
-        if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
-            if (ignorals != null) {
-                Set<String> newIgnored = ignorals.findIgnoredForSerialization();
-                if ((newIgnored != null) && !newIgnored.isEmpty()) {
-                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
-                    for (String str : newIgnored) {
-                        ignored.add(str);
-                    }
-                }
-            }
-            Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
-        }
-        return withResolved(ignored);
-    }
-
-    private JsonSerializer<?> withResolved(Set<String> ignored) {
-        return new CacheSerializer(ignored);
     }
 }
