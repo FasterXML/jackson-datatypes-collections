@@ -2,15 +2,15 @@ package com.fasterxml.jackson.datatype.guava.ser;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import com.google.common.cache.Cache;
+
+import java.util.Map;
 
 public class CacheSerializer extends StdSerializer<Cache<?, ?>>
 {
@@ -49,7 +49,11 @@ public class CacheSerializer extends StdSerializer<Cache<?, ?>>
 
     // Just a stub in case we have time to implement proper (if optional) serialization
     protected void _writeContents(Cache<?, ?> value, JsonGenerator g, SerializerProvider ctxt)
-        throws JacksonException
+        throws IOException
     {
-    }    
+        for (Map.Entry<?, ?> entry : value.asMap().entrySet()) {
+                g.writeFieldName(String.valueOf(entry.getKey()));
+                ctxt.defaultSerializeValue(entry.getValue(), g);    
+        }
+    }
 }
