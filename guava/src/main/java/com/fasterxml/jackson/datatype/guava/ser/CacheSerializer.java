@@ -17,6 +17,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Serializer for Guava's {@link Cache}.
+ * <p>
+ * Missing features, compared to standard Java Maps:
+ * <ul>
+ *  <li>Sorting of entries</li>
+ * </ul>
+ * 
+ * @since 2.16
+ */
 public class CacheSerializer extends StdSerializer<Cache<?, ?>>
     implements ContextualSerializer
 {
