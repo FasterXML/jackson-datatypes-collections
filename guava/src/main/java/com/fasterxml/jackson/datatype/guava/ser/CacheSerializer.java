@@ -1,29 +1,42 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.common.cache.Cache;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-public class CacheSerializer extends StdSerializer<Cache<?, ?>>
+public class CacheSerializer 
+    extends StdSerializer<Cache<?, ?>> 
+    implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
 
-    public CacheSerializer() {
+    /**
+     * Set of entries to omit during serialization, if any
+     *
+     * @since 2.16
+     */
+    protected Set<String> _ignoredEntries;
+
+    public CacheSerializer(Set<String> ignored) {
         super(Cache.class, false);
+        _ignoredEntries = ignored;
     }
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Cache<?, ?> value) {
-        // Since we serialize all as empty, let's claim we are always empty
-        return true;
+        return value != null && value.size() != 0;
     }
 
     @Override
@@ -48,12 +61,52 @@ public class CacheSerializer extends StdSerializer<Cache<?, ?>>
     }
 
     // Just a stub in case we have time to implement proper (if optional) serialization
-    protected void _writeContents(Cache<?, ?> value, JsonGenerator g, SerializerProvider ctxt)
+    protected void _writeContents(Cache<?, ?> cache, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        for (Map.Entry<?, ?> entry : value.asMap().entrySet()) {
-                g.writeFieldName(String.valueOf(entry.getKey()));
-                ctxt.defaultSerializeValue(entry.getValue(), g);    
+        final Set<String> ignored = _ignoredEntries;
+        for (Map.Entry<?, ?> entry : cache.asMap().entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            // ignore? 
+            if ((ignored != null) && ignored.contains(key)) {
+                continue;
+            }
+            gen.writeFieldName(String.valueOf(entry.getKey()));
+            provider.defaultSerializeValue(entry.getValue(), gen);
         }
+    }
+    
+    /*
+    /**********************************************************
+    /* Post-processing (contextualization)
+    /**********************************************************
+     */
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property) throws JsonMappingException {
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
+        
+        // ignores
+        Set<String> ignored = _ignoredEntries;
+        if (intr != null && propertyAcc != null) {
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
+            if (ignorals != null) {
+                Set<String> newIgnored = ignorals.findIgnoredForSerialization();
+                if ((newIgnored != null) && !newIgnored.isEmpty()) {
+                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
+                    for (String str : newIgnored) {
+                        ignored.add(str);
+                    }
+                }
+            }
+            Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
+        }
+        return withResolved(ignored);
+    }
+
+    private JsonSerializer<?> withResolved(Set<String> ignored) {
+        return new CacheSerializer(ignored);
     }
 }

@@ -95,7 +95,7 @@ public class GuavaSerializers extends Serializers.Base
         }
         // [datatypes-collections#90]: add minimal "as-empty" serializer for Caches
         if (Cache.class.isAssignableFrom(raw)) {
-            return new CacheSerializer();
+            return new CacheSerializer(null);
         }
         return super.findSerializer(config, type, beanDesc);
     }
