@@ -93,10 +93,6 @@ public class GuavaSerializers extends Serializers.Base
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null);
         }
-        // [datatypes-collections#90]: add minimal "as-empty" serializer for Caches
-        if (Cache.class.isAssignableFrom(raw)) {
-            return new CacheSerializer(null);
-        }
         return super.findSerializer(config, type, beanDesc);
     }
 
@@ -113,6 +109,16 @@ public class GuavaSerializers extends Serializers.Base
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new MultimapSerializer(type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
+        }
+        // [datatypes-collections#90]: add minimal "as-empty" serializer for Caches
+        if (Cache.class.isAssignableFrom(type.getRawClass())) {
+            final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            Object filterId = intr.findFilterId((Annotated)beanDesc.getClassInfo());
+            JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
+                beanDesc.getClassInfo());
+            Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
+            return new CacheSerializer(type, beanDesc,
+                keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
         return null;
     }
