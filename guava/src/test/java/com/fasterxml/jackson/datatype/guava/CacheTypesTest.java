@@ -143,13 +143,21 @@ public class CacheTypesTest extends ModuleTestBase {
         public String name = "Woof";
     }
 
-    static class CacheContainer {
+    static class AnimalCacheContainer {
         public Cache<String, Animal> cache;
 
-        public CacheContainer(Cache<String, Animal> cache) {
+        public AnimalCacheContainer(Cache<String, Animal> cache) {
             this.cache = cache;
         }
-    } 
+    }
+
+    static class NestedCacheContainer {
+        public Cache<String, Cache<String, String>> cache;
+
+        public NestedCacheContainer(Cache<String, Cache<String, String>> cache) {
+            this.cache = cache;
+        }
+    }
 
     /*
     /**********************************************************
@@ -240,7 +248,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
     public void testEmptyCacheExclusion() throws Exception {
         String json = MAPPER.writeValueAsString(new CacheWrapper());
-        
+
         assertEquals("{}", json);
     }
 
@@ -259,23 +267,44 @@ public class CacheTypesTest extends ModuleTestBase {
 
     public void testOrderByKeyViaProperty() throws Exception {
         CacheOrderingBean input = new CacheOrderingBean("c", "b", "a");
-        
+
         String json = MAPPER.writeValueAsString(input);
-        
+
         assertEquals(a2q("{'cache':{'a':3,'b':2,'c':1}}"), json);
     }
 
-    public void testDeserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
+    public void testPolymorphicCacheSerialization() throws Exception {
         Cache<String, Animal> cache = CacheBuilder.newBuilder().build();
         cache.put("c", new Cat());
         cache.put("d", new Dog());
-        CacheContainer cacheContainer = new CacheContainer(cache);
+        AnimalCacheContainer animalCacheContainer = new AnimalCacheContainer(cache);
 
-        String json = MAPPER.writeValueAsString(cacheContainer);
+        String json = MAPPER.writeValueAsString(animalCacheContainer);
 
         assertEquals(
             a2q("{'cache':" +
                 "{'c':{'_type':'t_cat','name':'Whiskers'}," +
                 "'d':{'_type':'t_dog','name':'Woof'}}}"), json);
+    }
+
+    public void testNestedCacheSerialization() throws Exception {
+        Cache<String, Cache<String, String>> nestedCache = CacheBuilder.newBuilder().build();
+        nestedCache.put("a", _buildCacheWithKeys("a_x", "a_y"));
+        nestedCache.put("b", _buildCacheWithKeys("b_x", "b_y"));
+        NestedCacheContainer nestedCacheContainer = new NestedCacheContainer(nestedCache);
+
+        String json = MAPPER.writeValueAsString(nestedCacheContainer);
+
+        assertEquals(a2q("{'cache':" +
+            "{'a':{'a_x':'1','a_y':'2'}," +
+            "'b':{'b_x':'1','b_y':'2'}}}"), json);
+    }
+
+    private Cache<String, String> _buildCacheWithKeys(String... keys) {
+        Cache<String, String> cache = CacheBuilder.newBuilder().build();
+        for (int i = 0; i < keys.length; i++) {
+            cache.put(keys[i], String.valueOf(i + 1));
+        }
+        return cache;
     }
 }
