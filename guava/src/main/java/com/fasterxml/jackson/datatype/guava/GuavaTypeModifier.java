@@ -45,7 +45,6 @@ public class GuavaTypeModifier extends TypeModifier
                             type.containedTypeOrUnknown(0),
                             type.containedTypeOrUnknown(1));
         }
-        // [datatype-guava#90]: Support Cache
         if (raw == Cache.class) {
             return MapLikeType.upgradeFrom(type,
                 type.containedTypeOrUnknown(0),
