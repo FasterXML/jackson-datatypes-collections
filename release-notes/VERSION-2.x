@@ -21,6 +21,7 @@ Active Maintainers:
 #90: Cache Serialization serializes empty contents
  (reportedby Wolff B)
  (fix contributed by Joo-Hyuk K)
+#113: Update default Guava dependency for Jackson 2.16 from Guava 23.x to 25.x
 
 2.15.0 (23-Apr-2023)
 
