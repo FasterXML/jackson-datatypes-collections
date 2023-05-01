@@ -44,15 +44,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     protected final Set<String> _ignoredEntries;
 
     /**
-     * If value type can not be statically determined, mapping from
-     * runtime value types to serializers are stored in this object.
-     *
-     * @since 2.16
-     */
-    protected PropertySerializerMap _dynamicValueSerializers;
-
-    /**
-     * Id of the property filter to use, if any; null if none.
+     * The id of the property filter to use, if any; null if none.
      *
      * @since 2.16
      */
@@ -63,8 +55,16 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
      *
      * @since 2.16
      */
-    protected boolean _sortKeys;
+    protected final boolean _sortKeys;
     
+    /**
+     * If value type can not be statically determined, mapping from
+     * runtime value types to serializers are stored in this object.
+     *
+     * @since 2.16
+     */
+    protected PropertySerializerMap _dynamicValueSerializers;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -303,7 +303,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     /**
      * @since 2.16
      */
-    private final void serializeFields(Map<?, ?> mmap, JsonGenerator
+    private void serializeFields(Map<?, ?> mmap, JsonGenerator
         gen, SerializerProvider provider)
         throws IOException
     {
@@ -379,9 +379,6 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
             }
         }
     }
-    
-    
-    
     
     /*
     /**********************************************************
