@@ -62,7 +62,7 @@ public class CacheSerializationTest extends ModuleTestBase {
         }
     }
 
-    private static List<String> _makeStringList(String... str) {
+    static List<String> _makeStringList(String... str) {
         List<String> list = new ArrayList<String>();
         for (String s : str) {
             list.add(s);

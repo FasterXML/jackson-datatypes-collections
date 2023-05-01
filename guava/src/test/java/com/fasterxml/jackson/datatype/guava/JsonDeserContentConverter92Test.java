@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
-import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
+
 import com.google.common.collect.*;
 
 import java.util.ArrayList;
