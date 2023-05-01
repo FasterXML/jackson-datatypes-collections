@@ -11,6 +11,11 @@ import com.google.common.cache.CacheBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Unit tests for verifying serialization of Guava's {@link Cache} type.
+ * 
+ * @since 2.16
+ */
 public class CacheSerializationTest extends ModuleTestBase {
 
     /*
