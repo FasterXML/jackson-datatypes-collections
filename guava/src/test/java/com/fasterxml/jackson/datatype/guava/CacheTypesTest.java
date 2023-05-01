@@ -159,13 +159,28 @@ public class CacheTypesTest extends ModuleTestBase {
         }
     }
 
+    static class Outside104 {
+        @JsonTypeInfo(include = JsonTypeInfo.As.PROPERTY, use = JsonTypeInfo.Id.NAME)
+        public Object aProperty;
+    }
+
+    static class PolymorphicWrapperBean {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+        public Object aProperty;
+
+        @Override
+        public String toString() {
+            return aProperty.toString();
+        }
+    }
+
     /*
     /**********************************************************
     /* Serialization Tests
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = mapperWithModule().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+    private final ObjectMapper ORDERED_MAPPER = mapperWithModule().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
     public void testGuavaCacheApi() throws Exception {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
@@ -190,7 +205,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{'key1':'value1','key2':'value2'}"),
-            MAPPER.writeValueAsString(cache));
+            ORDERED_MAPPER.writeValueAsString(cache));
     }
 
     public void testCacheSerializationIgnoreProperties() throws Exception {
@@ -198,7 +213,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{'cache':{'a':'foo'}}"),
-            MAPPER.writeValueAsString(container));
+            ORDERED_MAPPER.writeValueAsString(container));
     }
 
     public void testCacheSerializationWithBean() throws Exception {
@@ -206,7 +221,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{'cache':{'a':{'name':'a','age':1},'x':{'name':'b','age':2}}}"),
-            MAPPER.writeValueAsString(container));
+            ORDERED_MAPPER.writeValueAsString(container));
     }
 
     public void testCacheSerializationWithList() throws Exception {
@@ -214,7 +229,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{'cache':{'a':['a'],'b':['b']}}"),
-            MAPPER.writeValueAsString(container));
+            ORDERED_MAPPER.writeValueAsString(container));
     }
 
     public void testCacheSerializationWithEmptyCache() throws Exception {
@@ -222,7 +237,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{}"),
-            MAPPER.writeValueAsString(cache));
+            ORDERED_MAPPER.writeValueAsString(cache));
     }
 
     public void testCacheSerializationBeanKey() throws Exception {
@@ -231,7 +246,7 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{'key_1':'value1'}"),
-            MAPPER.writeValueAsString(cache));
+            ORDERED_MAPPER.writeValueAsString(cache));
     }
 
     public void testCacheSerializationBeanKeyEquals() throws Exception {
@@ -242,12 +257,12 @@ public class CacheTypesTest extends ModuleTestBase {
 
         assertEquals(
             a2q("{'key_2':'value2','key_1':'value1'}"),
-            MAPPER.writeValueAsString(cache));
+            ORDERED_MAPPER.writeValueAsString(cache));
     }
 
 
     public void testEmptyCacheExclusion() throws Exception {
-        String json = MAPPER.writeValueAsString(new CacheWrapper());
+        String json = ORDERED_MAPPER.writeValueAsString(new CacheWrapper());
 
         assertEquals("{}", json);
     }
@@ -257,8 +272,8 @@ public class CacheTypesTest extends ModuleTestBase {
         cache.put(MyEnum.YAY, 5);
         cache.put(MyEnum.BOO, 2);
 
-        final String writerSer = MAPPER.writerFor(new TypeReference<Cache<MyEnum, Integer>>() {}).writeValueAsString(cache);
-        final String mapperSer = MAPPER.writeValueAsString(cache);
+        final String writerSer = ORDERED_MAPPER.writerFor(new TypeReference<Cache<MyEnum, Integer>>() {}).writeValueAsString(cache);
+        final String mapperSer = ORDERED_MAPPER.writeValueAsString(cache);
 
         String expected = a2q("{'YAY':5,'BOO':2}");
         assertEquals(expected, writerSer);
@@ -268,7 +283,7 @@ public class CacheTypesTest extends ModuleTestBase {
     public void testOrderByKeyViaProperty() throws Exception {
         CacheOrderingBean input = new CacheOrderingBean("c", "b", "a");
 
-        String json = MAPPER.writeValueAsString(input);
+        String json = ORDERED_MAPPER.writeValueAsString(input);
 
         assertEquals(a2q("{'cache':{'a':3,'b':2,'c':1}}"), json);
     }
@@ -279,7 +294,7 @@ public class CacheTypesTest extends ModuleTestBase {
         cache.put("d", new Dog());
         AnimalCacheContainer animalCacheContainer = new AnimalCacheContainer(cache);
 
-        String json = MAPPER.writeValueAsString(animalCacheContainer);
+        String json = ORDERED_MAPPER.writeValueAsString(animalCacheContainer);
 
         assertEquals(
             a2q("{'cache':" +
@@ -293,18 +308,64 @@ public class CacheTypesTest extends ModuleTestBase {
         nestedCache.put("b", _buildCacheWithKeys("b_x", "b_y"));
         NestedCacheContainer nestedCacheContainer = new NestedCacheContainer(nestedCache);
 
-        String json = MAPPER.writeValueAsString(nestedCacheContainer);
+        String json = ORDERED_MAPPER.writeValueAsString(nestedCacheContainer);
 
         assertEquals(a2q("{'cache':" +
-            "{'a':{'a_x':'1','a_y':'2'}," +
-            "'b':{'b_x':'1','b_y':'2'}}}"), json);
+            "{'a':{'a_x':'value','a_y':'value'}," +
+            "'b':{'b_x':'value','b_y':'value'}}}"), json);
     }
 
     private Cache<String, String> _buildCacheWithKeys(String... keys) {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
         for (int i = 0; i < keys.length; i++) {
-            cache.put(keys[i], String.valueOf(i + 1));
+            cache.put(keys[i], "value");
         }
         return cache;
+    }
+
+    // [datatypes-collections#104]
+    public void testPolymorphicCacheEmpty() throws Exception {
+        final Cache<String, Object> cache = CacheBuilder.newBuilder().build();
+        cache.put("aKey", 1);
+        _testPolymorphicCache(cache,
+            a2q("{'aProperty':{'@type':'LocalCache$LocalManualCache','aKey':1}}"));
+    }
+
+    public void testPolymorphicCacheNonEmpty() throws Exception {
+        _testPolymorphicCache(CacheBuilder.newBuilder().build(),
+            a2q("{'aProperty':{'@type':'LocalCache$LocalManualCache'}}"));
+    }
+
+    private void _testPolymorphicCache(Cache<String, Object> cache, String expected) throws Exception {
+        final Outside104 outside = new Outside104();
+        outside.aProperty = cache;
+
+        final String json = ORDERED_MAPPER.writeValueAsString(outside);
+
+        assertEquals(expected, json);
+    }
+
+    public void testCacheSerializeOrderedByKey() throws Exception {
+        final Cache<String, String> cache = _buildCacheWithKeys("c_key", "d_key", "a_key", "e_key", "b_key");
+
+        String expected =
+            a2q("{'a_key':'value','b_key':'value','c_key':'value','d_key':'value','e_key':'value'}");
+
+        assertEquals(expected, ORDERED_MAPPER.writeValueAsString(cache));
+        assertEquals(expected, ORDERED_MAPPER.writerFor(
+            new TypeReference<Cache<String, String>>() {}).writeValueAsString(cache));
+    }
+
+    public void testPolymorphicCacheWrapperSerialization() throws Exception {
+        final Cache<String, String> cache = _buildCacheWithKeys("c_key", "a_key", "e_key", "b_key", "d_key");
+        PolymorphicWrapperBean outside = new PolymorphicWrapperBean();
+        outside.aProperty = cache;
+
+        String expected = a2q("{'aProperty':{'type':'" + cache.getClass().getTypeName()
+            + "','a_key':'value','b_key':'value','c_key':'value','d_key':'value','e_key':'value'}}");
+
+        assertEquals(expected, ORDERED_MAPPER.writeValueAsString(outside));
+        assertEquals(expected, ORDERED_MAPPER.writerFor(
+            PolymorphicWrapperBean.class).writeValueAsString(outside));
     }
 }
