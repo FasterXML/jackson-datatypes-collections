@@ -18,7 +18,9 @@ Active Maintainers:
 
 2.16.0 (not yet released)
 
-No changes since 2.15
+#90: Cache Serialization serializes empty contents
+ (reportedby Wolff B)
+ (fix contributed by Joo-Hyuk K)
 
 2.15.0 (23-Apr-2023)
 

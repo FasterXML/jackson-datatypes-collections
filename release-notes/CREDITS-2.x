@@ -102,3 +102,9 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
     `BoundType` serialization
    (2.15.0)
+  * Contributed fix for #90: Cache Serialization serializes empty contents
+   (2.16.0)
+
+Wolff Bock von Wülfingen (wlfbck@github)
+  * Reported #90: Cache Serialization serializes empty contents
+   (2.16.0)

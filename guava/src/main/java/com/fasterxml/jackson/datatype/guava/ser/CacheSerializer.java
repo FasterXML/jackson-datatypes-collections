@@ -26,8 +26,6 @@ import java.util.*;
 
 /**
  * Serializer for Guava's {@link Cache} values. 
- * 
- * @since 2.16
  */
 public class CacheSerializer 
     extends ContainerSerializer<Cache<?, ?>>
@@ -98,6 +96,7 @@ public class CacheSerializer
     /**
      * @since 2.16
      */
+    @SuppressWarnings("unchecked")
     protected CacheSerializer(CacheSerializer src, BeanProperty property,
                 JsonSerializer<?> keySerializer, TypeSerializer vts, JsonSerializer<?> valueSerializer,
                 Set<String> ignoredEntries, Object filterId, boolean sortKeys)
