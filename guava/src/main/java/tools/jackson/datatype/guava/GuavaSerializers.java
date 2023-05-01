@@ -98,12 +98,6 @@ public class GuavaSerializers extends Serializers.Base
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
         }
-        // [datatypes-collections#90]: add bogus "serialize as empty" serializer to avoid
-        // error on "no properties". If proper serialization (and deserialization) needed,
-        // would need to resolve type parameters here
-        if (Cache.class.isAssignableFrom(raw)) {
-            return new CacheSerializer();
-        }
         return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(raw)
                 .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newSerializer)
                 .orNull();
@@ -123,6 +117,15 @@ public class GuavaSerializers extends Serializers.Base
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new MultimapSerializer(type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
+        }
+        if (Cache.class.isAssignableFrom(type.getRawClass())) {
+            final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            Object filterId = intr.findFilterId(config, (Annotated)beanDesc.getClassInfo());
+            JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Cache.class,
+                beanDesc.getClassInfo());
+            Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
+            return new CacheSerializer(type, beanDesc,
+                keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
         return null;
     }

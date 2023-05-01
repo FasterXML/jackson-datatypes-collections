@@ -31,7 +31,7 @@ public class RangeDeserializer102Test extends ModuleTestBase
             String lowerType, String upperType) throws Exception {
         String json = a2q("{'lowerEndpoint': 1, 'lowerBoundType': '"+lowerType
                 +"', 'upperEndpoint': 2, 'upperBoundType': '"+upperType+"'}");
-        Range range = mapper.readValue(json, Range.class);
+        Range<?> range = mapper.readValue(json, Range.class);
 
         assertEquals(1, range.lowerEndpoint());
         assertEquals(BoundType.CLOSED, range.lowerBoundType());

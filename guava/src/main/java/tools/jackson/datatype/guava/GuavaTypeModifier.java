@@ -7,6 +7,7 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.type.*;
 
 import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
 import com.google.common.collect.*;
 
 /**
@@ -43,6 +44,11 @@ public class GuavaTypeModifier extends TypeModifier
             return MapLikeType.upgradeFrom(type,
                             type.containedTypeOrUnknown(0),
                             type.containedTypeOrUnknown(1));
+        }
+        if (raw == Cache.class) {
+            return MapLikeType.upgradeFrom(type,
+                type.containedTypeOrUnknown(0),
+                type.containedTypeOrUnknown(1));
         }
         if (raw == Optional.class) {
             return ReferenceType.upgradeFrom(type, type.containedTypeOrUnknown(0));
