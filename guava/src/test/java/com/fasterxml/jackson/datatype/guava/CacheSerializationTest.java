@@ -11,7 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CacheTypesTest extends ModuleTestBase {
+public class CacheSerializationTest extends ModuleTestBase {
 
     /*
     /**********************************************************
