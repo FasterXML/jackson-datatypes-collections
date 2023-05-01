@@ -257,8 +257,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     public void serialize(Cache<?, ?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        gen.writeStartObject();
-        gen.setCurrentValue(value);        
+        gen.writeStartObject(value);
         _writeContents(value, gen, provider);
         gen.writeEndObject();
     }
@@ -268,7 +267,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
             TypeSerializer typeSer)
         throws IOException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         _writeContents(value, gen, ctxt);
@@ -294,7 +293,6 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
             value = _orderEntriesByKey(value, gen, provider);
         }
-
         if (_filterId != null) {
             serializeFilteredFields(value, gen, provider);
         } else {
@@ -437,4 +435,3 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         return result.serializer;
     }
 }
-

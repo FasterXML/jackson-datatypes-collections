@@ -3,6 +3,7 @@ package com.fasterxml.jackson.datatype.guava;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -156,7 +157,7 @@ public class CacheTypesTest extends ModuleTestBase {
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = mapperWithModule();
+    private final ObjectMapper MAPPER = mapperWithModule().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
     public void testGuavaCacheApi() throws Exception {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
