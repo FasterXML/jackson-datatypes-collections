@@ -114,7 +114,7 @@ public class GuavaSerializers extends Serializers.Base
         if (Cache.class.isAssignableFrom(type.getRawClass())) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
             Object filterId = intr.findFilterId((Annotated)beanDesc.getClassInfo());
-            JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
+            JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Cache.class,
                 beanDesc.getClassInfo());
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new CacheSerializer(type, beanDesc,

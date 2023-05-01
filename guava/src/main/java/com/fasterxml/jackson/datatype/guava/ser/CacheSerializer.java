@@ -2,7 +2,6 @@ package com.fasterxml.jackson.datatype.guava.ser;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -11,32 +10,19 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
-import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.std.MapProperty;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.cache.Cache;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
- * Serializer for Guava's {@link Cache} values. Output format encloses all
- * value sets in JSON Array, regardless of number of values; this to reduce
- * complexity (and inaccuracy) of trying to handle cases where values themselves
- * would be serialized as arrays (in which cases determining whether given array
- * is a wrapper or value gets complicated and unreliable).
- * <p>
- * Missing features, compared to standard Java Maps:
- * <ul>
- *  <li>Inclusion checks for content entries (non-null, non-empty)
- *   </li>
- *  <li>Sorting of entries
- *   </li>
- * </ul>
- *
+ * Serializer for Guava's {@link Cache} values. 
+ * 
  * @since 2.16
  */
 public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
@@ -73,14 +59,11 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     protected final Object _filterId;
 
     /**
-     * Flag set if output is forced to be sorted by keys (usually due
-     * to annotation).
-     *<p>
-     * NOTE: not yet used.
+     * Flag set if output is forced to be sorted by keys (usually due to annotation).
      *
      * @since 2.16
      */
-    protected final boolean _sortKeys;
+    protected boolean _sortKeys;
     
     /*
     /**********************************************************
@@ -88,6 +71,9 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     /**********************************************************
      */
     
+    /**
+     * @since 2.16
+     */
     public CacheSerializer(MapLikeType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
             Set<String> ignoredEntries, Object filterId)
@@ -101,7 +87,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         _ignoredEntries = ignoredEntries;
         _filterId = filterId;
         _sortKeys = false;
-
+        
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
     /**
@@ -267,7 +253,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     /**********************************************************
      */
 
-    @Override
+    @Override // since 2.16
     public void serialize(Cache<?, ?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
@@ -276,8 +262,8 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         _writeContents(value, gen, provider);
         gen.writeEndObject();
     }
-
-    @Override
+    
+    @Override // @since 2.16
     public void serializeWithType(Cache<?, ?> value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException
@@ -294,7 +280,10 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     /* Internal helper methods
     /**********************************************************
      */
-
+    
+    /**
+     * @since 2.16
+     */
     protected void _writeContents(Cache<?, ?> cache, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
@@ -302,20 +291,150 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         if (value.isEmpty()) {
             return;
         }
-        for (Map.Entry<?, ?> entry : cache.asMap().entrySet()) {
-            Object key = entry.getKey();
-            Object v = entry.getValue();
-            gen.writeFieldName(key.toString());
-            provider.defaultSerializeValue(v, gen);
+        if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+            value = _orderEntriesByKey(value, gen, provider);
         }
-//        if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-//            value = _orderEntriesByKey(value, gen, provider);
-//        }
-//        if (_filterId != null) {
-//            serializeFilteredFields(value, gen, provider);
-//        } else {
-//            serializeFields(value, gen, provider);
-//        }
+
+        if (_filterId != null) {
+            serializeFilteredFields(value, gen, provider);
+        } else {
+            serializeFields(value, gen, provider);
+        }
+    }
+
+    /**
+     * @since 2.16
+     */
+    private final void serializeFields(Map<?, ?> mmap, JsonGenerator
+        gen, SerializerProvider provider)
+        throws IOException
+    {
+        final Set<String> ignored = _ignoredEntries;
+        PropertySerializerMap serializers = _dynamicValueSerializers;
+        for (Map.Entry<?, ?> entry : mmap.entrySet()) {
+            // First, serialize key
+            Object key = entry.getKey();
+            // should ignore?
+            if ((ignored != null) && ignored.contains(key)) {
+                continue;
+            }
+            if (key == null) {
+                provider.findNullKeySerializer(_type.getKeyType(), _property)
+                    .serialize(null, gen, provider);
+            } else {
+                _keySerializer.serialize(key, gen, provider);
+            }
+            // Second, serialize value
+            Object vv = entry.getValue();
+            // is this even possible?
+            if (vv == null) {
+                provider.defaultSerializeNull(gen);
+                continue;
+            }
+            // serialize value
+            JsonSerializer<Object> valueSer = _valueSerializer;
+            if (valueSer == null) {
+                Class<?> cc = vv.getClass();
+                valueSer = serializers.serializerFor(cc);
+                if (valueSer == null) {
+                    valueSer = _findAndAddDynamic(serializers, cc, provider);
+                    serializers = _dynamicValueSerializers;
+                }
+            }
+            if (_valueTypeSerializer == null) {
+                valueSer.serialize(vv, gen, provider);
+            } else {
+                valueSer.serializeWithType(vv, gen, provider, _valueTypeSerializer);
+            }
+        }
     }
     
+    /**
+     * @since 2.16
+     */
+    private void serializeFilteredFields(Map<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
+    {
+        final Set<String> ignored = _ignoredEntries;
+        PropertyFilter filter = findPropertyFilter(provider, _filterId, mmap);
+        final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
+        for (Map.Entry<?, ?> entry : mmap.entrySet()) {
+            // First, serialize key
+            Object key = entry.getKey();
+            if ((ignored != null) && ignored.contains(key)) {
+                continue;
+            }
+            Object value = entry.getValue();
+            JsonSerializer<Object> valueSer;
+            if (value == null) {
+                // !!! TODO: null suppression?
+                valueSer = provider.getDefaultNullValueSerializer();
+            } else {
+                valueSer = _valueSerializer;
+            }
+            prop.reset(key, value, _keySerializer, valueSer);
+            try {
+                filter.serializeAsField(mmap, gen, provider, prop);
+            } catch (Exception e) {
+                String keyDesc = "" + key;
+                wrapAndThrow(provider, e, value, keyDesc);
+            }
+        }
+    }
+    
+    
+    
+    
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.16
+     */
+    protected Map<?,?> _orderEntriesByKey(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
+    {
+        try {
+            return new TreeMap<Object,Object>(value);
+        } catch (ClassCastException e) {
+            // Either key or value type not Comparable?
+            // 20-Mar-2023, tatu: Should we actually wrap & propagate failure or... ?
+            return value;
+        } catch (NullPointerException e) {
+            // Most likely null key that TreeMultimap won't accept. So... ?
+            provider.reportMappingProblem("Failed to sort Multimap entries due to `NullPointerException`: `null` key?");
+            return null;
+        }
+    }
+    
+    /**
+     * @since 2.16
+     */
+    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+            Class<?> type, SerializerProvider provider) throws JsonMappingException
+    {
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        // did we get a new map of serializers? If so, start using it
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
+    
+    /**
+     * @since 2.16
+     */   
+    protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+                JavaType type, SerializerProvider provider) throws JsonMappingException
+    {
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
 }
+

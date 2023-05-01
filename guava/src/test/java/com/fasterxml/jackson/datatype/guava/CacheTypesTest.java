@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
@@ -117,7 +115,41 @@ public class CacheTypesTest extends ModuleTestBase {
         BOO
     }
 
-    
+    static class CacheOrderingBean {
+        @JsonPropertyOrder(alphabetic = true)
+        public Cache<String, Integer> cache;
+
+        public CacheOrderingBean(String... keys) {
+            cache = CacheBuilder.newBuilder().build();
+            int ix = 1;
+            for (String key : keys) {
+                cache.put(key, ix++);
+            }
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_type")
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = Cat.class, name = "t_cat"),
+        @JsonSubTypes.Type(value = Dog.class, name = "t_dog")})
+    public static interface Animal {}
+
+    public static class Cat implements Animal {
+        public String name = "Whiskers";
+    }
+
+    public static class Dog implements Animal {
+        public String name = "Woof";
+    }
+
+    static class CacheContainer {
+        public Cache<String, Animal> cache;
+
+        public CacheContainer(Cache<String, Animal> cache) {
+            this.cache = cache;
+        }
+    } 
+
     /*
     /**********************************************************
     /* Serialization Tests
@@ -207,16 +239,42 @@ public class CacheTypesTest extends ModuleTestBase {
 
     public void testEmptyCacheExclusion() throws Exception {
         String json = MAPPER.writeValueAsString(new CacheWrapper());
+        
         assertEquals("{}", json);
     }
 
     public void testCacheSerializationWithTypeReference() throws Exception {
-        final TypeReference<Cache<MyEnum, Integer>> type = new TypeReference<Cache<MyEnum, Integer>>() {};
         final Cache<MyEnum, Integer> cache = CacheBuilder.newBuilder().build();
         cache.put(MyEnum.YAY, 5);
         cache.put(MyEnum.BOO, 2);
 
-        final String serializedForm = MAPPER.writerFor(type).writeValueAsString(cache);
-        assertEquals(serializedForm, MAPPER.writeValueAsString(cache));
+        final String writerSer = MAPPER.writerFor(new TypeReference<Cache<MyEnum, Integer>>() {}).writeValueAsString(cache);
+        final String mapperSer = MAPPER.writeValueAsString(cache);
+
+        String expected = a2q("{'YAY':5,'BOO':2}");
+        assertEquals(expected, writerSer);
+        assertEquals(expected, mapperSer);
+    }
+
+    public void testOrderByKeyViaProperty() throws Exception {
+        CacheOrderingBean input = new CacheOrderingBean("c", "b", "a");
+        
+        String json = MAPPER.writeValueAsString(input);
+        
+        assertEquals(a2q("{'cache':{'a':3,'b':2,'c':1}}"), json);
+    }
+
+    public void testDeserializedAsConcreteTypeSuccessfulWithOutPropertySet() throws Exception {
+        Cache<String, Animal> cache = CacheBuilder.newBuilder().build();
+        cache.put("c", new Cat());
+        cache.put("d", new Dog());
+        CacheContainer cacheContainer = new CacheContainer(cache);
+
+        String json = MAPPER.writeValueAsString(cacheContainer);
+
+        assertEquals(
+            a2q("{'cache':" +
+                "{'c':{'_type':'t_cat','name':'Whiskers'}," +
+                "'d':{'_type':'t_dog','name':'Woof'}}}"), json);
     }
 }
