@@ -7,6 +7,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -25,7 +29,8 @@ import java.util.*;
  * 
  * @since 2.16
  */
-public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
+public class CacheSerializer 
+    extends ContainerSerializer<Cache<?, ?>>
     implements ContextualSerializer
 {
     private static final long serialVersionUID = 1L;
@@ -113,8 +118,8 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     * @since 2.16
     */
     protected CacheSerializer withResolved(BeanProperty property,
-                                              JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
-                                              Set<String> ignored, Object filterId, boolean sortKeys)
+            JsonSerializer<?> keySer, TypeSerializer vts, JsonSerializer<?> valueSer,
+            Set<String> ignored, Object filterId, boolean sortKeys)
     {
         return new CacheSerializer(this, property, keySer, vts, valueSer,
             ignored, filterId, sortKeys);
@@ -128,36 +133,10 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     
     /*
     /**********************************************************
-    /* Accessors for ContainerSerializer
-    /**********************************************************
-     */
-
-    @Override
-    public JavaType getContentType() {
-        return _type.getContentType();
-    }
-
-    @Override
-    public JsonSerializer<?> getContentSerializer() {
-        return _valueSerializer;
-    }
-
-    @Override
-    public boolean hasSingleElement(Cache<?, ?> cache) {
-        return cache.size() == 1;
-    }
-
-    @Override
-    public boolean isEmpty(SerializerProvider prov, Cache<?, ?> value) {
-        return value.size() == 0;
-    }
-    
-    /*
-    /**********************************************************
     /* Post-processing (contextualization)
     /**********************************************************
      */
-    
+
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property) throws JsonMappingException {
         JsonSerializer<?> valueSer = _valueSerializer;
@@ -242,11 +221,36 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
                 sortKeys = B.booleanValue();
             }
         }
-
         return withResolved(property, keySer, typeSer, valueSer,
-            ignored, filterId, sortKeys);
+                ignored, filterId, sortKeys);
     }
     
+    /*
+    /**********************************************************
+    /* Accessors for ContainerSerializer
+    /**********************************************************
+     */
+
+    @Override
+    public JsonSerializer<?> getContentSerializer() {
+        return _valueSerializer;
+    }
+
+    @Override
+    public JavaType getContentType() {
+        return _type.getContentType();
+    }
+
+    @Override
+    public boolean hasSingleElement(Cache<?, ?> cache) {
+        return cache.size() == 1;
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider prov, Cache<?, ?> value) {
+        return value.size() == 0;
+    }
+
     /*
     /**********************************************************
     /* Abstract method implementations
@@ -287,16 +291,16 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         throws IOException
     {
         Map<?, ?> value = cache.asMap();
-        if (value.isEmpty()) {
-            return;
-        }
-        if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-            value = _orderEntriesByKey(value, gen, provider);
-        }
-        if (_filterId != null) {
-            serializeFilteredFields(value, gen, provider);
-        } else {
-            serializeFields(value, gen, provider);
+        if (!value.isEmpty()) {
+            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntriesByKey(value, gen, provider);
+            }
+            
+            if (_filterId != null) {
+                serializeFilteredFields(value, gen, provider);
+            } else {
+                serializeFields(value, gen, provider);
+            }
         }
     }
 
@@ -312,7 +316,6 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
         for (Map.Entry<?, ?> entry : mmap.entrySet()) {
             // First, serialize key
             Object key = entry.getKey();
-            // should ignore?
             if ((ignored != null) && ignored.contains(key)) {
                 continue;
             }
@@ -350,13 +353,13 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
     /**
      * @since 2.16
      */
-    private void serializeFilteredFields(Map<?, ?> mmap, JsonGenerator gen, SerializerProvider provider)
+    private void serializeFilteredFields(Map<?, ?> map, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
         final Set<String> ignored = _ignoredEntries;
-        PropertyFilter filter = findPropertyFilter(provider, _filterId, mmap);
+        PropertyFilter filter = findPropertyFilter(provider, _filterId, map);
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
-        for (Map.Entry<?, ?> entry : mmap.entrySet()) {
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
             // First, serialize key
             Object key = entry.getKey();
             if ((ignored != null) && ignored.contains(key)) {
@@ -372,11 +375,47 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {
-                filter.serializeAsField(mmap, gen, provider, prop);
+                filter.serializeAsField(map, gen, provider, prop);
             } catch (Exception e) {
                 String keyDesc = "" + key;
                 wrapAndThrow(provider, e, value, keyDesc);
             }
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Schema related functionality
+    /**********************************************************
+     */
+
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
+        JsonMapFormatVisitor v2 = (visitor == null) ? null : visitor.expectMapFormat(typeHint);
+        if (v2 != null) {
+            v2.keyFormat(_keySerializer, _type.getKeyType());
+            JsonSerializer<?> valueSer = _valueSerializer;
+            final JavaType vt = _type.getContentType();
+            final SerializerProvider prov = visitor.getProvider();
+            if (valueSer == null) {
+                valueSer = _findAndAddDynamic(_dynamicValueSerializers, vt, prov);
+            }
+            final JsonSerializer<?> valueSer2 = valueSer;
+            v2.valueFormat(new JsonFormatVisitable() {
+                final JavaType arrayType = prov.getTypeFactory().constructArrayType(vt);
+                @Override
+                public void acceptJsonFormatVisitor(
+                    JsonFormatVisitorWrapper v3, JavaType hint3)
+                    throws JsonMappingException
+                {
+                    JsonArrayFormatVisitor v4 = v3.expectArrayFormat(arrayType);
+                    if (v4 != null) {
+                        v4.itemsFormat(valueSer2, vt);
+                    }
+                }
+            }, vt);
         }
     }
     
