@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
@@ -55,9 +58,11 @@ public class CacheTypesTest extends ModuleTestBase {
         }
     }
 
-    private static List<String> _makeStringList(String str) {
+    private static List<String> _makeStringList(String... str) {
         List<String> list = new ArrayList<String>();
-        list.add(str);
+        for (String s : str) {
+            list.add(s);
+        }
         return list;
     }
 
@@ -99,6 +104,19 @@ public class CacheTypesTest extends ModuleTestBase {
             return Objects.hashCode(age);
         }
     }
+
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    static class CacheWrapper {
+        @JsonProperty
+        Cache<String, String> cache = CacheBuilder.newBuilder().build();
+    }
+
+    public static enum MyEnum {
+        YAY,
+        BOO
+    }
+
     
     /*
     /**********************************************************
@@ -184,5 +202,21 @@ public class CacheTypesTest extends ModuleTestBase {
         assertEquals(
             a2q("{'key_2':'value2','key_1':'value1'}"),
             MAPPER.writeValueAsString(cache));
+    }
+
+
+    public void testEmptyCacheExclusion() throws Exception {
+        String json = MAPPER.writeValueAsString(new CacheWrapper());
+        assertEquals("{}", json);
+    }
+
+    public void testCacheSerializationWithTypeReference() throws Exception {
+        final TypeReference<Cache<MyEnum, Integer>> type = new TypeReference<Cache<MyEnum, Integer>>() {};
+        final Cache<MyEnum, Integer> cache = CacheBuilder.newBuilder().build();
+        cache.put(MyEnum.YAY, 5);
+        cache.put(MyEnum.BOO, 2);
+
+        final String serializedForm = MAPPER.writerFor(type).writeValueAsString(cache);
+        assertEquals(serializedForm, MAPPER.writeValueAsString(cache));
     }
 }

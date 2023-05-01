@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.guava.ser;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
+import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.cache.Cache;
 
@@ -161,7 +163,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
 
     @Override
     public boolean isEmpty(SerializerProvider prov, Cache<?, ?> value) {
-        return value.size() != 0;
+        return value.size() == 0;
     }
     
     /*
@@ -254,6 +256,7 @@ public class CacheSerializer extends ContainerSerializer<Cache<?, ?>>
                 sortKeys = B.booleanValue();
             }
         }
+
         return withResolved(property, keySer, typeSer, valueSer,
             ignored, filterId, sortKeys);
     }
