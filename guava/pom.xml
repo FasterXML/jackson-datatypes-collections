@@ -26,12 +26,9 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
   </contributors>
 
   <properties>
-    <!-- In Jackson 2.15 was guava 23.x
+    <!-- In Jackson 2.16 was guava 26.x
       -->
-    <version.guava>25.1-jre</version.guava>
-
-    <!-- 11-Sep-2015, tatu: As per [datatype-guava#80] -->
-    <!-- 31-Jul-2020, tatu: upper limit removed for jackson 2.12 and later -->
+    <version.guava>30.1.1-jre</version.guava>
     <version.guava.osgi>[${version.guava}.0,99)</version.guava.osgi>
 
     <!-- Generate PackageVersion.java into this directory. -->
