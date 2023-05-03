@@ -9,6 +9,11 @@ import com.fasterxml.jackson.datatype.guava.deser.cache.GuavaCacheDeserializer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+/**
+ * {@link GuavaCacheDeserializer} class implementation for deserializing Guava {@link Cache} instances.
+ *
+ * @since 2.16
+ */
 public class SimpleCacheDeserializer 
     extends GuavaCacheDeserializer<Cache<Object,Object>> 
 {
