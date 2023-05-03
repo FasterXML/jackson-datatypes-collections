@@ -287,9 +287,11 @@ public class GuavaDeserializers
         DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer, 
         TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) 
     {
+        /* // Example implementations
         if (LoadingCache.class.isAssignableFrom(raw)) {
-            // TODO: 
+            return ....your implementation....;
         }
+        */
         if (Cache.class.isAssignableFrom(raw)) {
             return java.util.Optional.of(
                 new SimpleCacheDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer));
