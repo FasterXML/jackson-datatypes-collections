@@ -30,14 +30,6 @@ import com.google.common.collect.TreeMultimap;
  * complexity (and inaccuracy) of trying to handle cases where values themselves
  * would be serialized as arrays (in which cases determining whether given array
  * is a wrapper or value gets complicated and unreliable).
- *<p>
- * Missing features, compared to standard Java Maps:
- *<ul>
- *  <li>Inclusion checks for content entries (non-null, non-empty)
- *   </li>
- *  <li>Sorting of entries
- *   </li>
- * </ul>
  */
 public class MultimapSerializer
     extends ContainerSerializer<Multimap<?, ?>>
@@ -76,10 +68,8 @@ public class MultimapSerializer
     /**
      * Flag set if output is forced to be sorted by keys (usually due
      * to annotation).
-     *<p>
-     * NOTE: not yet used.
-     *
-     * @since 2.5
+     * 
+     * @since 2.15
      */
     protected final boolean _sortKeys;
     
