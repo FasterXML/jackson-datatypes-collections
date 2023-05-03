@@ -263,7 +263,7 @@ public class GuavaDeserializers
         if (Table.class.isAssignableFrom(raw)) {
             // !!! TODO
         }
-
+        // @since 2.16 : support Cache deserialization
         java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config, 
                                         beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
         if (cacheDeserializer.isPresent()) {
