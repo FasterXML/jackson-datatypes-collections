@@ -82,10 +82,10 @@ public class CacheDeserializationTest extends ModuleTestBase {
 
     public void testCacheDeserializationSimple() throws Exception {
         // Create a delegate cache using CacheBuilder
-        Cache<String, Integer> delegateCache = CacheBuilder.newBuilder().maximumSize(2).build();
+        Cache<String, Integer> delegateCache = CacheBuilder.newBuilder().build();
         delegateCache.put("key1", 1);
 
-        Cache<String, String> s = MAPPER.readValue(a2q("{'cache':{'a':'foo'}}"),
+        Cache<String, String> s = MAPPER.readValue(a2q("{'a':'foo'}"),
             new TypeReference<Cache<String, String>>() {});
 
         assertEquals(1, s.size());
@@ -134,14 +134,18 @@ public class CacheDeserializationTest extends ModuleTestBase {
     public void testEnumKey() throws Exception {
         final TypeReference<Cache<MyEnum, Integer>> type = new TypeReference<Cache<MyEnum, Integer>>() {};
         final Cache<MyEnum, Integer> cache = CacheBuilder.newBuilder().build();
-
         cache.put(MyEnum.YAY, 5);
         cache.put(MyEnum.BOO, 2);
 
+        // test serialization
         final String serializedForm = MAPPER.writerFor(type).writeValueAsString(cache);
-
         assertEquals(serializedForm, MAPPER.writeValueAsString(cache));
-        assertEquals(cache, MAPPER.readValue(serializedForm, type));
+        
+        // test deserialization
+        final Cache<MyEnum, Integer> deserializedCache = MAPPER.readValue(serializedForm, type);
+        assertEquals(
+            cache.asMap().entrySet(),
+            deserializedCache.asMap().entrySet());
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
