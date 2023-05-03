@@ -109,11 +109,6 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        //check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
-//        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-//            return deserializeFromSingleValue(p, ctxt);
-//        }
-        // if not deserialize the normal way
         return deserializeContents(p, ctxt);
     }
 
