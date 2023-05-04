@@ -1,6 +1,9 @@
 package tools.jackson.datatype.guava;
 
 import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.cache.ForwardingCache;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
@@ -260,8 +263,40 @@ public class GuavaDeserializers
         if (Table.class.isAssignableFrom(raw)) {
             // !!! TODO
         }
+        // @since 2.16 : support Cache deserialization
+        java.util.Optional<ValueDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config, 
+                                        beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+        if (cacheDeserializer.isPresent()) {
+            return cacheDeserializer.get();
+        }
 
         return null;
+    }
+
+    /**
+     * Find matching implementation of {@link Cache} deserializers by checking
+     * if the parameter {@code raw} type is assignable.
+     *
+     * NOTE: Make sure the cache implementations are checked in such a way that more concrete classes are
+     * compared first before more abstract ones.
+     *
+     * @return An optional {@link JsonDeserializer} for the cache type, if found.
+     * @since 2.16
+     */
+    private java.util.Optional<ValueDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type, 
+        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer, 
+        TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) 
+    {
+        /* // Example implementations
+        if (LoadingCache.class.isAssignableFrom(raw)) {
+            return ....your implementation....;
+        }
+        */
+        if (Cache.class.isAssignableFrom(raw)) {
+            return java.util.Optional.of(
+                new SimpleCacheDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer));
+        }
+        return java.util.Optional.empty();
     }
 
     @Override // since 2.7
