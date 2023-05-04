@@ -104,6 +104,8 @@ Joo Hyuk Kim (JooHyukKim@github)
    (2.15.0)
   * Contributed fix for #90: Cache Serialization serializes empty contents
    (2.16.0)
+  * Contributed #116: Suppport simple deserialization of `Cache`
+   (2.16.0)
 
 Wolff Bock von Wülfingen (wlfbck@github)
   * Reported #90: Cache Serialization serializes empty contents
