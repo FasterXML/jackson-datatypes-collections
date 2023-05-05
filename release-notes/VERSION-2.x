@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.14.3 (not yet released)
+2.14.3 (05-May-2023)
 
 #92: (guava) `@JsonDeserialize.contentConverter` does not work for non-builtin collections
  (reported by Marcin W)
