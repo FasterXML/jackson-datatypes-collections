@@ -18,12 +18,16 @@ Active Maintainers:
 
 2.16.0 (not yet released)
 
-#90: Cache Serialization serializes empty contents
- (reportedby Wolff B)
+#90: (guava) Cache Serialization serializes empty contents
+ (reported by Wolff B)
  (fix contributed by Joo-Hyuk K)
-#113: Update default Guava dependency for Jackson 2.16 from Guava 23.x to 25.x
-#116: Suppport simple deserialization of `Cache`
+#113: (guava) Update default Guava dependency for Jackson 2.16 from Guava 23.x to 25.x
+#116: (guava) Suppport simple deserialization of `Cache`
  (contributed by Joo-Hyuk K)
+
+2.15.1 (16-May-2023)
+
+No changes since 2.15.0
 
 2.15.0 (23-Apr-2023)
 
