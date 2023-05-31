@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatypes-collections</artifactId>
-        <version>2.15.2-SNAPSHOT</version>
+        <version>2.15.2</version>
     </parent>
     <artifactId>jackson-datatype-eclipse-collections</artifactId>
     <name>Jackson datatype: eclipse-collections</name>
