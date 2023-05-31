@@ -25,6 +25,7 @@ Active Maintainers:
 #116: (guava) Suppport simple deserialization of `Cache`
  (contributed by Joo-Hyuk K)
 
+2.15.2 (30-May-2023)
 2.15.1 (16-May-2023)
 
 No changes since 2.15.0
