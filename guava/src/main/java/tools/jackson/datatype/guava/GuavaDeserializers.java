@@ -317,7 +317,7 @@ public class GuavaDeserializers
     public ValueDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
-        if (type.hasRawClass(RangeSet.class)) {
+        if (RangeSet.class.isAssignableFrom(type.getRawClass())) {
             return new RangeSetDeserializer();
         }
         if (type.hasRawClass(Range.class)) {
@@ -341,7 +341,6 @@ public class GuavaDeserializers
     public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
         if (valueType.getName().startsWith("com.google.")) {
             return (valueType == Optional.class)
-                    || (valueType == RangeSet.class)
                     || (valueType == HostAndPort.class)
                     || (valueType == InternetDomainName.class)
                     || (valueType == HashCode.class)
@@ -353,6 +352,7 @@ public class GuavaDeserializers
                     || BiMap.class.isAssignableFrom(valueType)
                     || PrimitiveTypes.isAssignableFromPrimitive(valueType).isPresent()
                     || ImmutablePrimitiveTypes.isAssignableFromImmutableArray(valueType).isPresent()
+                    || ImmutableRangeSet.class.isAssignableFrom(valueType)
                     ;
         }
         return false;

@@ -1,9 +1,12 @@
 package tools.jackson.datatype.guava;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.type.TypeFactory;
+
+import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -28,5 +31,20 @@ public class TestRangeSet extends ModuleTestBase {
         final RangeSet<Integer> deserialized = reader.readValue(json);
 
         assertEquals(rangeSet, deserialized);
+    }
+
+    public void testSerializeDeserializeImmutableRangeSet() throws Exception {
+        final ImmutableRangeSet<Integer> rangeSet = ImmutableRangeSet.<Integer>builder()
+                .add(Range.closedOpen(1, 2))
+                .build();
+
+        // test serialization
+        final String json = MAPPER.writeValueAsString(rangeSet);
+        assertEquals(a2q("[{'lowerEndpoint':1,'lowerBoundType':'CLOSED',"
+                                + "'upperEndpoint':2,'upperBoundType':'OPEN'}]"), json);
+        
+        // test deserialization, back
+        assertEquals(rangeSet, MAPPER.readValue(json, new TypeReference<RangeSet<Integer>>() {}));
+        assertEquals(rangeSet, MAPPER.readValue(json, new TypeReference<ImmutableRangeSet<Integer>>() {}));
     }
 }

@@ -88,24 +88,27 @@ Andrey Borisov (turbospaces@github)
    (2.15.0)
 
 Marcin Wisnicki (mwisnick@github)
-  * Reported #92: (guava) `@JsonDeserialize.contentConverter` does not work for non-builtin
-    collections
-   (2.15.0)
+ * Reported #92: (guava) `@JsonDeserialize.contentConverter` does not work for non-builtin
+   collections
+  (2.15.0)
 
 Joo Hyuk Kim (JooHyukKim@github)
-  * Contributed #7: (guava) Add support for `WRITE_SORTED_MAP_ENTRIES` for
-    Guava `Multimap`s
-   (2.15.0)
-  * Contributed fix for #92: (guava) `@JsonDeserialize.contentConverter` does not work
-    for non-builtin collections
-   (2.15.0)
-  * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
-    `BoundType` serialization
-   (2.15.0)
-  * Contributed fix for #90: Cache Serialization serializes empty contents
-   (2.16.0)
-  * Contributed #116: Suppport simple deserialization of `Cache`
-   (2.16.0)
+ * Contributed #7: (guava) Add support for `WRITE_SORTED_MAP_ENTRIES` for
+   Guava `Multimap`s
+  (2.15.0)
+ * Contributed fix for #92: (guava) `@JsonDeserialize.contentConverter` does not work
+   for non-builtin collections
+  (2.15.0)
+ * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
+   `BoundType` serialization
+  (2.15.0)
+ * Contributed fix for #90: (guava) Cache Serialization serializes empty contents
+  (2.16.0)
+ * Contributed #116: (guava) Suppport simple deserialization of `Cache`
+  (2.16.0)
+ * Contributed fix for #117: (guava) `ImmutableRangeSet` fails to deserialize
+   without explicit deserializer
+  (2.16.0)
 
 Wolff Bock von Wülfingen (wlfbck@github)
   * Reported #90: Cache Serialization serializes empty contents
