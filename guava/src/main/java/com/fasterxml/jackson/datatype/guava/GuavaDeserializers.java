@@ -317,7 +317,7 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
-        if (type.hasRawClass(RangeSet.class)) {
+        if (RangeSet.class.isAssignableFrom(type.getRawClass())) {
             return new RangeSetDeserializer();
         }
         if (type.hasRawClass(Range.class)) {
@@ -349,6 +349,7 @@ public class GuavaDeserializers
                     || ImmutableCollection.class.isAssignableFrom(valueType)
                     || ImmutableMap.class.isAssignableFrom(valueType)
                     || BiMap.class.isAssignableFrom(valueType)
+                    || ImmutableRangeSet.class.isAssignableFrom(valueType)
                     ;
         }
         return false;
