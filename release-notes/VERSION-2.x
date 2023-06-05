@@ -24,6 +24,8 @@ Active Maintainers:
 #113: (guava) Update default Guava dependency for Jackson 2.16 from Guava 23.x to 25.x
 #116: (guava) Suppport simple deserialization of `Cache`
  (contributed by Joo-Hyuk K)
+#117: (guava) `ImmutableRangeSet` fails to deserialize without explicit deserializer
+ (contributed by Joo-Hyuk K)
 
 2.15.2 (30-May-2023)
 2.15.1 (16-May-2023)
