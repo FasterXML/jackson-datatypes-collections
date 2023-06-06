@@ -74,7 +74,7 @@ public class RangeSetDeserializer
         Class<?> raw = base.getRawClass();
         final TypeFactory tf = ctxt.getTypeFactory();
         if (RangeSet.class.isAssignableFrom(raw)) {
-            JavaType valueType = tf.findTypeParameters(base, RangeSet.class)[0];
+            JavaType valueType = tf.findFirstTypeParameter(base, RangeSet.class);
             if (valueType != null) {
                 JavaType rangeType = tf.constructParametricType(Range.class, valueType);
                 return tf.constructCollectionType(List.class, rangeType);
