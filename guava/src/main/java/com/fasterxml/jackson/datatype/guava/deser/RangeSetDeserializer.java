@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.io.IOException;
 import java.util.Collection;
@@ -20,6 +18,17 @@ import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
+/**
+ * Backported all implementations from Jackson 3.0, except following parts.
+ * 
+ * <ul>
+ *     <li>class declaration</li>
+ *     <li>JsonDeserializer in 2.x -> ValueDeserializer in 3.0</li>
+ *     <li>(WIP <a href="https://github.com/FasterXML/jackson-datatypes-collections/pull/120/files#r1219010881">discussion link</a>) _findType implementation</li>
+ * </ul>
+ * 
+ * @since 2.16 
+ */
 public class RangeSetDeserializer
     extends StdDeserializer<RangeSet<?>>
     implements ContextualDeserializer
