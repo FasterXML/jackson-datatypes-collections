@@ -24,7 +24,6 @@ import com.google.common.collect.RangeSet;
  * <ul>
  *     <li>class declaration</li>
  *     <li>JsonDeserializer in 2.x -> ValueDeserializer in 3.0</li>
- *     <li>(WIP <a href="https://github.com/FasterXML/jackson-datatypes-collections/pull/120/files#r1219010881">discussion link</a>) _findType implementation</li>
  * </ul>
  * 
  * @since 2.16 
