@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -38,6 +39,18 @@ public class TestRange extends ModuleTestBase
 
         public Wrapped() { }
         public Wrapped(Range<Integer> r) { this.r = r; }
+    }
+
+    static class Stringified{
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public Range<Integer> r;
+
+        public Stringified() {
+        }
+
+        public Stringified(Range<Integer> r) {
+            this.r = r;
+        }
     }
     
     /**
@@ -93,6 +106,10 @@ public class TestRange extends ModuleTestBase
         testSerializationWrapped(MAPPER, RangeFactory.atMost(10));
         testSerializationWrapped(MAPPER, RangeFactory.lessThan(10));
         testSerializationWrapped(MAPPER, RangeFactory.singleton(1));
+    }
+
+    public void testSerializationToString() throws Exception{
+        assertEquals(MAPPER.writeValueAsString(new Stringified(RangeFactory.open(1, 10))), "{\"r\":\"[1..10]\"}");
     }
     
     public void testDeserialization() throws Exception
