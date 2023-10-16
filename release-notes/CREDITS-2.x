@@ -110,6 +110,10 @@ Joo Hyuk Kim (JooHyukKim@github)
    without explicit deserializer
   (2.16.0)
 
+Ethan McCue (@bowbahdoe)
+  * Reported #122: PCollections module info (`module-info.class`) incorrect
+   (2.15.4)
+
 Wolff Bock von Wülfingen (wlfbck@github)
   * Reported #90: Cache Serialization serializes empty contents
    (2.16.0)

@@ -1,7 +1,7 @@
 module jackson.datatype.pcollections {
     requires tools.jackson.core;
     requires tools.jackson.databind;
-    requires pcollections;
+    requires org.pcollections;
 
     exports tools.jackson.datatype.pcollections;
     exports tools.jackson.datatype.pcollections.deser;
