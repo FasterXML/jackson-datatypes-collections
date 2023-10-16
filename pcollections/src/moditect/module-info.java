@@ -2,7 +2,7 @@
 module jackson.datatype.pcollections {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.databind;
-    requires pcollections;
+    requires org.pcollections;
 
     exports com.fasterxml.jackson.datatype.pcollections;
     exports com.fasterxml.jackson.datatype.pcollections.deser;
