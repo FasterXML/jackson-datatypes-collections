@@ -102,3 +102,7 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed fix for #102: (guava) accept lowerCase enums for `Range`
     `BoundType` serialization
    (2.15.0)
+
+Ethan McCue (@bowbahdoe)
+  * Reported #122: PCollections module info (`module-info.class`) incorrect
+   (2.15.4)
