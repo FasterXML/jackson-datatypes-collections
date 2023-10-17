@@ -28,7 +28,7 @@ Guava (http://code.google.com/p/guava-libraries/) types (currently mostly just c
   <properties>
     <!-- In Jackson 2.16 was guava 26.x
       -->
-    <version.guava>30.1.1-jre</version.guava>
+    <version.guava>32.1.3-jre</version.guava>
     <version.guava.osgi>[${version.guava}.0,99)</version.guava.osgi>
 
     <!-- Generate PackageVersion.java into this directory. -->
