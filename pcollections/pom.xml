@@ -33,7 +33,7 @@ PCollections (https://pcollections.org/) types
   </contributors>
 
   <properties>
-    <version.pcollections>2.1.2</version.pcollections>
+    <version.pcollections>4.0.1</version.pcollections>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/pcollections</packageVersion.dir>
