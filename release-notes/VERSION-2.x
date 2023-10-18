@@ -26,8 +26,9 @@ Active Maintainers:
  (contributed by Joo-Hyuk K)
 #117: (guava) `ImmutableRangeSet` fails to deserialize without explicit deserializer
  (contributed by Joo-Hyuk K)
-#122: PCollections module info (`module-info.class`) incorrect
+#122: PCollections module info (`module-info.class`) incorrect: update to 4.0.1
  (reported by Ethan M)
+ 
 
 2.15.3 (12-Oct-2023)
 2.15.2 (30-May-2023)
