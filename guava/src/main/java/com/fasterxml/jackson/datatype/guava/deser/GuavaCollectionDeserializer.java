@@ -132,15 +132,19 @@ public abstract class GuavaCollectionDeserializer<T>
     public T deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
     {
-        // Should usually point to START_ARRAY
-        if (p.isExpectedStartArrayToken()) {
-            return _deserializeContents(p, ctxt);
+        try {
+            // Should usually point to START_ARRAY
+            if (p.isExpectedStartArrayToken()) {
+                return _deserializeContents(p, ctxt);
+            }
+            // But may support implicit arrays from single values?
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+                return _deserializeFromSingleValue(p, ctxt);
+            }
+            return (T) ctxt.handleUnexpectedToken(_valueClass, p);
+        } catch (NullPointerException e) {
+            throw new JsonProcessingException(e);
         }
-        // But may support implicit arrays from single values?
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            return _deserializeFromSingleValue(p, ctxt);
-        }
-        return (T) ctxt.handleUnexpectedToken(_valueClass, p);
     }
 
     /*

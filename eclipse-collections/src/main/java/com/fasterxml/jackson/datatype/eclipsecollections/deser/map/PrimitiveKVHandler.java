@@ -70,6 +70,10 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
 
         public char value(DeserializationContext ctx, JsonParser parser) throws IOException {
             String valueAsString = parser.getValueAsString();
+            if (valueAsString == null) {
+                ctx.reportMappingException("Cannot convert the provided value into JSON String.");
+            }
+
             if (valueAsString.length() != 1) {
                 ctx.reportInputMismatch(char.class,
                                         "Cannot convert a JSON String of length %d into a char element of map",
