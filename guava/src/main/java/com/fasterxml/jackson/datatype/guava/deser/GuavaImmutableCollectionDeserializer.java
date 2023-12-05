@@ -69,6 +69,10 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
+
+            if (value == null) {
+                ctxt.reportInputMismatch(valueDes, "Value is null.");
+            }
             builder.add(value);
         }
         // No class outside of the package will be able to subclass us,
