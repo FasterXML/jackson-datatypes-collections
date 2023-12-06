@@ -214,7 +214,7 @@ public class TableSerializer
             final JsonGenerator gen, final SerializerProvider provider,
             final TypeSerializer typeSer) throws IOException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeFields(value, gen, provider);

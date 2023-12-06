@@ -214,7 +214,7 @@ public final class RefRefMapSerializer extends ContainerSerializer<MapIterable<?
             MapIterable<?, ?> value, JsonGenerator gen,
             SerializerProvider provider, TypeSerializer typeSer
     ) throws IOException {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                                                            typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {

@@ -108,7 +108,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             TypeSerializer typeSer)
         throws IOException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         _writeContents(value, gen, provider);

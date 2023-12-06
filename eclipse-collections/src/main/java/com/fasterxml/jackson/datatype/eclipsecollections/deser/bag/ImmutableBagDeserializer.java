@@ -38,6 +38,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Ref extends
             BaseCollectionDeserializer.Ref<ImmutableBag<?>, MutableBag<Object>> {
+        private static final long serialVersionUID = 1L;
+
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(ImmutableBag.class, elementType, typeDeserializer, deserializer);
         }
@@ -63,6 +65,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Boolean extends
             BaseCollectionDeserializer.Boolean<ImmutableBooleanBag, MutableBooleanBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Boolean INSTANCE = new ImmutableBagDeserializer.Boolean();
 
         public Boolean() {
@@ -82,6 +86,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Byte extends
             BaseCollectionDeserializer.Byte<ImmutableByteBag, MutableByteBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Byte INSTANCE = new ImmutableBagDeserializer.Byte();
 
         public Byte() {
@@ -101,6 +107,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Short extends
             BaseCollectionDeserializer.Short<ImmutableShortBag, MutableShortBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Short INSTANCE = new ImmutableBagDeserializer.Short();
 
         public Short() {
@@ -120,6 +128,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Char extends
             BaseCollectionDeserializer.Char<ImmutableCharBag, MutableCharBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Char INSTANCE = new ImmutableBagDeserializer.Char();
 
         public Char() {
@@ -139,6 +149,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Int extends
             BaseCollectionDeserializer.Int<ImmutableIntBag, MutableIntBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Int INSTANCE = new ImmutableBagDeserializer.Int();
 
         public Int() {
@@ -158,6 +170,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Float extends
             BaseCollectionDeserializer.Float<ImmutableFloatBag, MutableFloatBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Float INSTANCE = new ImmutableBagDeserializer.Float();
 
         public Float() {
@@ -177,6 +191,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Long extends
             BaseCollectionDeserializer.Long<ImmutableLongBag, MutableLongBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Long INSTANCE = new ImmutableBagDeserializer.Long();
 
         public Long() {
@@ -196,6 +212,8 @@ public final class ImmutableBagDeserializer {
 
     public static final class Double extends
             BaseCollectionDeserializer.Double<ImmutableDoubleBag, MutableDoubleBag> {
+        private static final long serialVersionUID = 1L;
+
         public static final ImmutableBagDeserializer.Double INSTANCE = new ImmutableBagDeserializer.Double();
 
         public Double() {

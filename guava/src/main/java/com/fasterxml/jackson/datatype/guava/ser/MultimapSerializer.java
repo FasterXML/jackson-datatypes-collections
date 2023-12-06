@@ -258,7 +258,7 @@ public class MultimapSerializer
     {
         gen.writeStartObject();
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         if (!value.isEmpty()) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntriesByKey(value, gen, provider);
@@ -278,7 +278,7 @@ public class MultimapSerializer
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         if (!value.isEmpty()) {

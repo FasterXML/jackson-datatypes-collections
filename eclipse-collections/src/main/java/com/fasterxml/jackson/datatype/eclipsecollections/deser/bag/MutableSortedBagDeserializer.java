@@ -13,6 +13,8 @@ public final class MutableSortedBagDeserializer {
 
     public static final class Ref
             extends BaseCollectionDeserializer.Ref<MutableSortedBag<?>, MutableSortedBag<Object>> {
+        private static final long serialVersionUID = 1L;
+
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(MutableSortedBag.class, elementType, typeDeserializer, deserializer);
         }
