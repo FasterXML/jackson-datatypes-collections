@@ -18,7 +18,9 @@ Active Maintainers:
 
 2.17.0 (not yet released)
 
--
+#124: Some deserializers throw unexpected `NullPointerException` when
+  handling invalid input
+ (contibuted by Arthur C)
 
 2.16.0 (15-Nov-2023)
 
