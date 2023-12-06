@@ -12,7 +12,8 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Unit tests for verifying the fixes for OSS-Fuzz issues
- * work as expected.
+ * work as expected
+ * (see [datatypes-collections#124]).
  */
 public class Fuzz124_64629Test extends ModuleTestBase
 {

@@ -114,6 +114,11 @@ Ethan McCue (@bowbahdoe)
   * Reported #122: PCollections module info (`module-info.class`) incorrect
    (2.15.4)
 
-Wolff Bock von Wülfingen (wlfbck@github)
+Wolff Bock von Wülfingen (@wlfbck)
   * Reported #90: Cache Serialization serializes empty contents
    (2.16.0)
+
+Arthur Chan (@arthurscchan)
+  * Contributed #124: Some deserializers throw unexpected `NullPointerException`
+    when handling invalid input
+   (2.17.0)
