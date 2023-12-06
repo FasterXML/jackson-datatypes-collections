@@ -38,7 +38,7 @@ public class TripleInstantiators extends ValueInstantiators.Base {
         return super.findValueInstantiator(config, beanDesc);
     }
 
-    private static class TripleInstantiator extends ValueInstantiator.Base {
+    static class TripleInstantiator extends ValueInstantiator.Base {
         private final JavaType beanType;
         private final JavaType oneType;
         private final JavaType twoType;
@@ -55,7 +55,7 @@ public class TripleInstantiators extends ValueInstantiators.Base {
             this(beanType, oneType, twoType, threeType, null, null, null);
         }
 
-        private TripleInstantiator(
+        TripleInstantiator(
                 JavaType beanType,
                 JavaType oneType, JavaType twoType, JavaType threeType,
                 TypeDeserializer oneTypeDeser, TypeDeserializer twoTypeDeser, TypeDeserializer threeTypeDeser

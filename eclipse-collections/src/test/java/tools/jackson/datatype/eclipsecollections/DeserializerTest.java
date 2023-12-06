@@ -277,7 +277,6 @@ public final class DeserializerTest extends ModuleTestBase {
         primitiveMaps0(mapperWithModule(), false);
     }
 
-    @SuppressWarnings({ "StringConcatenationInLoop", "NonConstantStringShouldBeStringBuffer" })
     static void primitiveMaps0(ObjectMapper mapper, boolean serialize) throws Exception {
         List<Class<?>> keyPrimitives = Arrays.asList(
                 Object.class, byte.class, short.class, char.class, int.class, float.class, long.class, double.class);
@@ -392,7 +391,6 @@ public final class DeserializerTest extends ModuleTestBase {
         );
     }
 
-    @SuppressWarnings("ObjectEquality")
     private static Object randomSample(Class<?> type) {
         if (type == boolean.class) { return ThreadLocalRandom.current().nextBoolean(); }
         if (type == byte.class) { return ((byte) ThreadLocalRandom.current().nextInt()); }

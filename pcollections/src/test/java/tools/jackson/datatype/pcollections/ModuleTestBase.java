@@ -2,7 +2,6 @@ package tools.jackson.datatype.pcollections;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.datatype.pcollections.PCollectionsModule;
 
 import java.util.Arrays;
 

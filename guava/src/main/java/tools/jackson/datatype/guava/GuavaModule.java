@@ -3,7 +3,6 @@ package tools.jackson.datatype.guava;
 import tools.jackson.core.Version;
 
 import tools.jackson.databind.JacksonModule;
-import tools.jackson.datatype.guava.PackageVersion;
 import tools.jackson.datatype.guava.ser.GuavaBeanSerializerModifier;
 
 import com.google.common.collect.BoundType;

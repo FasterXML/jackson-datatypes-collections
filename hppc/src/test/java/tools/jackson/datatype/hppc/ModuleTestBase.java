@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.datatype.hppc.HppcModule;
 
 public abstract class ModuleTestBase extends junit.framework.TestCase
 {

@@ -31,6 +31,7 @@ import java.util.function.Supplier;
  *
  * @author robert@albertlr.ro
  */
+@SuppressWarnings("unchecked")
 public class PrimitiveTypes {
 
     /** An enum with all the primitives */
@@ -139,7 +140,7 @@ public class PrimitiveTypes {
     static class PrimitiveTypeReference<T> extends TypeReference<T> {
         private final Type primitiveType;
 
-        private PrimitiveTypeReference(Type primitiveType) {
+        PrimitiveTypeReference(Type primitiveType) {
             this.primitiveType = primitiveType;
         }
 

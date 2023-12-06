@@ -1,19 +1,18 @@
 package tools.jackson.datatype.eclipsecollections;
 
-import java.io.IOException;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
+
+import org.hamcrest.CoreMatchers;
+import org.junit.Assert;
 
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
-
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-
-import static org.junit.Assert.fail;
 
 public abstract class ModuleTestBase {
 
@@ -48,7 +47,7 @@ public abstract class ModuleTestBase {
             Assert.assertEquals(expected, value);
             Class<?> collectionClass =
                     objectMapper.getTypeFactory().constructType(type).getRawClass();
-            Assert.assertThat(value, CoreMatchers.instanceOf(collectionClass));
+            assertThat(value, CoreMatchers.instanceOf(collectionClass));
         }
     }
 
@@ -57,7 +56,7 @@ public abstract class ModuleTestBase {
         for (Class<?> type : types) {
             Object value = mapperWithModule().readValue(json, type);
             Assert.assertEquals(expected, value);
-            Assert.assertThat(value, CoreMatchers.instanceOf(type));
+            assertThat(value, CoreMatchers.instanceOf(type));
         }
     }
 }

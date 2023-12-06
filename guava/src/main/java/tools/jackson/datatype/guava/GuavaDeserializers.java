@@ -1,9 +1,9 @@
 package tools.jackson.datatype.guava;
 
+import java.io.Serializable;
+
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
-import com.google.common.cache.ForwardingCache;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
@@ -23,8 +23,6 @@ import tools.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import tools.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
 import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
-
-import java.io.Serializable;
 
 /**
  * Custom deserializers module offers.
