@@ -9,6 +9,8 @@ import org.eclipse.collections.api.DoubleIterable;
 import org.eclipse.collections.api.iterator.DoubleIterator;
 
 public final class DoubleIterableSerializer extends PrimitiveIterableSerializer<DoubleIterable> {
+    private static final long serialVersionUID = 1L;
+
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(double.class);
 
     public DoubleIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

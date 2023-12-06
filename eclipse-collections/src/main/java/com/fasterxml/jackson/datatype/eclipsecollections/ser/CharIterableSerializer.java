@@ -12,6 +12,8 @@ import org.eclipse.collections.api.CharIterable;
 import org.eclipse.collections.api.iterator.CharIterator;
 
 public final class CharIterableSerializer extends StdSerializer<CharIterable> {
+    private static final long serialVersionUID = 1L;
+
     public static final CharIterableSerializer INSTANCE = new CharIterableSerializer();
 
     protected CharIterableSerializer() {
@@ -42,7 +44,7 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
             SerializerProvider provider,
             TypeSerializer typeSer
     ) throws IOException {
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         WritableTypeId typeIdDef;
         if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
             typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.START_ARRAY));

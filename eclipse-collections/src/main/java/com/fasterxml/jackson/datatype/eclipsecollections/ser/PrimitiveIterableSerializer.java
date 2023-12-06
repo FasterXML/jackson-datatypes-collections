@@ -13,7 +13,10 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import java.io.IOException;
 import org.eclipse.collections.api.PrimitiveIterable;
 
-public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> extends ContainerSerializer<C> {
+public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> extends ContainerSerializer<C>
+{
+    private static final long serialVersionUID = 1L;
+
     protected final JavaType _elementType;
     protected final BeanProperty _property;
     protected final Boolean _unwrapSingle;
@@ -77,7 +80,7 @@ public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> e
     @Override
     public void serializeWithType(C value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
             throws IOException {
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, g);
         typeSer.writeTypeSuffix(g, typeIdDef);

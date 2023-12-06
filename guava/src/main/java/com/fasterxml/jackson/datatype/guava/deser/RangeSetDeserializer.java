@@ -32,6 +32,8 @@ public class RangeSetDeserializer
     extends StdDeserializer<RangeSet<?>>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = 1L;
+    
     private final JsonDeserializer<Object> _deserializer;
     
     public RangeSetDeserializer() {

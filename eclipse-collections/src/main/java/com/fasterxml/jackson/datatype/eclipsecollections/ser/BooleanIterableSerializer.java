@@ -9,6 +9,8 @@ import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.iterator.BooleanIterator;
 
 public final class BooleanIterableSerializer extends PrimitiveIterableSerializer<BooleanIterable> {
+    private static final long serialVersionUID = 1L;
+
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(boolean.class);
 
     public BooleanIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

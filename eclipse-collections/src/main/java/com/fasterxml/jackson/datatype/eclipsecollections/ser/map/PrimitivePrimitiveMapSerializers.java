@@ -67,7 +67,6 @@ import org.eclipse.collections.api.map.primitive.ShortShortMap;
 /**
  * @author yawkat
  */
-@SuppressWarnings("Duplicates")
 public final class PrimitivePrimitiveMapSerializers {
     private PrimitivePrimitiveMapSerializers() {
     }
@@ -80,6 +79,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Byte -> Primitive
     public static final PrimitiveMapSerializer<ByteBooleanMap> BYTE_BOOLEAN =
             new PrimitiveMapSerializer<ByteBooleanMap>(ByteBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -94,6 +95,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteByteMap> BYTE_BYTE =
             new PrimitiveMapSerializer<ByteByteMap>(ByteByteMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -108,6 +111,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteShortMap> BYTE_SHORT =
             new PrimitiveMapSerializer<ByteShortMap>(ByteShortMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -122,6 +127,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteCharMap> BYTE_CHAR =
             new PrimitiveMapSerializer<ByteCharMap>(ByteCharMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -136,6 +143,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteIntMap> BYTE_INT =
             new PrimitiveMapSerializer<ByteIntMap>(ByteIntMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -150,6 +159,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteFloatMap> BYTE_FLOAT =
             new PrimitiveMapSerializer<ByteFloatMap>(ByteFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -164,6 +175,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteLongMap> BYTE_LONG =
             new PrimitiveMapSerializer<ByteLongMap>(ByteLongMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -178,6 +191,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ByteDoubleMap> BYTE_DOUBLE =
             new PrimitiveMapSerializer<ByteDoubleMap>(ByteDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ByteDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -194,6 +209,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Short -> Primitive
     public static final PrimitiveMapSerializer<ShortBooleanMap> SHORT_BOOLEAN =
             new PrimitiveMapSerializer<ShortBooleanMap>(ShortBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ShortBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -208,6 +225,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortByteMap> SHORT_BYTE =
             new PrimitiveMapSerializer<ShortByteMap>(ShortByteMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ShortByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -222,6 +241,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortShortMap> SHORT_SHORT =
             new PrimitiveMapSerializer<ShortShortMap>(ShortShortMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ShortShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -236,6 +257,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortCharMap> SHORT_CHAR =
             new PrimitiveMapSerializer<ShortCharMap>(ShortCharMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ShortCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -250,6 +273,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortIntMap> SHORT_INT =
             new PrimitiveMapSerializer<ShortIntMap>(ShortIntMap.class) {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 protected void serializeEntries(ShortIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -264,6 +289,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortFloatMap> SHORT_FLOAT =
             new PrimitiveMapSerializer<ShortFloatMap>(ShortFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(ShortFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -278,6 +305,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortLongMap> SHORT_LONG =
             new PrimitiveMapSerializer<ShortLongMap>(ShortLongMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(ShortLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -292,6 +321,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<ShortDoubleMap> SHORT_DOUBLE =
             new PrimitiveMapSerializer<ShortDoubleMap>(ShortDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(ShortDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -308,6 +339,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Char -> Primitive
     public static final PrimitiveMapSerializer<CharBooleanMap> CHAR_BOOLEAN =
             new PrimitiveMapSerializer<CharBooleanMap>(CharBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -322,6 +355,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharByteMap> CHAR_BYTE =
             new PrimitiveMapSerializer<CharByteMap>(CharByteMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -336,6 +371,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharShortMap> CHAR_SHORT =
             new PrimitiveMapSerializer<CharShortMap>(CharShortMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -350,6 +387,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharCharMap> CHAR_CHAR =
             new PrimitiveMapSerializer<CharCharMap>(CharCharMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -364,6 +403,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharIntMap> CHAR_INT =
             new PrimitiveMapSerializer<CharIntMap>(CharIntMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -378,6 +419,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharFloatMap> CHAR_FLOAT =
             new PrimitiveMapSerializer<CharFloatMap>(CharFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -392,6 +435,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharLongMap> CHAR_LONG =
             new PrimitiveMapSerializer<CharLongMap>(CharLongMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -406,6 +451,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<CharDoubleMap> CHAR_DOUBLE =
             new PrimitiveMapSerializer<CharDoubleMap>(CharDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(CharDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -422,6 +469,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Int -> Primitive
     public static final PrimitiveMapSerializer<IntBooleanMap> INT_BOOLEAN =
             new PrimitiveMapSerializer<IntBooleanMap>(IntBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -436,6 +485,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntByteMap> INT_BYTE =
             new PrimitiveMapSerializer<IntByteMap>(IntByteMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -450,6 +501,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntShortMap> INT_SHORT =
             new PrimitiveMapSerializer<IntShortMap>(IntShortMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -464,6 +517,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntCharMap> INT_CHAR =
             new PrimitiveMapSerializer<IntCharMap>(IntCharMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -478,6 +533,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntIntMap> INT_INT =
             new PrimitiveMapSerializer<IntIntMap>(IntIntMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -492,6 +549,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntFloatMap> INT_FLOAT =
             new PrimitiveMapSerializer<IntFloatMap>(IntFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -506,6 +565,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntLongMap> INT_LONG =
             new PrimitiveMapSerializer<IntLongMap>(IntLongMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -520,6 +581,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<IntDoubleMap> INT_DOUBLE =
             new PrimitiveMapSerializer<IntDoubleMap>(IntDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(IntDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -536,6 +599,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Float -> Primitive
     public static final PrimitiveMapSerializer<FloatBooleanMap> FLOAT_BOOLEAN =
             new PrimitiveMapSerializer<FloatBooleanMap>(FloatBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -550,6 +615,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatByteMap> FLOAT_BYTE =
             new PrimitiveMapSerializer<FloatByteMap>(FloatByteMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -564,6 +631,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatShortMap> FLOAT_SHORT =
             new PrimitiveMapSerializer<FloatShortMap>(FloatShortMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -578,6 +647,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatCharMap> FLOAT_CHAR =
             new PrimitiveMapSerializer<FloatCharMap>(FloatCharMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -592,6 +663,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatIntMap> FLOAT_INT =
             new PrimitiveMapSerializer<FloatIntMap>(FloatIntMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -606,6 +679,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatFloatMap> FLOAT_FLOAT =
             new PrimitiveMapSerializer<FloatFloatMap>(FloatFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -620,6 +695,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatLongMap> FLOAT_LONG =
             new PrimitiveMapSerializer<FloatLongMap>(FloatLongMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -634,6 +711,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<FloatDoubleMap> FLOAT_DOUBLE =
             new PrimitiveMapSerializer<FloatDoubleMap>(FloatDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(FloatDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -650,6 +729,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Long -> Primitive
     public static final PrimitiveMapSerializer<LongBooleanMap> LONG_BOOLEAN =
             new PrimitiveMapSerializer<LongBooleanMap>(LongBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -664,6 +745,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongByteMap> LONG_BYTE =
             new PrimitiveMapSerializer<LongByteMap>(LongByteMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -678,6 +761,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongShortMap> LONG_SHORT =
             new PrimitiveMapSerializer<LongShortMap>(LongShortMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -692,6 +777,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongCharMap> LONG_CHAR =
             new PrimitiveMapSerializer<LongCharMap>(LongCharMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -706,6 +793,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongIntMap> LONG_INT =
             new PrimitiveMapSerializer<LongIntMap>(LongIntMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -720,6 +809,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongFloatMap> LONG_FLOAT =
             new PrimitiveMapSerializer<LongFloatMap>(LongFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -734,6 +825,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongLongMap> LONG_LONG =
             new PrimitiveMapSerializer<LongLongMap>(LongLongMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -748,6 +841,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<LongDoubleMap> LONG_DOUBLE =
             new PrimitiveMapSerializer<LongDoubleMap>(LongDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(LongDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -764,6 +859,8 @@ public final class PrimitivePrimitiveMapSerializers {
     //region Double -> Primitive
     public static final PrimitiveMapSerializer<DoubleBooleanMap> DOUBLE_BOOLEAN =
             new PrimitiveMapSerializer<DoubleBooleanMap>(DoubleBooleanMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleBooleanMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -778,6 +875,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleByteMap> DOUBLE_BYTE =
             new PrimitiveMapSerializer<DoubleByteMap>(DoubleByteMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleByteMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -792,6 +891,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleShortMap> DOUBLE_SHORT =
             new PrimitiveMapSerializer<DoubleShortMap>(DoubleShortMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleShortMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -806,6 +907,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleCharMap> DOUBLE_CHAR =
             new PrimitiveMapSerializer<DoubleCharMap>(DoubleCharMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleCharMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -820,6 +923,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleIntMap> DOUBLE_INT =
             new PrimitiveMapSerializer<DoubleIntMap>(DoubleIntMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleIntMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -834,6 +939,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleFloatMap> DOUBLE_FLOAT =
             new PrimitiveMapSerializer<DoubleFloatMap>(DoubleFloatMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleFloatMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -848,6 +955,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleLongMap> DOUBLE_LONG =
             new PrimitiveMapSerializer<DoubleLongMap>(DoubleLongMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleLongMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {
@@ -862,6 +971,8 @@ public final class PrimitivePrimitiveMapSerializers {
             };
     public static final PrimitiveMapSerializer<DoubleDoubleMap> DOUBLE_DOUBLE =
             new PrimitiveMapSerializer<DoubleDoubleMap>(DoubleDoubleMap.class) {
+                private static final long serialVersionUID = 1L;
+        
                 @Override
                 protected void serializeEntries(DoubleDoubleMap value, JsonGenerator gen, SerializerProvider serializers) {
                     value.forEachKeyValue((k, v) -> {

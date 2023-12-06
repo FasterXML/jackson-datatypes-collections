@@ -10,6 +10,8 @@ import java.io.IOException;
 import org.eclipse.collections.api.ByteIterable;
 
 public final class ByteIterableSerializer extends StdSerializer<ByteIterable> {
+    private static final long serialVersionUID = 1L;
+
     public static final ByteIterableSerializer INSTANCE = new ByteIterableSerializer();
 
     public ByteIterableSerializer() {

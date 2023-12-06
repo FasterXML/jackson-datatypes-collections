@@ -311,6 +311,7 @@ public final class EclipseMapDeserializers {
                 typeHandlerPair.add(target, keyHandler, valueHandler, ctx, key, valueParser);
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             protected T finish(I intermediate) {
                 //noinspection unchecked

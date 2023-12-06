@@ -39,11 +39,13 @@ public class TripleInstantiators extends ValueInstantiators.Base {
     }
 
     private static class TripleInstantiator extends ValueInstantiator.Base {
+        private static final long serialVersionUID = 1L;
+
         private final JavaType oneType;
         private final JavaType twoType;
         private final JavaType threeType;
 
-        private TripleInstantiator(JavaType beanType, JavaType oneType, JavaType twoType, JavaType threeType) {
+        TripleInstantiator(JavaType beanType, JavaType oneType, JavaType twoType, JavaType threeType) {
             super(beanType);
             this.oneType = oneType;
             this.twoType = twoType;

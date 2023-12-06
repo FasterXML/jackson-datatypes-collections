@@ -253,6 +253,8 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             BiFunction<Object, Object, P> factory
     ) {
         return new ValueInstantiator.Base(inputType) {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public boolean canCreateFromObjectWith() {
                 return true;

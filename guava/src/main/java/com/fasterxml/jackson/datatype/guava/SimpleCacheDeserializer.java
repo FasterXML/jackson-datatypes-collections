@@ -17,7 +17,8 @@ import com.google.common.cache.CacheBuilder;
 public class SimpleCacheDeserializer 
     extends GuavaCacheDeserializer<Cache<Object,Object>> 
 {
-    
+    private static final long serialVersionUID = 1L;
+
     /*
     /**********************************************************
     /* Life-cycle

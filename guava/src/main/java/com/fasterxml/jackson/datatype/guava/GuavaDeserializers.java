@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import java.io.Serializable;
+
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
-import com.google.common.cache.ForwardingCache;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
@@ -21,8 +21,6 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.list.ArrayListMultima
 import com.fasterxml.jackson.datatype.guava.deser.multimap.list.LinkedListMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
-
-import java.io.Serializable;
 
 /**
  * Custom deserializers module offers.

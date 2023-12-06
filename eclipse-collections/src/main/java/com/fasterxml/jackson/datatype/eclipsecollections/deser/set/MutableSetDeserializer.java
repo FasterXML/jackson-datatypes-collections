@@ -37,6 +37,8 @@ public final class MutableSetDeserializer {
 
     public static final class Ref extends
             BaseCollectionDeserializer.Ref<MutableSet<?>, MutableSet<Object>> {
+        private static final long serialVersionUID = 1L;
+
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(MutableSet.class, elementType, typeDeserializer, deserializer);
         }
@@ -62,6 +64,8 @@ public final class MutableSetDeserializer {
 
     public static final class Boolean extends
             BaseCollectionDeserializer.Boolean<MutableBooleanSet, MutableBooleanSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Boolean INSTANCE = new MutableSetDeserializer.Boolean();
 
         public Boolean() {
@@ -81,6 +85,8 @@ public final class MutableSetDeserializer {
 
     public static final class Byte extends
             BaseCollectionDeserializer.Byte<MutableByteSet, MutableByteSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Byte INSTANCE = new MutableSetDeserializer.Byte();
 
         public Byte() {
@@ -100,6 +106,8 @@ public final class MutableSetDeserializer {
 
     public static final class Short extends
             BaseCollectionDeserializer.Short<MutableShortSet, MutableShortSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Short INSTANCE = new MutableSetDeserializer.Short();
 
         public Short() {
@@ -119,6 +127,8 @@ public final class MutableSetDeserializer {
 
     public static final class Char extends
             BaseCollectionDeserializer.Char<MutableCharSet, MutableCharSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Char INSTANCE = new MutableSetDeserializer.Char();
 
         public Char() {
@@ -138,6 +148,8 @@ public final class MutableSetDeserializer {
 
     public static final class Int extends
             BaseCollectionDeserializer.Int<MutableIntSet, MutableIntSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Int INSTANCE = new MutableSetDeserializer.Int();
 
         public Int() {
@@ -157,6 +169,8 @@ public final class MutableSetDeserializer {
 
     public static final class Float extends
             BaseCollectionDeserializer.Float<MutableFloatSet, MutableFloatSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Float INSTANCE = new MutableSetDeserializer.Float();
 
         public Float() {
@@ -176,6 +190,8 @@ public final class MutableSetDeserializer {
 
     public static final class Long extends
             BaseCollectionDeserializer.Long<MutableLongSet, MutableLongSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Long INSTANCE = new MutableSetDeserializer.Long();
 
         public Long() {
@@ -195,6 +211,8 @@ public final class MutableSetDeserializer {
 
     public static final class Double extends
             BaseCollectionDeserializer.Double<MutableDoubleSet, MutableDoubleSet> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableSetDeserializer.Double INSTANCE = new MutableSetDeserializer.Double();
 
         public Double() {

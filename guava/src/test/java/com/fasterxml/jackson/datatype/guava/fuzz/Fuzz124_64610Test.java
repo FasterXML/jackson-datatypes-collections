@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.guava.fuzz;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.type.TypeReference;

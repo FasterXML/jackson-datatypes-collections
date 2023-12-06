@@ -9,6 +9,8 @@ import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.iterator.IntIterator;
 
 public final class IntIterableSerializer extends PrimitiveIterableSerializer<IntIterable> {
+    private static final long serialVersionUID = 1L;
+
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(int.class);
 
     public IntIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

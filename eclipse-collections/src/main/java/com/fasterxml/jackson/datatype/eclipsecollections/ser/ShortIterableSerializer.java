@@ -9,6 +9,8 @@ import org.eclipse.collections.api.ShortIterable;
 import org.eclipse.collections.api.iterator.ShortIterator;
 
 public final class ShortIterableSerializer extends PrimitiveIterableSerializer<ShortIterable> {
+    private static final long serialVersionUID = 1L;
+
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(short.class);
 
     public ShortIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

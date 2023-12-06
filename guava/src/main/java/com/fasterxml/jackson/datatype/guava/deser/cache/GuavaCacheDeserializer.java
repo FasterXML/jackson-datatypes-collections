@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.cache.Cache;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>> 
     extends StdDeserializer<T> implements ContextualDeserializer 
@@ -155,7 +154,7 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
     private void expect(JsonParser p, JsonToken token) throws IOException {
         if (p.getCurrentToken() != token) {
             throw new JsonMappingException(p, "Expecting " + token + " to start `Cache` value, found " + p.currentToken(),
-                p.getCurrentLocation());
+                p.currentLocation());
         }
     }
 }

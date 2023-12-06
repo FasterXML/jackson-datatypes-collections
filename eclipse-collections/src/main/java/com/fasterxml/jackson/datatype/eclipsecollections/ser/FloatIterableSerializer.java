@@ -9,6 +9,8 @@ import org.eclipse.collections.api.FloatIterable;
 import org.eclipse.collections.api.iterator.FloatIterator;
 
 public final class FloatIterableSerializer extends PrimitiveIterableSerializer<FloatIterable> {
+    private static final long serialVersionUID = 1L;
+
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(float.class);
 
     public FloatIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

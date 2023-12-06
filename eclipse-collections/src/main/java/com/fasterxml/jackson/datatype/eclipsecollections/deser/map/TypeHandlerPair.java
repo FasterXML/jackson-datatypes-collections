@@ -152,7 +152,6 @@ import org.eclipse.collections.impl.factory.primitive.ShortShortMaps;
 /**
  * @author yawkat
  */
-@SuppressWarnings("NewMethodNamingConvention")
 interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>> {
     K keyHandler(JavaType type);
 

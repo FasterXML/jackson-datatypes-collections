@@ -9,6 +9,8 @@ import org.eclipse.collections.api.LongIterable;
 import org.eclipse.collections.api.iterator.LongIterator;
 
 public final class LongIterableSerializer extends PrimitiveIterableSerializer<LongIterable> {
+    private static final long serialVersionUID = 1L;
+
     private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(long.class);
 
     public LongIterableSerializer(BeanProperty property, Boolean unwrapSingle) {

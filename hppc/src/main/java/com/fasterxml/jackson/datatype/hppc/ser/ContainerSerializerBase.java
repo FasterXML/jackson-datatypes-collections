@@ -87,7 +87,7 @@ public abstract class ContainerSerializerBase<T>
     public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         gen.writeStartArray();
         serializeContents(value, gen, provider);
         gen.writeEndArray();
@@ -101,7 +101,7 @@ public abstract class ContainerSerializerBase<T>
             TypeSerializer typeSer)
         throws IOException
     {
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         serializeContents(value, gen, provider);

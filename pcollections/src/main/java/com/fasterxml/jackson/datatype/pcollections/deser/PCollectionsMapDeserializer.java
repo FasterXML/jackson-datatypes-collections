@@ -144,7 +144,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
         T map = createEmptyMap();
         for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             // Must point to field name now
-            String fieldName = p.getCurrentName();
+            String fieldName = p.currentName();
             Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();

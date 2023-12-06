@@ -149,7 +149,7 @@ public class CacheDeserializationTest extends ModuleTestBase {
     }
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private static class CacheWrapper {
+    static class CacheWrapper {
         @JsonProperty
         private Cache<String, String> cache = CacheBuilder.newBuilder().build();
     }

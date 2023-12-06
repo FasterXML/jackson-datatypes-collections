@@ -219,7 +219,6 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     public JsonDeserializer<?> findBeanDeserializer(
             JavaType type, DeserializationConfig config, BeanDescription beanDesc
     ) throws JsonMappingException {
-        @SuppressWarnings("SuspiciousMethodCalls")
         JsonDeserializer<?> deserializer = PRIMITIVE_DESERIALIZERS.get(type.getRawClass());
         if (deserializer != null) {
             return deserializer;
@@ -238,7 +237,6 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         return null;
     }
 
-    @SuppressWarnings({ "ObjectEquality", "LocalVariableNamingConvention", "ConstantConditions" })
     private JsonDeserializer<?> findReferenceDeserializer(
             JavaType containerType,
             JavaType elementType,

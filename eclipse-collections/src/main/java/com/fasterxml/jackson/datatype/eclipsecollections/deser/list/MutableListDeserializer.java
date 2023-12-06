@@ -37,6 +37,8 @@ public final class MutableListDeserializer {
 
     public static final class Ref extends
             BaseCollectionDeserializer.Ref<MutableList<?>, MutableList<Object>> {
+        private static final long serialVersionUID = 1L;
+
         public Ref(JavaType elementType, TypeDeserializer typeDeserializer, JsonDeserializer<?> deserializer) {
             super(MutableList.class, elementType, typeDeserializer, deserializer);
         }
@@ -62,6 +64,8 @@ public final class MutableListDeserializer {
 
     public static final class Boolean extends
             BaseCollectionDeserializer.Boolean<MutableBooleanList, MutableBooleanList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Boolean INSTANCE = new MutableListDeserializer.Boolean();
 
         public Boolean() {
@@ -81,6 +85,8 @@ public final class MutableListDeserializer {
 
     public static final class Byte extends
             BaseCollectionDeserializer.Byte<MutableByteList, MutableByteList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Byte INSTANCE = new MutableListDeserializer.Byte();
 
         public Byte() {
@@ -100,6 +106,8 @@ public final class MutableListDeserializer {
 
     public static final class Short extends
             BaseCollectionDeserializer.Short<MutableShortList, MutableShortList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Short INSTANCE = new MutableListDeserializer.Short();
 
         public Short() {
@@ -119,6 +127,8 @@ public final class MutableListDeserializer {
 
     public static final class Char extends
             BaseCollectionDeserializer.Char<MutableCharList, MutableCharList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Char INSTANCE = new MutableListDeserializer.Char();
 
         public Char() {
@@ -138,6 +148,8 @@ public final class MutableListDeserializer {
 
     public static final class Int extends
             BaseCollectionDeserializer.Int<MutableIntList, MutableIntList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Int INSTANCE = new MutableListDeserializer.Int();
 
         public Int() {
@@ -157,6 +169,8 @@ public final class MutableListDeserializer {
 
     public static final class Float extends
             BaseCollectionDeserializer.Float<MutableFloatList, MutableFloatList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Float INSTANCE = new MutableListDeserializer.Float();
 
         public Float() {
@@ -176,6 +190,8 @@ public final class MutableListDeserializer {
 
     public static final class Long extends
             BaseCollectionDeserializer.Long<MutableLongList, MutableLongList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Long INSTANCE = new MutableListDeserializer.Long();
 
         public Long() {
@@ -195,6 +211,8 @@ public final class MutableListDeserializer {
 
     public static final class Double extends
             BaseCollectionDeserializer.Double<MutableDoubleList, MutableDoubleList> {
+        private static final long serialVersionUID = 1L;
+
         public static final MutableListDeserializer.Double INSTANCE = new MutableListDeserializer.Double();
 
         public Double() {

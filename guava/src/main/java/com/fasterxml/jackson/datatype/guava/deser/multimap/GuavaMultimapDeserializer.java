@@ -274,7 +274,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private void expect(JsonParser p, JsonToken token) throws IOException {
         if (p.getCurrentToken() != token) {
             throw new JsonMappingException(p, "Expecting " + token + " to start `MultiMap` value, found " + p.currentToken(),
-                    p.getCurrentLocation());
+                    p.currentLocation());
         }
     }
 

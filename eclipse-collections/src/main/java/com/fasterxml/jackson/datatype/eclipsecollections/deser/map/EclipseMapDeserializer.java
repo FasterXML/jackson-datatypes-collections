@@ -83,7 +83,7 @@ public abstract class EclipseMapDeserializer<T, I, K extends KeyHandler<K>, V ex
         I map = createIntermediate();
         for (; p.getCurrentToken() == JsonToken.FIELD_NAME; p.nextToken()) {
             // Must point to field name now
-            String fieldName = p.getCurrentName();
+            String fieldName = p.currentName();
             p.nextToken();
             deserializeEntry(map, keyHandler, valueHandler, ctxt, fieldName, p);
         }
