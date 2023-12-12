@@ -18,6 +18,8 @@ Active Maintainers:
 
 2.17.0 (not yet released)
 
+#118: Support @JsonFormat(shape=STRING) on Range<T>
+ (contributed by Muhammad K)
 #124: Some deserializers throw unexpected `NullPointerException` when
   handling invalid input
  (contibuted by Arthur C)

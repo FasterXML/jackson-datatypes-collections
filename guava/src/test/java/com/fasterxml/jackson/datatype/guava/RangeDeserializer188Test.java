@@ -1,8 +1,7 @@
-package com.fasterxml.jackson.datatype.guava.failing;
+package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 import com.google.common.collect.Range;
 
@@ -10,7 +9,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 // Test for [dataformats-collections#118]
-public class RangeStringFormatTest extends ModuleTestBase
+public class RangeDeserializer188Test extends ModuleTestBase
 {
     // [dataformats-collections#118]
     static class Stringified<T extends Comparable<?>>
