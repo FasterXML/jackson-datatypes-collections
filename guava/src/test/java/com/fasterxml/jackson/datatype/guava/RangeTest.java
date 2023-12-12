@@ -20,7 +20,7 @@ import com.google.common.collect.Range;
 /**
  * Unit tests to verify serialization of Guava {@link Range}s.
  */
-public class TestRange extends ModuleTestBase
+public class RangeTest extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule();
 
