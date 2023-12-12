@@ -2,6 +2,8 @@ package tools.jackson.datatype.guava;
 
 import java.io.IOException;
 
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.type.TypeReference;
@@ -14,14 +16,11 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.datatype.guava.deser.util.RangeFactory;
 
-import com.google.common.collect.BoundType;
-import com.google.common.collect.Range;
-
 /**
  * Unit tests to verify serialization of Guava {@link Range}s.
  */
-public class TestRange extends ModuleTestBase {
-
+public class RangeTest extends ModuleTestBase
+{
     private final ObjectMapper MAPPER = mapperWithModule();
 
     protected static class UntypedWrapper

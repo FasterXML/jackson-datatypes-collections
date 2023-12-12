@@ -13,7 +13,7 @@ import com.google.common.collect.TreeRangeSet;
 
 import java.io.IOException;
 
-public class TestRangeSet extends ModuleTestBase {
+public class RangeSetTest extends ModuleTestBase {
 
     private final ObjectMapper MAPPER = mapperWithModule();
 

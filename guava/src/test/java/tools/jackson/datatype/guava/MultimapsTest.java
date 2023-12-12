@@ -25,7 +25,7 @@ import static com.google.common.collect.TreeMultimap.create;
  *
  * @author steven@nesscomputing.com
  */
-public class TestMultimaps extends ModuleTestBase
+public class MultimapsTest extends ModuleTestBase
 {
     // Test for issue #13 on github, provided by stevenschlansker
     public static enum MyEnum {
