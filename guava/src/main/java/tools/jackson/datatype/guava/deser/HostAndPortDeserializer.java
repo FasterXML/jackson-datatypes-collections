@@ -22,8 +22,17 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
         if (p.hasToken(JsonToken.START_OBJECT)) { // old style
             JsonNode root = p.readValueAsTree();
             // [datatypes-collections#45]: we actually have 2 possibilities depending on Guava version
+            String host;
+
             JsonNode hostNode = root.get("host");
-            final String host = (hostNode == null) ? root.path("hostText").asText() : hostNode.textValue();
+            if (hostNode == null) {
+                hostNode = root.get("hostText");
+            }
+            if (hostNode == null || hostNode.isNull()) {
+                host = "";
+            } else {
+                host = hostNode.asText();
+            }
             JsonNode n = root.get("port");
             if (n == null) {
                 return HostAndPort.fromString(host);
