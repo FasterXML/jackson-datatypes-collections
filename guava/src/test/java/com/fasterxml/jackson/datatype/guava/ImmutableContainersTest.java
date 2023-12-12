@@ -18,7 +18,7 @@ import com.google.common.collect.*;
  * (like {@link ImmutableList}, {@link ImmutableMap} and {@link ImmutableSet})
  * work as expected.
  */
-public class TestImmutables extends ModuleTestBase
+public class ImmutableContainersTest extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule();
 

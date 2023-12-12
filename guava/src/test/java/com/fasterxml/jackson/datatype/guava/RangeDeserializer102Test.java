@@ -2,7 +2,9 @@ package com.fasterxml.jackson.datatype.guava;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -13,6 +15,28 @@ public class RangeDeserializer102Test extends ModuleTestBase
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
             .build();
 
+    // [datatypes-collections#56]: support naming strategy
+    public void testSnakeCaseNamingStrategy() throws Exception
+    {
+        String json = "{\"lower_endpoint\": 12, \"lower_bound_type\": \"CLOSED\", \"upper_endpoint\": 33, \"upper_bound_type\": \"CLOSED\"}";
+
+        GuavaModule mod = new GuavaModule().defaultBoundType(BoundType.CLOSED);
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(mod)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+                .build();
+
+        @SuppressWarnings("unchecked")
+        Range<Integer> r = (Range<Integer>) mapper.readValue(json, Range.class);
+
+        assertEquals(Integer.valueOf(12), r.lowerEndpoint());
+        assertEquals(Integer.valueOf(33), r.upperEndpoint());
+
+        assertEquals(BoundType.CLOSED, r.lowerBoundType());
+        assertEquals(BoundType.CLOSED, r.upperBoundType());
+    }
+
+    // [datatypes-collections#102]: Accept lowerCase enums for `Range` `BoundType` serialization
     public void testDeserializeDefaultSuccess() throws Exception
     {
         _testDeserializeOk(MAPPER_DEFAULT, "CLOSED", "OPEN");
