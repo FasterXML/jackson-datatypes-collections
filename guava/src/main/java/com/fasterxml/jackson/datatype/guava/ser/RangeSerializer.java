@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.guava.ser;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
@@ -26,6 +27,8 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     protected final JsonSerializer<Object> _endpointSerializer;
 
     protected final RangeHelper.RangeProperties _fieldNames;
+
+    protected final JsonFormat.Shape shape;
 
     /*
     /**********************************************************
@@ -52,6 +55,17 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         _rangeType = type;
         _endpointSerializer = (JsonSerializer<Object>) endpointSer;
         _fieldNames = fieldNames;
+        this.shape = JsonFormat.Shape.ANY;
+    }
+
+    public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
+                           RangeHelper.RangeProperties fieldNames, JsonFormat.Shape shape)
+    {
+        super(type);
+        _rangeType = type;
+        _endpointSerializer = (JsonSerializer<Object>) endpointSer;
+        _fieldNames = fieldNames;
+        this.shape = shape;
     }
 
     @Override
@@ -63,6 +77,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) throws JsonMappingException
     {
+        JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        JsonFormat.Shape shape = format.getShape();
+
         final PropertyNamingStrategy propertyNamingStrategy = prov.getConfig().getPropertyNamingStrategy();
         final RangeHelper.RangeProperties nameMapping = RangeHelper.getPropertyNames(prov.getConfig(), propertyNamingStrategy);
         JsonSerializer<?> endpointSer = _endpointSerializer;
@@ -72,7 +89,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
             if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
                 JsonSerializer<?> ser = prov.findValueSerializer(endpointType, property);
-                return new RangeSerializer(_rangeType, ser, nameMapping);
+                return new RangeSerializer(_rangeType, ser, nameMapping, shape);
             }
             /* 21-Sep-2014, tatu: Need to make sure all serializers get proper contextual
              *   access, in case they rely on annotations on properties... (or, more generally,
@@ -82,7 +99,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             endpointSer = ((ContextualSerializer) endpointSer).createContextual(prov, property);
         }
         if ((endpointSer != _endpointSerializer) || (nameMapping != null)) {
-            return new RangeSerializer(_rangeType, endpointSer, nameMapping);
+            return new RangeSerializer(_rangeType, endpointSer, nameMapping, shape);
         }
         return this;
     }
@@ -97,10 +114,33 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        gen.writeStartObject(value);
-        _writeContents(value, gen, provider);
-        gen.writeEndObject();
+        if (shape == JsonFormat.Shape.STRING) {
+            gen.writeString(getStringFormat(value));
+        } else {
+            gen.writeStartObject(value);
+            _writeContents(value, gen, provider);
+            gen.writeEndObject();
+        }
+    }
 
+    private String getStringFormat(Range<?> range){
+        StringBuilder builder = new StringBuilder();
+
+        if (range.hasLowerBound()) {
+            builder.append(range.lowerBoundType() == BoundType.CLOSED ? '[' : '(').append(range.lowerEndpoint());
+        } else {
+            builder.append("(-∞");
+        }
+
+        builder.append("..");
+
+        if (range.hasUpperBound()) {
+            builder.append(range.upperEndpoint()).append(range.upperBoundType() == BoundType.CLOSED ? ']' : ')');
+        } else {
+            builder.append("+∞)");
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -109,10 +149,18 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         throws IOException
     {
         gen.assignCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
-                typeSer.typeId(value, JsonToken.START_OBJECT));
-        _writeContents(value, gen, provider);
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        if (shape == JsonFormat.Shape.STRING) {
+            String rangeString = getStringFormat(value);
+            WritableTypeId typeId = typeSer.writeTypeSuffix(gen,
+                    typeSer.typeId(rangeString, JsonToken.VALUE_STRING)
+            );
+            typeSer.writeTypeSuffix(gen, typeId);
+        } else {
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                    typeSer.typeId(value, JsonToken.START_OBJECT));
+            _writeContents(value, gen, provider);
+            typeSer.writeTypeSuffix(gen, typeIdDef);
+        }
     }
 
     private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
