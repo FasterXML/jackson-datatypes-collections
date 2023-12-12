@@ -16,7 +16,7 @@ public class HostAndPortTest extends ModuleTestBase
         assertEquals("\"localhost:80\"", json);
     }
 
-    public void testDeserialization() throws Exception
+    public void testDeserializationOk() throws Exception
     {
         // Actually, let's support both old style and new style
 
@@ -36,13 +36,23 @@ public class HostAndPortTest extends ModuleTestBase
         result = MAPPER.readValue(quote("localhost:7070"), HostAndPort.class);
         assertEquals("localhost", result.getHost());
         assertEquals(7070, result.getPort());
+    }
 
-        // and ... error (note: numbers, booleans may all be fine)
+    public void testDeserializationFail() throws Exception
+    {
+        HostAndPort result = null;
+
+        // and ... error if given, say, JSON Array
         try {
             result = MAPPER.readValue("[ ]", HostAndPort.class);
-            fail("Should not deserialize from boolean: got "+result);
+            fail("Should not deserialize from empty JSON Array: got "+MAPPER.writeValueAsString(result));
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
+            verifyException(e, "from Array value");
         }
+
+        // Null values lead to "empty" Value
+        result = MAPPER.readValue("{\"host\": null}", HostAndPort.class);
+        assertEquals(HostAndPort.fromHost(""), result);
     }
 }
