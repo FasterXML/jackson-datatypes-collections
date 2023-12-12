@@ -28,7 +28,10 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     protected final RangeHelper.RangeProperties _fieldNames;
 
-    protected final JsonFormat.Shape shape;
+    /**
+     * @since 2.17
+     */
+    protected final JsonFormat.Shape _shape;
 
     /*
     /**********************************************************
@@ -46,18 +49,20 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     /**
      * @since 2.10
+     *
+     * @deprecated Since 2.17
      */
-    @SuppressWarnings("unchecked")
+    @Deprecated
     public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
             RangeHelper.RangeProperties fieldNames)
     {
-        super(type);
-        _rangeType = type;
-        _endpointSerializer = (JsonSerializer<Object>) endpointSer;
-        _fieldNames = fieldNames;
-        this.shape = JsonFormat.Shape.ANY;
+        this(type, endpointSer, fieldNames, JsonFormat.Shape.ANY);
     }
 
+    /**
+     * @since 2.17
+     */
+    @SuppressWarnings("unchecked")
     public RangeSerializer(JavaType type, JsonSerializer<?> endpointSer,
                            RangeHelper.RangeProperties fieldNames, JsonFormat.Shape shape)
     {
@@ -65,7 +70,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         _rangeType = type;
         _endpointSerializer = (JsonSerializer<Object>) endpointSer;
         _fieldNames = fieldNames;
-        this.shape = shape;
+        _shape = shape;
     }
 
     @Override
@@ -77,8 +82,8 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) throws JsonMappingException
     {
-        JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
-        JsonFormat.Shape shape = format.getShape();
+        final JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        final JsonFormat.Shape shape = format.getShape();
 
         final PropertyNamingStrategy propertyNamingStrategy = prov.getConfig().getPropertyNamingStrategy();
         final RangeHelper.RangeProperties nameMapping = RangeHelper.getPropertyNames(prov.getConfig(), propertyNamingStrategy);
@@ -114,7 +119,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        if (shape == JsonFormat.Shape.STRING) {
+        if (_shape == JsonFormat.Shape.STRING) {
             gen.writeString(getStringFormat(value));
         } else {
             gen.writeStartObject(value);
@@ -123,7 +128,27 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         }
     }
 
-    private String getStringFormat(Range<?> range){
+    @Override
+    public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider provider,
+            TypeSerializer typeSer)
+        throws IOException
+    {
+        gen.assignCurrentValue(value);
+        if (_shape == JsonFormat.Shape.STRING) {
+            String rangeString = getStringFormat(value);
+            WritableTypeId typeId = typeSer.writeTypeSuffix(gen,
+                    typeSer.typeId(rangeString, JsonToken.VALUE_STRING)
+            );
+            typeSer.writeTypeSuffix(gen, typeId);
+        } else {
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
+                    typeSer.typeId(value, JsonToken.START_OBJECT));
+            _writeContents(value, gen, provider);
+            typeSer.writeTypeSuffix(gen, typeIdDef);
+        }
+    }
+
+    protected String getStringFormat(Range<?> range){
         StringBuilder builder = new StringBuilder();
 
         if (range.hasLowerBound()) {
@@ -143,27 +168,7 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         return builder.toString();
     }
 
-    @Override
-    public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException
-    {
-        gen.assignCurrentValue(value);
-        if (shape == JsonFormat.Shape.STRING) {
-            String rangeString = getStringFormat(value);
-            WritableTypeId typeId = typeSer.writeTypeSuffix(gen,
-                    typeSer.typeId(rangeString, JsonToken.VALUE_STRING)
-            );
-            typeSer.writeTypeSuffix(gen, typeId);
-        } else {
-            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
-                    typeSer.typeId(value, JsonToken.START_OBJECT));
-            _writeContents(value, gen, provider);
-            typeSer.writeTypeSuffix(gen, typeIdDef);
-        }
-    }
-
-    private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
+    protected void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
         if (value.hasLowerBound()) {
