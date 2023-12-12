@@ -118,7 +118,12 @@ Wolff Bock von Wülfingen (@wlfbck)
   * Reported #90: Cache Serialization serializes empty contents
    (2.16.0)
 
+Muhammad Khalikov (@mukham12)
+  * Contributed #118: Support @JsonFormat(shape=STRING) on Range<T>
+   (2.17.0)
+
 Arthur Chan (@arthurscchan)
   * Contributed #124: Some deserializers throw unexpected `NullPointerException`
     when handling invalid input
    (2.17.0)
+
