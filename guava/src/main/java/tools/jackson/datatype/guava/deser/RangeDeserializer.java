@@ -32,11 +32,11 @@ public class RangeDeserializer
     protected final BoundType _defaultBoundType;
 
     protected final RangeHelper.RangeProperties _fieldNames;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public RangeDeserializer(JavaType rangeType, BoundType defaultBoundType) {
@@ -81,15 +81,16 @@ public class RangeDeserializer
             deser = deser.createContextual(ctxt, property);
         }
         if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames);
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType,
+                    fieldNames);
         }
         return this;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

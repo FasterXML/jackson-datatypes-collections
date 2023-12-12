@@ -1,5 +1,10 @@
 package tools.jackson.datatype.guava.ser;
 
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
 
@@ -10,9 +15,6 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.datatype.guava.deser.util.RangeHelper;
 
-import com.google.common.collect.BoundType;
-import com.google.common.collect.Range;
-
 /**
  * Jackson serializer for a Guava {@link Range}.
  */
@@ -22,7 +24,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
 
     protected final ValueSerializer<Object> _endpointSerializer;
 
-    private final RangeHelper.RangeProperties _fieldNames;
+    protected final RangeHelper.RangeProperties _fieldNames;
+
+    protected final JsonFormat.Shape _shape;
 
     /*
     /**********************************************************************
@@ -31,17 +35,19 @@ public class RangeSerializer extends StdSerializer<Range<?>>
      */
 
     public RangeSerializer(JavaType type) {
-        this(type, null, RangeHelper.standardNames());
+        this(type, null, RangeHelper.standardNames(), JsonFormat.Shape.ANY);
     }
 
     @SuppressWarnings("unchecked")
     protected RangeSerializer(JavaType type, ValueSerializer<?> endpointSer,
-            RangeHelper.RangeProperties fieldNames)
+            RangeHelper.RangeProperties fieldNames,
+            JsonFormat.Shape shape)
     {
         super(type);
         _rangeType = type;
         _endpointSerializer = (ValueSerializer<Object>) endpointSer;
         _fieldNames = fieldNames;
+        _shape = shape;
     }
 
     @Override
@@ -53,6 +59,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public ValueSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property)
     {
+        final JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        final JsonFormat.Shape shape = format.getShape();
+
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(prov.getConfig(),
                 prov.getConfig().getPropertyNamingStrategy());
         ValueSerializer<?> endpointSer = _endpointSerializer;
@@ -65,8 +74,10 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         } else {
             endpointSer = _endpointSerializer.createContextual(prov, property);
         }
-        if ((endpointSer != _endpointSerializer) || (fieldNames != _fieldNames)) {
-            return new RangeSerializer(_rangeType, endpointSer, fieldNames);
+        if ((endpointSer != _endpointSerializer)
+                || (fieldNames != _fieldNames)
+                || (shape != _shape)) {
+            return new RangeSerializer(_rangeType, endpointSer, fieldNames, shape);
         }
         return this;
     }
@@ -81,10 +92,13 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException
     {
-        gen.writeStartObject(value);
-        _writeContents(value, gen, provider);
-        gen.writeEndObject();
-
+        if (_shape == JsonFormat.Shape.STRING) {
+            gen.writeString(_getStringFormat(value));
+        } else {
+            gen.writeStartObject(value);
+            _writeContents(value, gen, provider);
+            gen.writeEndObject();
+        }
     }
 
     @Override
@@ -93,10 +107,18 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         throws JacksonException
     {
         gen.assignCurrentValue(value);
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
-                typeSer.typeId(value, JsonToken.START_OBJECT));
-        _writeContents(value, gen, ctxt);
-        typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
+        if (_shape == JsonFormat.Shape.STRING) {
+            String rangeString = _getStringFormat(value);
+            WritableTypeId typeId = typeSer.writeTypeSuffix(gen, ctxt,
+                    typeSer.typeId(rangeString, JsonToken.VALUE_STRING)
+            );
+            typeSer.writeTypeSuffix(gen, ctxt, typeId);
+        } else {
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
+                    typeSer.typeId(value, JsonToken.START_OBJECT));
+            _writeContents(value, gen, ctxt);
+            typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
+        }
     }
 
     private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
@@ -123,6 +145,26 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             // same as above; should always be just String so
             g.writeStringProperty(_fieldNames.upperBoundType, value.upperBoundType().name());
         }
+    }
+
+    private String _getStringFormat(Range<?> range){
+        StringBuilder builder = new StringBuilder();
+
+        if (range.hasLowerBound()) {
+            builder.append(range.lowerBoundType() == BoundType.CLOSED ? '[' : '(').append(range.lowerEndpoint());
+        } else {
+            builder.append("(-∞");
+        }
+
+        builder.append("..");
+
+        if (range.hasUpperBound()) {
+            builder.append(range.upperEndpoint()).append(range.upperBoundType() == BoundType.CLOSED ? ']' : ')');
+        } else {
+            builder.append("+∞)");
+        }
+
+        return builder.toString();
     }
 
     @Override

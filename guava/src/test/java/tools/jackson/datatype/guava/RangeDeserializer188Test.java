@@ -1,16 +1,16 @@
-package tools.jackson.datatype.guava.failing;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.datatype.guava.ModuleTestBase;
-import tools.jackson.datatype.guava.deser.util.RangeFactory;
-import com.google.common.collect.Range;
+package tools.jackson.datatype.guava;
 
 import java.time.Duration;
 import java.time.LocalDate;
 
+import com.google.common.collect.Range;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.datatype.guava.deser.util.RangeFactory;
+
 // Test for [dataformats-collections#118]
-public class RangeStringFormatTest extends ModuleTestBase
+public class RangeDeserializer188Test extends ModuleTestBase
 {
     // [dataformats-collections#118]
     static class Stringified<T extends Comparable<?>>
