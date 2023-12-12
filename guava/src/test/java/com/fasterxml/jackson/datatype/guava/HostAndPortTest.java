@@ -36,6 +36,12 @@ public class HostAndPortTest extends ModuleTestBase
         result = MAPPER.readValue(quote("localhost:7070"), HostAndPort.class);
         assertEquals("localhost", result.getHost());
         assertEquals(7070, result.getPort());
+
+        assertNull(MAPPER.readValue("null", HostAndPort.class));
+
+        // Null values lead to "empty" Value
+        result = MAPPER.readValue("{\"host\": null}", HostAndPort.class);
+        assertEquals(HostAndPort.fromHost(""), result);
     }
 
     public void testDeserializationFail() throws Exception
@@ -50,9 +56,5 @@ public class HostAndPortTest extends ModuleTestBase
             verifyException(e, "Cannot deserialize");
             verifyException(e, "from Array value");
         }
-
-        // Null values lead to "empty" Value
-        result = MAPPER.readValue("{\"host\": null}", HostAndPort.class);
-        assertEquals(HostAndPort.fromHost(""), result);
     }
 }
