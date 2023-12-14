@@ -3,6 +3,7 @@ package tools.jackson.datatype.guava.deser;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
@@ -10,6 +11,7 @@ import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for Guava-specific collection deserializers.
@@ -185,4 +187,23 @@ public abstract class GuavaCollectionDeserializer<T>
     protected abstract T _createEmpty(DeserializationContext ctxt);
 
     protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
+
+    /**
+     * Some/many Guava containers do not allow addition of {@code null} values,
+     * so isolate handling here.
+     *
+     * @since 2.17
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            set.add(null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        }
+    }
 }
