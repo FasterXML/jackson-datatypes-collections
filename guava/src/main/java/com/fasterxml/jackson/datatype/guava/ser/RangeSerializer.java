@@ -16,7 +16,30 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 /**
- * Jackson serializer for a Guava {@link Range}.
+ * Jackson serializer for Guava Range objects with enhanced serialization capabilities.
+ * When the range property is annotated with {@code @JsonFormat(JsonFormat.Shape.STRING)},
+ * it generates bracket notation for a more concise and human-readable representation.
+ * Otherwise, it defaults to a more verbose standard serialization, explicitly writing out endpoints and bound types.
+ *
+ * <p>
+ * Usage Example for bracket notation:
+ * <pre>{@code
+ *   @JsonFormat(JsonFormat.Shape.STRING)
+ *   private Range<Integer> r;
+ * }</pre>
+ * When the range field is annotated with {@code @JsonFormat(JsonFormat.Shape.STRING)}, the serializer
+ * will output the range that would look something like: [X..Y] or (X..Y).
+ * <br><br>
+ * By default, when the range property lacks the string shape annotation,
+ * the serializer will output the JSON in following manner:
+ * <pre>{@code
+ *   {
+ *      "lowerEndpoint": X,
+ *      "lowerBoundType": "CLOSED",
+ *      "upperEndpoint": Y,
+ *      "upperBoundType": "CLOSED"
+ *   }
+ * }</pre>
  */
 @SuppressWarnings("serial")
 public class RangeSerializer extends StdSerializer<Range<?>>
