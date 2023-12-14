@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for Guava-specific collection deserializers.
@@ -194,4 +195,24 @@ public abstract class GuavaCollectionDeserializer<T>
 
     // Note: 'throws IOException' dropped from 2.12.0
     protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
+
+    /**
+     * Some/many Guava containers do not allow addition of {@code null} values,
+     * so isolate handling here.
+     *
+     * @since 2.17
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
+        throws IOException
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            set.add(null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        }
+    }
 }

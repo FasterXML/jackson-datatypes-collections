@@ -25,6 +25,8 @@ public class Fuzz124_64610Test extends ModuleTestBase
         MismatchedInputException e = Assert.assertThrows(
                 MismatchedInputException.class,
             () ->  MAPPER.readValue("[null]", ref));
-        assertTrue(e.getMessage().contains("Guava `ImmutableCollection`s cannot contain `null`s"));
+        e.printStackTrace();
+        assertTrue(e.getMessage().contains("Guava `Collection` of type "));
+        assertTrue(e.getMessage().contains("does not accept `null` values"));
     }
 }
