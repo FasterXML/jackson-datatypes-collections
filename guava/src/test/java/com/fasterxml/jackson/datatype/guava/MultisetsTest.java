@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.google.common.collect.*;
 
 /**
@@ -89,13 +90,24 @@ public class MultisetsTest extends ModuleTestBase
     private <T extends Multiset<String>> void _testMultiset(TypeReference<T> typeRef)
         throws Exception
     {
+        // First, regular Set with no nulls
         T set = MAPPER.readValue("[\"abc\",\"abc\",\"foo\"]", typeRef);
         assertEquals(3, set.size());
         assertEquals(1, set.count("foo"));
         assertEquals(2, set.count("abc"));
         assertEquals(0, set.count("bar"));
+
+        // This may or may not work, so...
+        try {
+            set = MAPPER.readValue("[\"abc\", null]", typeRef);
+            assertEquals(1, set.count("abc"));
+            assertEquals(1, set.count(null));
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Guava `Collection` of type ");
+            verifyException(e, "does not accept `null` values");
+        }
     }
-    
+
     public void testFromSingle() throws Exception
     {
         ObjectMapper mapper = mapperWithModule()

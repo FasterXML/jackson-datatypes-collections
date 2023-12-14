@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
-
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.google.common.collect.ImmutableCollection;
 
 abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollection<Object>>
@@ -65,8 +65,10 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 }
                 value = _resolveNullToValue(ctxt);
                 if (value == null) {
-                    ctxt.reportInputMismatch(valueDes,
-                            "Guava `ImmutableCollection`s cannot contain `null`s");
+                    if (value == null) {
+                        _tryToAddNull(p, ctxt, builder);
+                        continue;
+                    }
                 }
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
@@ -100,5 +102,26 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
          }
          */
         return value;
+    }
+
+    /**
+     * Some/many Guava containers do not allow addition of {@code null} values,
+     * so isolate handling here.
+     *
+     * @since 2.17
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
+            ImmutableCollection.Builder<Object> builder)
+        throws IOException
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            builder.add((Object) null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        }
     }
 }

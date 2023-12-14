@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.AccessPattern;
+
 import com.google.common.collect.Multiset;
 
 abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
@@ -38,8 +39,8 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     }
 
     @Override
-    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt) throws IOException,
-            IOException
+    protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         JsonDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
@@ -54,6 +55,10 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
                     continue;
                 }
                 value = _nullProvider.getNullValue(ctxt);
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, set);
+                    continue;
+                }
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
