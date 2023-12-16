@@ -28,6 +28,7 @@ public class GuavaBeanSerializerModifier extends BeanSerializerModifier
     {
         for (int i = 0; i < beanProperties.size(); ++i) {
             final BeanPropertyWriter writer = beanProperties.get(i);
+            // [databind#0000] Since 2.17 : problem to solve + reason for matching Unwrapping....Writer
             if (writer instanceof UnwrappingBeanPropertyWriter) {
                 final AnnotatedMember member = writer.getMember();
                 final AnnotationIntrospector intr = config.getAnnotationIntrospector();
