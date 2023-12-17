@@ -3,6 +3,7 @@ package com.fasterxml.jackson.datatype.guava.deser;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -44,6 +45,11 @@ public class RangeDeserializer
      */
     protected final RangeHelper.RangeProperties _fieldNames;
 
+    /**
+     * @since 2.17
+     */
+    protected final JsonFormat.Shape _shape;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -70,14 +76,23 @@ public class RangeDeserializer
      * @since 2.10
      */
     @SuppressWarnings("unchecked")
+    @Deprecated // since 2.17
     protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
             BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
+    {
+        this(rangeType, endpointDeser, defaultBoundType, fieldNames, JsonFormat.Shape.ANY);
+    }
+
+    @SuppressWarnings("unchecked")
+    public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType,
+                             RangeHelper.RangeProperties fieldNames, JsonFormat.Shape shape)
     {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (JsonDeserializer<Object>) endpointDeser;
         _defaultBoundType = defaultBoundType;
         _fieldNames = fieldNames;
+        _shape = shape;
     }
 
     @Override
@@ -93,8 +108,11 @@ public class RangeDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
+        final JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
+        final JsonFormat.Shape shape = format.getShape();
+
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
-                ctxt.getConfig().getPropertyNamingStrategy());
+                    ctxt.getConfig().getPropertyNamingStrategy());
         JsonDeserializer<?> deser = _endpointDeserializer;
         if (deser == null) {
             JavaType endpointType = _rangeType.containedType(0);
@@ -106,8 +124,8 @@ public class RangeDeserializer
             // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
             deser = ((ContextualDeserializer) deser).createContextual(ctxt, property);
         }
-        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames);
+        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames) || (shape != _shape)) {
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames, shape);
         }
         return this;
     }
@@ -141,31 +159,36 @@ public class RangeDeserializer
         BoundType lowerBoundType = _defaultBoundType;
         BoundType upperBoundType = _defaultBoundType;
 
-        for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
-            expect(context, JsonToken.FIELD_NAME, t);
-            String fieldName = p.currentName();
-            try {
-                if (fieldName.equals(_fieldNames.lowerEndpoint)) {
-                    p.nextToken();
-                    lowerEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
-                    p.nextToken();
-                    upperEndpoint = deserializeEndpoint(context, p);
-                } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
-                    p.nextToken();
-                    lowerBoundType = deserializeBoundType(context, p);
-                } else if (fieldName.equals(_fieldNames.upperBoundType)) {
-                    p.nextToken();
-                    upperBoundType = deserializeBoundType(context, p);
-                } else {
-                    // Note: should either return `true`, iff problem is handled (and
-                    // content processed or skipped) or throw exception. So if we
-                    // get back, we ought to be fine...
-                    context.handleUnknownProperty(p, this, Range.class, fieldName);
+        if (_shape == JsonFormat.Shape.STRING) {
+            expect(context, JsonToken.VALUE_STRING, t);
+            return deserializeRangeFromString(context, p);
+        } else {
+            for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
+                expect(context, JsonToken.FIELD_NAME, t);
+                String fieldName = p.currentName();
+                try {
+                    if (fieldName.equals(_fieldNames.lowerEndpoint)) {
+                        p.nextToken();
+                        lowerEndpoint = deserializeEndpoint(context, p);
+                    } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
+                        p.nextToken();
+                        upperEndpoint = deserializeEndpoint(context, p);
+                    } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
+                        p.nextToken();
+                        lowerBoundType = deserializeBoundType(context, p);
+                    } else if (fieldName.equals(_fieldNames.upperBoundType)) {
+                        p.nextToken();
+                        upperBoundType = deserializeBoundType(context, p);
+                    } else {
+                        // Note: should either return `true`, iff problem is handled (and
+                        // content processed or skipped) or throw exception. So if we
+                        // get back, we ought to be fine...
+                        context.handleUnknownProperty(p, this, Range.class, fieldName);
+                    }
+                } catch (IllegalStateException e) {
+                    context.reportBadDefinition(handledType(), e.getMessage());
+                    return null;
                 }
-            } catch (IllegalStateException e) {
-                context.reportBadDefinition(handledType(), e.getMessage());
-                return null;
             }
         }
         try {
@@ -191,6 +214,42 @@ public class RangeDeserializer
             context.reportBadDefinition(handledType(), e.getMessage());
             return null;
         }
+    }
+
+    private Range<?> deserializeRangeFromString(DeserializationContext context, JsonParser p)
+            throws IOException
+    {
+        String rangeInterval = p.getText();
+
+        if (rangeInterval == null || rangeInterval.isEmpty())
+        {
+            return null;
+        }
+
+        BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
+        BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
+
+        rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
+        String[] parts = rangeInterval.split("\\.\\.");
+
+        if (parts.length == 2)
+        {
+            boolean isLowerInfinite = parts[0].equals("-∞");
+            boolean isUpperInfinite = parts[1].equals("+∞");
+
+            if (isLowerInfinite && isUpperInfinite) {
+                return RangeFactory.all();
+            } else if (isLowerInfinite) {
+                return RangeFactory.upTo(Integer.parseInt(parts[1]), upperBoundType);
+            } else if (isUpperInfinite) {
+                return RangeFactory.downTo(Integer.parseInt(parts[0]), lowerBoundType);
+            } else {
+                return RangeFactory.range(Integer.parseInt(parts[0]), lowerBoundType,
+                        Integer.parseInt(parts[1]), upperBoundType);
+            }
+        }
+
+        return null;
     }
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException

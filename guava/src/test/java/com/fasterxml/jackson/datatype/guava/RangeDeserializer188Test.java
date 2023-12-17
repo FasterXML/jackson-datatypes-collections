@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
