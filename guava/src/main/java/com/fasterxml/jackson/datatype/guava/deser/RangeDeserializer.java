@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeHelper;
 
@@ -131,7 +131,7 @@ public class RangeDeserializer
         throws IOException
     {
         // NOTE: either START_OBJECT _or_ FIELD_NAME fine; latter for polymorphic cases
-        JsonToken t = p.getCurrentToken();
+        JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
@@ -195,7 +195,7 @@ public class RangeDeserializer
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
     {
-        expect(context, JsonToken.VALUE_STRING, p.getCurrentToken());
+        expect(context, JsonToken.VALUE_STRING, p.currentToken());
         String name = p.getText();
         if (name == null) {
             name = "";
@@ -227,8 +227,9 @@ public class RangeDeserializer
             //    assume definition, but may need to reconsider
             context.reportBadDefinition(_rangeType,
                     String.format(
-                            "Field [%s] deserialized to [%s], which does not implement Comparable.",
-                            p.currentName(), obj.getClass().getName()));
+                            "Field '%s' deserialized to a %s, which does not implement Comparable.",
+                            p.currentName(),
+                            ClassUtil.classNameOf(obj)));
         }
         return (Comparable<?>) obj;
     }
