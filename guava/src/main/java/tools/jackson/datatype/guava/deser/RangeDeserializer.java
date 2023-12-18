@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.datatype.guava.deser.util.RangeFactory;
 import tools.jackson.datatype.guava.deser.util.RangeHelper;
 
@@ -226,8 +227,9 @@ public class RangeDeserializer
             //    assume definition, but may need to reconsider
             context.reportBadDefinition(_rangeType,
                     String.format(
-                            "Field [%s] deserialized to [%s], which does not implement Comparable.",
-                            p.currentName(), obj.getClass().getName()));
+                            "Field '%s' deserialized to a %s, which does not implement Comparable.",
+                            p.currentName(),
+                            ClassUtil.classNameOf(obj)));
         }
         return (Comparable<?>) obj;
     }
