@@ -119,7 +119,9 @@ Wolff Bock von Wülfingen (@wlfbck)
    (2.16.0)
 
 Muhammad Khalikov (@mukham12)
-  * Contributed #118: Support @JsonFormat(shape=STRING) on Range<T>
+  * Contributed #118: (guava) Support @JsonFormat(shape=STRING) on Range<T>
+   (2.17.0)
+  * Contributed #136: (guava) Fix for failing Guava `Optional` test
    (2.17.0)
 
 Arthur Chan (@arthurscchan)

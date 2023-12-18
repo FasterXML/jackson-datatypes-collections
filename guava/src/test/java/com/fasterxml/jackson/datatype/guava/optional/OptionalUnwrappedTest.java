@@ -34,4 +34,14 @@ public class OptionalUnwrappedTest extends ModuleTestBase
         String jsonAct = mapper.writeValueAsString(new OptionalParent());
         assertEquals(jsonExp, jsonAct);
     }
+
+    // Test for "old" settings (2.5 and earlier only option; available on later too)
+    // Fixed via [datatypes-collections#136]
+    public void testUntypedWithNullEqOptionals() throws Exception
+    {
+        final ObjectMapper mapper = mapperWithModule(true);
+        String jsonExp = aposToQuotes("{'XX.name':'Bob'}");
+        String jsonAct = mapper.writeValueAsString(new OptionalParent());
+        assertEquals(jsonExp, jsonAct);
+    }
 }

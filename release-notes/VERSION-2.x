@@ -18,11 +18,13 @@ Active Maintainers:
 
 2.17.0 (not yet released)
 
-#118: Support @JsonFormat(shape=STRING) on Range<T>
+#118: (guava) Support @JsonFormat(shape=STRING) on Range<T>
  (contributed by Muhammad K)
-#124: Some deserializers throw unexpected `NullPointerException` when
+#124: (guava) Some deserializers throw unexpected `NullPointerException` when
   handling invalid input
  (contibuted by Arthur C)
+#136 (guava) Fix for failing Guava `Optional` test
+ (contributed by Muhammad K)
 
 2.16.0 (15-Nov-2023)
 
