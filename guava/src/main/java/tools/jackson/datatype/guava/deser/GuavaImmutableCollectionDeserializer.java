@@ -62,16 +62,15 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                     continue;
                 }
                 value = _resolveNullToValue(ctxt);
-                if (value == null) {
-                    if (value == null) {
-                        _tryToAddNull(p, ctxt, builder);
-                        continue;
-                    }
-                }
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+            }
+
+            if (value == null) {
+                _tryToAddNull(p, ctxt, builder);
+                continue;
             }
 
             builder.add(value);

@@ -22,9 +22,11 @@ Active Maintainers:
  (contributed by Muhammad K)
 #124: (guava) Some deserializers throw unexpected `NullPointerException` when
   handling invalid input
- (contibuted by Arthur C)
+ (contributed by Arthur C)
 #136 (guava) Fix for failing Guava `Optional` test
  (contributed by Muhammad K)
+#138 (guava) `GuavaCollectionDeserializer` still throws NPE in some circumstances
+ (contributed by Arthur C)
 
 2.16.0 (15-Nov-2023)
 
