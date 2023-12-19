@@ -125,7 +125,9 @@ Muhammad Khalikov (@mukham12)
    (2.17.0)
 
 Arthur Chan (@arthurscchan)
-  * Contributed #124: Some deserializers throw unexpected `NullPointerException`
+  * Contributed #124: (guava) Some deserializers throw unexpected `NullPointerException`
     when handling invalid input
    (2.17.0)
-
+  * Contributed #138: (guava) `GuavaCollectionDeserializer` still throws NPE in
+    some circumstances
+   (2.17.0)
