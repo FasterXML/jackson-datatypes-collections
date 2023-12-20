@@ -1,7 +1,12 @@
 package com.fasterxml.jackson.datatype.guava.deser.cache;
 
+import java.io.IOException;
+
+import com.google.common.cache.Cache;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
@@ -10,9 +15,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.MapLikeType;
-import com.google.common.cache.Cache;
-
-import java.io.IOException;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>> 
     extends StdDeserializer<T> implements ContextualDeserializer 
@@ -146,6 +149,11 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
             } else {
                 value = elementDeserializer.deserialize(p, ctxt);
             }
+            if (value == null) {
+                _tryToAddNull(p, ctxt, cache, key);
+                continue;
+            }
+
             cache.put(key, value);
         }
         return cache;
@@ -157,4 +165,26 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
                 p.currentLocation());
         }
     }
+
+    /**
+     * Some/many Guava containers do not allow addition of {@code null} values,
+     * so isolate handling here.
+     *
+     * @since 2.17
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
+            T cache, Object key)
+        throws IOException
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            cache.put(key, null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `Cache` of type %s does not accept `null` values",
+                    ClassUtil.classNameOf(cache));
+        }
+    }
+
 }

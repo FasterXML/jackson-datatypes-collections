@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -175,5 +176,20 @@ public class CacheDeserializationTest extends ModuleTestBase {
 
         // test before and after
         assertEquals(cache.asMap().entrySet(), deserializedCache.asMap().entrySet());
+    }
+
+    // [datatypes-collections#140]: handle null values
+    public void testCacheWithNulls() throws Exception {
+        Cache<String, Integer> cache;
+        try {
+            cache = MAPPER.readValue(
+                "{ \"key\": null }",
+                new TypeReference<Cache<String, Integer>>() {});
+            fail("Expected fail, deserialized as: "+cache);
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Guava `Cache` of type");
+            verifyException(e, "does not accept `null` values");
+        }
+
     }
 }
