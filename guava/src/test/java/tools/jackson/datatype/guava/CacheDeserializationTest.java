@@ -1,5 +1,12 @@
 package tools.jackson.datatype.guava;
 
+import java.util.Map;
+import java.util.Objects;
+
+import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,13 +14,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-
-import com.google.common.base.Optional;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-
-import java.util.Map;
-import java.util.Objects;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Unit tests for verifying deserialization of Guava's {@link Cache} type.
@@ -171,5 +172,19 @@ public class CacheDeserializationTest extends ModuleTestBase
 
         // test before and after
         assertEquals(cache.asMap().entrySet(), deserializedCache.asMap().entrySet());
+    }
+
+    // [datatypes-collections#140]: handle null values
+    public void testCacheWithNulls() throws Exception {
+        Cache<String, Integer> cache;
+        try {
+            cache = MAPPER.readValue(
+                "{ \"key\": null }",
+                new TypeReference<Cache<String, Integer>>() {});
+            fail("Expected fail, deserialized as: "+cache);
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Guava `Cache` of type");
+            verifyException(e, "does not accept `null` values");
+        }
     }
 }
