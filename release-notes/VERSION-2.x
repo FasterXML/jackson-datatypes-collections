@@ -27,6 +27,7 @@ Active Maintainers:
  (contributed by Muhammad K)
 #138 (guava) `GuavaCollectionDeserializer` still throws NPE in some circumstances
  (contributed by Arthur C)
+#140 (guava) `Cache` deserialization fails with NPE for `null` valued entries
 
 2.16.0 (15-Nov-2023)
 
