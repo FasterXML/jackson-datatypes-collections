@@ -28,6 +28,7 @@ Active Maintainers:
 #138 (guava) `GuavaCollectionDeserializer` still throws NPE in some circumstances
  (contributed by Arthur C)
 #140 (guava) `Cache` deserialization fails with NPE for `null` valued entries
+#142 (guava) `RangeSet` deserializer fails for content `null`s with NPE
 
 2.16.0 (15-Nov-2023)
 

@@ -1,12 +1,14 @@
 package com.fasterxml.jackson.datatype.guava.deser;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -95,10 +98,35 @@ public class RangeSetDeserializer
         final Collection<?> ranges = (Collection<?>) _deserializer.deserialize(p, ctxt);
         ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
         for (Object ob : ranges) {
+            if (ob == null) {
+                _tryToAddNull(p, ctxt, builder);
+                continue;
+            }
             @SuppressWarnings("unchecked")
             Range<Comparable<?>> range = (Range<Comparable<?>>) ob;
             builder.add(range);
         }
         return builder.build();
     }
+
+    /**
+     * Some/many Guava containers do not allow addition of {@code null} values,
+     * so isolate handling here.
+     *
+     * @since 2.17
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
+            ImmutableRangeSet.Builder<Comparable<?>> builder)
+        throws IOException
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            builder.add(null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `RangeSet` does not accept `null` values");
+        }
+    }
+
 }
