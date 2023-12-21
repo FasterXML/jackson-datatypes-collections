@@ -5,14 +5,13 @@ import java.util.List;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.TypeFactory;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -81,10 +80,32 @@ public class RangeSetDeserializer
         final Collection<?> ranges = (Collection<?>) _deserializer.deserialize(p, ctxt);
         ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
         for (Object ob : ranges) {
+            if (ob == null) {
+                _tryToAddNull(p, ctxt, builder);
+                continue;
+            }
             @SuppressWarnings("unchecked")
             Range<Comparable<?>> range = (Range<Comparable<?>>) ob;
             builder.add(range);
         }
         return builder.build();
+    }
+
+    /**
+     * Some/many Guava containers do not allow addition of {@code null} values,
+     * so isolate handling here.
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
+            ImmutableRangeSet.Builder<Comparable<?>> builder)
+        throws JacksonException
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            builder.add(null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `RangeSet` does not accept `null` values");
+        }
     }
 }
