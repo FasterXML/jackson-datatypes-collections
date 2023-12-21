@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -47,5 +48,18 @@ public class RangeSetTest extends ModuleTestBase {
         // test deserialization, back
         assertEquals(rangeSet, MAPPER.readValue(json, new TypeReference<RangeSet<Integer>>() {}));
         assertEquals(rangeSet, MAPPER.readValue(json, new TypeReference<ImmutableRangeSet<Integer>>() {}));
+    }
+
+    // [datatypes-collections#142]: nulls in RangeSet JSON
+    public void testDeserializeFromNull() throws Exception
+    {
+        final String json = a2q("[ {'lowerEndpoint':1,'lowerBoundType':'CLOSED'}, null ]");
+        try {
+            RangeSet<?> rs = MAPPER.readValue(json,
+                    new TypeReference<ImmutableRangeSet<Integer>>() {});
+            fail("Should not pass, got: "+rs);
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Guava `RangeSet` does not accept `null` values");
+        }
     }
 }
