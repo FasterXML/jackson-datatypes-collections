@@ -16,6 +16,10 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.16.1 (24-Dec-2023)
+
+No changes since 2.16.0
+
 2.16.0 (15-Nov-2023)
 
 #90: (guava) Cache Serialization serializes empty contents
