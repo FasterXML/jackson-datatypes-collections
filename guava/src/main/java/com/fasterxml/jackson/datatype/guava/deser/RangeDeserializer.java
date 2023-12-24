@@ -74,8 +74,8 @@ public class RangeDeserializer
 
     /**
      * @since 2.10
+     * @deprecated Since 2.17
      */
-    @SuppressWarnings("unchecked")
     @Deprecated // since 2.17
     protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
             BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
@@ -209,7 +209,7 @@ public class RangeDeserializer
             }
             return RangeFactory.all();
         } catch (IllegalStateException e) {
-            return context.reportBadDefinition(handledType(), e.getMessage());
+            return context.reportBadDefinition(getValueType(context), e.getMessage());
         }
     }
 
@@ -218,8 +218,7 @@ public class RangeDeserializer
     {
         String rangeInterval = p.getText();
 
-        if (rangeInterval == null || rangeInterval.isEmpty())
-        {
+        if (rangeInterval.isEmpty()) {
             return null;
         }
 
@@ -246,7 +245,9 @@ public class RangeDeserializer
             }
         }
 
-        return null;
+        // Give generic failure if no specific reason can be given
+        return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval,
+                "Invalid String representation");
     }
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
@@ -294,7 +295,7 @@ public class RangeDeserializer
     {
         if (actual != expected) {
             context.reportInputMismatch(this, String.format("Problem deserializing %s: expecting %s, found %s",
-                    handledType().getName(), expected, actual));
+                    ClassUtil.getTypeDescription(getValueType()), expected, actual));
         }
     }
 }

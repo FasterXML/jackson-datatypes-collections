@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
-import com.google.common.collect.BoundType;
-import com.google.common.collect.Range;
-
 import java.time.Duration;
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
+
+import com.google.common.collect.Range;
 
 // Test for [dataformats-collections#118]
 public class RangeDeserializer188Test extends ModuleTestBase
@@ -84,23 +84,26 @@ public class RangeDeserializer188Test extends ModuleTestBase
     }
 
     public void testInvalidBracketNotationRangeDeserialization() throws Exception {
+        // Fails due to open/close markers
         testInvalidBracketNotation("[abc.def");
         testInvalidBracketNotation("abc.def]");
+        testInvalidBracketNotation("[1.23, 4.56");
+
+        // Fails due to bad separator
         testInvalidBracketNotation("[123.45.67]");
         testInvalidBracketNotation("[1.23.45]");
         testInvalidBracketNotation("[1.23]");
         testInvalidBracketNotation("[1.23, 4.56]");
-        testInvalidBracketNotation("[1.23, 4.56");
         testInvalidBracketNotation("[1.23, 4.56)");
     }
 
-    private void testInvalidBracketNotation(String json) {
+    private void testInvalidBracketNotation(String json) throws Exception {
         json = "{\"r\":\"" + json + "\"}";
 
         try {
             MAPPER.readValue(json, Stringified.class);
             fail("Should fail due to deserializing invalid bracket-notation Range.");
-        } catch (JsonProcessingException e) {
+        } catch (InvalidFormatException e) {
             verifyException(e, "Invalid Range. Should start with '[' or '(', end with ')' or ']'");
         }
     }
