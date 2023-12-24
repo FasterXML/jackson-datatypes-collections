@@ -85,26 +85,26 @@ public class RangeDeserializer188Test extends ModuleTestBase
 
     public void testInvalidBracketNotationRangeDeserialization() throws Exception {
         // Fails due to open/close markers
-        testInvalidBracketNotation("[abc.def");
-        testInvalidBracketNotation("abc.def]");
-        testInvalidBracketNotation("[1.23, 4.56");
+        testInvalidBracketNotation("[abc.def", RangeError.INVALID_BRACKET);
+        testInvalidBracketNotation("abc.def]", RangeError.INVALID_BRACKET);
+        testInvalidBracketNotation("[1.23, 4.56", RangeError.INVALID_BRACKET);
 
         // Fails due to bad separator
-        testInvalidBracketNotation("[123.45.67]");
-        testInvalidBracketNotation("[1.23.45]");
-        testInvalidBracketNotation("[1.23]");
-        testInvalidBracketNotation("[1.23, 4.56]");
-        testInvalidBracketNotation("[1.23, 4.56)");
+        testInvalidBracketNotation("[123.45.67]", RangeError.GENERIC_INVALID);
+        testInvalidBracketNotation("[1.23.45]", RangeError.GENERIC_INVALID);
+        testInvalidBracketNotation("[1.23]", RangeError.GENERIC_INVALID);
+        testInvalidBracketNotation("[1.23, 4.56]", RangeError.GENERIC_INVALID);
+        testInvalidBracketNotation("[1.23, 4.56)", RangeError.GENERIC_INVALID);
     }
 
-    private void testInvalidBracketNotation(String json) throws Exception {
+    private void testInvalidBracketNotation(String json, RangeError error) throws Exception {
         json = "{\"r\":\"" + json + "\"}";
 
         try {
             MAPPER.readValue(json, Stringified.class);
             fail("Should fail due to deserializing invalid bracket-notation Range.");
         } catch (InvalidFormatException e) {
-            verifyException(e, "Invalid Range. Should start with '[' or '(', end with ')' or ']'");
+            verifyException(e, error.getErrorMessage());
         }
     }
 
@@ -120,5 +120,20 @@ public class RangeDeserializer188Test extends ModuleTestBase
     {
         Range<?> actualRange = MAPPER.readValue(json, Stringified.class).toRange();
         assertEquals(expectedRange, actualRange);
+    }
+
+    public enum RangeError {
+        INVALID_BRACKET("Invalid Range. Should start with '[' or '(', end with ')' or ']"),
+        GENERIC_INVALID("Invalid bracket-notation representation.");
+
+        private final String errorMessage;
+
+        RangeError(String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
     }
 }

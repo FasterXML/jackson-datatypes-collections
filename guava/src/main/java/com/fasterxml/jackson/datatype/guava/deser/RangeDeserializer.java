@@ -78,7 +78,7 @@ public class RangeDeserializer
 
     /**
      * @since 2.10
-     * @deprecated Since 2.17
+     * @deprecated Since 2.17 use other constructor(s)
      */
     @Deprecated // since 2.17
     protected RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser,
@@ -87,6 +87,9 @@ public class RangeDeserializer
         this(rangeType, endpointDeser, defaultBoundType, fieldNames, JsonFormat.Shape.ANY);
     }
 
+    /**
+     * @since 2.17
+     */
     @SuppressWarnings("unchecked")
     public RangeDeserializer(JavaType rangeType, JsonDeserializer<?> endpointDeser, BoundType defaultBoundType,
                              RangeHelper.RangeProperties fieldNames, JsonFormat.Shape shape)
@@ -226,32 +229,37 @@ public class RangeDeserializer
             return null;
         }
 
-        BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
-        BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
+        if (isValidBracketNotation(rangeInterval)) {
+            BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
+            BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
 
-        rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
-        String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
+            rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
+            String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
 
-        if (parts.length == 2)
-        {
-            boolean isLowerInfinite = parts[0].equals("-∞");
-            boolean isUpperInfinite = parts[1].equals("+∞");
+            if (parts.length == 2) {
+                boolean isLowerInfinite = parts[0].equals("-∞");
+                boolean isUpperInfinite = parts[1].equals("+∞");
 
-            if (isLowerInfinite && isUpperInfinite) {
-                return RangeFactory.all();
-            } else if (isLowerInfinite) {
-                return RangeFactory.upTo(Integer.parseInt(parts[1]), upperBoundType);
-            } else if (isUpperInfinite) {
-                return RangeFactory.downTo(Integer.parseInt(parts[0]), lowerBoundType);
-            } else {
-                return RangeFactory.range(Integer.parseInt(parts[0]), lowerBoundType,
-                        Integer.parseInt(parts[1]), upperBoundType);
+                if (isLowerInfinite && isUpperInfinite) {
+                    return RangeFactory.all();
+                } else if (isLowerInfinite) {
+                    return RangeFactory.upTo(Integer.parseInt(parts[1]), upperBoundType);
+                } else if (isUpperInfinite) {
+                    return RangeFactory.downTo(Integer.parseInt(parts[0]), lowerBoundType);
+                } else {
+                    return RangeFactory.range(Integer.parseInt(parts[0]), lowerBoundType,
+                            Integer.parseInt(parts[1]), upperBoundType);
+                }
             }
+        } else {
+            String msg = "Invalid Range. Should start with '[' or '(', end with ')' or ']'";
+            return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval, msg);
         }
 
-        // Give generic failure if no specific reason can be given
+        // Give generic failure if no specific reason can be given.
+        // Although most likely will happen because `..` is absent, since we are validating brackets above.
         return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval,
-                "Invalid String representation");
+                "Invalid bracket-notation representation. Possibly missing \"..\" delimiter in your String Range.");
     }
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
@@ -301,5 +309,12 @@ public class RangeDeserializer
             context.reportInputMismatch(this, String.format("Problem deserializing %s: expecting %s, found %s",
                     ClassUtil.getTypeDescription(getValueType()), expected, actual));
         }
+    }
+
+    private boolean isValidBracketNotation(String range) {
+        char first = range.charAt(0);
+        char last = range.charAt(range.length() - 1);
+
+        return (first == '[' || first == '(') && (last == ']' || last == ')');
     }
 }
