@@ -2,6 +2,7 @@ package com.fasterxml.jackson.datatype.guava.deser;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.common.base.Preconditions;
@@ -33,6 +34,9 @@ public class RangeDeserializer
     implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
+
+    // @since 2.17
+    protected final static Pattern PATTERN_DOUBLE_DOT = Pattern.compile("\\.\\.");
 
     protected final JavaType _rangeType;
 
@@ -226,7 +230,7 @@ public class RangeDeserializer
         BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
 
         rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
-        String[] parts = rangeInterval.split("\\.\\.");
+        String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
 
         if (parts.length == 2)
         {
