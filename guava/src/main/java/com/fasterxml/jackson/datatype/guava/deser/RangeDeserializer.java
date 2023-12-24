@@ -162,33 +162,31 @@ public class RangeDeserializer
         if (_shape == JsonFormat.Shape.STRING) {
             expect(context, JsonToken.VALUE_STRING, t);
             return deserializeRangeFromString(context, p);
-        } else {
-            for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
-                expect(context, JsonToken.FIELD_NAME, t);
-                String fieldName = p.currentName();
-                try {
-                    if (fieldName.equals(_fieldNames.lowerEndpoint)) {
-                        p.nextToken();
-                        lowerEndpoint = deserializeEndpoint(context, p);
-                    } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
-                        p.nextToken();
-                        upperEndpoint = deserializeEndpoint(context, p);
-                    } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
-                        p.nextToken();
-                        lowerBoundType = deserializeBoundType(context, p);
-                    } else if (fieldName.equals(_fieldNames.upperBoundType)) {
-                        p.nextToken();
-                        upperBoundType = deserializeBoundType(context, p);
-                    } else {
-                        // Note: should either return `true`, iff problem is handled (and
-                        // content processed or skipped) or throw exception. So if we
-                        // get back, we ought to be fine...
-                        context.handleUnknownProperty(p, this, Range.class, fieldName);
-                    }
-                } catch (IllegalStateException e) {
-                    context.reportBadDefinition(handledType(), e.getMessage());
-                    return null;
+        }
+        for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
+            expect(context, JsonToken.FIELD_NAME, t);
+            String fieldName = p.currentName();
+            try {
+                if (fieldName.equals(_fieldNames.lowerEndpoint)) {
+                    p.nextToken();
+                    lowerEndpoint = deserializeEndpoint(context, p);
+                } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
+                    p.nextToken();
+                    upperEndpoint = deserializeEndpoint(context, p);
+                } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
+                    p.nextToken();
+                    lowerBoundType = deserializeBoundType(context, p);
+                } else if (fieldName.equals(_fieldNames.upperBoundType)) {
+                    p.nextToken();
+                    upperBoundType = deserializeBoundType(context, p);
+                } else {
+                    // Note: should either return `true`, iff problem is handled (and
+                    // content processed or skipped) or throw exception. So if we
+                    // get back, we ought to be fine...
+                    context.handleUnknownProperty(p, this, Range.class, fieldName);
                 }
+            } catch (IllegalStateException e) {
+                return context.reportBadDefinition(handledType(), e.getMessage());
             }
         }
         try {
@@ -211,8 +209,7 @@ public class RangeDeserializer
             }
             return RangeFactory.all();
         } catch (IllegalStateException e) {
-            context.reportBadDefinition(handledType(), e.getMessage());
-            return null;
+            return context.reportBadDefinition(handledType(), e.getMessage());
         }
     }
 
