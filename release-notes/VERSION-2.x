@@ -23,6 +23,8 @@ Active Maintainers:
 #124: (guava) Some deserializers throw unexpected `NullPointerException` when
   handling invalid input
  (contributed by Arthur C)
+#135 (guava) Add deserialization support for bracket notation Range
+ (contributed by Muhammad K)
 #136 (guava) Fix for failing Guava `Optional` test
  (contributed by Muhammad K)
 #138 (guava) `GuavaCollectionDeserializer` still throws NPE in some circumstances

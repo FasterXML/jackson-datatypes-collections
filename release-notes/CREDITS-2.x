@@ -121,6 +121,8 @@ Wolff Bock von Wülfingen (@wlfbck)
 Muhammad Khalikov (@mukham12)
   * Contributed #118: (guava) Support @JsonFormat(shape=STRING) on Range<T>
    (2.17.0)
+  * Contributed #135 (guava) Add deserialization support for bracket notation Range
+   (2.17.0)
   * Contributed #136: (guava) Fix for failing Guava `Optional` test
    (2.17.0)
 
