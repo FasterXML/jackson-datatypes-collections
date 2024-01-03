@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
@@ -65,43 +67,63 @@ public class RangeDeserializer188Test extends ModuleTestBase
     }
 
     // [dataformats-collections#135]
-    public void testRangeDeserializationFromBracketNotation() throws Exception
+    public void testIntRangeDeserializationFromBracketNotation() throws Exception
     {
-        testRangeDeserialization("{\"r\":\"(1..10)\"}", openRange);
-        testRangeDeserialization("{\"r\":\"[5..15]\"}", closedRange);
-        testRangeDeserialization("{\"r\":\"(10..20]\"}", openClosedRange);
-        testRangeDeserialization("{\"r\":\"[25..30)\"}", closedOpenRange);
-        testRangeDeserialization("{\"r\":\"[42..42]\"}", singletonRange);
-        testRangeDeserialization("{\"r\":\"(-∞..+∞)\"}", unboundedRange);
-        testRangeDeserialization("{\"r\":\"(-∞..15)\"}", leftBoundedRange);
-        testRangeDeserialization("{\"r\":\"[10..+∞)\"}", rightBoundedRange);
+        testIntRangeDeserialization("{\"r\":\"(1..10)\"}", openRange);
+        testIntRangeDeserialization("{\"r\":\"[5..15]\"}", closedRange);
+        testIntRangeDeserialization("{\"r\":\"(10..20]\"}", openClosedRange);
+        testIntRangeDeserialization("{\"r\":\"[25..30)\"}", closedOpenRange);
+        testIntRangeDeserialization("{\"r\":\"[42..42]\"}", singletonRange);
+        testIntRangeDeserialization("{\"r\":\"(-∞..+∞)\"}", unboundedRange);
+        testIntRangeDeserialization("{\"r\":\"(-∞..15)\"}", leftBoundedRange);
+        testIntRangeDeserialization("{\"r\":\"[10..+∞)\"}", rightBoundedRange);
+    }
 
-        // The below are failing for now. Priority is to get the minimal working deserialization.
+    public void testStringRangeDeserializationFromBracketNotation() throws Exception
+    {
+        _testStringifiedRangeDeserialization("{\"r\":\"(abc..def]\"}",
+                openClosedStringRange, String.class);
+    }
 
-        // testRangeDeserialization("{\"r\":\"(PT30M..PT1H)\"}", openDurationRange);
-        // testRangeDeserialization("{\"r\":\"[2023-01-01..2023-01-31]\"}", closedDateRange);
-        // testRangeDeserialization("{\"r\":\"(abc..def]\"}", openClosedStringRange);
+    // Cannot implement here since `Duration` KeyDeserializer provided by Java 8 date/time module
+    public void testDurationRangeDeserializationFromBracketNotation() throws Exception
+    {
+        // Would work if we had `KeyDeserializer` for Duration
+        /*
+        _testStringifiedRangeDeserialization("{\"r\":\"(PT30M..PT1H)\"}",
+                openDurationRange, Duration.class);
+                */
+    }
+                
+    // Cannot implement here since `LocalDate` KeyDeserializer provided by Java 8 date/time module
+    public void testLocalDateRangeDeserializationFromBracketNotation() throws Exception
+    {
+        /*
+        _testStringifiedRangeDeserialization("{\"r\":\"[2023-01-01..2023-01-31]\"}",
+                closedDateRange, LocalDate.class);
+                */
     }
 
     public void testInvalidBracketNotationRangeDeserialization() throws Exception {
         // Fails due to open/close markers
-        testInvalidBracketNotation("[abc.def", RangeError.INVALID_BRACKET);
-        testInvalidBracketNotation("abc.def]", RangeError.INVALID_BRACKET);
-        testInvalidBracketNotation("[1.23, 4.56", RangeError.INVALID_BRACKET);
+        testInvalidStringifiedDeserialization("[1..2", RangeError.INVALID_BRACKET);
+        testInvalidStringifiedDeserialization("1..2]", RangeError.INVALID_BRACKET);
+        testInvalidStringifiedDeserialization("(123, 456", RangeError.INVALID_BRACKET);
 
         // Fails due to bad separator
-        testInvalidBracketNotation("[123.45.67]", RangeError.GENERIC_INVALID);
-        testInvalidBracketNotation("[1.23.45]", RangeError.GENERIC_INVALID);
-        testInvalidBracketNotation("[1.23]", RangeError.GENERIC_INVALID);
-        testInvalidBracketNotation("[1.23, 4.56]", RangeError.GENERIC_INVALID);
-        testInvalidBracketNotation("[1.23, 4.56)", RangeError.GENERIC_INVALID);
+        testInvalidStringifiedDeserialization("[123.45.67]", RangeError.GENERIC_INVALID);
+        testInvalidStringifiedDeserialization("[1.23.45]", RangeError.GENERIC_INVALID);
+        testInvalidStringifiedDeserialization("[1.23]", RangeError.GENERIC_INVALID);
+        testInvalidStringifiedDeserialization("[1.23, 4.56]", RangeError.GENERIC_INVALID);
+        testInvalidStringifiedDeserialization("[1.23, 4.56)", RangeError.GENERIC_INVALID);
     }
 
-    private void testInvalidBracketNotation(String json, RangeError error) throws Exception {
+    private void testInvalidStringifiedDeserialization(String json, RangeError error) throws Exception {
         json = "{\"r\":\"" + json + "\"}";
 
         try {
-            MAPPER.readValue(json, Stringified.class);
+            MAPPER.readValue(json,
+                    new TypeReference<Stringified<Integer>>() {});
             fail("Should fail due to deserializing invalid bracket-notation Range.");
         } catch (InvalidFormatException e) {
             verifyException(e, error.getErrorMessage());
@@ -115,16 +137,26 @@ public class RangeDeserializer188Test extends ModuleTestBase
                 MAPPER.writeValueAsString(new Stringified<>(range)));
     }
 
-    @SuppressWarnings("rawtypes")
-    private <T extends Comparable> void testRangeDeserialization(String json, Range<T> expectedRange) throws Exception
+    private void testIntRangeDeserialization(String json,
+            Range<?> expectedRange) throws Exception
     {
-        Range<?> actualRange = MAPPER.readValue(json, Stringified.class).toRange();
-        assertEquals(expectedRange, actualRange);
+        _testStringifiedRangeDeserialization(json, expectedRange, Integer.class);
+    }
+
+    private void _testStringifiedRangeDeserialization(String json,
+            Range<?> expectedRange,
+            Class<?> endpointType) throws Exception
+    {
+        JavaType type = MAPPER.getTypeFactory()
+                .constructParametricType(Stringified.class, endpointType);
+        // Deserialize as Integer
+        Stringified<?> stringified = MAPPER.readValue(json, type);
+        assertEquals(expectedRange, stringified.toRange());
     }
 
     public enum RangeError {
-        INVALID_BRACKET("Invalid Range. Should start with '[' or '(', end with ')' or ']"),
-        GENERIC_INVALID("Invalid bracket-notation representation.");
+        INVALID_BRACKET("Invalid Range: should start with '[' or '(', end with ')' or ']"),
+        GENERIC_INVALID("Invalid bracket-notation representation");
 
         private final String errorMessage;
 
