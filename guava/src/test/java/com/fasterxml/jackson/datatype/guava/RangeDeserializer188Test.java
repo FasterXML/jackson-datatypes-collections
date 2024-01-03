@@ -85,16 +85,21 @@ public class RangeDeserializer188Test extends ModuleTestBase
                 openClosedStringRange, String.class);
     }
 
+    public void testCharacterRangeDeserializationFromBracketNotation() throws Exception
+    {
+        _testStringifiedRangeDeserialization("{\"r\":\"[a..z)\"}",
+                RangeFactory.closedOpen('a', 'z'), Character.class);
+    }
+
     // Cannot implement here since `Duration` KeyDeserializer provided by Java 8 date/time module
     public void testDurationRangeDeserializationFromBracketNotation() throws Exception
     {
-        // Would work if we had `KeyDeserializer` for Duration
         /*
         _testStringifiedRangeDeserialization("{\"r\":\"(PT30M..PT1H)\"}",
                 openDurationRange, Duration.class);
                 */
     }
-                
+
     // Cannot implement here since `LocalDate` KeyDeserializer provided by Java 8 date/time module
     public void testLocalDateRangeDeserializationFromBracketNotation() throws Exception
     {
@@ -116,6 +121,9 @@ public class RangeDeserializer188Test extends ModuleTestBase
         testInvalidStringifiedDeserialization("[1.23]", RangeError.GENERIC_INVALID);
         testInvalidStringifiedDeserialization("[1.23, 4.56]", RangeError.GENERIC_INVALID);
         testInvalidStringifiedDeserialization("[1.23, 4.56)", RangeError.GENERIC_INVALID);
+
+        // and then failure due to actual bad range (start and end in wrong order)
+        testInvalidStringifiedDeserialization("[24, 15)", RangeError.GENERIC_INVALID);
     }
 
     private void testInvalidStringifiedDeserialization(String json, RangeError error) throws Exception {
