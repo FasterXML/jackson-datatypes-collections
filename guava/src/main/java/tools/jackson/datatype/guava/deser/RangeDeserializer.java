@@ -1,6 +1,9 @@
 package tools.jackson.datatype.guava.deser;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
@@ -27,12 +30,30 @@ import tools.jackson.datatype.guava.deser.util.RangeHelper;
 public class RangeDeserializer
     extends StdDeserializer<Range<?>>
 {
+    protected final static Pattern PATTERN_DOUBLE_DOT = Pattern.compile("\\.\\.");
+
     protected final JavaType _rangeType;
 
+    /**
+     * Deserializer used when getting JSON Object representation
+     */
     protected final ValueDeserializer<Object> _endpointDeserializer;
+
+    /**
+     * Deserializer used when getting JSON String (inline) representation.
+     *
+     * @since 2.17
+     */
+    protected final KeyDeserializer _fromStringDeserializer;
+
     protected final BoundType _defaultBoundType;
 
     protected final RangeHelper.RangeProperties _fieldNames;
+
+    /**
+     * @since 2.17
+     */
+    protected final JsonFormat.Shape _shape;
 
     /*
     /**********************************************************************
@@ -41,19 +62,58 @@ public class RangeDeserializer
      */
 
     public RangeDeserializer(JavaType rangeType, BoundType defaultBoundType) {
-        this(rangeType, null, defaultBoundType, RangeHelper.standardNames());
+        this(rangeType, null, defaultBoundType, RangeHelper.standardNames(),
+                JsonFormat.Shape.ANY, null);
     }
 
     @SuppressWarnings("unchecked")
     protected RangeDeserializer(JavaType rangeType, ValueDeserializer<?> endpointDeser,
-            BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames)
+            BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames,
+            JsonFormat.Shape shape, KeyDeserializer fromStringDeserializer)
     {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (ValueDeserializer<Object>) endpointDeser;
+        _fromStringDeserializer = fromStringDeserializer;
         _defaultBoundType = defaultBoundType;
         _fieldNames = fieldNames;
+        _shape = shape;
     }
+
+    @Override
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
+    {
+        final JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
+        final JsonFormat.Shape shape = format.getShape();
+
+        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
+                ctxt.getConfig().getPropertyNamingStrategy());
+        final JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
+        ValueDeserializer<?> deser = _endpointDeserializer;
+        if (deser == null) {
+            deser = ctxt.findContextualValueDeserializer(endpointType, property);
+        } else {
+            // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
+            deser = deser.createContextual(ctxt, property);
+        }
+        KeyDeserializer kd = _fromStringDeserializer;
+        if (shape == JsonFormat.Shape.STRING) {
+            kd = ctxt.findKeyDeserializer(endpointType, property);
+        }
+        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)
+                || (shape != _shape) || (kd != _fromStringDeserializer)) {
+            return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames,
+                    shape, kd);
+        }
+        return this;
+    }
+
+    /*
+    /**********************************************************************
+    /* Standard accessors
+    /**********************************************************************
+     */
 
     @Override
     public JavaType getValueType() { return _rangeType; }
@@ -62,30 +122,6 @@ public class RangeDeserializer
     public LogicalType logicalType() {
         // 30-May-2020, tatu: Not 100% sure, but looks a bit like POJO so...
         return LogicalType.POJO;
-    }
-
-    @Override
-    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property)
-    {
-        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
-                ctxt.getConfig().getPropertyNamingStrategy());
-        ValueDeserializer<?> deser = _endpointDeserializer;
-        if (deser == null) {
-            JavaType endpointType = _rangeType.containedType(0);
-            if (endpointType == null) { // should this ever occur?
-                endpointType = TypeFactory.unknownType();
-            }
-            deser = ctxt.findContextualValueDeserializer(endpointType, property);
-        } else {
-            // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
-            deser = deser.createContextual(ctxt, property);
-        }
-        if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)) {
-            return new RangeDeserializer(_rangeType, deser, _defaultBoundType,
-                    fieldNames);
-        }
-        return this;
     }
 
     /*
@@ -117,34 +153,31 @@ public class RangeDeserializer
         BoundType lowerBoundType = _defaultBoundType;
         BoundType upperBoundType = _defaultBoundType;
 
+        if (_shape == JsonFormat.Shape.STRING) {
+            expect(ctxt, JsonToken.VALUE_STRING, t);
+            return deserializeRangeFromString(ctxt, p);
+        }
         for (; t != JsonToken.END_OBJECT; t = p.nextToken()) {
             expect(ctxt, JsonToken.PROPERTY_NAME, t);
             String fieldName = p.currentName();
-//            try {
-                if (fieldName.equals(_fieldNames.lowerEndpoint)) {
-                    p.nextToken();
-                    lowerEndpoint = deserializeEndpoint(ctxt, p);
-                } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
-                    p.nextToken();
-                    upperEndpoint = deserializeEndpoint(ctxt, p);
-                } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
-                    p.nextToken();
-                    lowerBoundType = deserializeBoundType(ctxt, p);
-                } else if (fieldName.equals(_fieldNames.upperBoundType)) {
-                    p.nextToken();
-                    upperBoundType = deserializeBoundType(ctxt, p);
-                } else {
-                    // Note: should either return `true`, iff problem is handled (and
-                    // content processed or skipped) or throw exception. So if we
-                    // get back, we ought to be fine...
-                    ctxt.handleUnknownProperty(p, this, Range.class, fieldName);
-                }
-                /*
-            } catch (IllegalStateException e) {
-                // !!! 01-Oct-2016, tatu: Should figure out semantically better exception/reporting
-                throw DatabindException.from(p, e.getMessage());
+            if (fieldName.equals(_fieldNames.lowerEndpoint)) {
+                p.nextToken();
+                lowerEndpoint = deserializeEndpoint(ctxt, p);
+            } else if (fieldName.equals(_fieldNames.upperEndpoint)) {
+                p.nextToken();
+                upperEndpoint = deserializeEndpoint(ctxt, p);
+            } else if (fieldName.equals(_fieldNames.lowerBoundType)) {
+                p.nextToken();
+                lowerBoundType = deserializeBoundType(ctxt, p);
+            } else if (fieldName.equals(_fieldNames.upperBoundType)) {
+                p.nextToken();
+                upperBoundType = deserializeBoundType(ctxt, p);
+            } else {
+                // Note: should either return `true`, iff problem is handled (and
+                // content processed or skipped) or throw exception. So if we
+                // get back, we ought to be fine...
+                ctxt.handleUnknownProperty(p, this, Range.class, fieldName);
             }
-            */
         }
 
         if ((lowerEndpoint != null) && (upperEndpoint != null)) {
@@ -191,6 +224,50 @@ public class RangeDeserializer
         return RangeFactory.all();
     }
 
+    private Range<?> deserializeRangeFromString(DeserializationContext context, JsonParser p)
+        throws JacksonException
+    {
+        String rangeInterval = p.getText();
+
+        if (rangeInterval.isEmpty()) {
+            return null;
+        }
+
+        if (isValidBracketNotation(rangeInterval)) {
+            BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
+            BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
+
+            rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
+            String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
+
+            if (parts.length == 2) {
+                boolean isLowerInfinite = parts[0].equals("-∞");
+                boolean isUpperInfinite = parts[1].equals("+∞");
+
+                if (isLowerInfinite && isUpperInfinite) {
+                    return RangeFactory.all();
+                } else if (isLowerInfinite) {
+                    return RangeFactory.upTo(deserializeStringified(context, parts[1]), upperBoundType);
+                } else if (isUpperInfinite) {
+                    return RangeFactory.downTo(deserializeStringified(context, parts[0]), lowerBoundType);
+                } else {
+                    return RangeFactory.range(deserializeStringified(context, parts[0]),
+                            lowerBoundType,
+                            deserializeStringified(context, parts[1]),
+                            upperBoundType);
+                }
+            }
+        } else {
+            String msg = "Invalid Range: should start with '[' or '(', end with ')' or ']'";
+            return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval, msg);
+        }
+
+        // Give generic failure if no specific reason can be given.
+        // Although most likely will happen because `..` is absent, since we are validating brackets above.
+        return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval,
+                "Invalid bracket-notation representation (possibly missing \"..\" delimiter in your Stringified Range)");
+    }
+
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p)
         throws JacksonException
     {
@@ -227,8 +304,23 @@ public class RangeDeserializer
             //    assume definition, but may need to reconsider
             context.reportBadDefinition(_rangeType,
                     String.format(
-                            "Field '%s' deserialized to a %s, which does not implement Comparable.",
+                            "Field '%s' deserialized to a %s, which does not implement `Comparable`",
                             p.currentName(),
+                            ClassUtil.classNameOf(obj)));
+        }
+        return (Comparable<?>) obj;
+    }
+
+    private Comparable<?> deserializeStringified(DeserializationContext context, String value)
+        throws JacksonException
+    {
+        Object obj = _fromStringDeserializer.deserializeKey(value, context);
+        if (!(obj instanceof Comparable)) {
+            // 02-Jan-2024, tatu: Not sure this is possible but let's double-check
+            context.reportBadDefinition(_rangeType,
+                    String.format(
+                            "Stringified endpoint '%s' deserialized to a %s, which does not implement `Comparable`",
+                            value,
                             ClassUtil.classNameOf(obj)));
         }
         return (Comparable<?>) obj;
@@ -238,7 +330,14 @@ public class RangeDeserializer
     {
         if (actual != expected) {
             context.reportInputMismatch(this, String.format("Problem deserializing %s: expecting %s, found %s",
-                    handledType().getName(), expected, actual));
+                    ClassUtil.getTypeDescription(getValueType()), expected, actual));
         }
+    }
+
+    private boolean isValidBracketNotation(String range) {
+        char first = range.charAt(0);
+        char last = range.charAt(range.length() - 1);
+
+        return (first == '[' || first == '(') && (last == ']' || last == ')');
     }
 }
