@@ -16,6 +16,10 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.16.2 (not yet released)
+
+#145: `GuavaOptionalDeserializer.getEmptyValue()` should not call itself recursively
+
 2.16.1 (24-Dec-2023)
 
 No changes since 2.16.0
