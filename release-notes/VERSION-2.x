@@ -32,6 +32,10 @@ Active Maintainers:
 #140 (guava) `Cache` deserialization fails with NPE for `null` valued entries
 #142 (guava) `RangeSet` deserializer fails for content `null`s with NPE
 
+2.16.2 (not yet released)
+
+#145: `GuavaOptionalDeserializer.getEmptyValue()` should not call itself recursively
+
 2.16.1 (24-Dec-2023)
 
 No changes since 2.16.0
