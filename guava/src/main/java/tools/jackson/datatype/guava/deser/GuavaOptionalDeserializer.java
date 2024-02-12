@@ -42,7 +42,9 @@ public class GuavaOptionalDeserializer
 
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
-        return getEmptyValue(ctxt);
+        // 11-Feb-2024, tatu: [datatypes-collections#145] Should delegate
+        //   to use "null value" (same as default of `ReferenceTypeDeserializer`)
+        return getNullValue(ctxt);
     }
 
     @Override
