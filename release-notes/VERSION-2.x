@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-Not yet released:
+2.15.4 (15-Feb-2024)
 
 #122: PCollections module info (`module-info.class`) incorrect
  (reported by Ethan M)
