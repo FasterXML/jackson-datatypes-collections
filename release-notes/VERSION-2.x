@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.17.0 (not yet released)
+2.17.0-rc1 (26-Feb-2024)
 
 #118: (guava) Support @JsonFormat(shape=STRING) on Range<T>
  (contributed by Muhammad K)
@@ -53,6 +53,7 @@ No changes since 2.16.0
 #122: PCollections module info (`module-info.class`) incorrect: update to 4.0.1
  (reported by Ethan M)
 
+2.15.4 (15-Feb-2024)
 2.15.3 (12-Oct-2023)
 2.15.2 (30-May-2023)
 2.15.1 (16-May-2023)
