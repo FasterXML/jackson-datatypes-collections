@@ -16,6 +16,10 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.18.0 (not yet released)
+
+No changes since 2.17
+
 2.17.0 (12-Mar-2024)
 
 #118: (guava) Support @JsonFormat(shape=STRING) on Range<T>
