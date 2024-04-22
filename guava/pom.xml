@@ -37,7 +37,8 @@ Guava (https://github.com/google/guava) types (currently mostly just collection 
     <!-- 02-Aug-2020, tatu: 2.12 raises baseline from 20.0 to 21.0 -->
     <!-- 28-Feb-2023, tatu: 2.15 raises baseline from 21.x to 23.x -->
     <!-- 01-May-2023, tatu: 2.16 raises baseline from 23.x to 25.x -->
-    <version.guava>25.1-jre</version.guava>
+    <!-- 22-Apr-2024, pj: 2.18 raises baseline from 25.x to 33.x -->
+    <version.guava>33.1.0-jre</version.guava>
 
     <javac.src.version>1.8</javac.src.version>
     <javac.target.version>1.8</javac.target.version>
