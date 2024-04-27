@@ -19,6 +19,7 @@ Active Maintainers:
 2.18.0 (not yet released)
 
 No changes since 2.17
+- HPPC dependency upgraded to 0.9.1 (from 0.8.1)
 
 2.17.0 (12-Mar-2024)
 
