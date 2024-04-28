@@ -29,8 +29,10 @@ jobs:
         include:
           - java_version: '8'
             guava_version: '20.0'
+            os: 'ubuntu-20.04'
           - java_version: '8'
             guava_version: '33.1.0-jre'
+            os: 'ubuntu-20.04'
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
