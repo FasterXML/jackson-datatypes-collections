@@ -29,11 +29,11 @@ jobs:
         include:
           - java_version: '8'
           - java_version: '11'
-	    guava_version: '25.1-jre'
+            guava_version: '25.1-jre'
           - java_version: '17'
-	    guava_version: '25.1-jre'
+            guava_version: '25.1-jre'
           - java_version: '21'
-	    guava_version: '25.1-jre'
+            guava_version: '25.1-jre'
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
