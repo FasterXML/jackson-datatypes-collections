@@ -18,6 +18,8 @@ Active Maintainers:
 
 2.17.1 (not yet released)
 
+#149: (guava) Update CI to use Matrix Build to test against different
+  Guava versions
 - HPPC dependency upgraded to 0.8.2 (from 0.8.1)
 
 2.17.0 (12-Mar-2024)
