@@ -23,11 +23,11 @@ jobs:
       fail-fast: false
       matrix:
         java_version: ['8', '11', '17', '21']
-        guava_version: ['25.1-jre']
+        guava_version: ['33.1.0-jre']
         # Include additional permutations for JDK 8
         include:
           - java_version: '8'
-            guava_version: '20.0'
+            guava_version: '25.1-jre'
           - java_version: '8'
             guava_version: '33.1.0-jre'
     env:
