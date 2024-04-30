@@ -18,8 +18,7 @@ on:
     - "release-notes/*"
 env:
   GUAVA_DEFAULT: '25.1-jre'
-  #GUAVA_MIN: '20.0'
-  GUAVA_MIN: '14.0'
+  GUAVA_MIN: '20.0'
   GUAVA_MAX: '33.1.0-jre'
 jobs:
   build:
