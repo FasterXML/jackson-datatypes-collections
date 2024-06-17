@@ -44,6 +44,7 @@ public class CacheSerializationTest extends ModuleTestBase {
         }
     }
 
+    @JsonPropertyOrder({ "name", "age" })
     static class Bean90 {
         public String name;
         public Integer age;
