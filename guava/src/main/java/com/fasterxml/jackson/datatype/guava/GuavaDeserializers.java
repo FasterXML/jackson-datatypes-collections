@@ -5,6 +5,8 @@ import com.fasterxml.jackson.datatype.guava.deser.table.ImmutableTableDeserializ
 import com.fasterxml.jackson.datatype.guava.deser.table.TreeBasedTableDeserializer;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.datatype.guava.ser.ImmutableDoubleArraySerializer;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.collect.*;
@@ -24,6 +26,8 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.list.ArrayListMultima
 import com.fasterxml.jackson.datatype.guava.deser.multimap.list.LinkedListMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
+import com.google.common.primitives.ImmutableDoubleArray;
+import com.google.common.primitives.ImmutableIntArray;
 
 /**
  * Custom deserializers module offers.
@@ -132,7 +136,6 @@ public class GuavaDeserializers
                     elementDeserializer, elementTypeDeserializer,
                     null, null);
         }
-
         return null;
     }
 
@@ -345,6 +348,12 @@ public class GuavaDeserializers
         if (type.hasRawClass(HashCode.class)) {
             return HashCodeDeserializer.std;
         }
+        if (type.hasRawClass(ImmutableIntArray.class)) {
+            return new ImmutableIntArrayDeserializer();
+        }
+        if (type.hasRawClass(ImmutableDoubleArray.class)) {
+            return new ImmutableDoubleArrayDeserializer();
+        }
         return null;
     }
 
@@ -363,6 +372,8 @@ public class GuavaDeserializers
                     || ImmutableMap.class.isAssignableFrom(valueType)
                     || BiMap.class.isAssignableFrom(valueType)
                     || ImmutableRangeSet.class.isAssignableFrom(valueType)
+                    || (valueType == ImmutableIntArray.class)
+                    || (valueType == ImmutableDoubleArray.class)
                     ;
         }
         return false;
