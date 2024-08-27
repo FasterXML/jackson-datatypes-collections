@@ -16,6 +16,11 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
+ (contributed by Patrick S)
+
 2.18.0 (not yet released)
 
 - HPPC dependency upgraded to 0.9.1 (from 0.8.2)
