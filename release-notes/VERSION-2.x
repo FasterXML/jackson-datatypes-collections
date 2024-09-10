@@ -18,6 +18,8 @@ Active Maintainers:
 
 2.18.0 (not yet released)
 
+#160: (guava) Defect guava OSGi dependency version specified?
+ (reported by @jpstotz)
 - HPPC dependency upgraded to 0.9.1 (from 0.8.2)
 
 2.17.2 (05-Jul-2024)
