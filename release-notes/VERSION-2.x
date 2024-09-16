@@ -16,6 +16,11 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
+ (contributed by Patrick S)
+
 2.18.0 (not yet released)
 
 #160: (guava) Defect guava OSGi dependency version specified?

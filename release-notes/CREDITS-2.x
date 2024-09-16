@@ -133,3 +133,7 @@ Arthur Chan (@arthurscchan)
   * Contributed #138: (guava) `GuavaCollectionDeserializer` still throws NPE in
     some circumstances
    (2.17.0)
+
+Patrick Strawderman (@kilink)
+  * Contributed #157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
+   (2.19.0)
