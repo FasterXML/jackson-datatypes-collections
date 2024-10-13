@@ -10,16 +10,10 @@ import tools.jackson.databind.type.TypeFactory;
 import org.eclipse.collections.api.DoubleIterable;
 import org.eclipse.collections.api.iterator.DoubleIterator;
 
-public final class DoubleIterableSerializer extends EclipsePrimitiveIterableSerializer<DoubleIterable> {
-    private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(double.class);
-
+public final class DoubleIterableSerializer extends EclipsePrimitiveIterableSerializer<DoubleIterable>
+{
     public DoubleIterableSerializer(BeanProperty property, Boolean unwrapSingle) {
-        super(DoubleIterable.class, ELEMENT_TYPE, property, unwrapSingle);
-    }
-
-    @Override
-    protected DoubleIterableSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
-        return new DoubleIterableSerializer(property, unwrapSingle);
+        super(DoubleIterable.class, elementType(double.class), property, unwrapSingle);
     }
 
     @Override

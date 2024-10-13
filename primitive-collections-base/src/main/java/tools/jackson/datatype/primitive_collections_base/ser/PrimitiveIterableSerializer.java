@@ -29,8 +29,6 @@ public abstract class PrimitiveIterableSerializer<C> extends StdContainerSeriali
         _unwrapSingle = unwrapSingle;
     }
 
-    protected abstract PrimitiveIterableSerializer<C> withResolved(BeanProperty property, Boolean unwrapSingle);
-
     @Override
     public JavaType getContentType() {
         return _elementType;

@@ -10,16 +10,10 @@ import tools.jackson.databind.type.TypeFactory;
 import org.eclipse.collections.api.ShortIterable;
 import org.eclipse.collections.api.iterator.ShortIterator;
 
-public final class ShortIterableSerializer extends EclipsePrimitiveIterableSerializer<ShortIterable> {
-    private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(short.class);
-
+public final class ShortIterableSerializer extends EclipsePrimitiveIterableSerializer<ShortIterable>
+{
     public ShortIterableSerializer(BeanProperty property, Boolean unwrapSingle) {
-        super(ShortIterable.class, ELEMENT_TYPE, property, unwrapSingle);
-    }
-
-    @Override
-    protected ShortIterableSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
-        return new ShortIterableSerializer(property, unwrapSingle);
+        super(ShortIterable.class, elementType(short.class), property, unwrapSingle);
     }
 
     @Override

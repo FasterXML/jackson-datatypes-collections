@@ -10,16 +10,10 @@ import tools.jackson.databind.type.TypeFactory;
 import org.eclipse.collections.api.LongIterable;
 import org.eclipse.collections.api.iterator.LongIterator;
 
-public final class LongIterableSerializer extends EclipsePrimitiveIterableSerializer<LongIterable> {
-    private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(long.class);
-
+public final class LongIterableSerializer extends EclipsePrimitiveIterableSerializer<LongIterable>
+{
     public LongIterableSerializer(BeanProperty property, Boolean unwrapSingle) {
-        super(LongIterable.class, ELEMENT_TYPE, property, unwrapSingle);
-    }
-
-    @Override
-    protected LongIterableSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
-        return new LongIterableSerializer(property, unwrapSingle);
+        super(LongIterable.class, elementType(long.class), property, unwrapSingle);
     }
 
     @Override

@@ -10,16 +10,10 @@ import tools.jackson.databind.type.TypeFactory;
 import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.iterator.IntIterator;
 
-public final class IntIterableSerializer extends EclipsePrimitiveIterableSerializer<IntIterable> {
-    private static final JavaType ELEMENT_TYPE = TypeFactory.defaultInstance().constructType(int.class);
-
+public final class IntIterableSerializer extends EclipsePrimitiveIterableSerializer<IntIterable>
+{
     public IntIterableSerializer(BeanProperty property, Boolean unwrapSingle) {
-        super(IntIterable.class, ELEMENT_TYPE, property, unwrapSingle);
-    }
-
-    @Override
-    protected IntIterableSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
-        return new IntIterableSerializer(property, unwrapSingle);
+        super(IntIterable.class, elementType(int.class), property, unwrapSingle);
     }
 
     @Override
