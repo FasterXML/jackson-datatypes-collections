@@ -20,6 +20,10 @@ Active Maintainers:
 
 -
 
+2.18.1 (28-Oct-2024)
+
+No changes since 2.18.0
+
 2.18.0 (26-Sep-2024)
 
 #160: (guava) Defect guava OSGi dependency version specified?
