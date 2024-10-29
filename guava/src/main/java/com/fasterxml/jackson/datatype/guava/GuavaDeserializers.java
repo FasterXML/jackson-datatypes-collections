@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.datatype.guava.deser.table.HashTableDeserializer;
 import java.io.Serializable;
 
 import com.google.common.base.Optional;
@@ -258,11 +259,8 @@ public class GuavaDeserializers
                     elementTypeDeserializer, elementDeserializer);
         }
 
-        if (Table.class.isAssignableFrom(raw)) {
-            // !!! TODO
-        }
         // @since 2.16 : support Cache deserialization
-        java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config, 
+        java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config,
                                         beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
         if (cacheDeserializer.isPresent()) {
             return cacheDeserializer.get();
@@ -281,9 +279,9 @@ public class GuavaDeserializers
      * @return An optional {@link JsonDeserializer} for the cache type, if found.
      * @since 2.16
      */
-    private java.util.Optional<JsonDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type, 
-        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer, 
-        TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) 
+    private java.util.Optional<JsonDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type,
+        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer,
+        TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
     {
         /* // Example implementations
         if (LoadingCache.class.isAssignableFrom(raw)) {
@@ -315,8 +313,14 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
-        if (RangeSet.class.isAssignableFrom(type.getRawClass())) {
+        Class<?> raw = type.getRawClass();
+        if (RangeSet.class.isAssignableFrom(raw)) {
             return new RangeSetDeserializer();
+        }
+        if (Table.class.isAssignableFrom(raw)) {
+            if (HashBasedTable.class.isAssignableFrom(raw)) {
+                return new HashTableDeserializer(type);
+            }
         }
         if (type.hasRawClass(Range.class)) {
             return new RangeDeserializer(_defaultBoundType, type);

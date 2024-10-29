@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.google.common.collect.HashBasedTable;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import com.google.common.collect.ImmutableTable;
 
 public class TableSerializationTest extends ModuleTestBase
 {
@@ -121,21 +121,19 @@ public class TableSerializationTest extends ModuleTestBase
 
     public void testSimpleKeyImmutableTableSerde() throws IOException
     {
-        final ImmutableTable.Builder<Integer, String, String> builder = ImmutableTable.builder();
-        builder.put(Integer.valueOf(42), "column42", "some value 42");
-        builder.put(Integer.valueOf(45), "column45", "some value 45");
-        final ImmutableTable<Integer, String, String> simpleTable = builder.build();
+        final HashBasedTable<Integer, String, String> simpleTable = HashBasedTable.create();
+        simpleTable.put(Integer.valueOf(42), "column42", "some value 42");
+        simpleTable.put(Integer.valueOf(45), "column45", "some value 45");
 
         final String simpleJson = MAPPER.writeValueAsString(simpleTable);
         assertEquals("{\"42\":{\"column42\":\"some value 42\"},\"45\":{\"column45\":\"some value 45\"}}", simpleJson);
-
-        // !!! TODO: support deser
         
-        /*
-        final ImmutableTable<Integer, String, String> reconstitutedTable =
-                this.MAPPER.readValue(simpleJson, new TypeReference<ImmutableTable<Integer, String, String>>() {});
+        final HashBasedTable<Integer, String, String> reconstitutedTable =
+            this.MAPPER.readValue(simpleJson,
+                new TypeReference<HashBasedTable<Integer, String, String>>() {
+                }
+            );
         assertEquals(simpleTable, reconstitutedTable);
-        */
     }
 
     /**
@@ -143,22 +141,17 @@ public class TableSerializationTest extends ModuleTestBase
      */
     public void testComplexKeyImmutableTableSerde() throws IOException
     {
-        final ImmutableTable.Builder<Integer, ComplexKey, String> ckBuilder = ImmutableTable.builder();
-        ckBuilder.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
-        ckBuilder.put(Integer.valueOf(45), new ComplexKey("field1", "field2"), "some value 45");
-        final ImmutableTable<Integer, ComplexKey, String> complexKeyTable = ckBuilder.build();
-
-        final TypeReference<ImmutableTable<Integer, ComplexKey, String>> tableType = new TypeReference<ImmutableTable<Integer, ComplexKey, String>>()
+        final HashBasedTable<Integer, ComplexKey, String> complexKeyTable = HashBasedTable.create();
+        complexKeyTable.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
+        complexKeyTable.put(Integer.valueOf(45), new ComplexKey("field1", "field2"), "some value 45");
+        
+        final TypeReference<HashBasedTable<Integer, ComplexKey, String>> tableType = new TypeReference<HashBasedTable<Integer, ComplexKey, String>>()
         {};
-
+        
         final String ckJson = this.MAPPER.writerFor(tableType).writeValueAsString(complexKeyTable);
         assertEquals("{\"42\":{\"field1:field2\":\"some value 42\"},\"45\":{\"field1:field2\":\"some value 45\"}}", ckJson);
-
-        // !!! TODO: support deser
-/*        
         
-        final ImmutableTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
+        final HashBasedTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
         assertEquals(complexKeyTable, reconstitutedTable);
-        */
     }
 }
