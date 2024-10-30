@@ -19,21 +19,21 @@ import java.io.IOException;
 /**
  * @author Abhishekkr3003
  */
-public abstract class GuavaTableDeserializer<T extends Table<Object, Object, Object>>
+public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     extends StdDeserializer<T> implements ContextualDeserializer {
     private static final long serialVersionUID = 1L;
     
-    private final JavaType _type;
-    private final KeyDeserializer _rowDeserializer;
-    private final KeyDeserializer _colDeserializer;
-    private final TypeDeserializer _valueTypeDeserializer;
-    private final JsonDeserializer<?> _valueDeserializer;
+    protected final JavaType _type;
+    protected final KeyDeserializer _rowDeserializer;
+    protected final KeyDeserializer _colDeserializer;
+    protected final TypeDeserializer _valueTypeDeserializer;
+    protected final JsonDeserializer<?> _valueDeserializer;
     
     // since 2.9.5: in 3.x demote to `ContainerDeserializerBase`
-    private final NullValueProvider _nullProvider;
-    private final boolean _skipNullValues;
+    protected final NullValueProvider _nullProvider;
+    protected final boolean _skipNullValues;
     
-    public GuavaTableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
+    protected TableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
         KeyDeserializer _colDeserializer, TypeDeserializer _valueTypeDeserializer,
         JsonDeserializer<?> _valueDeserializer) {
         this(
@@ -42,7 +42,7 @@ public abstract class GuavaTableDeserializer<T extends Table<Object, Object, Obj
         );
     }
     
-    public GuavaTableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
+    protected TableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
         KeyDeserializer _colDeserializer, TypeDeserializer _valueTypeDeserializer,
         JsonDeserializer<?> _valueDeserializer, NullValueProvider nvp) {
         super(_type);
@@ -55,7 +55,7 @@ public abstract class GuavaTableDeserializer<T extends Table<Object, Object, Obj
         _skipNullValues = (nvp == null) ? false : NullsConstantProvider.isSkipper(nvp);
     }
     
-    public GuavaTableDeserializer(JavaType type) {
+    protected TableDeserializer(JavaType type) {
         super(type);
         _type = type;
         _rowDeserializer = null;
@@ -65,8 +65,6 @@ public abstract class GuavaTableDeserializer<T extends Table<Object, Object, Obj
         _nullProvider = null;
         _skipNullValues = false;
     }
-    
-    protected abstract T createTable();
     
     /**
      * We need to use this method to properly handle possible contextual variants of key and value
@@ -102,58 +100,8 @@ public abstract class GuavaTableDeserializer<T extends Table<Object, Object, Obj
     protected abstract JsonDeserializer<?> _createContextual(JavaType t, KeyDeserializer rkd,
         KeyDeserializer ckd, TypeDeserializer vtd, JsonDeserializer<?> vd, NullValueProvider np);
     
-    @Override
-    public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        T table = createTable();
-        
-        JsonToken currToken = p.currentToken();
-        if (currToken != JsonToken.FIELD_NAME && currToken != JsonToken.END_OBJECT) {
-            expect(p, JsonToken.START_OBJECT);
-            currToken = p.nextToken();
-        }
-        
-        for (; currToken == JsonToken.FIELD_NAME; currToken = p.nextToken()) {
-            final Object rowKey;
-            if (_rowDeserializer != null) {
-                rowKey = _rowDeserializer.deserializeKey(p.currentName(), ctxt);
-            } else {
-                rowKey = p.currentName();
-            }
-            
-            p.nextToken();
-            expect(p, JsonToken.START_OBJECT);
-            
-            for (
-                currToken = p.nextToken(); currToken == JsonToken.FIELD_NAME;
-                currToken = p.nextToken()) {
-                final Object colKey;
-                if (_colDeserializer != null) {
-                    colKey = _colDeserializer.deserializeKey(p.currentName(), ctxt);
-                } else {
-                    colKey = p.currentName();
-                }
-                
-                p.nextToken();
-                
-                final Object value;
-                if (p.currentToken() == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (_valueTypeDeserializer != null) {
-                    value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
-                } else {
-                    value = _valueDeserializer.deserialize(p, ctxt);
-                }
-                table.put(rowKey, colKey, value);
-            }
-            expect(p, JsonToken.END_OBJECT);
-        }
-        return table;
-    }
     
-    private void expect(JsonParser p, JsonToken token) throws IOException {
+    protected void expect(JsonParser p, JsonToken token) throws IOException {
         if (p.getCurrentToken() != token) {
             throw new JsonMappingException(
                 p,

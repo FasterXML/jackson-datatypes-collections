@@ -12,23 +12,15 @@ import com.google.common.collect.HashBasedTable;
  *
  * @author Abhishekkr3003
  */
-public class HashTableDeserializer
-    extends GuavaTableDeserializer<HashBasedTable<Object, Object, Object>> {
+public class HashBasedTableDeserializer
+    extends MutableTableDeserializer<HashBasedTable<Object, Object, Object>> {
     private static final long serialVersionUID = 1L;
     
-    public HashTableDeserializer(JavaType type) {
+    public HashBasedTableDeserializer(JavaType type) {
         super(type);
     }
     
-    public HashTableDeserializer(JavaType type, KeyDeserializer rowDeserializer,
-        KeyDeserializer columnDeserializer, TypeDeserializer elementTypeDeserializer,
-        JsonDeserializer<?> elementDeserializer) {
-        super(type, rowDeserializer, columnDeserializer, elementTypeDeserializer,
-            elementDeserializer
-        );
-    }
-    
-    public HashTableDeserializer(JavaType type, KeyDeserializer rowDeserializer,
+    public HashBasedTableDeserializer(JavaType type, KeyDeserializer rowDeserializer,
         KeyDeserializer columnDeserializer, TypeDeserializer elementTypeDeserializer,
         JsonDeserializer<?> elementDeserializer, NullValueProvider nvp) {
         super(type, rowDeserializer, columnDeserializer, elementTypeDeserializer,
@@ -45,7 +37,7 @@ public class HashTableDeserializer
     protected JsonDeserializer<?> _createContextual(JavaType type, KeyDeserializer rowDeserializer,
         KeyDeserializer columnDeserializer, TypeDeserializer typeDeserializer,
         JsonDeserializer<?> elementDeserializer, NullValueProvider nvp) {
-        return new HashTableDeserializer(
+        return new HashBasedTableDeserializer(
             type, rowDeserializer, columnDeserializer, typeDeserializer, elementDeserializer, nvp);
     }
 }

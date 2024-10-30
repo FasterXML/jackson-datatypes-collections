@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.fasterxml.jackson.datatype.guava.deser.table.HashTableDeserializer;
+import com.fasterxml.jackson.datatype.guava.deser.table.HashBasedTableDeserializer;
+import com.fasterxml.jackson.datatype.guava.deser.table.ImmutableTableDeserializer;
+import com.fasterxml.jackson.datatype.guava.deser.table.TreeBasedTableDeserializer;
 import java.io.Serializable;
 
 import com.google.common.base.Optional;
@@ -319,8 +321,12 @@ public class GuavaDeserializers
         }
         if (Table.class.isAssignableFrom(raw)) {
             if (HashBasedTable.class.isAssignableFrom(raw)) {
-                return new HashTableDeserializer(type);
+                return new HashBasedTableDeserializer(type);
             }
+            if (TreeBasedTable.class.isAssignableFrom(raw)) {
+                return new TreeBasedTableDeserializer(type);
+            }
+            return new ImmutableTableDeserializer(type);
         }
         if (type.hasRawClass(Range.class)) {
             return new RangeDeserializer(_defaultBoundType, type);

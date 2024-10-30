@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.datatype.guava;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.TreeBasedTable;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -43,7 +45,7 @@ public class TableSerializationTest extends ModuleTestBase
         }
     }
 
-    static class ComplexKey
+    static class ComplexKey implements Comparable<ComplexKey>
     {
         private String key1;
         private String key2;
@@ -116,15 +118,38 @@ public class TableSerializationTest extends ModuleTestBase
             }
             return true;
         }
-
+        
+        @Override
+        public int compareTo(ComplexKey complexKey) {
+            return this.key1.compareTo(complexKey.getKey1());
+        }
     }
 
     public void testSimpleKeyImmutableTableSerde() throws IOException
     {
+        final ImmutableTable.Builder<Integer, String, String> builder = ImmutableTable.builder();
+        builder.put(Integer.valueOf(42), "column42", "some value 42");
+        builder.put(Integer.valueOf(45), "column45", "some value 45");
+        
+        ImmutableTable<Integer, String, String> simpleTable = builder.build();
+
+        final String simpleJson = MAPPER.writeValueAsString(simpleTable);
+        assertEquals("{\"42\":{\"column42\":\"some value 42\"},\"45\":{\"column45\":\"some value 45\"}}", simpleJson);
+        
+        final ImmutableTable<Integer, String, String> reconstitutedTable =
+            this.MAPPER.readValue(simpleJson,
+                new TypeReference<ImmutableTable<Integer, String, String>>() {
+                }
+            );
+        assertEquals(simpleTable, reconstitutedTable);
+    }
+    
+    public void testSimpleKeyHashBasedTableSerde() throws IOException
+    {
         final HashBasedTable<Integer, String, String> simpleTable = HashBasedTable.create();
         simpleTable.put(Integer.valueOf(42), "column42", "some value 42");
         simpleTable.put(Integer.valueOf(45), "column45", "some value 45");
-
+        
         final String simpleJson = MAPPER.writeValueAsString(simpleTable);
         assertEquals("{\"42\":{\"column42\":\"some value 42\"},\"45\":{\"column45\":\"some value 45\"}}", simpleJson);
         
@@ -135,11 +160,46 @@ public class TableSerializationTest extends ModuleTestBase
             );
         assertEquals(simpleTable, reconstitutedTable);
     }
+    
+    public void testSimpleKeyTreeBasedTableSerde() throws IOException
+    {
+        final TreeBasedTable<Integer, String, String> simpleTable = TreeBasedTable.create();
+        simpleTable.put(Integer.valueOf(42), "column42", "some value 42");
+        simpleTable.put(Integer.valueOf(45), "column45", "some value 45");
+        
+        final String simpleJson = MAPPER.writeValueAsString(simpleTable);
+        assertEquals("{\"42\":{\"column42\":\"some value 42\"},\"45\":{\"column45\":\"some value 45\"}}", simpleJson);
+        
+        final TreeBasedTable<Integer, String, String> reconstitutedTable =
+            this.MAPPER.readValue(simpleJson,
+                new TypeReference<TreeBasedTable<Integer, String, String>>() {
+                }
+            );
+        assertEquals(simpleTable, reconstitutedTable);
+    }
 
     /**
      * This test illustrates one way to use objects as keys in Tables.
      */
     public void testComplexKeyImmutableTableSerde() throws IOException
+    {
+        final ImmutableTable.Builder<Integer, ComplexKey, String> builder = ImmutableTable.builder();
+        builder.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
+        builder.put(Integer.valueOf(45), new ComplexKey("field1", "field2"), "some value 45");
+        
+        ImmutableTable<Integer, ComplexKey, String> complexKeyTable = builder.build();
+        
+        final TypeReference<ImmutableTable<Integer, ComplexKey, String>> tableType = new TypeReference<ImmutableTable<Integer, ComplexKey, String>>()
+        {};
+        
+        final String ckJson = this.MAPPER.writerFor(tableType).writeValueAsString(complexKeyTable);
+        assertEquals("{\"42\":{\"field1:field2\":\"some value 42\"},\"45\":{\"field1:field2\":\"some value 45\"}}", ckJson);
+        
+        final ImmutableTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
+        assertEquals(complexKeyTable, reconstitutedTable);
+    }
+    
+    public void testComplexKeyHashBasedTableSerde() throws IOException
     {
         final HashBasedTable<Integer, ComplexKey, String> complexKeyTable = HashBasedTable.create();
         complexKeyTable.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
@@ -152,6 +212,22 @@ public class TableSerializationTest extends ModuleTestBase
         assertEquals("{\"42\":{\"field1:field2\":\"some value 42\"},\"45\":{\"field1:field2\":\"some value 45\"}}", ckJson);
         
         final HashBasedTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
+        assertEquals(complexKeyTable, reconstitutedTable);
+    }
+    
+    public void testComplexKeyTreeTableSerde() throws IOException
+    {
+        final TreeBasedTable<Integer, ComplexKey, String> complexKeyTable = TreeBasedTable.create();
+        complexKeyTable.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
+        complexKeyTable.put(Integer.valueOf(45), new ComplexKey("field1", "field2"), "some value 45");
+        
+        final TypeReference<TreeBasedTable<Integer, ComplexKey, String>> tableType = new TypeReference<TreeBasedTable<Integer, ComplexKey, String>>()
+        {};
+        
+        final String ckJson = this.MAPPER.writerFor(tableType).writeValueAsString(complexKeyTable);
+        assertEquals("{\"42\":{\"field1:field2\":\"some value 42\"},\"45\":{\"field1:field2\":\"some value 45\"}}", ckJson);
+        
+        final TreeBasedTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
         assertEquals(complexKeyTable, reconstitutedTable);
     }
 }
