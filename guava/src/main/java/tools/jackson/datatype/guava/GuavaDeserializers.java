@@ -263,7 +263,7 @@ public class GuavaDeserializers
         }
         // @since 2.16 : support Cache deserialization
         java.util.Optional<ValueDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config, 
-                                        beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+                beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
         if (cacheDeserializer.isPresent()) {
             return cacheDeserializer.get();
         }
@@ -281,9 +281,9 @@ public class GuavaDeserializers
      * @return An optional {@link JsonDeserializer} for the cache type, if found.
      * @since 2.16
      */
-    private java.util.Optional<ValueDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type, 
-        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer, 
-        TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) 
+    private java.util.Optional<ValueDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type,
+        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer,
+        TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         /* // Example implementations
         if (LoadingCache.class.isAssignableFrom(raw)) {
