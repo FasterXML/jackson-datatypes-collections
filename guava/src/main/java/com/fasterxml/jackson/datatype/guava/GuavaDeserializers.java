@@ -261,7 +261,7 @@ public class GuavaDeserializers
 
         // @since 2.16 : support Cache deserialization
         java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config,
-                                        beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+                beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
         if (cacheDeserializer.isPresent()) {
             return cacheDeserializer.get();
         }
