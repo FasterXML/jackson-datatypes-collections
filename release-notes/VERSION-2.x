@@ -26,6 +26,7 @@ No changes since 2.18.0
  (reported by @jpstotz)
 - HPPC dependency upgraded to 0.9.1 (from 0.8.2)
 
+2.17.3 (01-Nov-2024)
 2.17.2 (05-Jul-2024)
 
 No changes since 2.17.1
