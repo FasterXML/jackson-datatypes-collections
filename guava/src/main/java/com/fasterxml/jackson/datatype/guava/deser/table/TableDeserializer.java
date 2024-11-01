@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.collect.Table;
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     extends StdDeserializer<T> implements ContextualDeserializer {
     private static final long serialVersionUID = 1L;
     
-    protected final JavaType _type;
+    protected final MapLikeType _type;
     protected final KeyDeserializer _rowDeserializer;
     protected final KeyDeserializer _colDeserializer;
     protected final TypeDeserializer _valueTypeDeserializer;
@@ -33,7 +34,7 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     protected final NullValueProvider _nullProvider;
     protected final boolean _skipNullValues;
     
-    protected TableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
+    protected TableDeserializer(MapLikeType _type, KeyDeserializer _rowDeserializer,
         KeyDeserializer _colDeserializer, TypeDeserializer _valueTypeDeserializer,
         JsonDeserializer<?> _valueDeserializer) {
         this(
@@ -42,7 +43,7 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
         );
     }
     
-    protected TableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
+    protected TableDeserializer(MapLikeType _type, KeyDeserializer _rowDeserializer,
         KeyDeserializer _colDeserializer, TypeDeserializer _valueTypeDeserializer,
         JsonDeserializer<?> _valueDeserializer, NullValueProvider nvp) {
         super(_type);
@@ -55,7 +56,7 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
         _skipNullValues = (nvp == null) ? false : NullsConstantProvider.isSkipper(nvp);
     }
     
-    protected TableDeserializer(JavaType type) {
+    protected TableDeserializer(MapLikeType type) {
         super(type);
         _type = type;
         _rowDeserializer = null;
@@ -75,14 +76,15 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
         BeanProperty property) throws JsonMappingException {
         KeyDeserializer rkd = _rowDeserializer;
         if (rkd == null) {
-            rkd = ctxt.findKeyDeserializer(_type.containedTypeOrUnknown(0), property);
+            rkd = ctxt.findKeyDeserializer(_type.getKeyType(), property);
         }
+        MapLikeType columnValueType = (MapLikeType) _type.getContentType();
         KeyDeserializer ckd = _colDeserializer;
         if (ckd == null) {
-            ckd = ctxt.findKeyDeserializer(_type.containedTypeOrUnknown(1), property);
+            ckd = ctxt.findKeyDeserializer(columnValueType.getKeyType(), property);
         }
         JsonDeserializer<?> valueDeser = _valueDeserializer;
-        final JavaType vt = _type.containedTypeOrUnknown(2);
+        final JavaType vt = columnValueType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -97,7 +99,7 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
             _type, rkd, ckd, vtd, valueDeser, findContentNullProvider(ctxt, property, valueDeser));
     }
     
-    protected abstract JsonDeserializer<?> _createContextual(JavaType t, KeyDeserializer rkd,
+    protected abstract JsonDeserializer<?> _createContextual(MapLikeType t, KeyDeserializer rkd,
         KeyDeserializer ckd, TypeDeserializer vtd, JsonDeserializer<?> vd, NullValueProvider np);
     
     

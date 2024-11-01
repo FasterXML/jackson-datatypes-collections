@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.datatype.guava.deser.table;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.collect.TreeBasedTable;
 
 /**
@@ -16,11 +16,11 @@ public class TreeBasedTableDeserializer
     extends MutableTableDeserializer<TreeBasedTable<Object, Object, Object>> {
     private static final long serialVersionUID = 1L;
     
-    public TreeBasedTableDeserializer(JavaType type) {
+    public TreeBasedTableDeserializer(MapLikeType type) {
         super(type);
     }
     
-    public TreeBasedTableDeserializer(JavaType type, KeyDeserializer rowDeserializer,
+    public TreeBasedTableDeserializer(MapLikeType type, KeyDeserializer rowDeserializer,
         KeyDeserializer columnDeserializer, TypeDeserializer elementTypeDeserializer,
         JsonDeserializer<?> elementDeserializer, NullValueProvider nvp) {
         super(type, rowDeserializer, columnDeserializer, elementTypeDeserializer,
@@ -36,7 +36,8 @@ public class TreeBasedTableDeserializer
     }
     
     @Override
-    protected JsonDeserializer<?> _createContextual(JavaType type, KeyDeserializer rowDeserializer,
+    protected JsonDeserializer<?> _createContextual(MapLikeType type,
+        KeyDeserializer rowDeserializer,
         KeyDeserializer columnDeserializer, TypeDeserializer typeDeserializer,
         JsonDeserializer<?> elementDeserializer, NullValueProvider nvp) {
         return new TreeBasedTableDeserializer(

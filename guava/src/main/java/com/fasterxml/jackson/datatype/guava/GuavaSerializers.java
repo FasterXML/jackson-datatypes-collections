@@ -47,7 +47,7 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public JsonSerializer<?> findReferenceSerializer(SerializationConfig config, 
+    public JsonSerializer<?> findReferenceSerializer(SerializationConfig config,
             ReferenceType refType, BeanDescription beanDesc,
             TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentValueSerializer)
     {
@@ -70,9 +70,6 @@ public class GuavaSerializers extends Serializers.Base
         }
         if (Range.class.isAssignableFrom(raw)) {
             return new RangeSerializer(_findDeclared(type, Range.class));
-        }
-        if (Table.class.isAssignableFrom(raw)) {
-            return new TableSerializer(_findDeclared(type, Table.class));
         }
 
         // since 2.4
@@ -118,6 +115,9 @@ public class GuavaSerializers extends Serializers.Base
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new CacheSerializer(type, beanDesc,
                 keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
+        }
+        if (Table.class.isAssignableFrom(type.getRawClass())) {
+            return new TableSerializer(type);
         }
         return null;
     }

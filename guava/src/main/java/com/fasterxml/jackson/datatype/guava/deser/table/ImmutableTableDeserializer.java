@@ -3,12 +3,12 @@ package com.fasterxml.jackson.datatype.guava.deser.table;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
@@ -23,11 +23,11 @@ public class ImmutableTableDeserializer
     extends TableDeserializer<ImmutableTable<Object, Object, Object>> {
     private static final long serialVersionUID = 2L;
     
-    public ImmutableTableDeserializer(JavaType type) {
+    public ImmutableTableDeserializer(MapLikeType type) {
         super(type);
     }
     
-    protected ImmutableTableDeserializer(JavaType type, KeyDeserializer rowDeserializer,
+    protected ImmutableTableDeserializer(MapLikeType type, KeyDeserializer rowDeserializer,
         KeyDeserializer colDeserializer, JsonDeserializer<?> valueDeserializer,
         TypeDeserializer valueTypeDeserializer, NullValueProvider nuller) {
         super(type, rowDeserializer, colDeserializer, valueTypeDeserializer, valueDeserializer,
@@ -104,7 +104,8 @@ public class ImmutableTableDeserializer
     }
     
     @Override
-    protected JsonDeserializer<?> _createContextual(JavaType type, KeyDeserializer rowDeserializer,
+    protected JsonDeserializer<?> _createContextual(MapLikeType type,
+        KeyDeserializer rowDeserializer,
         KeyDeserializer columnDeserializer, TypeDeserializer valueTypeDeserializer,
         JsonDeserializer<?> valueDeserializer, NullValueProvider nullValueProvider) {
         return new ImmutableTableDeserializer(type, rowDeserializer, columnDeserializer,

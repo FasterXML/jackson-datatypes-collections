@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.datatype.guava.ser;
 
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class TableSerializer
      * Type declaration that defines parameters; may be a supertype of actual
      * type of property being serialized.
      */
-    private final JavaType _type;
+    private final MapLikeType _type;
 
     private final BeanProperty _property;
 
@@ -45,7 +46,7 @@ public class TableSerializer
     /**********************************************************
      */
     
-    public TableSerializer(final JavaType type)
+    public TableSerializer(final MapLikeType type)
     {
         super(type);
         _type = type;
@@ -75,10 +76,11 @@ public class TableSerializer
         _valueTypeSerializer = valueTypeSerializer;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
         
+        final MapLikeType columnValueType = (MapLikeType) _type.getContentType();
         final MapType columnAndValueType = typeFactory.constructMapType(Map.class,
-                _type.containedTypeOrUnknown(1), _type.containedTypeOrUnknown(2));
+                columnValueType.getKeyType(), columnValueType.getContentType());
 
-        JsonSerializer<?> columnAndValueSerializer = 
+        JsonSerializer<?> columnAndValueSerializer =
                 MapSerializer.construct((Set<String>) null,
                                         columnAndValueType,
                                         false,
@@ -88,7 +90,7 @@ public class TableSerializer
                                         null);
 
         final MapType rowMapType = typeFactory.constructMapType(Map.class,
-                _type.containedTypeOrUnknown(0), columnAndValueType);
+                columnValueType.getKeyType(), columnAndValueType);
         _rowMapSerializer =
                 MapSerializer.construct((Set<String>) null,
                                         rowMapType,
@@ -134,8 +136,9 @@ public class TableSerializer
     public JsonSerializer<?> createContextual(final SerializerProvider provider, final BeanProperty property ) throws JsonMappingException
     {
         JsonSerializer<?> valueSer = _valueSerializer;
+        MapLikeType columnValueType = (MapLikeType) _type.getContentType();
         if (valueSer == null) { // if type is final, can actually resolve:
-            final JavaType valueType = _type.containedTypeOrUnknown(2);
+            final JavaType valueType = columnValueType.getContentType();
             if (valueType.isFinal()) {
                 valueSer = provider.findValueSerializer(valueType, property);
             }
@@ -145,14 +148,14 @@ public class TableSerializer
         }
         JsonSerializer<?> rowKeySer = _rowSerializer;
         if (rowKeySer == null) {
-            rowKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(0), property);
+            rowKeySer = provider.findKeySerializer(_type.getKeyType(), property);
         }
         else if (rowKeySer instanceof ContextualSerializer) {
             rowKeySer = ((ContextualSerializer) rowKeySer).createContextual(provider, property);
         }
         JsonSerializer<?> columnKeySer = _columnSerializer;
         if (columnKeySer == null) {
-            columnKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(1), property);
+            columnKeySer = provider.findKeySerializer(columnValueType.getKeyType(), property);
         }
         else if (columnKeySer instanceof ContextualSerializer) {
             columnKeySer = ((ContextualSerializer) columnKeySer).createContextual(provider, property);
@@ -173,7 +176,7 @@ public class TableSerializer
     
     @Override
     public JavaType getContentType() {
-        return _type.getContentType();
+        return _type.getContentType().getContentType();
     }
 
     @Override

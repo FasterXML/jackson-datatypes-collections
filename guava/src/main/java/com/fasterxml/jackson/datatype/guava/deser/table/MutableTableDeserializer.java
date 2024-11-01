@@ -3,11 +3,11 @@ package com.fasterxml.jackson.datatype.guava.deser.table;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.MapLikeType;
 import com.google.common.collect.Table;
 import java.io.IOException;
 
@@ -17,11 +17,11 @@ import java.io.IOException;
 public abstract class MutableTableDeserializer<T extends Table<Object, Object, Object>>
     extends TableDeserializer<T> {
     
-    protected MutableTableDeserializer(JavaType type) {
+    protected MutableTableDeserializer(MapLikeType type) {
         super(type);
     }
     
-    protected MutableTableDeserializer(JavaType _type, KeyDeserializer _rowDeserializer,
+    protected MutableTableDeserializer(MapLikeType _type, KeyDeserializer _rowDeserializer,
         KeyDeserializer _colDeserializer, TypeDeserializer _valueTypeDeserializer,
         JsonDeserializer<?> _valueDeserializer, NullValueProvider nvp) {
         super(
@@ -32,7 +32,7 @@ public abstract class MutableTableDeserializer<T extends Table<Object, Object, O
     
     protected abstract T createTable();
     
-    protected abstract JsonDeserializer<?> _createContextual(JavaType t, KeyDeserializer rkd,
+    protected abstract JsonDeserializer<?> _createContextual(MapLikeType t, KeyDeserializer rkd,
         KeyDeserializer ckd, TypeDeserializer vtd, JsonDeserializer<?> vd, NullValueProvider np);
     
     @Override

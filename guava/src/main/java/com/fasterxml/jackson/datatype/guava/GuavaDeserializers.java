@@ -260,6 +260,16 @@ public class GuavaDeserializers
             return new LinkedListMultimapDeserializer(type, keyDeserializer,
                     elementTypeDeserializer, elementDeserializer);
         }
+        
+        if (Table.class.isAssignableFrom(raw)) {
+            if (HashBasedTable.class.isAssignableFrom(raw)) {
+                return new HashBasedTableDeserializer(type);
+            }
+            if (TreeBasedTable.class.isAssignableFrom(raw)) {
+                return new TreeBasedTableDeserializer(type);
+            }
+            return new ImmutableTableDeserializer(type);
+        }
 
         // @since 2.16 : support Cache deserialization
         java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config,
@@ -318,15 +328,6 @@ public class GuavaDeserializers
         Class<?> raw = type.getRawClass();
         if (RangeSet.class.isAssignableFrom(raw)) {
             return new RangeSetDeserializer();
-        }
-        if (Table.class.isAssignableFrom(raw)) {
-            if (HashBasedTable.class.isAssignableFrom(raw)) {
-                return new HashBasedTableDeserializer(type);
-            }
-            if (TreeBasedTable.class.isAssignableFrom(raw)) {
-                return new TreeBasedTableDeserializer(type);
-            }
-            return new ImmutableTableDeserializer(type);
         }
         if (type.hasRawClass(Range.class)) {
             return new RangeDeserializer(_defaultBoundType, type);

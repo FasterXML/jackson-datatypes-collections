@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 
-public class TableSerializationTest extends ModuleTestBase
+public class TableTest extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule(false);
     {
