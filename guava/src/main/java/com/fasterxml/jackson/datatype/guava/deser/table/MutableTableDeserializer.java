@@ -15,8 +15,10 @@ import java.io.IOException;
  * @author Abhishekkr3003
  */
 public abstract class MutableTableDeserializer<T extends Table<Object, Object, Object>>
-    extends TableDeserializer<T> {
-    
+    extends TableDeserializer<T>
+{
+    private static final long serialVersionUID = 1L;
+
     protected MutableTableDeserializer(MapLikeType type) {
         super(type);
     }
@@ -31,7 +33,8 @@ public abstract class MutableTableDeserializer<T extends Table<Object, Object, O
     }
     
     protected abstract T createTable();
-    
+
+    @Override
     protected abstract JsonDeserializer<?> _createContextual(MapLikeType t, KeyDeserializer rkd,
         KeyDeserializer ckd, TypeDeserializer vtd, JsonDeserializer<?> vd, NullValueProvider np);
     

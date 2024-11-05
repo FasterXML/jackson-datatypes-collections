@@ -38,7 +38,7 @@ public class HashBasedTableDeserializer
         KeyDeserializer rowDeserializer,
         KeyDeserializer columnDeserializer, TypeDeserializer typeDeserializer,
         JsonDeserializer<?> elementDeserializer, NullValueProvider nvp) {
-        return new HashBasedTableDeserializer(
-            type, rowDeserializer, columnDeserializer, typeDeserializer, elementDeserializer, nvp);
+        return new HashBasedTableDeserializer(type,
+                rowDeserializer, columnDeserializer, typeDeserializer, elementDeserializer, nvp);
     }
 }

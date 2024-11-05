@@ -95,8 +95,8 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return _createContextual(
-            _type, rkd, ckd, vtd, valueDeser, findContentNullProvider(ctxt, property, valueDeser));
+        return _createContextual(_type,
+                rkd, ckd, vtd, valueDeser, findContentNullProvider(ctxt, property, valueDeser));
     }
     
     protected abstract JsonDeserializer<?> _createContextual(MapLikeType t, KeyDeserializer rkd,
@@ -104,7 +104,7 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     
     
     protected void expect(JsonParser p, JsonToken token) throws IOException {
-        if (p.getCurrentToken() != token) {
+        if (p.currentToken() != token) {
             throw new JsonMappingException(
                 p,
                 "Expecting " + token + " to start `TABLE` value, found " + p.currentToken(),
