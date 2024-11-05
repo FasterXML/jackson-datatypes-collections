@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.fasterxml.jackson.datatype</groupId>
     <artifactId>jackson-datatypes-collections</artifactId>
-    <version>2.18.0-SNAPSHOT</version>
+    <version>2.18.2-SNAPSHOT</version>
   </parent>
   <artifactId>jackson-datatype-guava</artifactId>
   <name>Jackson datatype: Guava</name>
@@ -38,12 +38,14 @@ Guava (https://github.com/google/guava) types (currently mostly just collection 
     <!-- 28-Feb-2023, tatu: 2.15 raises baseline from 21.x to 23.x -->
     <!-- 01-May-2023, tatu: 2.16 raises baseline from 23.x to 25.x -->
     <version.guava>25.1-jre</version.guava>
+    <!-- 10-Sep-2024, tatu: [datatypes-collections#160] OSGi version bit different: -->
+    <version.guava.osgi-base>25.1.0</version.guava.osgi-base>
 
     <javac.src.version>1.8</javac.src.version>
     <javac.target.version>1.8</javac.target.version>
 
     <!-- 31-Jul-2020, tatu: remove upper limit for Jackson 2.12; tested up to 30.x -->
-    <version.guava.osgi>[${version.guava}.0,99)</version.guava.osgi>
+    <version.guava.osgi>[${version.guava.osgi-base},99)</version.guava.osgi>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/guava</packageVersion.dir>

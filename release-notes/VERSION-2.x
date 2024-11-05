@@ -21,10 +21,17 @@ Not yet released:
 #157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
  (contributed by Patrick S)
 
-2.18.0 (not yet released)
+2.18.1 (28-Oct-2024)
 
+No changes since 2.18.0
+
+2.18.0 (26-Sep-2024)
+
+#160: (guava) Defect guava OSGi dependency version specified?
+ (reported by @jpstotz)
 - HPPC dependency upgraded to 0.9.1 (from 0.8.2)
 
+2.17.3 (01-Nov-2024)
 2.17.2 (05-Jul-2024)
 
 No changes since 2.17.1
