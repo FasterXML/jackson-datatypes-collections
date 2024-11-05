@@ -57,8 +57,7 @@ public class GuavaSerializers extends Serializers.Base
             ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer)
     {
-        final Class<?> raw = refType.getRawClass();
-        if (Optional.class.isAssignableFrom(raw)) {
+        if (refType.isTypeOrSubTypeOf(Optional.class)) {
             boolean staticTyping = (contentTypeSerializer == null)
                     && config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             return new GuavaOptionalSerializer(refType, staticTyping,
@@ -71,34 +70,30 @@ public class GuavaSerializers extends Serializers.Base
     public ValueSerializer<?> findSerializer(SerializationConfig config, JavaType type,
             BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
-        Class<?> raw = type.getRawClass();
-        if (RangeSet.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(RangeSet.class)) {
             return new RangeSetSerializer();
         }
-        if (Range.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(Range.class)) {
             return new RangeSerializer(_findDeclared(type, Range.class));
         }
-        if (Table.class.isAssignableFrom(raw)) {
-            return new TableSerializer(_findDeclared(type, Table.class));
-        }
-        if (HostAndPort.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(HostAndPort.class)) {
             return ToStringSerializer.instance;
         }
-        if (InternetDomainName.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(InternetDomainName.class)) {
             return ToStringSerializer.instance;
         }
         // not sure how useful, but why not?
-        if (CacheBuilderSpec.class.isAssignableFrom(raw) || CacheBuilder.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(CacheBuilderSpec.class) || type.isTypeOrSubTypeOf(CacheBuilder.class)) {
             return ToStringSerializer.instance;
         }
-        if (HashCode.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(HashCode.class)) {
             return ToStringSerializer.instance;
         }
-        if (FluentIterable.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(FluentIterable.class)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
         }
-        return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(raw)
+        return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(type.getRawClass())
                 .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newSerializer)
                 .orNull();
     }
@@ -109,7 +104,7 @@ public class GuavaSerializers extends Serializers.Base
             ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
-        if (Multimap.class.isAssignableFrom(type.getRawClass())) {
+        if (type.isTypeOrSubTypeOf(Multimap.class)) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
             Object filterId = intr.findFilterId(config, (Annotated)beanDesc.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
@@ -118,7 +113,7 @@ public class GuavaSerializers extends Serializers.Base
             return new MultimapSerializer(type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
-        if (Cache.class.isAssignableFrom(type.getRawClass())) {
+        if (type.isTypeOrSubTypeOf(Cache.class)) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
             Object filterId = intr.findFilterId(config, (Annotated)beanDesc.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Cache.class,
@@ -126,6 +121,9 @@ public class GuavaSerializers extends Serializers.Base
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new CacheSerializer(type, beanDesc,
                 keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
+        }
+        if (type.isTypeOrSubTypeOf(Table.class)) {
+            return new TableSerializer(type);
         }
         return null;
     }
