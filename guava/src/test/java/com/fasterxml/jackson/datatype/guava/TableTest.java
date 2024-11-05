@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.datatype.guava;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.TreeBasedTable;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -11,13 +8,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.TreeBasedTable;
 
 public class TableTest extends ModuleTestBase
 {
-    private final ObjectMapper MAPPER = mapperWithModule(false);
-    {
-        MAPPER.registerModule(new ComplexKeyModule());
-    }
+    private final ObjectMapper MAPPER = builderWithModule(false)
+            .addModule(new ComplexKeyModule())
+            .build();
 
     static class ComplexKeyModule extends SimpleModule
     {
