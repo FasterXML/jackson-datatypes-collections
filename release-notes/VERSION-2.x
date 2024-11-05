@@ -18,7 +18,8 @@ Active Maintainers:
 
 2.19.0 (not yet released)
 
--
+#1: (guava) Add deserialization support for `Table<R, C, V>`
+ (contributed by Abhishek K)
 
 2.18.1 (28-Oct-2024)
 
