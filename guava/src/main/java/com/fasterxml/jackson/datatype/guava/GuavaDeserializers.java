@@ -260,7 +260,7 @@ public class GuavaDeserializers
             return new LinkedListMultimapDeserializer(type, keyDeserializer,
                     elementTypeDeserializer, elementDeserializer);
         }
-        
+
         if (Table.class.isAssignableFrom(raw)) {
             if (HashBasedTable.class.isAssignableFrom(raw)) {
                 return new HashBasedTableDeserializer(type);
@@ -325,8 +325,7 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
-        Class<?> raw = type.getRawClass();
-        if (RangeSet.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(RangeSet.class)) {
             return new RangeSetDeserializer();
         }
         if (type.hasRawClass(Range.class)) {

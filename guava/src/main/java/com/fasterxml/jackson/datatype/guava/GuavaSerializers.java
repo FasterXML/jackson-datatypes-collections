@@ -64,29 +64,28 @@ public class GuavaSerializers extends Serializers.Base
     @Override
     public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type, BeanDescription beanDesc)
     {
-        Class<?> raw = type.getRawClass();
-        if (RangeSet.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(RangeSet.class)) {
             return new RangeSetSerializer();
         }
-        if (Range.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(Range.class)) {
             return new RangeSerializer(_findDeclared(type, Range.class));
         }
 
         // since 2.4
-        if (HostAndPort.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(HostAndPort.class)) {
             return ToStringSerializer.instance;
         }
-        if (InternetDomainName.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(InternetDomainName.class)) {
             return ToStringSerializer.instance;
         }
         // not sure how useful, but why not?
-        if (CacheBuilderSpec.class.isAssignableFrom(raw) || CacheBuilder.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(CacheBuilderSpec.class) || type.isTypeOrSubTypeOf(CacheBuilder.class)) {
             return ToStringSerializer.instance;
         }
-        if (HashCode.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(HashCode.class)) {
             return ToStringSerializer.instance;
         }
-        if (FluentIterable.class.isAssignableFrom(raw)) {
+        if (type.isTypeOrSubTypeOf(FluentIterable.class)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null);
         }
@@ -98,7 +97,7 @@ public class GuavaSerializers extends Serializers.Base
             MapLikeType type, BeanDescription beanDesc, JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
     {
-        if (Multimap.class.isAssignableFrom(type.getRawClass())) {
+        if (type.isTypeOrSubTypeOf(Multimap.class)) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
             Object filterId = intr.findFilterId((Annotated)beanDesc.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
@@ -107,7 +106,7 @@ public class GuavaSerializers extends Serializers.Base
             return new MultimapSerializer(type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
-        if (Cache.class.isAssignableFrom(type.getRawClass())) {
+        if (type.isTypeOrSubTypeOf(Cache.class)) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
             Object filterId = intr.findFilterId((Annotated)beanDesc.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Cache.class,
@@ -116,7 +115,7 @@ public class GuavaSerializers extends Serializers.Base
             return new CacheSerializer(type, beanDesc,
                 keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
-        if (Table.class.isAssignableFrom(type.getRawClass())) {
+        if (type.isTypeOrSubTypeOf(Table.class)) {
             return new TableSerializer(type);
         }
         return null;
