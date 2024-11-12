@@ -65,22 +65,32 @@ public class TestPCollections extends ModuleTestBase
                     new TypeReference<PSequence<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot find a deserializer");
+            _verifyImmutableException(e, PSequence.class);
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<PSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot find a deserializer");
+            _verifyImmutableException(e, PSet.class);
         }
 
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<PMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
+            // 12-Nov-2024, tatu: Map exception changes in 2.19, not yet in 2.18 so
+//            _verifyImmutableException(e, PMap.class);
             verifyException(e, "cannot find a deserializer");
         }
+    }
+
+    private void _verifyImmutableException(InvalidDefinitionException e, Class<?> type) {
+        // Exception changed a bit in 2.18.2, need to match
+        //verifyException(e, "cannot find a deserializer");
+        verifyException(e, "Cannot construct instance of ");
+        verifyException(e, "No creators");
+        verifyException(e, type.getName());
     }
 
     /*
