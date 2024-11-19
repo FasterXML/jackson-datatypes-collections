@@ -16,6 +16,11 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
+ (contributed by Patrick S)
+
 2.18.1 (28-Oct-2024)
 
 No changes since 2.18.0
