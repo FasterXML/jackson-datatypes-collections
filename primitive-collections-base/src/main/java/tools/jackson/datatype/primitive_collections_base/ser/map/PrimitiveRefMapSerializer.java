@@ -36,16 +36,16 @@ public abstract class PrimitiveRefMapSerializer<T, V>
     );
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         JavaType containedType = _type.containedTypeOrUnknown(0);
         TypeSerializer vts = (_valueTypeSerializer == null)
-                ? prov.findTypeSerializer(containedType) : _valueTypeSerializer;
+                ? ctxt.findTypeSerializer(containedType) : _valueTypeSerializer;
         if (vts != null) {
-            vts = vts.forProperty(prov, property);
+            vts = vts.forProperty(ctxt, property);
         }
         ValueSerializer<Object> vs = ((_valueSerializer == null) && containedType.useStaticType())
-                ? prov.findValueSerializer(containedType) : _valueSerializer;
+                ? ctxt.findValueSerializer(containedType) : _valueSerializer;
         //noinspection ObjectEqualit
         if (vts == _valueTypeSerializer && vs == _valueSerializer) {
             return this;
@@ -53,7 +53,7 @@ public abstract class PrimitiveRefMapSerializer<T, V>
         return withResolved(vts, property, vs);
     }
 
-    protected void _serializeValue(V value, JsonGenerator gen, SerializerProvider serializers)
+    protected void _serializeValue(V value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         ValueSerializer<Object> valueSer = _valueSerializer;
@@ -61,21 +61,21 @@ public abstract class PrimitiveRefMapSerializer<T, V>
             Class<?> cc = value.getClass();
             valueSer = _dynamicValueSerializers.serializerFor(cc);
             if (valueSer == null) {
-                valueSer = _findAndAddDynamic(_dynamicValueSerializers, serializers.constructType(cc), serializers);
+                valueSer = _findAndAddDynamic(_dynamicValueSerializers, ctxt.constructType(cc), ctxt);
             }
         }
         if (_valueTypeSerializer == null) {
-            valueSer.serialize(value, gen, serializers);
+            valueSer.serialize(value, gen, ctxt);
         } else {
-            valueSer.serializeWithType(value, gen, serializers, _valueTypeSerializer);
+            valueSer.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
         }
     }
 
     protected final ValueSerializer<Object> _findAndAddDynamic(
-            PropertySerializerMap map, JavaType type, SerializerProvider provider)
+            PropertySerializerMap map, JavaType type, SerializationContext ctxt)
     {
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(
-                type, provider, _property);
+                type, ctxt, _property);
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }

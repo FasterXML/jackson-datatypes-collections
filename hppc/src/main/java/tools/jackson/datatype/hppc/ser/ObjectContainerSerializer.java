@@ -91,7 +91,7 @@ public class ObjectContainerSerializer
     }
     
     @Override
-    public boolean isEmpty(SerializerProvider provider, ObjectContainer<?> value) {
+    public boolean isEmpty(SerializationContext ctxt, ObjectContainer<?> value) {
         // 27-Nov-2015, tatu: Not up to 2.7 full specs (wrt value vs content emptiness)
         //   but better than we had before
         return value.isEmpty();
@@ -109,10 +109,10 @@ public class ObjectContainerSerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
-        return withDelegate((ObjectArraySerializer) _delegate.createContextual(prov, property));
+        return withDelegate((ObjectArraySerializer) _delegate.createContextual(ctxt, property));
     }
 
     /*
@@ -122,22 +122,22 @@ public class ObjectContainerSerializer
      */
     
     @Override
-    public void serialize(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(ObjectContainer<?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
-        _delegate.serialize(value.toArray(), gen, provider);
+        _delegate.serialize(value.toArray(), gen, ctxt);
     }
     
     @Override
-    public void serializeWithType(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(ObjectContainer<?> value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
-        _delegate.serializeWithType(value.toArray(), gen, provider, typeSer);
+        _delegate.serializeWithType(value.toArray(), gen, ctxt, typeSer);
     }
 
     @Override
-    protected void serializeContents(ObjectContainer<?> value, JsonGenerator gen, SerializerProvider provider)
+    protected void serializeContents(ObjectContainer<?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         throw new IllegalStateException();

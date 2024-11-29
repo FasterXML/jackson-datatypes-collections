@@ -26,22 +26,22 @@ public abstract class RefPrimitiveMapSerializer<T, K> extends PrimitiveMapSerial
     );
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         ValueSerializer<Object> ks = _keySerializer == null ?
-                prov.findKeySerializer(_type.containedTypeOrUnknown(0), property) :
+                ctxt.findKeySerializer(_type.containedTypeOrUnknown(0), property) :
                 _keySerializer;
         return withResolved(property, ks);
     }
 
-    protected void _serializeKey(K key, JsonGenerator gen, SerializerProvider provider)
+    protected void _serializeKey(K key, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         if (key == null) {
-            provider.findNullKeySerializer(_type.getKeyType(), _property)
-                    .serialize(null, gen, provider);
+            ctxt.findNullKeySerializer(_type.getKeyType(), _property)
+                    .serialize(null, gen, ctxt);
         } else {
-            _keySerializer.serialize(key, gen, provider);
+            _keySerializer.serialize(key, gen, ctxt);
         }
     }
 }

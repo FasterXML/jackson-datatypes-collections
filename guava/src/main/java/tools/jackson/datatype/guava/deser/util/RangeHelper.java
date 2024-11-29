@@ -7,9 +7,6 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.TypeResolutionContext;
 
-/**
- * @since 2.10
- */
 public class RangeHelper
 {
     public static class RangeProperties implements java.io.Serializable

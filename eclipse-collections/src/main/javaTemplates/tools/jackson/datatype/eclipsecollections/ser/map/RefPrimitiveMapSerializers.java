@@ -2,10 +2,7 @@ package tools.jackson.datatype.eclipsecollections.ser.map;
 
 import tools.jackson.core.JsonGenerator;
 
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.*;
 
 import tools.jackson.datatype.primitive_collections_base.ser.map.RefPrimitiveMapSerializer;
 
@@ -36,10 +33,10 @@ public final class RefPrimitiveMapSerializers
         }
 
         @Override
-        protected void serializeEntries(ObjectCharMap<K> value, JsonGenerator g, SerializerProvider serializers)
+        protected void serializeEntries(ObjectCharMap<K> value, JsonGenerator g, SerializationContext ctxt)
         {
             value.forEachKeyValue((k, v) -> {
-                _serializeKey(k, g, serializers);
+                _serializeKey(k, g, ctxt);
                 /* if !(char|boolean value) //
                 g.writeNumber(v);
                 /* elif char value */
@@ -51,7 +48,7 @@ public final class RefPrimitiveMapSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, ObjectCharMap<K> value) {
+        public boolean isEmpty(SerializationContext ctxt, ObjectCharMap<K> value) {
             return value.isEmpty();
         }
     }

@@ -2,7 +2,7 @@ package tools.jackson.datatype.guava.ser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 
@@ -12,9 +12,9 @@ public abstract class BaseImmutableArraySerializer<ImmutableArray> extends StdSe
     }
 
     @Override
-    public final void serialize(ImmutableArray immutableArray, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
+    public final void serialize(ImmutableArray immutableArray, JsonGenerator gen, SerializationContext ctxt) throws JacksonException {
         if (immutableArray == null) {
-            provider.defaultSerializeNullValue(gen);
+            ctxt.defaultSerializeNullValue(gen);
         } else {
             writeArray(immutableArray, gen);
         }

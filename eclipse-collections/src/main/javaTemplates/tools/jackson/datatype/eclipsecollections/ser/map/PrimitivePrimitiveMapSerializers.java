@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 
 import tools.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
 
@@ -32,7 +32,7 @@ public final class PrimitivePrimitiveMapSerializers {
     private static final PrimitiveMapSerializer<ByteShortMap> BYTE_SHORT =
             new PrimitiveMapSerializer<ByteShortMap>(ByteShortMap.class) {
                 @Override
-                protected void serializeEntries(ByteShortMap value, JsonGenerator g, SerializerProvider serializers)
+                protected void serializeEntries(ByteShortMap value, JsonGenerator g, SerializationContext ctxt)
                 {
                     value.forEachKeyValue((k, v) -> {
                         g.writeName(String.valueOf(k));
@@ -47,7 +47,7 @@ public final class PrimitivePrimitiveMapSerializers {
                 }
 
                 @Override
-                public boolean isEmpty(SerializerProvider provider, ByteShortMap value) {
+                public boolean isEmpty(SerializationContext ctxt, ByteShortMap value) {
                     return value.isEmpty();
                 }
             };

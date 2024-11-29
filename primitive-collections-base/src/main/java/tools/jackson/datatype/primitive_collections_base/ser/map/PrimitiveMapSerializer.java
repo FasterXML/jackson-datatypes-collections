@@ -6,7 +6,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
@@ -24,7 +24,7 @@ public abstract class PrimitiveMapSerializer<T> extends StdSerializer<T>
     }
 
     @Override
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider ctxt, TypeSerializer typeSer)
+    public void serializeWithType(T value, JsonGenerator gen, SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(
@@ -34,7 +34,7 @@ public abstract class PrimitiveMapSerializer<T> extends StdSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider ctxt)
+    public void serialize(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         gen.writeStartObject(value);
@@ -42,6 +42,6 @@ public abstract class PrimitiveMapSerializer<T> extends StdSerializer<T>
         gen.writeEndObject();
     }
 
-    protected abstract void serializeEntries(T value, JsonGenerator gen, SerializerProvider serializers)
+    protected abstract void serializeEntries(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException;
 }

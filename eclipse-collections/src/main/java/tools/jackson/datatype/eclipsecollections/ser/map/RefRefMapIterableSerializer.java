@@ -1,17 +1,14 @@
 package tools.jackson.datatype.eclipsecollections.ser.map;
 
-import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.SerializerProvider;
+import java.util.Set;
+import java.util.function.BiConsumer;
+
+import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
 import tools.jackson.datatype.primitive_collections_base.ser.map.RefRefMapSerializer;
 
 import org.eclipse.collections.api.map.MapIterable;
-
-import java.util.Set;
-import java.util.function.BiConsumer;
 
 /**
  * @author yawkat
@@ -55,7 +52,7 @@ public final class RefRefMapIterableSerializer extends RefRefMapSerializer<MapIt
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, MapIterable<?, ?> value) {
+    public boolean isEmpty(SerializationContext ctxt, MapIterable<?, ?> value) {
         return value.isEmpty();
     }
 

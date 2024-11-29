@@ -71,7 +71,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) {
+                SerializationContext provider) {
             gen.writeString(value.toUpperCase());
         }
     }

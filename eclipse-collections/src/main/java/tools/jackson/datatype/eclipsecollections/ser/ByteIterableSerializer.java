@@ -5,7 +5,7 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
@@ -19,7 +19,7 @@ public final class ByteIterableSerializer extends StdSerializer<ByteIterable> {
     }
 
     @Override
-    public void serialize(ByteIterable value, JsonGenerator g, SerializerProvider ctxt)
+    public void serialize(ByteIterable value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         byte[] arr = value.toArray();
@@ -28,7 +28,7 @@ public final class ByteIterableSerializer extends StdSerializer<ByteIterable> {
 
     @Override
     public void serializeWithType(
-            ByteIterable value, JsonGenerator g, SerializerProvider ctxt,
+            ByteIterable value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

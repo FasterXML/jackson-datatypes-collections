@@ -25,11 +25,10 @@ public final class PrimitiveRefMapSerializers
         }
 
         @Override
-        protected void serializeEntries(CharObjectMap<V> value, JsonGenerator g, SerializerProvider serializers)
-        {
+        protected void serializeEntries(CharObjectMap<V> value, JsonGenerator g, SerializationContext ctxt) {
             value.forEachKeyValue((k, v) -> {
                 g.writeName(String.valueOf(k));
-                _serializeValue(v, g, serializers);
+                _serializeValue(v, g, ctxt);
             });
         }
 
@@ -43,7 +42,7 @@ public final class PrimitiveRefMapSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, CharObjectMap<V> value) {
+        public boolean isEmpty(SerializationContext ctxt, CharObjectMap<V> value) {
             return value.isEmpty();
         }
     }

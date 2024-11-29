@@ -26,7 +26,7 @@ public class TableTest extends ModuleTestBase
         {
             this.addKeySerializer(ComplexKey.class, new ValueSerializer<ComplexKey>() {
                 @Override
-                public void serialize( final ComplexKey value, final JsonGenerator g, final SerializerProvider provider )
+                public void serialize( final ComplexKey value, final JsonGenerator g, final SerializationContext ctxt)
                 {
                     g.writeName(value.getKey1() + ":" + value.getKey2());
                 }

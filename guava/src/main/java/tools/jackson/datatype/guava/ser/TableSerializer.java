@@ -121,36 +121,36 @@ public class TableSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(final SerializerProvider provider,
+    public ValueSerializer<?> createContextual(final SerializationContext ctxt,
             final BeanProperty property)
     {
         ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             final JavaType valueType = _type.containedTypeOrUnknown(2);
             if (valueType.isFinal()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = provider.handleSecondaryContextualization(valueSer, property);
+            valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
         ValueSerializer<?> rowKeySer = _rowSerializer;
         if (rowKeySer == null) {
-            rowKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(0), property);
+            rowKeySer = ctxt.findKeySerializer(_type.containedTypeOrUnknown(0), property);
         } else {
-            rowKeySer = provider.handleSecondaryContextualization(rowKeySer, property);
+            rowKeySer = ctxt.handleSecondaryContextualization(rowKeySer, property);
         }
         ValueSerializer<?> columnKeySer = _columnSerializer;
         if (columnKeySer == null) {
-            columnKeySer = provider.findKeySerializer(_type.containedTypeOrUnknown(1), property);
+            columnKeySer = ctxt.findKeySerializer(_type.containedTypeOrUnknown(1), property);
         } else {
-            columnKeySer = provider.handleSecondaryContextualization(columnKeySer, property);
+            columnKeySer = ctxt.handleSecondaryContextualization(columnKeySer, property);
         }
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(provider, property);
+            typeSer = typeSer.forProperty(ctxt, property);
         }
-        return withResolved(property, provider.getTypeFactory(), rowKeySer, columnKeySer, typeSer, valueSer);
+        return withResolved(property, ctxt.getTypeFactory(), rowKeySer, columnKeySer, typeSer, valueSer);
     }
 
     /*
@@ -170,7 +170,7 @@ public class TableSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, Table<?, ?, ?> table) {
+    public boolean isEmpty(SerializationContext ctxt, Table<?, ?, ?> table) {
         return table.isEmpty();
     }
 
@@ -187,19 +187,19 @@ public class TableSerializer
     
     @Override
     public void serialize(final Table<?, ?, ?> value,
-            final JsonGenerator gen, final SerializerProvider provider)
+            final JsonGenerator gen, final SerializationContext ctxt)
         throws JacksonException
     {
         gen.writeStartObject(value);
         if (!value.isEmpty()) {
-            serializeEntries(value, gen, provider);
+            serializeEntries(value, gen, ctxt);
         }
         gen.writeEndObject();
     }
 
     @Override
     public void serializeWithType(final Table<?, ?, ?> value,
-            final JsonGenerator g, final SerializerProvider ctxt,
+            final JsonGenerator g, final SerializationContext ctxt,
             final TypeSerializer typeSer)
         throws JacksonException
     {
@@ -211,9 +211,9 @@ public class TableSerializer
     }
 
     private final void serializeEntries( final Table<?, ?, ?> table, final JsonGenerator g,
-            final SerializerProvider provider )
+            final SerializationContext ctxt)
         throws JacksonException
     {
-        _rowMapSerializer.serializeEntries(table.rowMap(), g, provider);
+        _rowMapSerializer.serializeEntries(table.rowMap(), g, ctxt);
     }
 }

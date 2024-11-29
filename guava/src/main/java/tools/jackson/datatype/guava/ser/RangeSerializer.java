@@ -74,28 +74,28 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Range<?> value) {
+    public boolean isEmpty(SerializationContext ctxt, Range<?> value) {
         return value.isEmpty();
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
-        final JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
+        final JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         final JsonFormat.Shape shape = format.getShape();
 
-        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(prov.getConfig(),
-                prov.getConfig().getPropertyNamingStrategy());
+        final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
+                ctxt.getConfig().getPropertyNamingStrategy());
         ValueSerializer<?> endpointSer = _endpointSerializer;
         if (endpointSer == null) {
             JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
             if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
-                endpointSer = prov.findContentValueSerializer(endpointType, property);
+                endpointSer = ctxt.findContentValueSerializer(endpointType, property);
             }
         } else {
-            endpointSer = _endpointSerializer.createContextual(prov, property);
+            endpointSer = _endpointSerializer.createContextual(ctxt, property);
         }
         if ((endpointSer != _endpointSerializer)
                 || (fieldNames != _fieldNames)
@@ -112,20 +112,20 @@ public class RangeSerializer extends StdSerializer<Range<?>>
      */
 
     @Override
-    public void serialize(Range<?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Range<?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         if (_shape == JsonFormat.Shape.STRING) {
             gen.writeString(_getStringFormat(value));
         } else {
             gen.writeStartObject(value);
-            _writeContents(value, gen, provider);
+            _writeContents(value, gen, ctxt);
             gen.writeEndObject();
         }
     }
 
     @Override
-    public void serializeWithType(Range<?> value, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(Range<?> value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -144,15 +144,15 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         }
     }
 
-    private void _writeContents(Range<?> value, JsonGenerator g, SerializerProvider provider)
+    private void _writeContents(Range<?> value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
         if (value.hasLowerBound()) {
             if (_endpointSerializer != null) {
                 g.writeName(_fieldNames.lowerEndpoint);
-                _endpointSerializer.serialize(value.lowerEndpoint(), g, provider);
+                _endpointSerializer.serialize(value.lowerEndpoint(), g, ctxt);
             } else {
-                provider.defaultSerializeProperty(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
+                ctxt.defaultSerializeProperty(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
             }
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
@@ -161,9 +161,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         if (value.hasUpperBound()) {
             if (_endpointSerializer != null) {
                 g.writeName(_fieldNames.upperEndpoint);
-                _endpointSerializer.serialize(value.upperEndpoint(), g, provider);
+                _endpointSerializer.serialize(value.upperEndpoint(), g, ctxt);
             } else {
-                provider.defaultSerializeProperty(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
+                ctxt.defaultSerializeProperty(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
             }
             // same as above; should always be just String so
             g.writeStringProperty(_fieldNames.upperBoundType, value.upperBoundType().name());
@@ -198,9 +198,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
             if (objectVisitor != null) {
                 if (_endpointSerializer != null) {
                     JavaType endpointType = _rangeType.containedType(0);
-                    JavaType btType = visitor.getProvider().constructType(BoundType.class);
+                    JavaType btType = visitor.getContext().constructType(BoundType.class);
                     // should probably keep track of `property`...
-                    ValueSerializer<?> btSer = visitor.getProvider()
+                    ValueSerializer<?> btSer = visitor.getContext()
                             .findContentValueSerializer(btType, null);
                     objectVisitor.property(_fieldNames.lowerEndpoint, _endpointSerializer, endpointType);
                     objectVisitor.property(_fieldNames.lowerBoundType, btSer, btType);

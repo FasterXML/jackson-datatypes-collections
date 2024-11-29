@@ -2,7 +2,7 @@ package tools.jackson.datatype.guava.ser;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.io.SerializedString;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.ser.bean.UnwrappingBeanPropertyWriter;
 import tools.jackson.databind.util.NameTransformer;
@@ -29,7 +29,7 @@ public class GuavaUnwrappingOptionalBeanPropertyWriter extends UnwrappingBeanPro
     }
 
     @Override
-    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
+    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws Exception
     {
         if (_nullSerializer == null) {
@@ -38,6 +38,6 @@ public class GuavaUnwrappingOptionalBeanPropertyWriter extends UnwrappingBeanPro
                 return;
             }
         }
-        super.serializeAsProperty(bean, gen, prov);
+        super.serializeAsProperty(bean, gen, ctxt);
     }
 }

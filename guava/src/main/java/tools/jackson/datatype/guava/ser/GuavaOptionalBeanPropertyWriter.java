@@ -2,7 +2,7 @@ package tools.jackson.datatype.guava.ser;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.PropertyName;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ser.BeanPropertyWriter;
 import tools.jackson.databind.util.NameTransformer;
 import com.google.common.base.Optional;
@@ -30,7 +30,7 @@ public class GuavaOptionalBeanPropertyWriter extends BeanPropertyWriter
     }
 
     @Override
-    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
+    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializationContext ctxt)
         throws Exception
     {
         if (_nullSerializer == null) {
@@ -39,6 +39,6 @@ public class GuavaOptionalBeanPropertyWriter extends BeanPropertyWriter
                 return;
             }
         }
-        super.serializeAsProperty(bean, gen, prov);
+        super.serializeAsProperty(bean, gen, ctxt);
     }
 }

@@ -84,20 +84,20 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
     {
         ValueSerializer<?> valueSer = _valueSerializer;
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = getContentType();
             if (valueType.isFinal()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = valueSer.createContextual(provider, property);
+            valueSer = valueSer.createContextual(ctxt, property);
         }
 
-        final SerializationConfig config = provider.getConfig();
+        final SerializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
         ValueSerializer<?> keySer = null;
@@ -106,40 +106,40 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
         if (propertyAcc != null && intr != null) {
             Object serDef = intr.findKeySerializer(config, propertyAcc);
             if (serDef != null) {
-                keySer = provider.serializerInstance(propertyAcc, serDef);
+                keySer = ctxt.serializerInstance(propertyAcc, serDef);
             }
             serDef = intr.findContentSerializer(config, propertyAcc);
             if (serDef != null) {
-                valueSer = provider.serializerInstance(propertyAcc, serDef);
+                valueSer = ctxt.serializerInstance(propertyAcc, serDef);
             }
         }
         if (valueSer == null) {
             valueSer = _valueSerializer;
         }
         // [datatype-guava#124]: May have a content converter
-        valueSer = findContextualConvertingSerializer(provider, property, valueSer);
+        valueSer = findContextualConvertingSerializer(ctxt, property, valueSer);
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             JavaType valueType = getContentType();
             if (valueType.useStaticType()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = provider.handleSecondaryContextualization(valueSer, property);
+            valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
         if (keySer == null) {
             keySer = _keySerializer;
         }
         if (keySer == null) {
-            keySer = provider.findKeySerializer(getKeyType(), property);
+            keySer = ctxt.findKeySerializer(getKeyType(), property);
         } else {
-            keySer = provider.handleSecondaryContextualization(keySer, property);
+            keySer = ctxt.handleSecondaryContextualization(keySer, property);
         }
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(provider, property);
+            typeSer = typeSer.forProperty(ctxt, property);
         }
 
         Set<String> ignored = _ignoredEntries;
@@ -172,19 +172,19 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         gen.writeStartObject(value);
-        if (!isEmpty(provider, value)) {
-            serializeFields(value, gen, provider);
+        if (!isEmpty(ctxt, value)) {
+            serializeFields(value, gen, ctxt);
         }
         gen.writeEndObject();
     }
 
     @Override
     public void serializeWithType(T value, JsonGenerator gen,
-            SerializerProvider ctxt, TypeSerializer typeSer)
+            SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
         gen.assignCurrentValue(value);
@@ -198,7 +198,7 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
 
     protected abstract void forEachKeyValue(T value, BiConsumer<Object, Object> action);
 
-    private void serializeFields(T value, JsonGenerator gen, SerializerProvider provider) {
+    private void serializeFields(T value, JsonGenerator gen, SerializationContext ctxt) {
         Set<String> ignored = _ignoredEntries;
         forEachKeyValue(value, (key, v) -> {
             // First, serialize key
@@ -206,28 +206,28 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
                 return;
             }
             if (key == null) {
-                provider.findNullKeySerializer(getKeyType(), _property)
-                        .serialize(null, gen, provider);
+                ctxt.findNullKeySerializer(getKeyType(), _property)
+                        .serialize(null, gen, ctxt);
             } else {
-                _keySerializer.serialize(key, gen, provider);
+                _keySerializer.serialize(key, gen, ctxt);
             }
             if (v == null) {
-                provider.defaultSerializeNullValue(gen);
+                ctxt.defaultSerializeNullValue(gen);
                 return;
             }
             ValueSerializer<Object> valueSer = _valueSerializer;
             if (valueSer == null) {
-                valueSer = _findSerializer(provider, v);
+                valueSer = _findSerializer(ctxt, v);
             }
             if (_valueTypeSerializer == null) {
-                valueSer.serialize(v, gen, provider);
+                valueSer.serialize(v, gen, ctxt);
             } else {
-                valueSer.serializeWithType(v, gen, provider, _valueTypeSerializer);
+                valueSer.serializeWithType(v, gen, ctxt, _valueTypeSerializer);
             }
         });
     }
 
-    private ValueSerializer<Object> _findSerializer(SerializerProvider ctxt,
+    private ValueSerializer<Object> _findSerializer(SerializationContext ctxt,
         Object value)
     {
         final Class<?> cc = value.getClass();
