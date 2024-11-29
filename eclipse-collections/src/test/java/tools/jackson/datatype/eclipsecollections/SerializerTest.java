@@ -28,6 +28,11 @@ import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.eclipse.collections.impl.factory.primitive.ShortLists;
 
 public final class SerializerTest extends ModuleTestBase {
+    static class Wrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        Object object;
+    }
+
     private final ObjectMapper MAPPER = mapperWithModule();
 
     @Test
@@ -101,10 +106,6 @@ public final class SerializerTest extends ModuleTestBase {
             ObjectMapper objectMapper)
         throws Exception
     {
-        class Wrapper {
-            @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-            Object object;
-        }
         Wrapper wrapper = new Wrapper();
         wrapper.object = iterable;
 
@@ -115,34 +116,34 @@ public final class SerializerTest extends ModuleTestBase {
     @Test
     public void primitiveMaps() throws Exception
     {
-        DeserializerTest.primitiveMaps0(mapperWithModule(), true);
+        DeserializerTest.primitiveMaps0(MAPPER, true);
     }
 
     @Test
     public void objectObjectMaps() throws Exception {
         Assert.assertEquals(
                 "{\"abc\":\"def\"}",
-                mapperWithModule().writerFor(MutableMap.class).writeValueAsString(Maps.mutable.of("abc", "def"))
+                MAPPER.writerFor(MutableMap.class).writeValueAsString(Maps.mutable.of("abc", "def"))
         );
         Assert.assertEquals(
                 "{\"abc\":\"def\"}",
-                mapperWithModule().writerFor(ImmutableMap.class).writeValueAsString(Maps.immutable.of("abc", "def"))
+                MAPPER.writerFor(ImmutableMap.class).writeValueAsString(Maps.immutable.of("abc", "def"))
         );
         Assert.assertEquals(
                 "{\"abc\":\"def\"}",
-                mapperWithModule().writerFor(MapIterable.class).writeValueAsString(Maps.immutable.of("abc", "def"))
+                MAPPER.writerFor(MapIterable.class).writeValueAsString(Maps.immutable.of("abc", "def"))
         );
         Assert.assertEquals(
                 "{\"abc\":\"def\"}",
-                mapperWithModule().writerFor(MutableMapIterable.class).writeValueAsString(Maps.mutable.of("abc", "def"))
+                MAPPER.writerFor(MutableMapIterable.class).writeValueAsString(Maps.mutable.of("abc", "def"))
         );
         Assert.assertEquals(
                 "{\"abc\":\"def\"}",
-                mapperWithModule().writeValueAsString(Maps.immutable.of("abc", "def"))
+                MAPPER.writeValueAsString(Maps.immutable.of("abc", "def"))
         );
         Assert.assertEquals(
                 "{\"abc\":\"def\"}",
-                mapperWithModule().writerFor(new TypeReference<MapIterable<String, String>>() {})
+                MAPPER.writerFor(new TypeReference<MapIterable<String, String>>() {})
                         .writeValueAsString(Maps.immutable.of("abc", "def"))
         );
     }
@@ -151,7 +152,7 @@ public final class SerializerTest extends ModuleTestBase {
     public void typeInfoObjectMap() throws Exception {
         Assert.assertEquals(
                 "{\"map\":{\"0\":{\"@c\":\".SerializerTest$B\"}}}",
-                mapperWithModule().writeValueAsString(new Container())
+                MAPPER.writeValueAsString(new Container())
         );
     }
 
