@@ -1,8 +1,10 @@
 package tools.jackson.datatype.eclipsecollections;
 
-import java.io.IOException;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
@@ -24,14 +26,12 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.eclipse.collections.impl.factory.primitive.ShortLists;
-import org.junit.Assert;
-import org.junit.Test;
 
 public final class SerializerTest extends ModuleTestBase {
     private final ObjectMapper MAPPER = mapperWithModule();
 
     @Test
-    public void ref() throws IOException {
+    public void ref() throws Exception {
         Assert.assertEquals(
                 "[\"a\",\"b\",\"c\"]",
                 MAPPER.writeValueAsString(Sets.immutable.of("a", "b", "c"))
@@ -39,7 +39,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void primitive() throws IOException {
+    public void primitive() throws Exception {
         Assert.assertEquals("[true,false,true]", MAPPER.writeValueAsString(
                 BooleanLists.immutable.of(true, false, true)));
         Assert.assertEquals("[1,2,3]", MAPPER.writeValueAsString(
