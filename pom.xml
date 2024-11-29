@@ -16,7 +16,9 @@
   <modules>
     <module>guava</module>
     <module>pcollections</module>
+<!-- TESTING!!!
     <module>eclipse-collections</module>
+-->
     <module>primitive-collections-base</module>
     <module>hppc</module>
   </modules>
