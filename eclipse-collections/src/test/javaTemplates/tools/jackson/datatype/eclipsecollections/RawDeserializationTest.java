@@ -1,5 +1,9 @@
 package tools.jackson.datatype.eclipsecollections;
 
+import java.util.Collections;
+
+import org.junit.Test;
+
 import tools.jackson.core.type.TypeReference;
 
 import org.eclipse.collections.api.RichIterable;
@@ -19,14 +23,10 @@ import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.primitive.*;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Collections;
 
 public class RawDeserializationTest extends ModuleTestBase {
     @Test
-    public void objectObjectMap() throws IOException {
+    public void objectObjectMap() throws Exception {
         testCollection(Maps.mutable.of("a", 1, "b", Collections.emptyMap()), "{\"a\":1, \"b\":{}}",
                 new TypeReference<MutableMap<?,?>>() {},
                 new TypeReference<ImmutableMap<?,?>>() {});
@@ -36,7 +36,7 @@ public class RawDeserializationTest extends ModuleTestBase {
     }
 
     @Test
-    public void objectList() throws IOException {
+    public void objectList() throws Exception {
         testCollection(Lists.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
                 new TypeReference<MutableList<?>>() {},
                 new TypeReference<ImmutableList<?>>() {},
@@ -52,7 +52,7 @@ public class RawDeserializationTest extends ModuleTestBase {
     }
 
     @Test
-    public void objectSet() throws IOException {
+    public void objectSet() throws Exception {
         testCollection(Sets.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
                 new TypeReference<MutableSet<?>>() {},
                 new TypeReference<ImmutableSet<?>>() {});
@@ -62,7 +62,7 @@ public class RawDeserializationTest extends ModuleTestBase {
     }
 
     @Test
-    public void objectBag() throws IOException {
+    public void objectBag() throws Exception {
         testCollection(Bags.mutable.of("a", Collections.emptyMap(), 1), "[\"a\", {}, 1]",
                 new TypeReference<Bag<?>>() {},
                 new TypeReference<MutableBag<?>>() {},
@@ -75,7 +75,7 @@ public class RawDeserializationTest extends ModuleTestBase {
 
     /* with byte|short|int|float|long|double primType */
     @Test
-    public void rawObjectByteMap() throws IOException {
+    public void rawObjectByteMap() throws Exception {
         MutableObjectByteMap<Object> expectedObjectByteMap = ObjectByteMaps.mutable.of();
         expectedObjectByteMap.put("a", (byte) 1);
         expectedObjectByteMap.put("b", (byte) 2);
@@ -83,7 +83,7 @@ public class RawDeserializationTest extends ModuleTestBase {
     }
 
     @Test
-    public void rawByteObjectMap() throws IOException {
+    public void rawByteObjectMap() throws Exception {
         MutableByteObjectMap<Object> expectedByteObjectMap = ByteObjectMaps.mutable.of();
         expectedByteObjectMap.put((byte) 1, "a");
         expectedByteObjectMap.put((byte) 2, Collections.emptyList());
