@@ -5,8 +5,8 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.core.type.WritableTypeId;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.SerializerProvider;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
@@ -21,15 +21,15 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider provider, CharIterable value) {
+    public boolean isEmpty(SerializationContext ctxt, CharIterable value) {
         return value.isEmpty();
     }
 
     @Override
-    public void serialize(CharIterable value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(CharIterable value, JsonGenerator gen, SerializationContext ctxt)
             throws JacksonException
     {
-        if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
+        if (ctxt.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
             gen.writeStartArray();
             writeContentsAsArray(value, gen);
             gen.writeEndArray();
@@ -43,7 +43,7 @@ public final class CharIterableSerializer extends StdSerializer<CharIterable> {
     public void serializeWithType(
             CharIterable value,
             JsonGenerator g,
-            SerializerProvider ctxt,
+            SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

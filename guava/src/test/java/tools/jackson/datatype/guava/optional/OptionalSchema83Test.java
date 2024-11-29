@@ -29,18 +29,18 @@ public class OptionalSchema83Test
     }
 
     static class VisitorWrapper implements JsonFormatVisitorWrapper {
-        SerializerProvider serializerProvider;
+        SerializationContext serializationContext;
         final String baseName;
         final Set<String> traversedProperties;
 
-        public VisitorWrapper(SerializerProvider serializerProvider, String baseName, Set<String> traversedProperties) {
-            this.serializerProvider = serializerProvider;
+        public VisitorWrapper(SerializationContext serializerProvider, String baseName, Set<String> traversedProperties) {
+            this.serializationContext = serializerProvider;
             this.baseName = baseName;
             this.traversedProperties = traversedProperties;
         }
 
         VisitorWrapper createSubtraverser(String bn) {
-            return new VisitorWrapper(getProvider(), bn, traversedProperties);
+            return new VisitorWrapper(getContext(), bn, traversedProperties);
         }
 
         public Set<String> getTraversedProperties() {
@@ -49,7 +49,7 @@ public class OptionalSchema83Test
 
         @Override
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
-            return new JsonObjectFormatVisitor.Base(serializerProvider) {
+            return new JsonObjectFormatVisitor.Base(serializationContext) {
                 @Override
                 public void property(BeanProperty prop) {
                     anyProperty(prop);
@@ -63,7 +63,7 @@ public class OptionalSchema83Test
                 private void anyProperty(BeanProperty prop) {
                     final String propertyName = prop.getFullName().toString();
                     traversedProperties.add(baseName + propertyName);
-                    serializerProvider.findPrimaryPropertySerializer(prop.getType(), prop)
+                    serializationContext.findPrimaryPropertySerializer(prop.getType(), prop)
                             .acceptJsonFormatVisitor(createSubtraverser(baseName + propertyName + "."), prop.getType());
                 }
             };
@@ -71,9 +71,9 @@ public class OptionalSchema83Test
 
         @Override
         public JsonArrayFormatVisitor expectArrayFormat(JavaType type) {
-            serializerProvider.findValueSerializer(type.getContentType())
+            serializationContext.findValueSerializer(type.getContentType())
                     .acceptJsonFormatVisitor(createSubtraverser(baseName), type.getContentType());
-            return new JsonArrayFormatVisitor.Base(serializerProvider);
+            return new JsonArrayFormatVisitor.Base(serializationContext);
         }
 
         @Override
@@ -108,17 +108,17 @@ public class OptionalSchema83Test
 
         @Override
         public JsonMapFormatVisitor expectMapFormat(JavaType type) {
-            return new JsonMapFormatVisitor.Base(serializerProvider);
+            return new JsonMapFormatVisitor.Base(serializationContext);
         }
 
         @Override
-        public SerializerProvider getProvider() {
-            return serializerProvider;
+        public SerializationContext getContext() {
+            return serializationContext;
         }
 
         @Override
-        public void setProvider(SerializerProvider provider) {
-            this.serializerProvider = provider;
+        public void setContext(SerializationContext provider) {
+            this.serializationContext = provider;
         }
     }
 

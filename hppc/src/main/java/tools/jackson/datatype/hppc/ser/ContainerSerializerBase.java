@@ -40,7 +40,7 @@ public abstract class ContainerSerializerBase<T>
      */
 
     @Override
-    public abstract boolean isEmpty(SerializerProvider provider, T value);
+    public abstract boolean isEmpty(SerializationContext ctxt, T value);
 
     @Override
     public ValueSerializer<?> getContentSerializer() {
@@ -70,20 +70,20 @@ public abstract class ContainerSerializerBase<T>
      */
     
     @Override
-    public void serialize(T value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         gen.assignCurrentValue(value);
         gen.writeStartArray();
-        serializeContents(value, gen, provider);
+        serializeContents(value, gen, ctxt);
         gen.writeEndArray();
     }
 
-    protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
+    protected abstract void serializeContents(T value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException;
     
     @Override
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(T value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

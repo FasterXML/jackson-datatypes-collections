@@ -2,7 +2,7 @@ package tools.jackson.datatype.eclipsecollections.ser;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.datatype.primitive_collections_base.ser.PrimitiveIterableSerializer;
 
@@ -19,7 +19,7 @@ public abstract class EclipsePrimitiveIterableSerializer<C extends PrimitiveIter
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, C value) {
+    public boolean isEmpty(SerializationContext ctxt, C value) {
         return value.isEmpty();
     }
 

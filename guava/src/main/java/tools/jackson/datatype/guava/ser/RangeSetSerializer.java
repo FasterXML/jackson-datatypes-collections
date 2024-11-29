@@ -6,8 +6,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.SerializerProvider;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 import com.google.common.collect.RangeSet;
@@ -28,7 +28,7 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
 
     @Override
     public void serialize(RangeSet<Comparable<?>> value, JsonGenerator g,
-            SerializerProvider ctxt)
+            SerializationContext ctxt)
         throws JacksonException
     {
         if (_serializer == null) {
@@ -38,7 +38,7 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
         // 23-Jan-2021, tatu: Should really improve upon this to handle more complex
         //   values, but this simplified version passes existing unit tests so has to do.

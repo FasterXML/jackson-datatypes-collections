@@ -119,7 +119,7 @@ public class CacheSerializer
      */
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializationContext ctxt,
             BeanProperty property)
                 throws JacksonException
     {
@@ -127,13 +127,13 @@ public class CacheSerializer
         if (valueSer == null) { // if type is final, can actually resolve:
             JavaType valueType = _type.getContentType();
             if (valueType.isFinal()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = valueSer.createContextual(provider, property);
+            valueSer = valueSer.createContextual(ctxt, property);
         }
 
-        final SerializationConfig config = provider.getConfig();
+        final SerializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
         ValueSerializer<?> keySer = null;
@@ -143,11 +143,11 @@ public class CacheSerializer
         if (propertyAcc != null && intr != null) {
             Object serDef = intr.findKeySerializer(config, propertyAcc);
             if (serDef != null) {
-                keySer = provider.serializerInstance(propertyAcc, serDef);
+                keySer = ctxt.serializerInstance(propertyAcc, serDef);
             }
             serDef = intr.findContentSerializer(config, propertyAcc);
             if (serDef != null) {
-                valueSer = provider.serializerInstance(propertyAcc, serDef);
+                valueSer = ctxt.serializerInstance(propertyAcc, serDef);
             }
             filterId = intr.findFilterId(config, propertyAcc);
         }
@@ -155,36 +155,36 @@ public class CacheSerializer
             valueSer = _valueSerializer;
         }
         // [datatype-guava#124]: May have a content converter
-        valueSer = findContextualConvertingSerializer(provider, property, valueSer);
+        valueSer = findContextualConvertingSerializer(ctxt, property, valueSer);
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             JavaType valueType = _type.getContentType();
             if (valueType.useStaticType()) {
-                valueSer = provider.findContentValueSerializer(valueType, property);
+                valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
-            valueSer = provider.handleSecondaryContextualization(valueSer, property);
+            valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
         if (keySer == null) {
             keySer = _keySerializer;
         }
         if (keySer == null) {
-            keySer = provider.findKeySerializer(_type.getKeyType(), property);
+            keySer = ctxt.findKeySerializer(_type.getKeyType(), property);
         } else {
-            keySer = provider.handleSecondaryContextualization(keySer, property);
+            keySer = ctxt.handleSecondaryContextualization(keySer, property);
         }
         // finally, TypeSerializers may need contextualization as well
         TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
-            typeSer = typeSer.forProperty(provider, property);
+            typeSer = typeSer.forProperty(ctxt, property);
         }
 
         Set<String> ignored = _ignoredEntries;
         boolean sortKeys = false;
 
         if (intr != null && propertyAcc != null) {
-            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(provider.getConfig(), propertyAcc);
+            JsonIgnoreProperties.Value ignorals = intr.findPropertyIgnoralByName(ctxt.getConfig(), propertyAcc);
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
@@ -199,7 +199,7 @@ public class CacheSerializer
         }
         // 19-May-2016, tatu: Also check per-property format features, even if
         //    this isn't yet used (as per [guava#7])
-        JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
             if (B != null) {
@@ -232,7 +232,7 @@ public class CacheSerializer
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, Cache<?, ?> value) {
+    public boolean isEmpty(SerializationContext ctxt, Cache<?, ?> value) {
         return value.size() == 0;
     }
 
@@ -243,16 +243,16 @@ public class CacheSerializer
      */
 
     @Override
-    public void serialize(Cache<?, ?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(Cache<?, ?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         gen.writeStartObject(value);
-        _writeContents(value, gen, provider);
+        _writeContents(value, gen, ctxt);
         gen.writeEndObject();
     }
     
     @Override
-    public void serializeWithType(Cache<?, ?> value, JsonGenerator gen, SerializerProvider ctxt,
+    public void serializeWithType(Cache<?, ?> value, JsonGenerator gen, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
@@ -269,25 +269,25 @@ public class CacheSerializer
     /**********************************************************
      */
 
-    protected void _writeContents(Cache<?, ?> cache, JsonGenerator gen, SerializerProvider provider)
+    protected void _writeContents(Cache<?, ?> cache, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         Map<?, ?> value = cache.asMap();
         if (!value.isEmpty()) {
-            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
-                value = _orderEntriesByKey(value, gen, provider);
+            if (_sortKeys || ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntriesByKey(value, gen, ctxt);
             }
             
             if (_filterId != null) {
-                serializeFilteredFields(value, gen, provider);
+                serializeFilteredFields(value, gen, ctxt);
             } else {
-                serializeFields(value, gen, provider);
+                serializeFields(value, gen, ctxt);
             }
         }
     }
 
     private void serializeFields(Map<?, ?> mmap, JsonGenerator
-            gen, SerializerProvider provider)
+            gen, SerializationContext ctxt)
         throws JacksonException
     {
         final Set<String> ignored = _ignoredEntries;
@@ -299,41 +299,41 @@ public class CacheSerializer
                 continue;
             }
             if (key == null) {
-                provider.findNullKeySerializer(_type.getKeyType(), _property)
-                    .serialize(null, gen, provider);
+                ctxt.findNullKeySerializer(_type.getKeyType(), _property)
+                    .serialize(null, gen, ctxt);
             } else {
-                _keySerializer.serialize(key, gen, provider);
+                _keySerializer.serialize(key, gen, ctxt);
             }
             // Second, serialize value
             ValueSerializer<Object> valueSer;
             Object vv = entry.getValue();
             // is this even possible?
             if (vv == null) {
-                valueSer = provider.getDefaultNullValueSerializer();
+                valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
                 if (valueSer == null) {
                     Class<?> cc = vv.getClass();
                     valueSer = serializers.serializerFor(cc);
                     if (valueSer == null) {
-                        valueSer = _findAndAddDynamic(serializers, cc, provider);
+                        valueSer = _findAndAddDynamic(serializers, cc, ctxt);
                         serializers = _dynamicValueSerializers;
                     }
                 }
             }
             if (_valueTypeSerializer == null) {
-                valueSer.serialize(vv, gen, provider);
+                valueSer.serialize(vv, gen, ctxt);
             } else {
-                valueSer.serializeWithType(vv, gen, provider, _valueTypeSerializer);
+                valueSer.serializeWithType(vv, gen, ctxt, _valueTypeSerializer);
             }
         }
     }
 
-    private void serializeFilteredFields(Map<?, ?> map, JsonGenerator gen, SerializerProvider provider)
+    private void serializeFilteredFields(Map<?, ?> map, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         final Set<String> ignored = _ignoredEntries;
-        PropertyFilter filter = findPropertyFilter(provider, _filterId, map);
+        PropertyFilter filter = findPropertyFilter(ctxt, _filterId, map);
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             // First, serialize key
@@ -345,16 +345,16 @@ public class CacheSerializer
             ValueSerializer<Object> valueSer;
             if (value == null) {
                 // !!! TODO: null suppression?
-                valueSer = provider.getDefaultNullValueSerializer();
+                valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {
-                filter.serializeAsProperty(map, gen, provider, prop);
+                filter.serializeAsProperty(map, gen, ctxt, prop);
             } catch (Exception e) {
                 String keyDesc = "" + key;
-                wrapAndThrow(provider, e, value, keyDesc);
+                wrapAndThrow(ctxt, e, value, keyDesc);
             }
         }
     }
@@ -374,13 +374,13 @@ public class CacheSerializer
             v2.keyFormat(_keySerializer, _type.getKeyType());
             ValueSerializer<?> valueSer = _valueSerializer;
             final JavaType vt = _type.getContentType();
-            final SerializerProvider prov = visitor.getProvider();
+            final SerializationContext ctxt = visitor.getContext();
             if (valueSer == null) {
-                valueSer = _findAndAddDynamic(_dynamicValueSerializers, vt, prov);
+                valueSer = _findAndAddDynamic(_dynamicValueSerializers, vt, ctxt);
             }
             final ValueSerializer<?> valueSer2 = valueSer;
             v2.valueFormat(new JsonFormatVisitable() {
-                final JavaType arrayType = prov.getTypeFactory().constructArrayType(vt);
+                final JavaType arrayType = ctxt.getTypeFactory().constructArrayType(vt);
                 @Override
                 public void acceptJsonFormatVisitor(
                     JsonFormatVisitorWrapper v3, JavaType hint3)
@@ -401,7 +401,7 @@ public class CacheSerializer
     /**********************************************************
      */
 
-    protected Map<?,?> _orderEntriesByKey(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
+    protected Map<?,?> _orderEntriesByKey(Map<?,?> value, JsonGenerator gen, SerializationContext ctxt)
         throws JacksonException
     {
         try {
@@ -412,16 +412,16 @@ public class CacheSerializer
             return value;
         } catch (NullPointerException e) {
             // Most likely null key that TreeMultimap won't accept. So... ?
-            provider.reportMappingProblem("Failed to sort Multimap entries due to `NullPointerException`: `null` key?");
+            ctxt.reportMappingProblem("Failed to sort Multimap entries due to `NullPointerException`: `null` key?");
             return null;
         }
     }
     
     protected final ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-            Class<?> type, SerializerProvider provider)
+            Class<?> type, SerializationContext ctxt)
         throws JacksonException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
@@ -430,10 +430,10 @@ public class CacheSerializer
     }
 
     protected final ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
-                JavaType type, SerializerProvider provider)
+                JavaType type, SerializationContext ctxt)
         throws JacksonException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }

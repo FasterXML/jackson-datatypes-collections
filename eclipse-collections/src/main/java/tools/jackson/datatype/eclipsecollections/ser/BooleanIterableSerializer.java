@@ -4,8 +4,6 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.type.TypeFactory;
 
 import org.eclipse.collections.api.BooleanIterable;
 import org.eclipse.collections.api.iterator.BooleanIterator;

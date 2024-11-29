@@ -74,7 +74,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, ByteContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, ByteContainer value) {
             return value.isEmpty();
         }
 
@@ -84,15 +84,15 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public void serialize(ByteContainer value, JsonGenerator gen, SerializerProvider provider)
+        public void serialize(ByteContainer value, JsonGenerator gen, SerializationContext ctxt)
             throws JacksonException
         {
             gen.assignCurrentValue(value);
-            serializeContents(value, gen, provider);
+            serializeContents(value, gen, ctxt);
         }
         
         @Override
-        public void serializeWithType(ByteContainer value, JsonGenerator gen, SerializerProvider ctxt,
+        public void serializeWithType(ByteContainer value, JsonGenerator gen, SerializationContext ctxt,
                 TypeSerializer typeSer)
             throws JacksonException
         {
@@ -104,7 +104,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final ByteContainer value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final ByteContainer value, final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
         {
             gen.writeBinary(value.toArray());
@@ -119,7 +119,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, ShortContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, ShortContainer value) {
             return value.isEmpty();
         }
 
@@ -140,7 +140,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final ShortContainer value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final ShortContainer value, final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
         {
             if (value instanceof ShortIndexedContainer) {
@@ -185,7 +185,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, IntContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, IntContainer value) {
             return value.isEmpty();
         }
 
@@ -206,7 +206,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
             value.forEach(new IntProcedure() {
@@ -225,7 +225,7 @@ public class HppcContainerSerializers
             }
 
             @Override
-            public boolean isEmpty(SerializerProvider provider, IntIndexedContainer value) {
+            public boolean isEmpty(SerializationContext ctxt, IntIndexedContainer value) {
                 return value.isEmpty();
             }
 
@@ -246,7 +246,7 @@ public class HppcContainerSerializers
             }
             
             @Override
-            protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializerProvider provider)
+            protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
             {
                 int[] array;
@@ -272,7 +272,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, LongContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, LongContainer value) {
             return value.isEmpty();
         }
 
@@ -293,7 +293,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final LongContainer value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final LongContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
             if (value instanceof LongIndexedContainer) {
@@ -343,7 +343,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, CharContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, CharContainer value) {
             return value.isEmpty();
         }
 
@@ -360,7 +360,7 @@ public class HppcContainerSerializers
         }
         
         @Override
-        public void serialize(CharContainer value, JsonGenerator gen, SerializerProvider ctxt)
+        public void serialize(CharContainer value, JsonGenerator gen, SerializationContext ctxt)
             throws JacksonException
         {
             gen.assignCurrentValue(value);
@@ -368,7 +368,8 @@ public class HppcContainerSerializers
         }
         
         @Override
-        public void serializeWithType(CharContainer value, JsonGenerator gen, SerializerProvider ctxt,
+        public void serializeWithType(CharContainer value,
+                JsonGenerator gen, SerializationContext ctxt,
                 TypeSerializer typeSer)
             throws JacksonException
         {
@@ -380,7 +381,8 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final CharContainer value, final JsonGenerator gen, SerializerProvider ctxt)
+        protected void serializeContents(final CharContainer value,
+                final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
         {
             char[] ch = value.toArray();
@@ -402,7 +404,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, FloatContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, FloatContainer value) {
             return value.isEmpty();
         }
 
@@ -423,7 +425,8 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final FloatContainer value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final FloatContainer value,
+                final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
             if (value instanceof FloatIndexedContainer) {
@@ -450,7 +453,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, DoubleContainer value) {
+        public boolean isEmpty(SerializationContext ctxt, DoubleContainer value) {
             return value.isEmpty();
         }
         @Override
@@ -470,7 +473,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        protected void serializeContents(final DoubleContainer value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final DoubleContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
             if (value instanceof DoubleIndexedContainer) {
@@ -511,7 +514,7 @@ public class HppcContainerSerializers
         }
 
         @Override
-        public boolean isEmpty(SerializerProvider provider, BitSet value) {
+        public boolean isEmpty(SerializationContext ctxt, BitSet value) {
             return value.isEmpty();
         }
 
@@ -532,7 +535,7 @@ public class HppcContainerSerializers
         }
         
         @Override
-        protected void serializeContents(final BitSet value, final JsonGenerator gen, SerializerProvider provider)
+        protected void serializeContents(final BitSet value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
             // is size() close enough to the last set bit?
