@@ -53,7 +53,7 @@ jobs:
       run: ./mvnw -B -ff -ntp -Dversion.guava=${{ matrix.guava_version }} clean package surefire:test
     - name: Extract project Maven version
       id: projectVersion
-      run: echo ::set-output name=version::$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -DforceStdout -Dexpression=project.version -q)
+      run: echo "version=$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.4.1:evaluate -DforceStdout -Dexpression=project.version -q)" >> $GITHUB_OUTPUT
     - name: Deploy snapshot
       if: ${{ github.event_name != 'pull_request' && matrix.snapshot && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
       env:
