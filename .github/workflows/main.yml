@@ -54,7 +54,7 @@ jobs:
       run: ./mvnw -B -q -ff -ntp -DskipTests clean package
     - name: Test
       # Note: actual testing to use matrix-version of Guava
-      run: ./mvnw -B -q -ff -ntp -Dversion.guava=${{ matrix.guava_version }} surefire:test
+      run: ./mvnw -B -ff -ntp -Dversion.guava=${{ matrix.guava_version }} surefire:test
     - name: Extract project Maven version
       id: projectVersion
       run: echo ::set-output name=version::$(./mvnw org.apache.maven.plugins:maven-help-plugin:3.3.0:evaluate -DforceStdout -Dexpression=project.version -q)
