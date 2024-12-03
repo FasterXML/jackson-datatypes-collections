@@ -17,3 +17,5 @@ Modules:
  (contributed by László-Róbert A)
 #98: Rename "com.fasterxml.jackson" -> "tools.jackson"
 - (guava) Update "preferred" Guava version to 32.1.3-jre
+
+- Minimum Java baseline: Java 17
