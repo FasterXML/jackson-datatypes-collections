@@ -4,7 +4,6 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -12,7 +11,6 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -26,11 +24,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '17', '21']
+        java_version: ['17', '21']
         guava_version: [ $GUAVA_DEFAULT, $GUAVA_MIN, $GUAVA_MAX ]
         # Indicate combination for which Snapshot build enabled
         include:
-          - java_version: '8'
+          - java_version: '17'
             guava_version: $GUAVA_DEFAULT
             snapshot: 1
     env:
