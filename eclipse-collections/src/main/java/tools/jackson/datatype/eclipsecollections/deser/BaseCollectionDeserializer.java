@@ -170,7 +170,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
                 while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                     String str;
                     if (t == JsonToken.VALUE_STRING) {
-                        str = p.getText();
+                        str = p.getString();
                     } else {
                         CharSequence cs = (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
                         str = cs.toString();
@@ -186,24 +186,24 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
                 return finish(intermediate);
             }
 
-            char[] chars = p.getTextCharacters();
-            if (p.getTextOffset() == 0 && p.getTextLength() == chars.length) {
+            char[] chars = p.getStringCharacters();
+            if (p.getStringOffset() == 0 && p.getStringLength() == chars.length) {
                 intermediate.addAll(chars);
             } else {
                 int i = 0;
                 // first, copy in batches of BATCH_COPY_SIZE
-                if ((p.getTextLength() - i) >= BATCH_COPY_SIZE) {
+                if ((p.getStringLength() - i) >= BATCH_COPY_SIZE) {
                     char[] buf = new char[BATCH_COPY_SIZE];
                     do {
-                        System.arraycopy(chars, p.getTextOffset() + i, buf, 0, BATCH_COPY_SIZE);
+                        System.arraycopy(chars, p.getStringOffset() + i, buf, 0, BATCH_COPY_SIZE);
                         intermediate.addAll(buf);
                         i += BATCH_COPY_SIZE;
-                    } while ((p.getTextLength() - i) >= BATCH_COPY_SIZE);
+                    } while ((p.getStringLength() - i) >= BATCH_COPY_SIZE);
                 }
                 // and finally, copy the remainder.
-                if (p.getTextLength() > i) {
+                if (p.getStringLength() > i) {
                     char[] tail = Arrays.copyOfRange(
-                            chars, p.getTextOffset() + i, p.getTextOffset() + p.getTextLength());
+                            chars, p.getStringOffset() + i, p.getStringOffset() + p.getStringLength());
                     intermediate.addAll(tail);
                 }
             }

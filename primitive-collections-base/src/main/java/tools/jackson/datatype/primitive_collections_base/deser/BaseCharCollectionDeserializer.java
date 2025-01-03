@@ -43,7 +43,7 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 String str;
                 if (t == JsonToken.VALUE_STRING) {
-                    str = p.getText();
+                    str = p.getString();
                 } else {
                     CharSequence cs =
                             (CharSequence) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
@@ -60,8 +60,8 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
             return finish(intermediate);
         }
 
-        char[] chars = p.getTextCharacters();
-        addAll(intermediate, chars, p.getTextOffset(), p.getTextLength());
+        char[] chars = p.getStringCharacters();
+        addAll(intermediate, chars, p.getStringOffset(), p.getStringLength());
         return finish(intermediate);
     }
 }

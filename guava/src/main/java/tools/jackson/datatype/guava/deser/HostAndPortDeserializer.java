@@ -31,7 +31,7 @@ public class HostAndPortDeserializer extends FromStringDeserializer<HostAndPort>
             if (hostNode == null || hostNode.isNull()) {
                 host = "";
             } else {
-                host = hostNode.asText();
+                host = hostNode.asString();
             }
             JsonNode n = root.get("port");
             if (n == null) {

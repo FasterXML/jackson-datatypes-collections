@@ -14,7 +14,6 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
-import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.datatype.guava.deser.util.RangeFactory;
 import tools.jackson.datatype.guava.deser.util.RangeHelper;
@@ -22,7 +21,7 @@ import tools.jackson.datatype.guava.deser.util.RangeHelper;
 /**
  * Jackson deserializer for a Guava {@link Range}.
  *<p>
- * TODO: I think it would make sense to reimplement this deserializer to
+ * TODO: I think it would make sense to re-implement this deserializer to
  * use Delegating Deserializer, using a POJO as an intermediate form (properties
  * could be of type {@link java.lang.Object})
  * This would also also simplify the implementation a bit.
@@ -227,7 +226,7 @@ public class RangeDeserializer
     private Range<?> deserializeRangeFromString(DeserializationContext context, JsonParser p)
         throws JacksonException
     {
-        String rangeInterval = p.getText();
+        String rangeInterval = p.getString();
 
         if (rangeInterval.isEmpty()) {
             return null;
@@ -272,7 +271,7 @@ public class RangeDeserializer
         throws JacksonException
     {
         expect(context, JsonToken.VALUE_STRING, p.currentToken());
-        String name = p.getText();
+        String name = p.getString();
         if (name == null) {
             name = "";
         }
