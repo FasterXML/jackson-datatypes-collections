@@ -1,9 +1,11 @@
-// Generated 20-Mar-2019 using Moditect maven plugin
-module tools.jackson.datatype.eclipse.collections {
+// Eclipse-collections module Main artifact Module descriptor
+module tools.jackson.datatype.eclipsecollections
+{
     requires com.fasterxml.jackson.annotation;
     requires tools.jackson.core;
-    requires tools.jackson.databind;
-    requires jackson.datatype.primitive.collections.base;
+    requires transitive tools.jackson.databind;
+
+    requires tools.jackson.datatype.primitive_collections_base;
 
     requires org.eclipse.collections.api;
     requires org.eclipse.collections.impl;
