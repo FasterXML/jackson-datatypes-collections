@@ -8,7 +8,7 @@ module tools.jackson.datatype.eclipsecollections
     requires tools.jackson.core;
     requires transitive tools.jackson.databind;
 
-    requires tools.jackson.datatype.primitive_collections_basee;
+    requires tools.jackson.datatype.primitive_collections_base;
 
     requires org.eclipse.collections.api;
     requires org.eclipse.collections.impl;

@@ -13,7 +13,6 @@ module tools.jackson.datatype.hppc
     requires junit; // JUnit 4
 
     // Further, need to open up test packages for JUnit et al
-    
     opens tools.jackson.datatype.hppc;
     opens tools.jackson.datatype.hppc.deser;
     opens tools.jackson.datatype.hppc.ser;
