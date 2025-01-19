@@ -1,4 +1,6 @@
-module jackson.datatype.primitive.collections.base {
+// Collections-base module Main artifact Module descriptor
+module tools.jackson.datatype.primitive_collections_base
+{
     requires com.fasterxml.jackson.annotation;
 
     requires transitive tools.jackson.core;

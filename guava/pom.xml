@@ -60,10 +60,6 @@ com.google.common.*;version="${version.guava.osgi}",
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
-      <plugin>
-        <groupId>org.moditect</groupId>
-        <artifactId>moditect-maven-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
 </project>

@@ -1,11 +1,12 @@
-module tools.jackson.datatype.guava {
+// Guava module Main artifact Module descriptor
+module tools.jackson.datatype.guava
+{
     requires com.fasterxml.jackson.annotation;
 
     requires tools.jackson.core;
     requires tools.jackson.databind;
 
-    requires static guava;
-    requires static com.google.common;
+    requires com.google.common;
 
     exports tools.jackson.datatype.guava;
     exports tools.jackson.datatype.guava.deser;

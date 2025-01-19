@@ -1,7 +1,10 @@
-module tools.jackson.datatype.hppc {
+// HPPC module Main artifact Module descriptor
+module tools.jackson.datatype.hppc
+{
     requires tools.jackson.core;
-    requires tools.jackson.databind;
-    requires hppc;
+    requires transitive tools.jackson.databind;
+
+    requires com.carrotsearch.hppc;
 
     exports tools.jackson.datatype.hppc;
     exports tools.jackson.datatype.hppc.deser;
