@@ -3,11 +3,15 @@ package com.fasterxml.jackson.datatype.hppc.ser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.carrotsearch.hppc.*;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.datatype.hppc.HppcTestBase;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestContainerSerializers extends HppcTestBase
 {
+    @Test
     public void testByteSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -35,6 +39,7 @@ public class TestContainerSerializers extends HppcTestBase
         */
     }
 
+    @Test
     public void testShortSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -51,6 +56,7 @@ public class TestContainerSerializers extends HppcTestBase
         }
     }
 
+    @Test
     public void testIntSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -67,6 +73,7 @@ public class TestContainerSerializers extends HppcTestBase
         }
     }
 
+    @Test
     public void testLongSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -83,6 +90,7 @@ public class TestContainerSerializers extends HppcTestBase
         }
     }
 
+    @Test
     public void testCharSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -99,6 +107,7 @@ public class TestContainerSerializers extends HppcTestBase
         }
     }
 
+    @Test
     public void testFloatSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -117,6 +126,7 @@ public class TestContainerSerializers extends HppcTestBase
         */
     }
 
+    @Test
     public void testDoubleSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -141,6 +151,7 @@ public class TestContainerSerializers extends HppcTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testObjectContainerSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
@@ -153,7 +164,8 @@ public class TestContainerSerializers extends HppcTestBase
 
         // TODO: polymorphic case (@JsonTypeInfo and/or default typing)
     }
-    
+
+    @Test
     public void testBitSetSerializer() throws Exception
     {
         ObjectMapper mapper = mapperWithModule();
