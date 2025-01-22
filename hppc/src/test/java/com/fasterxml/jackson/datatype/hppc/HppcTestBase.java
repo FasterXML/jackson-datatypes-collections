@@ -4,7 +4,9 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class HppcTestBase extends junit.framework.TestCase
+import static org.junit.jupiter.api.Assertions.fail;
+
+public abstract class HppcTestBase
 {
     protected HppcTestBase() { }
     
