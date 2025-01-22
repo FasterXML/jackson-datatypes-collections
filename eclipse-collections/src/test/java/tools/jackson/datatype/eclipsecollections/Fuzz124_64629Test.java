@@ -1,14 +1,12 @@
 package tools.jackson.datatype.eclipsecollections;
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import org.eclipse.collections.api.map.primitive.MutableCharCharMap;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying the fixes for OSS-Fuzz issues
@@ -25,7 +23,7 @@ public class Fuzz124_64629Test extends ModuleTestBase
         // Invalid token {"x?":[x?]: where ? is not ascii characters
         final char[] invalid = {123, 34, 824, 34, 58, 91, 120, 7, 93};
 
-        MismatchedInputException e = Assert.assertThrows(
+        MismatchedInputException e = assertThrows(
             MismatchedInputException.class,
             () -> MAPPER.readValue(new String(invalid), MutableCharCharMap.class));
         assertTrue(e.getMessage().contains("Cannot convert a JSON Null into a char element of map"));

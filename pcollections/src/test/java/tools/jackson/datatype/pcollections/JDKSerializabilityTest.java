@@ -1,14 +1,15 @@
 package tools.jackson.datatype.pcollections;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.*;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import org.junit.Test;
 import org.pcollections.PCollection;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JDKSerializabilityTest extends ModuleTestBase
 {

@@ -5,7 +5,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class ModuleTestBase
 {

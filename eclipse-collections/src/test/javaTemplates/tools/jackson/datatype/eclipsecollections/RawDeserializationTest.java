@@ -2,7 +2,7 @@ package tools.jackson.datatype.eclipsecollections;
 
 import java.util.Collections;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.type.TypeReference;
 

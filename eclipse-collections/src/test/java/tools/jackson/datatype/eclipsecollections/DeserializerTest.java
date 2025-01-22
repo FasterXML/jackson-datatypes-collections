@@ -42,8 +42,9 @@ import org.eclipse.collections.impl.factory.*;
 import org.eclipse.collections.impl.factory.primitive.*;
 import org.eclipse.collections.impl.tuple.Tuples;
 import org.eclipse.collections.impl.tuple.primitive.PrimitiveTuples;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class DeserializerTest extends ModuleTestBase {
 
@@ -327,7 +328,7 @@ public final class DeserializerTest extends ModuleTestBase {
                         .getMethod("ofAll", baseMapType)
                         .invoke(immutableFactory, mutableSample);
 
-                Assert.assertEquals(mutableSample, immutableSample);
+                assertEquals(mutableSample, immutableSample);
 
                 Function<Class<?>, JavaType> generify;
                 if (key == Object.class || value == Object.class) {
@@ -345,21 +346,21 @@ public final class DeserializerTest extends ModuleTestBase {
                             mapper.writerFor(generify.apply(baseMapType)).writeValueAsString(mutableSample);
                     String polyPrinted = mapper.writeValueAsString(mutableSample);
                     // compare trees so property order doesn't matter
-                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(mutablePrinted));
-                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(immutablePrinted));
-                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(basePrinted));
-                    Assert.assertEquals(mapper.readTree(json), mapper.readTree(polyPrinted));
+                    assertEquals(mapper.readTree(json), mapper.readTree(mutablePrinted));
+                    assertEquals(mapper.readTree(json), mapper.readTree(immutablePrinted));
+                    assertEquals(mapper.readTree(json), mapper.readTree(basePrinted));
+                    assertEquals(mapper.readTree(json), mapper.readTree(polyPrinted));
                 } else {
                     Object mutableParsed = mapper.readValue(json, generify.apply(mutableMapType));
                     Object immutableParsed = mapper.readValue(json, generify.apply(immutableMapType));
                     Object baseParsed = mapper.readValue(json, generify.apply(baseMapType));
-                    Assert.assertEquals(mutableSample, mutableParsed);
-                    Assert.assertEquals(immutableSample, immutableParsed);
-                    Assert.assertEquals(mutableSample, baseParsed);
+                    assertEquals(mutableSample, mutableParsed);
+                    assertEquals(immutableSample, immutableParsed);
+                    assertEquals(mutableSample, baseParsed);
 
-                    Assert.assertTrue(mutableMapType.isInstance(mutableParsed));
-                    Assert.assertTrue(immutableMapType.isInstance(immutableParsed));
-                    Assert.assertTrue(baseMapType.isInstance(baseParsed));
+                    assertTrue(mutableMapType.isInstance(mutableParsed));
+                    assertTrue(immutableMapType.isInstance(immutableParsed));
+                    assertTrue(baseMapType.isInstance(baseParsed));
                 }
             }
         }
@@ -371,19 +372,19 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void objectObjectMaps() throws Exception {
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<MutableMap<String, String>>() {}),
                 Maps.mutable.of("abc", "def")
         );
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<ImmutableMap<String, String>>() {}),
                 Maps.immutable.of("abc", "def")
         );
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<MapIterable<String, String>>() {}),
                 Maps.mutable.of("abc", "def")
         );
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().readValue("{\"abc\":\"def\"}",
                                              new TypeReference<UnsortedMapIterable<String, String>>() {}),
                 Maps.mutable.of("abc", "def")
@@ -405,7 +406,7 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void typeInfoObjectMap() throws Exception {
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule()
                         .readValue("{\"map\":{\"0\":{\"@c\":\".DeserializerTest$B\"}}}", Container.class).map,
                 IntObjectMaps.immutable.of(0, new B())
@@ -442,7 +443,7 @@ public final class DeserializerTest extends ModuleTestBase {
         // test case for jackson-datatypes-collections#71
         ImmutableMap<String, ImmutableList<A>> property =
                 Maps.immutable.of("foo", Lists.immutable.of(new B()));
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().readValue(
                         "{\"foo\": [{\"@c\": \".DeserializerTest$B\"}]}",
                         new TypeReference<ImmutableMap<String, ImmutableList<A>>>() {}),
@@ -455,7 +456,7 @@ public final class DeserializerTest extends ModuleTestBase {
         // auxiliary test case for jackson-datatypes-collections#71 - also worked before fix
         ImmutableMap<String, ImmutableMap<String, A>> property =
                 Maps.immutable.of("foo", Maps.immutable.of("bar", new B()));
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().readValue(
                         "{\"foo\": {\"bar\": {\"@c\": \".DeserializerTest$B\"}}}",
                         new TypeReference<ImmutableMap<String, ImmutableMap<String, A>>>() {}),
@@ -517,8 +518,8 @@ public final class DeserializerTest extends ModuleTestBase {
                                       + ",\"two\":" + mapperWithModule().writeValueAsString(sampleTwo) + "}";
                 Object samplePair = factory.invoke(null, sampleOne, sampleTwo);
 
-                Assert.assertEquals(expectedJson, mapperWithModule().writeValueAsString(samplePair));
-                Assert.assertEquals(samplePair, mapperWithModule().readValue(expectedJson, pairType));
+                assertEquals(expectedJson, mapperWithModule().writeValueAsString(samplePair));
+                assertEquals(samplePair, mapperWithModule().readValue(expectedJson, pairType));
             }
         }
     }
@@ -531,8 +532,8 @@ public final class DeserializerTest extends ModuleTestBase {
         String expectedJson = "{\"one\":" + mapper.writeValueAsString(sampleOne)
                               + ",\"two\":" + mapper.writeValueAsString(sampleTwo) + "}";
         Twin<String> twin = Tuples.twin((String) sampleOne, (String) sampleTwo);
-        Assert.assertEquals(expectedJson, mapper.writeValueAsString(twin));
-        Assert.assertEquals(twin, mapper.readValue(expectedJson, new TypeReference<Twin<String>>() {}));
+        assertEquals(expectedJson, mapper.writeValueAsString(twin));
+        assertEquals(twin, mapper.readValue(expectedJson, new TypeReference<Twin<String>>() {}));
     }
 
     @Test
@@ -542,8 +543,8 @@ public final class DeserializerTest extends ModuleTestBase {
         final String actJson = mapper.writerFor(new TypeReference<ObjectIntPair<A>>() {})
                 .writeValueAsString(pair);
         String expJson = "{\"one\":{\"@c\":\".DeserializerTest$B\"},\"two\":5}";
-        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
-        Assert.assertEquals(pair,
+        assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
+        assertEquals(pair,
                 mapper.readValue(actJson, new TypeReference<ObjectIntPair<A>>() {})
         );
     }
@@ -554,8 +555,8 @@ public final class DeserializerTest extends ModuleTestBase {
         String json = "{\"a\":{\"b\":\"c\"}}";
         TypeReference<MutableMap<String, MutableMap<String, String>>> type =
                 new TypeReference<MutableMap<String, MutableMap<String, String>>>() {};
-        Assert.assertEquals(json, mapperWithModule().writerFor(type).writeValueAsString(pair));
-        Assert.assertEquals(pair, mapperWithModule().readValue(json, type));
+        assertEquals(json, mapperWithModule().writerFor(type).writeValueAsString(pair));
+        assertEquals(pair, mapperWithModule().readValue(json, type));
     }
 
     @Test
@@ -565,8 +566,8 @@ public final class DeserializerTest extends ModuleTestBase {
         String actJson = mapper.writerFor(new TypeReference<Triple<String, Integer, Boolean>>() {})
                 .writeValueAsString(triple);
         String expJson = "{\"one\":\"a\",\"two\":2,\"three\":false}";
-        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
-        Assert.assertEquals(
+        assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
+        assertEquals(
                 triple,
                 mapper.readValue(actJson, new TypeReference<Triple<String, Integer, Boolean>>() {})
         );
@@ -579,8 +580,8 @@ public final class DeserializerTest extends ModuleTestBase {
         String actJson = mapper.writerFor(new TypeReference<Triplet<String>>() {})
                 .writeValueAsString(triple);
         String expJson = "{\"one\":\"a\",\"two\":\"b\",\"three\":\"c\"}";
-        Assert.assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
-        Assert.assertEquals(
+        assertEquals(mapper.readTree(expJson), mapper.readTree(actJson));
+        assertEquals(
                 triple,
                 mapper.readValue(actJson, new TypeReference<Triplet<String>>() {})
         );

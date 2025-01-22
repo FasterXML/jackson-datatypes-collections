@@ -6,6 +6,8 @@ import tools.jackson.databind.ObjectMapper;
 
 import com.carrotsearch.hppc.ShortArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class JDKSerializabilityTest extends ModuleTestBase
 {
     public void testMapperWithModule() throws Exception {

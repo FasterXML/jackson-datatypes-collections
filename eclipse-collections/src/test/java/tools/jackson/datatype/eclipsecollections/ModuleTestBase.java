@@ -1,12 +1,6 @@
 package tools.jackson.datatype.eclipsecollections;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
-
 import java.util.Arrays;
-
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 
 import tools.jackson.core.type.TypeReference;
 
@@ -14,8 +8,12 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.json.JsonMapper;
 
-public abstract class ModuleTestBase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
 
+public abstract class ModuleTestBase
+{
     protected ObjectMapper mapperWithModule() {
         return mapperBuilder().build();
     }
@@ -44,10 +42,10 @@ public abstract class ModuleTestBase {
         for (TypeReference<?> type : types) {
             ObjectMapper objectMapper = mapperWithModule();
             Object value = objectMapper.readValue(json, type);
-            Assert.assertEquals(expected, value);
+            assertEquals(expected, value);
             Class<?> collectionClass =
                     objectMapper.getTypeFactory().constructType(type).getRawClass();
-            assertThat(value, CoreMatchers.instanceOf(collectionClass));
+            assertInstanceOf(collectionClass, value);
         }
     }
 
@@ -55,8 +53,8 @@ public abstract class ModuleTestBase {
     {
         for (Class<?> type : types) {
             Object value = mapperWithModule().readValue(json, type);
-            Assert.assertEquals(expected, value);
-            assertThat(value, CoreMatchers.instanceOf(type));
+            assertEquals(expected, value);
+            assertInstanceOf(type, value);
         }
     }
 }

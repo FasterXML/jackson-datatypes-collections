@@ -52,6 +52,13 @@ com.google.common.*;version="${version.guava.osgi}",
       <artifactId>guava</artifactId>
       <version>${version.guava}</version>
     </dependency>
+
+    <!-- 2025-Jan-22 joohyukkim : temporarily isolate JUnit 4 here... -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
