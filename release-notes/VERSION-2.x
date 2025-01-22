@@ -16,6 +16,13 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.19.0 (not yet released)
+
+#1: (guava) Add deserialization support for `Table<R, C, V>`
+ (contributed by Abhishek K)
+#157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
+ (contributed by Patrick S)
+
 2.18.2 (27-Nov-2024)
 2.18.1 (28-Oct-2024)
 

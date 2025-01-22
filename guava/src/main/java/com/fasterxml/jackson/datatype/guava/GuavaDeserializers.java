@@ -1,7 +1,12 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.datatype.guava.deser.table.HashBasedTableDeserializer;
+import com.fasterxml.jackson.datatype.guava.deser.table.ImmutableTableDeserializer;
+import com.fasterxml.jackson.datatype.guava.deser.table.TreeBasedTableDeserializer;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.datatype.guava.ser.ImmutableDoubleArraySerializer;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.collect.*;
@@ -21,6 +26,8 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.list.ArrayListMultima
 import com.fasterxml.jackson.datatype.guava.deser.multimap.list.LinkedListMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
+import com.google.common.primitives.ImmutableDoubleArray;
+import com.google.common.primitives.ImmutableIntArray;
 
 /**
  * Custom deserializers module offers.
@@ -129,7 +136,6 @@ public class GuavaDeserializers
                     elementDeserializer, elementTypeDeserializer,
                     null, null);
         }
-
         return null;
     }
 
@@ -259,11 +265,18 @@ public class GuavaDeserializers
         }
 
         if (Table.class.isAssignableFrom(raw)) {
-            // !!! TODO
+            if (HashBasedTable.class.isAssignableFrom(raw)) {
+                return new HashBasedTableDeserializer(type);
+            }
+            if (TreeBasedTable.class.isAssignableFrom(raw)) {
+                return new TreeBasedTableDeserializer(type);
+            }
+            return new ImmutableTableDeserializer(type);
         }
+
         // @since 2.16 : support Cache deserialization
-        java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config, 
-                                        beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+        java.util.Optional<JsonDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config,
+                beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
         if (cacheDeserializer.isPresent()) {
             return cacheDeserializer.get();
         }
@@ -281,9 +294,9 @@ public class GuavaDeserializers
      * @return An optional {@link JsonDeserializer} for the cache type, if found.
      * @since 2.16
      */
-    private java.util.Optional<JsonDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type, 
-        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer, 
-        TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer) 
+    private java.util.Optional<JsonDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type,
+        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer,
+        TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
     {
         /* // Example implementations
         if (LoadingCache.class.isAssignableFrom(raw)) {
@@ -315,7 +328,7 @@ public class GuavaDeserializers
     public JsonDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
             BeanDescription beanDesc)
     {
-        if (RangeSet.class.isAssignableFrom(type.getRawClass())) {
+        if (type.isTypeOrSubTypeOf(RangeSet.class)) {
             return new RangeSetDeserializer();
         }
         if (type.hasRawClass(Range.class)) {
@@ -329,6 +342,12 @@ public class GuavaDeserializers
         }
         if (type.hasRawClass(HashCode.class)) {
             return HashCodeDeserializer.std;
+        }
+        if (type.hasRawClass(ImmutableIntArray.class)) {
+            return new ImmutableIntArrayDeserializer();
+        }
+        if (type.hasRawClass(ImmutableDoubleArray.class)) {
+            return new ImmutableDoubleArrayDeserializer();
         }
         return null;
     }
@@ -348,6 +367,8 @@ public class GuavaDeserializers
                     || ImmutableMap.class.isAssignableFrom(valueType)
                     || BiMap.class.isAssignableFrom(valueType)
                     || ImmutableRangeSet.class.isAssignableFrom(valueType)
+                    || (valueType == ImmutableIntArray.class)
+                    || (valueType == ImmutableDoubleArray.class)
                     ;
         }
         return false;

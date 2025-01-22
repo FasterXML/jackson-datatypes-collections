@@ -93,12 +93,11 @@ public class ImmutableContainersTest extends ModuleTestBase
             _verifyImmutableException(e, ImmutableSortedSet.class);
         }
 
-        // 12-Nov-2024, tatu: Failure message for Maps only changed in 2.19, however
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<ImmutableMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Cannot find a deserializer for non-concrete");
+            _verifyImmutableException(e, ImmutableMap.class);
         }
     }
 

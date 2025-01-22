@@ -4,7 +4,7 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.18"
+    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
@@ -12,17 +12,17 @@ on:
     branches:
     - master
     - "3.0"
-    - "2.18"
+    - "2.19"
     paths-ignore:
     - "README.md"
     - "release-notes/*"
 env:
   GUAVA_DEFAULT: '25.1-jre'
-  GUAVA_MIN: '20.0'
+  GUAVA_MIN: '22.0'
   GUAVA_MAX: '33.1.0-jre'
 jobs:
   build:
-    runs-on: 'ubuntu-20.04'
+    runs-on: 'ubuntu-22.04'
     strategy:
       fail-fast: false
       matrix:
@@ -36,9 +36,9 @@ jobs:
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
     - name: Set up JDK
-      uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # v4.2.2
+      uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java_version }}
@@ -70,7 +70,7 @@ jobs:
       run: ./mvnw -B -q -ff -ntp test
     - name: Publish code coverage
       if: ${{ github.event_name != 'pull_request' && matrix.snapshot && endsWith(steps.projectVersion.outputs.version, '-SNAPSHOT') }}
-      uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+      uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: ./target/site/jacoco/jacoco.xml
