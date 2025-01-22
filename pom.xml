@@ -94,6 +94,7 @@
             </execution>
           </executions>
         </plugin>
+      </plugins>
     </pluginManagement>
 
     <!-- 05-Jul-2020, tatu: Add generation of Gradle Module Metadata -->
