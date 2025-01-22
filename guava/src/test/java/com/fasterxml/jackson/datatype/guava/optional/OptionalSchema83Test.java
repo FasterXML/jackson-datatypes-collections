@@ -3,10 +3,14 @@ package com.fasterxml.jackson.datatype.guava.optional;
 import java.util.*;
 
 import com.google.common.base.Optional;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalSchema83Test
     extends ModuleTestBase
@@ -120,6 +124,7 @@ public class OptionalSchema83Test
         }
     }
 
+    @Test
     public void testOptionalTypeSchema83() throws Exception {
         VisitorWrapper wrapper = new VisitorWrapper(null, "", new HashSet<String>());
         mapperWithModule()

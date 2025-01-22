@@ -2,6 +2,8 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.util.Iterator;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 import com.google.common.collect.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that various immutable types
@@ -42,6 +46,7 @@ public class ImmutableContainersTest extends ModuleTestBase
      * Immutable types can actually be serialized as regular collections, without
      * problems.
      */
+    @Test
     public void testWithoutSerializers() throws Exception
     {
         ImmutableList<Integer> list = ImmutableList.<Integer>builder()
@@ -68,6 +73,7 @@ public class ImmutableContainersTest extends ModuleTestBase
     /**
      * Deserialization will fail, however.
      */
+    @Test
     public void testWithoutDeserializersFail() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -115,6 +121,7 @@ public class ImmutableContainersTest extends ModuleTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testImmutableList() throws Exception
     {
         ImmutableList<Integer> list = MAPPER.readValue("[1,2,3]", new TypeReference<ImmutableList<Integer>>() { });
@@ -124,6 +131,7 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(Integer.valueOf(3), list.get(2));
     }
 
+    @Test
     public void testImmutableSet() throws Exception
     {
         ImmutableSet<Integer> set = MAPPER.readValue("[3,7,8]",
@@ -139,6 +147,7 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(0, set.size());
     }
 
+    @Test
     public void testImmutableSetFromSingle() throws Exception
     {
         ObjectMapper mapper = mapperWithModule()
@@ -148,7 +157,8 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(1, set.size());
         assertTrue(set.contains("abc"));
     }
-    
+
+    @Test
     public void testTypedImmutableset() throws Exception
     {
         ImmutableSet<Integer> set;
@@ -181,6 +191,7 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(0, ((ImmutableSet<?>) result.value).size());
     }
 
+    @Test
     public void testImmutableSortedSet() throws Exception
     {
         ImmutableSortedSet<Integer> set = MAPPER.readValue("[5,1,2]", new TypeReference<ImmutableSortedSet<Integer>>() { });
@@ -190,7 +201,8 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(Integer.valueOf(2), it.next());
         assertEquals(Integer.valueOf(5), it.next());
     }
-    
+
+    @Test
     public void testImmutableMap() throws Exception
     {
         final JavaType type = MAPPER.getTypeFactory().constructType(new TypeReference<ImmutableMap<Integer,Boolean>>() { });
@@ -208,6 +220,7 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(1, map.size());
     }
 
+    @Test
     public void testTypedImmutableMap() throws Exception
     {
         ImmutableMap<String,Integer> map;
@@ -239,7 +252,8 @@ public class ImmutableContainersTest extends ModuleTestBase
         }
         assertEquals(0, ((ImmutableMap<?,?>) result.value).size());
     }
-    
+
+    @Test
     public void testImmutableSortedMap() throws Exception
     {
         ImmutableSortedMap<Integer,Boolean> map = MAPPER.readValue("{\"12\":true,\"4\":false}", new TypeReference<ImmutableSortedMap<Integer,Boolean>>() { });
@@ -247,7 +261,8 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertEquals(Boolean.TRUE, map.get(Integer.valueOf(12)));
         assertEquals(Boolean.FALSE, map.get(Integer.valueOf(4)));
     }
-    
+
+    @Test
     public void testImmutableBiMap() throws Exception
     {
         ImmutableBiMap<Integer,Boolean> map = MAPPER.readValue("{\"12\":true,\"4\":false}", new TypeReference<ImmutableBiMap<Integer,Boolean>>() { });

@@ -3,6 +3,8 @@ package com.fasterxml.jackson.datatype.guava;
 import java.time.Duration;
 import java.time.LocalDate;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
@@ -11,6 +13,8 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.datatype.guava.deser.util.RangeFactory;
 
 import com.google.common.collect.Range;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Test for [dataformats-collections#118]
 public class RangeDeserializer188Test extends ModuleTestBase
@@ -51,6 +55,7 @@ public class RangeDeserializer188Test extends ModuleTestBase
     private static final Range<Integer> rightBoundedRange = RangeFactory.atLeast(10);
 
     // [dataformats-collections#118]
+    @Test
     public void testRangeSerializationToString() throws Exception
     {
         testRangeSerialization(openRange, "(1..10)");
@@ -67,6 +72,7 @@ public class RangeDeserializer188Test extends ModuleTestBase
     }
 
     // [dataformats-collections#135]
+    @Test
     public void testIntRangeDeserializationFromBracketNotation() throws Exception
     {
         testIntRangeDeserialization("{\"r\":\"(1..10)\"}", openRange);
@@ -79,12 +85,14 @@ public class RangeDeserializer188Test extends ModuleTestBase
         testIntRangeDeserialization("{\"r\":\"[10..+∞)\"}", rightBoundedRange);
     }
 
+    @Test
     public void testStringRangeDeserializationFromBracketNotation() throws Exception
     {
         _testStringifiedRangeDeserialization("{\"r\":\"(abc..def]\"}",
                 openClosedStringRange, String.class);
     }
 
+    @Test
     public void testCharacterRangeDeserializationFromBracketNotation() throws Exception
     {
         _testStringifiedRangeDeserialization("{\"r\":\"[a..z)\"}",
@@ -92,6 +100,7 @@ public class RangeDeserializer188Test extends ModuleTestBase
     }
 
     // Cannot implement here since `Duration` KeyDeserializer provided by Java 8 date/time module
+    @Test
     public void testDurationRangeDeserializationFromBracketNotation() throws Exception
     {
         /*
@@ -101,6 +110,7 @@ public class RangeDeserializer188Test extends ModuleTestBase
     }
 
     // Cannot implement here since `LocalDate` KeyDeserializer provided by Java 8 date/time module
+    @Test
     public void testLocalDateRangeDeserializationFromBracketNotation() throws Exception
     {
         /*
@@ -109,6 +119,7 @@ public class RangeDeserializer188Test extends ModuleTestBase
                 */
     }
 
+    @Test
     public void testInvalidBracketNotationRangeDeserialization() throws Exception {
         // Fails due to open/close markers
         testInvalidStringifiedDeserialization("[1..2", RangeError.INVALID_BRACKET);

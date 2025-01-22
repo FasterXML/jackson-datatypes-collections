@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.guava.optional;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.OptBoolean;
 
@@ -7,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 import com.google.common.base.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalMergingTest extends ModuleTestBase
 {
@@ -48,6 +52,7 @@ public class OptionalMergingTest extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testStringReferenceMerging() throws Exception
     {
         MergedStringReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),
@@ -55,6 +60,7 @@ public class OptionalMergingTest extends ModuleTestBase
         assertEquals("override", result.value.get());
     }
 
+    @Test
     public void testPOJOReferenceMerging() throws Exception
     {
         MergedPOJOReference result = MAPPER.readValue(aposToQuotes("{'value':{'y':-6}}"),

@@ -3,6 +3,8 @@ package com.fasterxml.jackson.datatype.guava.optional;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
@@ -19,6 +21,8 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 import com.fasterxml.jackson.datatype.guava.testutil.NoCheckSubTypeValidator;
 import com.google.common.base.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalBasicTest extends ModuleTestBase
 {
@@ -99,7 +103,8 @@ public class OptionalBasicTest extends ModuleTestBase
      */
 
     private final ObjectMapper MAPPER = mapperWithModule();
-    
+
+    @Test
     public void testOptionalTypeResolution() throws Exception
     {
         // With 2.6, we need to recognize it as ReferenceType
@@ -108,24 +113,28 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals(Optional.class, t.getRawClass());
         assertTrue(t.isReferenceType());
     }
-    
+
+    @Test
     public void testDeserAbsent() throws Exception {
         Optional<?> value = MAPPER.readValue("null", new TypeReference<Optional<String>>() {});
         assertFalse(value.isPresent());
     }
-    
+
+    @Test
     public void testDeserSimpleString() throws Exception{
         Optional<?> value = MAPPER.readValue("\"simpleString\"", new TypeReference<Optional<String>>() {});
         assertTrue(value.isPresent());
         assertEquals("simpleString", value.get());
     }
-    
+
+    @Test
     public void testDeserInsideObject() throws Exception {
         OptionalData data = MAPPER.readValue("{\"myString\":\"simpleString\"}", OptionalData.class);
         assertTrue(data.myString.isPresent());
         assertEquals("simpleString", data.myString.get());
     }
-    
+
+    @Test
     public void testDeserComplexObject() throws Exception {
         TypeReference<Optional<OptionalData>> type = new TypeReference<Optional<OptionalData>>() {};
         Optional<OptionalData> data = MAPPER.readValue("{\"myString\":\"simpleString\"}", type);
@@ -134,6 +143,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("simpleString", data.get().myString.get());
     }
 
+    @Test
     public void testDeserGeneric() throws Exception {
         TypeReference<Optional<OptionalGenericData<String>>> type = new TypeReference<Optional<OptionalGenericData<String>>>() {};
         Optional<OptionalGenericData<String>> data = MAPPER.readValue("{\"myData\":\"simpleString\"}", type);
@@ -142,16 +152,19 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("simpleString", data.get().myData.get());
     }
 
+    @Test
     public void testSerAbsent() throws Exception {
         String value = MAPPER.writeValueAsString(Optional.absent());
         assertEquals("null", value);
     }
 
+    @Test
     public void testSerSimpleString() throws Exception {
         String value = MAPPER.writeValueAsString(Optional.of("simpleString"));
         assertEquals("\"simpleString\"", value);
     }
 
+    @Test
     public void testSerInsideObject() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = Optional.of("simpleString");
@@ -159,6 +172,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myString\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerComplexObject() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = Optional.of("simpleString");
@@ -166,6 +180,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myString\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerPropInclusionAlways() throws Exception {
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
@@ -177,6 +192,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerPropInclusionNonNull() throws Exception {
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
@@ -188,6 +204,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerPropInclusionNonAbsent() throws Exception {
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
@@ -199,6 +216,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerPropInclusionNonEmpty() throws Exception {
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
@@ -210,6 +228,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerGeneric() throws Exception {
         OptionalGenericData<String> data = new OptionalGenericData<String>();
         data.myData = Optional.of("simpleString");
@@ -217,6 +236,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myData\":\"simpleString\"}", value);
     }
 
+    @Test
     public void testSerNonNull() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = Optional.absent();
@@ -226,6 +246,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{}", value);
     }
 
+    @Test
     public void testSerOptDefault() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = Optional.absent();
@@ -233,6 +254,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{\"myString\":null}", value);
     }
 
+    @Test
     public void testSerOptNull() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = null;
@@ -241,6 +263,7 @@ public class OptionalBasicTest extends ModuleTestBase
     }
 
     // for [dataformat-guava#66]
+    @Test
     public void testSerOptDisableAsNull() throws Exception {
         final OptionalData data = new OptionalData();
         data.myString = Optional.absent();
@@ -264,7 +287,8 @@ public class OptionalBasicTest extends ModuleTestBase
             .setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
         assertEquals("{}", mapper.writeValueAsString(data));
     }
-    
+
+    @Test
     public void testSerOptNonEmpty() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = null;
@@ -272,13 +296,15 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("{}", value);
     }
 
+    @Test
     public void testSerOptNonDefault() throws Exception {
         OptionalData data = new OptionalData();
         data.myString = null;
         String value = mapperWithModule().setSerializationInclusion(JsonInclude.Include.NON_DEFAULT).writeValueAsString(data);
         assertEquals("{}", value);
     }
-    
+
+    @Test
     public void testWithTypingEnabled() throws Exception
     {
 		final ObjectMapper objectMapper = builderWithModule()
@@ -296,6 +322,7 @@ public class OptionalBasicTest extends ModuleTestBase
     }
 
     // [datatype-guava#17]
+    @Test
     public void testObjectId() throws Exception
     {
         final Unit input = new Unit();
@@ -310,6 +337,7 @@ public class OptionalBasicTest extends ModuleTestBase
     }
 
     // [Issue#37]
+    @Test
     public void testOptionalCollection() throws Exception {
         ObjectMapper mapper = new ObjectMapper().registerModule(new GuavaModule());
 
@@ -327,11 +355,12 @@ public class OptionalBasicTest extends ModuleTestBase
         List<Optional<String>> result = mapper.readValue(str, typeReference);
         assertEquals(list.size(), result.size());
         for (int i = 0; i < list.size(); ++i) {
-            assertEquals("Entry #"+i, list.get(i), result.get(i));
+            assertEquals(list.get(i), result.get(i), "Entry #"+i);
         }
     }
 
     // [datatype-guava#81]
+    @Test
     public void testPolymorphic() throws Exception
     {
         final Container dto = new Container();
@@ -345,6 +374,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertSame(ContainedImpl.class, fromJson.contained.get().getClass());
     }
 
+    @Test
     public void testWithCustomDeserializer() throws Exception
     {
         CaseChangingStringWrapper w = MAPPER.readValue(aposToQuotes("{'value':'FoobaR'}"),
@@ -352,6 +382,7 @@ public class OptionalBasicTest extends ModuleTestBase
         assertEquals("foobar", w.value.get());
     }
 
+    @Test
     public void testCustomSerializer() throws Exception
     {
         final String VALUE = "fooBAR";

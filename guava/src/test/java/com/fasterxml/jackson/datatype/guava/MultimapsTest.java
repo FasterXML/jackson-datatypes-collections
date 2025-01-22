@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -16,6 +18,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static com.google.common.collect.TreeMultimap.create;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify handling of various {@link Multimap}s.
@@ -100,6 +104,7 @@ public class MultimapsTest extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testMultimap() throws Exception
     {
         _testMultimap(TreeMultimap.create(), true,
@@ -140,6 +145,7 @@ public class MultimapsTest extends ModuleTestBase
         }
     }
 
+    @Test
     public void testMultimapIssue3() throws Exception
     {
         Multimap<String, String> m1 = TreeMultimap.create();
@@ -170,6 +176,7 @@ public class MultimapsTest extends ModuleTestBase
         assertEquals(2, javaMap.size());
     }
 
+    @Test
     public void testEnumKey() throws Exception
     {
         final TypeReference<TreeMultimap<MyEnum, Integer>> type = new TypeReference<TreeMultimap<MyEnum, Integer>>() {};
@@ -185,12 +192,14 @@ public class MultimapsTest extends ModuleTestBase
     }
 
     // [Issue#41]
+    @Test
     public void testEmptyMapExclusion() throws Exception
     {
         String json = MAPPER.writeValueAsString(new MultiMapWrapper());
         assertEquals("{}", json);
     }
 
+    @Test
     public void testNullHandling() throws Exception
     {
         Multimap<String,Integer> input = ArrayListMultimap.create();
@@ -199,7 +208,8 @@ public class MultimapsTest extends ModuleTestBase
         assertEquals(aposToQuotes("{'empty':[null]}"), json);
     }
 
-    // [datatypes-collections#27]: 
+    // [datatypes-collections#27]:
+    @Test
     public void testWithReferenceType() throws Exception
     {
         String json = "{\"a\" : [5.0, null, 6.0]}";
@@ -230,6 +240,7 @@ public class MultimapsTest extends ModuleTestBase
     }
     */
 
+    @Test
     public void testImmutableSetMultimap() throws IOException {
         SetMultimap<String, String> map =
                 _verifyMultiMapRead(new TypeReference<ImmutableSetMultimap<String, String>>() {
@@ -237,6 +248,7 @@ public class MultimapsTest extends ModuleTestBase
         assertTrue(map instanceof ImmutableSetMultimap);
     }
 
+    @Test
     public void testHashMultimap() throws IOException {
         SetMultimap<String, String> map =
                 _verifyMultiMapRead(new TypeReference<HashMultimap<String, String>>() {
@@ -244,6 +256,7 @@ public class MultimapsTest extends ModuleTestBase
         assertTrue(map instanceof HashMultimap);
     }
 
+    @Test
     public void testLinkedHashMultimap() throws IOException {
         SetMultimap<String, String> map =
                 _verifyMultiMapRead(new TypeReference<LinkedHashMultimap<String, String>>() {
@@ -275,6 +288,7 @@ public class MultimapsTest extends ModuleTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testArrayListMultimap() throws IOException {
         ListMultimap<String, String> map =
                 listBasedHelper(new TypeReference<ArrayListMultimap<String, String>>() {
@@ -282,6 +296,7 @@ public class MultimapsTest extends ModuleTestBase
         assertTrue(map instanceof ArrayListMultimap);
     }
 
+    @Test
     public void testLinkedListMultimap() throws IOException {
         ListMultimap<String, String> map =
                 listBasedHelper(new TypeReference<LinkedListMultimap<String, String>>() {
@@ -289,6 +304,7 @@ public class MultimapsTest extends ModuleTestBase
         assertTrue(map instanceof LinkedListMultimap);
     }
 
+    @Test
     public void testMultimapWithIgnores() throws IOException {
         assertEquals("{\"map\":{\"a\":[\"foo\"]}}",
                 MAPPER.writeValueAsString(new MultiMapWithIgnores()));
@@ -306,6 +322,7 @@ public class MultimapsTest extends ModuleTestBase
         return map;
     }
 
+    @Test
     public void testIssue67() throws IOException
     {
         ImmutableSetMultimap<String, Integer> map = MAPPER.readValue(
@@ -325,6 +342,7 @@ public class MultimapsTest extends ModuleTestBase
     }
 
     // [Issue#25]
+    @Test
     public void testDefaultSetMultiMap() throws IOException {
         @SuppressWarnings("unchecked")
         SetMultimap<String, String> map = (SetMultimap<String, String>) MAPPER
@@ -332,7 +350,8 @@ public class MultimapsTest extends ModuleTestBase
                 SetMultimap.class);
         assertTrue(map instanceof LinkedHashMultimap);
     }
-    
+
+    @Test
     public void testPolymorphicValue() throws IOException {
         ImmutableMultimapWrapper input = new ImmutableMultimapWrapper(ImmutableMultimap.of("add", new AddOp(3, 2), "mul", new MulOp(4, 6)));
 
@@ -341,7 +360,8 @@ public class MultimapsTest extends ModuleTestBase
         ImmutableMultimapWrapper output = MAPPER.readValue(json, ImmutableMultimapWrapper.class);
         assertEquals(input, output);        
     }
-    
+
+    @Test
     public void testFromSingleValue() throws Exception
     {
         ObjectMapper mapper = mapperWithModule()
@@ -351,7 +371,8 @@ public class MultimapsTest extends ModuleTestBase
         
         assertEquals(1, sampleTest.map.get("test").size());
     }
-    
+
+    @Test
     public void testFromMultiValueWithSingleValueOptionEnabled() throws Exception
     {
         ObjectMapper mapper = mapperWithModule()
@@ -366,7 +387,8 @@ public class MultimapsTest extends ModuleTestBase
         // Make sure that our Value is still a String not [String]
         assertEquals(sampleTest.map.entries().iterator().next().getValue(), "val");
     }
-    
+
+    @Test
     public void testFromMultiValueWithNoSingleValueOptionEnabled() throws Exception
     {
         SampleMultiMapTest sampleTest = MAPPER.readValue("{\"map\":{\"test\":[\"val\"],\"test1\":[\"val1\",\"val2\"]}}",
@@ -401,6 +423,7 @@ public class MultimapsTest extends ModuleTestBase
     }
 
     // [datatype-collections#96]
+    @Test
     public void testMultimapIssue96() throws Exception
     {
         // First the original, properties case:

@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 
 import com.google.common.base.Optional;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalFromEmptyTest extends ModuleTestBase
 {
@@ -27,12 +30,14 @@ public class OptionalFromEmptyTest extends ModuleTestBase
     private final ObjectMapper MAPPER = mapperWithModule();
 
     // [datatype-guava#48]
+    @Test
     public void testDeserNull() throws Exception {
         Optional<?> value = MAPPER.readValue("\"\"", new TypeReference<Optional<Integer>>() {});
         assertEquals(false, value.isPresent());
     }
 
     // [datatypes-collections#145]
+    @Test
     public void testDeserEmptyViaConstructor() throws Exception {
         OptionalBeanWithEmpty bean = MAPPER.readValue("{}",
                 OptionalBeanWithEmpty.class);

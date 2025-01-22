@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class EmptyCollectionsTest extends ModuleTestBase
 {
@@ -24,6 +28,7 @@ public class EmptyCollectionsTest extends ModuleTestBase
             .build();
 
     // [datatypes-collections#67]
+    @Test
     public void testEmptyForLists() throws Exception
     {
         ImmutableListContainer67 result;
@@ -47,6 +52,7 @@ public class EmptyCollectionsTest extends ModuleTestBase
         assertEquals(0, result.lists.size());
     }
 
+    @Test
     public void testEmptyForMaps() throws Exception
     {
         ImmutableMapContainer67 result;
