@@ -41,6 +41,11 @@
   </properties>
 
   <dependencies>
+    <!-- All modules depend on annotations, core, databind-->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
@@ -89,12 +94,6 @@
             </execution>
           </executions>
         </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-        </plugin>
-      </plugins>
     </pluginManagement>
 
     <!-- 05-Jul-2020, tatu: Add generation of Gradle Module Metadata -->
