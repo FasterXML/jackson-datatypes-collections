@@ -2,12 +2,17 @@ package com.fasterxml.jackson.datatype.guava.optional;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestOptionalWithPolymorphic extends ModuleTestBase
 {
@@ -80,7 +85,8 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
      */
 
     final ObjectMapper MAPPER = mapperWithModule();
-    
+
+    @Test
     public void testOptionalMapsFoo() throws Exception {
 
         ImmutableMap<String, Object> foo = ImmutableMap.<String, Object>builder()
@@ -93,6 +99,7 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         _test(MAPPER, foo);
     }
 
+    @Test
     public void testOptionalMapsBar() throws Exception {
 
         ImmutableMap<String, Object> bar = ImmutableMap.<String, Object>builder()
@@ -105,6 +112,7 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         _test(MAPPER, bar);
     }
 
+    @Test
     public void testOptionalMapsBaz() throws Exception {
         ImmutableMap<String, Object> baz = ImmutableMap.<String, Object>builder()
             .put("name", "baz strategy")
@@ -116,6 +124,7 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         _test(MAPPER, baz);
     }
 
+    @Test
     public void testOptionalWithTypeAnnotation() throws Exception
     {
         AbstractOptional result = MAPPER.readValue("{\"value\" : 5}",
@@ -138,6 +147,7 @@ public class TestOptionalWithPolymorphic extends ModuleTestBase
         assertNotNull(objB);
     }
 
+    @Test
     public void testOptionalPropagatesTypeInfo() throws Exception
     {
         TypeInfoOptional data = new TypeInfoOptional();

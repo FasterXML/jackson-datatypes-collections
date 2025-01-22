@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
@@ -11,8 +13,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class JavaSerializableTest extends ModuleTestBase {
 
+    @Test
     public void testSerializable() throws IOException, ClassNotFoundException {
         ObjectMapper mapper = mapperWithModule();
 
@@ -24,6 +29,7 @@ public class JavaSerializableTest extends ModuleTestBase {
         assertTrue(set.contains("abc"));
     }
 
+    @Test
     public void testSerializableConfigureAbsentsAsNull() throws IOException, ClassNotFoundException {
         ObjectMapper mapper = mapperWithModule(true);
 
@@ -54,8 +60,8 @@ public class JavaSerializableTest extends ModuleTestBase {
         Object deserializedObject = inputStream.readObject();
 
         //validate the object
-        assertTrue("Deserialized object should be an instance of ObjectMapper",
-                ObjectMapper.class == deserializedObject.getClass());
+        assertTrue(ObjectMapper.class == deserializedObject.getClass(),
+                "Deserialized object should be an instance of ObjectMapper");
 
         return (ObjectMapper) deserializedObject;
     }

@@ -2,6 +2,8 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -11,6 +13,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.TreeBasedTable;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TableTest extends ModuleTestBase
 {
@@ -124,6 +128,7 @@ public class TableTest extends ModuleTestBase
         }
     }
 
+    @Test
     public void testSimpleKeyImmutableTableSerde() throws IOException
     {
         final ImmutableTable.Builder<Integer, String, String> builder = ImmutableTable.builder();
@@ -142,7 +147,8 @@ public class TableTest extends ModuleTestBase
             );
         assertEquals(simpleTable, reconstitutedTable);
     }
-    
+
+    @Test
     public void testSimpleKeyHashBasedTableSerde() throws IOException
     {
         final HashBasedTable<Integer, String, String> simpleTable = HashBasedTable.create();
@@ -159,7 +165,8 @@ public class TableTest extends ModuleTestBase
             );
         assertEquals(simpleTable, reconstitutedTable);
     }
-    
+
+    @Test
     public void testSimpleKeyTreeBasedTableSerde() throws IOException
     {
         final TreeBasedTable<Integer, String, String> simpleTable = TreeBasedTable.create();
@@ -180,6 +187,7 @@ public class TableTest extends ModuleTestBase
     /**
      * This test illustrates one way to use objects as keys in Tables.
      */
+    @Test
     public void testComplexKeyImmutableTableSerde() throws IOException
     {
         final ImmutableTable.Builder<Integer, ComplexKey, String> builder = ImmutableTable.builder();
@@ -197,7 +205,8 @@ public class TableTest extends ModuleTestBase
         final ImmutableTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
         assertEquals(complexKeyTable, reconstitutedTable);
     }
-    
+
+    @Test
     public void testComplexKeyHashBasedTableSerde() throws IOException
     {
         final HashBasedTable<Integer, ComplexKey, String> complexKeyTable = HashBasedTable.create();
@@ -213,7 +222,8 @@ public class TableTest extends ModuleTestBase
         final HashBasedTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
         assertEquals(complexKeyTable, reconstitutedTable);
     }
-    
+
+    @Test
     public void testComplexKeyTreeTableSerde() throws IOException
     {
         final TreeBasedTable<Integer, ComplexKey, String> complexKeyTable = TreeBasedTable.create();

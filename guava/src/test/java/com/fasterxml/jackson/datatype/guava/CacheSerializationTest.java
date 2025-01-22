@@ -7,9 +7,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Objects;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying serialization of Guava's {@link Cache} type.
@@ -188,6 +191,7 @@ public class CacheSerializationTest extends ModuleTestBase {
 
     private final ObjectMapper ORDERED_MAPPER = mapperWithModule().enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
+    @Test
     public void testGuavaCacheApi() throws Exception {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
         // Cache does not allow null key
@@ -203,6 +207,7 @@ public class CacheSerializationTest extends ModuleTestBase {
         } catch (NullPointerException e) {}
     }
 
+    @Test
     public void testCacheSerialization() throws Exception {
         // Create a Guava Cache
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
@@ -214,6 +219,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             ORDERED_MAPPER.writeValueAsString(cache));
     }
 
+    @Test
     public void testCacheSerializationIgnoreProperties() throws Exception {
         CacheContainerWithIgnores container = new CacheContainerWithIgnores();
 
@@ -222,6 +228,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             ORDERED_MAPPER.writeValueAsString(container));
     }
 
+    @Test
     public void testCacheSerializationWithBean() throws Exception {
         CacheContainerWithBean container = new CacheContainerWithBean();
 
@@ -230,6 +237,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             ORDERED_MAPPER.writeValueAsString(container));
     }
 
+    @Test
     public void testCacheSerializationWithList() throws Exception {
         CacheContainerWithList container = new CacheContainerWithList();
 
@@ -238,6 +246,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             ORDERED_MAPPER.writeValueAsString(container));
     }
 
+    @Test
     public void testCacheSerializationWithEmptyCache() throws Exception {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
 
@@ -246,6 +255,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             ORDERED_MAPPER.writeValueAsString(cache));
     }
 
+    @Test
     public void testCacheSerializationBeanKey() throws Exception {
         Cache<BeanKey, String> cache = CacheBuilder.newBuilder().build();
         cache.put(new BeanKey(1), "value1");
@@ -255,6 +265,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             ORDERED_MAPPER.writeValueAsString(cache));
     }
 
+    @Test
     public void testCacheSerializationBeanKeyEquals() throws Exception {
         Cache<BeanKeyEquals, String> cache = CacheBuilder.newBuilder().build();
         cache.put(new BeanKeyEquals(1), "value1");
@@ -267,12 +278,14 @@ public class CacheSerializationTest extends ModuleTestBase {
     }
 
 
+    @Test
     public void testEmptyCacheExclusion() throws Exception {
         String json = ORDERED_MAPPER.writeValueAsString(new CacheWrapper());
 
         assertEquals("{}", json);
     }
 
+    @Test
     public void testCacheSerializationWithTypeReference() throws Exception {
         final Cache<MyEnum, Integer> cache = CacheBuilder.newBuilder().build();
         cache.put(MyEnum.YAY, 5);
@@ -286,6 +299,7 @@ public class CacheSerializationTest extends ModuleTestBase {
         assertEquals(expected, mapperSer);
     }
 
+    @Test
     public void testOrderByKeyViaProperty() throws Exception {
         CacheOrderingBean input = new CacheOrderingBean("c", "b", "a");
 
@@ -294,6 +308,7 @@ public class CacheSerializationTest extends ModuleTestBase {
         assertEquals(a2q("{'cache':{'a':3,'b':2,'c':1}}"), json);
     }
 
+    @Test
     public void testPolymorphicCacheSerialization() throws Exception {
         Cache<String, Animal> cache = CacheBuilder.newBuilder().build();
         cache.put("c", new Cat());
@@ -308,6 +323,7 @@ public class CacheSerializationTest extends ModuleTestBase {
                 "'d':{'_type':'t_dog','name':'Woof'}}}"), json);
     }
 
+    @Test
     public void testNestedCacheSerialization() throws Exception {
         Cache<String, Cache<String, String>> nestedCache = CacheBuilder.newBuilder().build();
         nestedCache.put("a", _buildCacheWithKeys("a_x", "a_y"));
@@ -330,6 +346,7 @@ public class CacheSerializationTest extends ModuleTestBase {
     }
 
     // [datatypes-collections#104]
+    @Test
     public void testPolymorphicCacheEmpty() throws Exception {
         final Cache<String, Object> cache = CacheBuilder.newBuilder().build();
         cache.put("aKey", 1);
@@ -337,6 +354,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             a2q("{'aProperty':{'@type':'LocalCache$LocalManualCache','aKey':1}}"));
     }
 
+    @Test
     public void testPolymorphicCacheNonEmpty() throws Exception {
         _testPolymorphicCache(CacheBuilder.newBuilder().build(),
             a2q("{'aProperty':{'@type':'LocalCache$LocalManualCache'}}"));
@@ -351,6 +369,7 @@ public class CacheSerializationTest extends ModuleTestBase {
         assertEquals(expected, json);
     }
 
+    @Test
     public void testCacheSerializeOrderedByKey() throws Exception {
         final Cache<String, String> cache = _buildCacheWithKeys("c_key", "d_key", "a_key", "e_key", "b_key");
 
@@ -362,6 +381,7 @@ public class CacheSerializationTest extends ModuleTestBase {
             new TypeReference<Cache<String, String>>() {}).writeValueAsString(cache));
     }
 
+    @Test
     public void testPolymorphicCacheWrapperSerialization() throws Exception {
         final Cache<String, String> cache = _buildCacheWithKeys("c_key", "a_key", "e_key", "b_key", "d_key");
         PolymorphicWrapperBean outside = new PolymorphicWrapperBean();
