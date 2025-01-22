@@ -9,10 +9,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-import org.junit.Test;
 import org.pcollections.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that various PCollection types
@@ -65,22 +66,30 @@ public class TestPCollections extends ModuleTestBase
                     new TypeReference<PSequence<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot find a deserializer");
+            _verifyImmutableException(e, PSequence.class);
         }
 
         try {
             mapper.readValue("[1,2,3]", new TypeReference<PSet<Integer>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot find a deserializer");
+            _verifyImmutableException(e, PSet.class);
         }
 
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<PMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot find a deserializer");
+            _verifyImmutableException(e, PMap.class);
         }
+    }
+
+    private void _verifyImmutableException(InvalidDefinitionException e, Class<?> type) {
+        // Exception changed a bit in 2.18.2, need to match
+        //verifyException(e, "cannot find a deserializer");
+        verifyException(e, "Cannot construct instance of ");
+        verifyException(e, "No creators");
+        verifyException(e, type.getName());
     }
 
     /*

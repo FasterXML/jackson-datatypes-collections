@@ -46,7 +46,11 @@ public class MultisetsTest extends ModuleTestBase
                     new TypeReference<Multiset<String>>() { });
             fail("Should have failed");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "cannot find a deserializer");
+            // Exception changed a bit in 2.18.2, need to match
+            //verifyException(e, "cannot find a deserializer");
+            verifyException(e, "Cannot construct instance of ");
+            verifyException(e, "No creators");
+            verifyException(e, Multiset.class.getName());
         }
     }
 

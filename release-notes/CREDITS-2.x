@@ -134,6 +134,10 @@ Arthur Chan (@arthurscchan)
     some circumstances
    (2.17.0)
 
+Abhishek Kumar (@Abhishekkr3003)
+  * Contributed #1: (guava) Add deserialization support for `Table<R, C, V>`
+   (2.19.0)
+
 Patrick Strawderman (@kilink)
   * Contributed #157: (guava) Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
    (2.19.0)
