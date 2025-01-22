@@ -31,9 +31,4 @@
       <email>leventov.ru@gmail.com</email>
     </contributor>
   </contributors>
-
-  <build>
-    <plugins>
-    </plugins>
-  </build>
 </project>

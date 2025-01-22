@@ -26,7 +26,7 @@ PCollections (http://pcollections.org/) types
   </contributors>
 
   <properties>
-    <version.pcollections>4.0.1</version.pcollections>
+    <version.pcollections>4.0.2</version.pcollections>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>tools/jackson/datatype/pcollections</packageVersion.dir>

@@ -52,18 +52,6 @@ com.google.common.*;version="${version.guava.osgi}",
       <artifactId>guava</artifactId>
       <version>${version.guava}</version>
     </dependency>
-
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
