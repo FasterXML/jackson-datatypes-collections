@@ -3,6 +3,8 @@ package tools.jackson.datatype.guava;
 import java.util.Map;
 import java.util.Objects;
 
+import org.junit.jupiter.api.Test;
+
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -15,6 +17,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying deserialization of Guava's {@link Cache} type.
@@ -68,6 +72,7 @@ public class CacheDeserializationTest extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testGuavaCacheApi() throws Exception {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
         // Cache does not allow null key
@@ -83,6 +88,7 @@ public class CacheDeserializationTest extends ModuleTestBase
         } catch (NullPointerException e) {}
     }
 
+    @Test
     public void testCacheDeserializationSimple() throws Exception {
         // Create a delegate cache using CacheBuilder
         Cache<String, Integer> delegateCache = CacheBuilder.newBuilder().build();
@@ -95,6 +101,7 @@ public class CacheDeserializationTest extends ModuleTestBase
         assertEquals("foo", s.getIfPresent("a"));
     }
 
+    @Test
     public void testCacheDeserRoundTrip() throws Exception {
         Cache<String, Integer> cache = CacheBuilder.newBuilder().build();
         cache.put("key1", 1);
@@ -111,6 +118,7 @@ public class CacheDeserializationTest extends ModuleTestBase
     }
 
     // [datatype-collections#96]
+    @Test
     public void testCacheSerialization() throws Exception {
         Cache<Long, Integer> cache = CacheBuilder.newBuilder().build();
         cache.put(1L, 1);
@@ -134,6 +142,7 @@ public class CacheDeserializationTest extends ModuleTestBase
         assertEquals(2, map.get(2L).intValue());
     }
 
+    @Test
     public void testEnumKey() throws Exception {
         final TypeReference<Cache<MyEnum, Integer>> type = new TypeReference<Cache<MyEnum, Integer>>() {};
         final Cache<MyEnum, Integer> cache = CacheBuilder.newBuilder().build();
@@ -151,11 +160,13 @@ public class CacheDeserializationTest extends ModuleTestBase
             deserializedCache.asMap().entrySet());
     }
 
+    @Test
     public void testEmptyCacheExclusion() throws Exception {
         String json = MAPPER.writeValueAsString(new CacheWrapper());
         assertEquals("{}", json);
     }
 
+    @Test
     public void testWithGuavaOptional() throws Exception {
         // set up
         Cache<String, Optional<Double>> cache = CacheBuilder.newBuilder().build();
@@ -175,6 +186,7 @@ public class CacheDeserializationTest extends ModuleTestBase
     }
 
     // [datatypes-collections#140]: handle null values
+    @Test
     public void testCacheWithNulls() throws Exception {
         Cache<String, Integer> cache;
         try {

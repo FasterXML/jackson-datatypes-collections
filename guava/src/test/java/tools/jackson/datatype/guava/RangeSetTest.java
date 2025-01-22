@@ -1,5 +1,12 @@
 package tools.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.ImmutableRangeSet;
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
+import com.google.common.collect.TreeRangeSet;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
@@ -7,15 +14,13 @@ import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.TypeFactory;
 
-import com.google.common.collect.ImmutableRangeSet;
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-import com.google.common.collect.TreeRangeSet;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RangeSetTest extends ModuleTestBase {
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testSerializeDeserialize() throws Exception {
 
         final RangeSet<Integer> rangeSet = TreeRangeSet.create();
@@ -32,6 +37,7 @@ public class RangeSetTest extends ModuleTestBase {
         assertEquals(rangeSet, deserialized);
     }
 
+    @Test
     public void testSerializeDeserializeImmutableRangeSet() throws Exception {
         final ImmutableRangeSet<Integer> rangeSet = ImmutableRangeSet.<Integer>builder()
                 .add(Range.closedOpen(1, 2))
@@ -48,6 +54,7 @@ public class RangeSetTest extends ModuleTestBase {
     }
 
     // [datatypes-collections#142]: nulls in RangeSet JSON
+    @Test
     public void testDeserializeFromNull() throws Exception
     {
         final String json = a2q("[ {'lowerEndpoint':1,'lowerBoundType':'CLOSED'}, null ]");

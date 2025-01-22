@@ -2,11 +2,15 @@ package tools.jackson.datatype.guava.optional;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.ImmutableList;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.datatype.guava.ModuleTestBase;
 
-import com.google.common.collect.ImmutableList;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalFromNullInListTest extends ModuleTestBase
 {
@@ -18,6 +22,7 @@ public class OptionalFromNullInListTest extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testImmutableListOfOptionals() throws Exception {
         ImmutableList<AtomicReference<?>> list = MAPPER.readValue("[1,null,3]",
                 new TypeReference<ImmutableList<AtomicReference<?>>>() { });

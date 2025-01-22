@@ -4,7 +4,7 @@ module tools.jackson.datatype.guava
     requires com.fasterxml.jackson.annotation;
 
     requires tools.jackson.core;
-    requires tools.jackson.databind;
+    requires transitive tools.jackson.databind;
 
     requires com.google.common;
 

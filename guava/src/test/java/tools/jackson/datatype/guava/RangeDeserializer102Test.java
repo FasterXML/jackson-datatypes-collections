@@ -1,5 +1,7 @@
 package tools.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
@@ -9,6 +11,8 @@ import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class RangeDeserializer102Test extends ModuleTestBase
 {
     private final ObjectMapper MAPPER_DEFAULT = mapperWithModule();
@@ -17,6 +21,7 @@ public class RangeDeserializer102Test extends ModuleTestBase
             .build();
 
     // [datatypes-collections#56]: support naming strategy
+    @Test
     public void testSnakeCaseNamingStrategy() throws Exception
     {
         String json = "{\"lower_endpoint\": 12, \"lower_bound_type\": \"CLOSED\", \"upper_endpoint\": 33, \"upper_bound_type\": \"CLOSED\"}";
@@ -38,11 +43,13 @@ public class RangeDeserializer102Test extends ModuleTestBase
     }
 
     // [datatypes-collections#102]: Accept lowerCase enums for `Range` `BoundType` serialization
+    @Test
     public void testDeserializeDefaultSuccess() throws Exception
     {
         _testDeserializeOk(MAPPER_DEFAULT, "CLOSED", "OPEN");
     }
 
+    @Test
     public void testDeserializeAcceptCaseInsensitiveBoundTypeSuccess() throws Exception
     {
         _testDeserializeOk(MAPPER_CASE_INSENSITIVE, "CLOSED", "OPEN");
@@ -64,6 +71,7 @@ public class RangeDeserializer102Test extends ModuleTestBase
         assertEquals(BoundType.OPEN, range.upperBoundType());
     }
 
+    @Test
     public void testDeserializeBoundTypeFailWithFirstInvalidValue() throws Exception {
         String json = a2q("{'lowerEndpoint': 1, 'lowerBoundType': 'closed', 'upperEndpoint': 2, 'upperBoundType': 'oPeN'}");
         try {
@@ -75,6 +83,7 @@ public class RangeDeserializer102Test extends ModuleTestBase
         }
     }
 
+    @Test
     public void testDeserializeBoundTypeFailWithFirstInvalidValueFlip() throws Exception {
         String json = a2q("{'upperEndpoint': 2, 'upperBoundType': 'oPeN', 'lowerEndpoint': 1, 'lowerBoundType': 'closed'}");
         try {

@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.*;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.util.StdConverter;
 
-import com.google.common.collect.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // [datatype-guava#92] : JsonDeserialize contentConverter does not work for non-builtin collections
 public class JsonDeserContentConverter92Test extends ModuleTestBase {
@@ -88,6 +91,7 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testJsonSerialize() throws Exception {
         String jsonStr = a2q("{'list':[2,4]}");
 
@@ -95,6 +99,7 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
         assertEquals(jsonStr, _write(new GuavaListWrapper(ImmutableList.of(1, 2))));
     }
 
+    @Test
     public void testJsonDeserialize() throws Exception {
         String withIntsArr = a2q("{'ints': [1,2,3] }");
         String withIntsMap = a2q("{'ints': {'one':1, 'two':2, 'three':3}}");

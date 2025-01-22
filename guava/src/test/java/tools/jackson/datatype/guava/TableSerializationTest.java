@@ -1,6 +1,6 @@
 package tools.jackson.datatype.guava;
 
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
@@ -9,6 +9,8 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.module.SimpleModule;
 
 import com.google.common.collect.ImmutableTable;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TableSerializationTest extends ModuleTestBase
 {
@@ -117,7 +119,8 @@ public class TableSerializationTest extends ModuleTestBase
 
     }
 
-    public void testSimpleKeyImmutableTableSerde() throws IOException
+    @Test
+    public void testSimpleKeyImmutableTableSerde() throws Exception
     {
         final ImmutableTable.Builder<Integer, String, String> builder = ImmutableTable.builder();
         builder.put(Integer.valueOf(42), "column42", "some value 42");
@@ -139,7 +142,8 @@ public class TableSerializationTest extends ModuleTestBase
     /**
      * This test illustrates one way to use objects as keys in Tables.
      */
-    public void testComplexKeyImmutableTableSerde() throws IOException
+    @Test
+    public void testComplexKeyImmutableTableSerde() throws Exception
     {
         final ImmutableTable.Builder<Integer, ComplexKey, String> ckBuilder = ImmutableTable.builder();
         ckBuilder.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");

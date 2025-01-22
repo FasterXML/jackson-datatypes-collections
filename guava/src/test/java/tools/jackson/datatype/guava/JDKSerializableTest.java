@@ -1,17 +1,20 @@
 package tools.jackson.datatype.guava;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
-public class JavaSerializableTest extends ModuleTestBase {
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+public class JDKSerializableTest extends ModuleTestBase
+{
+    @Test
     public void testSerializable() throws Exception {
         ObjectMapper mapper = mapperWithModule();
 
@@ -23,6 +26,7 @@ public class JavaSerializableTest extends ModuleTestBase {
         assertTrue(set.contains("abc"));
     }
 
+    @Test
     public void testSerializableConfigureAbsentsAsNull() throws Exception {
         ObjectMapper mapper = mapperWithModule(true);
 
@@ -52,7 +56,7 @@ public class JavaSerializableTest extends ModuleTestBase {
 
         Object deserializedObject = inputStream.readObject();
 
-        //validate the object
+        // Actually `JsonMapper` but basic `ObjectMapper` works here
         return (ObjectMapper) deserializedObject;
     }
 }

@@ -1,10 +1,14 @@
 package tools.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.ArrayListMultimap;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 
-import com.google.common.collect.ArrayListMultimap;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MultiMap104Test extends ModuleTestBase
 {
@@ -20,12 +24,14 @@ public class MultiMap104Test extends ModuleTestBase
 
     
     // [datatypes-collections#104]
+    @Test
     public void testPolymorphicArrayMapEmpty() throws Exception {
         final ArrayListMultimap<String,Object> multimap = ArrayListMultimap.create();
         multimap.put("aKey", 1);
         _testPolymorphicArrayMap(multimap);
     }
 
+    @Test
     public void testPolymorphicArrayMapNonEmpty() throws Exception {
         _testPolymorphicArrayMap(ArrayListMultimap.create());
     }

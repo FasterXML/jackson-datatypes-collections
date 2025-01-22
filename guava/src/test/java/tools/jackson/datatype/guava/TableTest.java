@@ -1,6 +1,10 @@
 package tools.jackson.datatype.guava;
 
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
+
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.TreeBasedTable;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
@@ -8,9 +12,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.module.SimpleModule;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.TreeBasedTable;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TableTest extends ModuleTestBase
 {
@@ -123,7 +125,8 @@ public class TableTest extends ModuleTestBase
         }
     }
 
-    public void testSimpleKeyImmutableTableSerde() throws IOException
+    @Test
+    public void testSimpleKeyImmutableTableSerde() throws Exception
     {
         final ImmutableTable.Builder<Integer, String, String> builder = ImmutableTable.builder();
         builder.put(Integer.valueOf(42), "column42", "some value 42");
@@ -141,8 +144,9 @@ public class TableTest extends ModuleTestBase
             );
         assertEquals(simpleTable, reconstitutedTable);
     }
-    
-    public void testSimpleKeyHashBasedTableSerde() throws IOException
+
+    @Test
+    public void testSimpleKeyHashBasedTableSerde() throws Exception
     {
         final HashBasedTable<Integer, String, String> simpleTable = HashBasedTable.create();
         simpleTable.put(Integer.valueOf(42), "column42", "some value 42");
@@ -158,8 +162,9 @@ public class TableTest extends ModuleTestBase
             );
         assertEquals(simpleTable, reconstitutedTable);
     }
-    
-    public void testSimpleKeyTreeBasedTableSerde() throws IOException
+
+    @Test
+    public void testSimpleKeyTreeBasedTableSerde() throws Exception
     {
         final TreeBasedTable<Integer, String, String> simpleTable = TreeBasedTable.create();
         simpleTable.put(Integer.valueOf(42), "column42", "some value 42");
@@ -179,7 +184,8 @@ public class TableTest extends ModuleTestBase
     /**
      * This test illustrates one way to use objects as keys in Tables.
      */
-    public void testComplexKeyImmutableTableSerde() throws IOException
+    @Test
+    public void testComplexKeyImmutableTableSerde() throws Exception
     {
         final ImmutableTable.Builder<Integer, ComplexKey, String> builder = ImmutableTable.builder();
         builder.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
@@ -196,8 +202,9 @@ public class TableTest extends ModuleTestBase
         final ImmutableTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
         assertEquals(complexKeyTable, reconstitutedTable);
     }
-    
-    public void testComplexKeyHashBasedTableSerde() throws IOException
+
+    @Test
+    public void testComplexKeyHashBasedTableSerde() throws Exception
     {
         final HashBasedTable<Integer, ComplexKey, String> complexKeyTable = HashBasedTable.create();
         complexKeyTable.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");
@@ -212,8 +219,9 @@ public class TableTest extends ModuleTestBase
         final HashBasedTable<Integer, ComplexKey, String> reconstitutedTable = this.MAPPER.readValue(ckJson, tableType);
         assertEquals(complexKeyTable, reconstitutedTable);
     }
-    
-    public void testComplexKeyTreeTableSerde() throws IOException
+
+    @Test
+    public void testComplexKeyTreeTableSerde() throws Exception
     {
         final TreeBasedTable<Integer, ComplexKey, String> complexKeyTable = TreeBasedTable.create();
         complexKeyTable.put(Integer.valueOf(42), new ComplexKey("field1", "field2"), "some value 42");

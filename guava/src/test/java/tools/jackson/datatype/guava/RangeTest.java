@@ -1,9 +1,10 @@
 package tools.jackson.datatype.guava;
 
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.type.TypeReference;
@@ -15,6 +16,8 @@ import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.datatype.guava.deser.util.RangeFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify serialization of Guava {@link Range}s.
@@ -44,6 +47,7 @@ public class RangeTest extends ModuleTestBase
      * or Guava's implementation of Range changes.
      * @throws Exception
      */
+    @Test
     public void testSerializationWithoutModule() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -52,6 +56,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals("{\"empty\":false}", json);
     }
 
+    @Test
     public void testSerialization() throws Exception
     {
         testSerialization(MAPPER, RangeFactory.open(1, 10));
@@ -66,6 +71,7 @@ public class RangeTest extends ModuleTestBase
         testSerialization(MAPPER, RangeFactory.singleton(1));
     }
 
+    @Test
     public void testSerializationWithPropertyNamingStrategy() throws Exception
     {
         ObjectMapper mappper = builderWithModule().propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE).build();
@@ -81,6 +87,7 @@ public class RangeTest extends ModuleTestBase
         testSerialization(mappper, RangeFactory.singleton(1));
     }
 
+    @Test
     public void testWrappedSerialization() throws Exception
     {
         testSerializationWrapped(MAPPER, RangeFactory.open(1, 10));
@@ -93,7 +100,8 @@ public class RangeTest extends ModuleTestBase
         testSerializationWrapped(MAPPER, RangeFactory.lessThan(10));
         testSerializationWrapped(MAPPER, RangeFactory.singleton(1));
     }
-    
+
+    @Test
     public void testDeserialization() throws Exception
     {
         String json = MAPPER.writeValueAsString(RangeFactory.open(1, 10));
@@ -104,20 +112,21 @@ public class RangeTest extends ModuleTestBase
         assertEquals(Integer.valueOf(10), r.upperEndpoint());
     }
     
-    private void testSerialization(ObjectMapper objectMapper, Range<?> range) throws IOException
+    private void testSerialization(ObjectMapper objectMapper, Range<?> range) throws Exception
     {
         String json = objectMapper.writeValueAsString(range);
         Range<?> rangeClone = objectMapper.readValue(json, Range.class);
         assertEquals(rangeClone, range);
     }
 
-    private void testSerializationWrapped(ObjectMapper objectMapper, Range<Integer> range) throws IOException
+    private void testSerializationWrapped(ObjectMapper objectMapper, Range<Integer> range) throws Exception
     {
         String json = objectMapper.writeValueAsString(new Wrapped(range));
         Wrapped result = objectMapper.readValue(json, Wrapped.class);
         assertEquals(range, result.r);
     }
-    
+
+    @Test
     public void testUntyped() throws Exception
     {
         // Default settings do not allow possibly unsafe base type
@@ -134,6 +143,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(Range.class, out.range.getClass());
     }
 
+    @Test
     public void testDefaultBoundTypeNoBoundTypeInformed() throws Exception
     {
         String json = "{\"lowerEndpoint\": 2, \"upperEndpoint\": 3}";
@@ -146,6 +156,7 @@ public class RangeTest extends ModuleTestBase
         }
     }
 
+    @Test
     public void testDefaultBoundTypeNoBoundTypeInformedWithClosedConfigured() throws Exception
     {
         String json = "{\"lowerEndpoint\": 2, \"upperEndpoint\": 3}";
@@ -164,6 +175,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.CLOSED, r.upperBoundType());
     }
 
+    @Test
     public void testDefaultBoundTypeOnlyLowerBoundTypeInformed() throws Exception
     {
         String json = "{\"lowerEndpoint\": 2, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3}";
@@ -176,6 +188,7 @@ public class RangeTest extends ModuleTestBase
         }
     }
 
+    @Test
     public void testDefaultBoundTypeOnlyLowerBoundTypeInformedWithClosedConfigured() throws Exception
     {
         String json = "{\"lowerEndpoint\": 2, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3}";
@@ -193,6 +206,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.CLOSED, r.upperBoundType());
     }
 
+    @Test
     public void testDefaultBoundTypeOnlyUpperBoundTypeInformed() throws Exception
     {
         String json = "{\"lowerEndpoint\": 2, \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
@@ -205,6 +219,7 @@ public class RangeTest extends ModuleTestBase
         }
     }
 
+    @Test
     public void testDefaultBoundTypeOnlyUpperBoundTypeInformedWithClosedConfigured() throws Exception
     {
         String json = "{\"lowerEndpoint\": 1, \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
@@ -222,6 +237,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.OPEN, r.upperBoundType());
     }
 
+    @Test
     public void testDefaultBoundTypeBothBoundTypesOpen() throws Exception
     {
         String json = "{\"lowerEndpoint\": 2, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
@@ -235,6 +251,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.OPEN, r.upperBoundType());
     }
 
+    @Test
     public void testDefaultBoundTypeBothBoundTypesOpenWithClosedConfigured() throws Exception
     {
         String json = "{\"lowerEndpoint\": 1, \"lowerBoundType\": \"OPEN\", \"upperEndpoint\": 3, \"upperBoundType\": \"OPEN\"}";
@@ -253,6 +270,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.OPEN, r.upperBoundType());
     }
 
+    @Test
     public void testDefaultBoundTypeBothBoundTypesClosed() throws Exception
     {
         String json = "{\"lowerEndpoint\": 1, \"lowerBoundType\": \"CLOSED\", \"upperEndpoint\": 3, \"upperBoundType\": \"CLOSED\"}";
@@ -266,6 +284,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.CLOSED, r.upperBoundType());
     }
 
+    @Test
     public void testDefaultBoundTypeBothBoundTypesClosedWithOpenConfigured() throws Exception
     {
         String json = "{\"lowerEndpoint\": 12, \"lowerBoundType\": \"CLOSED\", \"upperEndpoint\": 33, \"upperBoundType\": \"CLOSED\"}";
@@ -284,6 +303,7 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.CLOSED, r.upperBoundType());
     }
 
+    @Test
     public void testSnakeCaseNamingStrategy() throws Exception
     {
         String json = "{\"lower_endpoint\": 12, \"lower_bound_type\": \"CLOSED\", \"upper_endpoint\": 33, \"upper_bound_type\": \"CLOSED\"}";
@@ -305,6 +325,7 @@ public class RangeTest extends ModuleTestBase
     }
 
     // [datatypes-collections#12]
+    @Test
     public void testRangeWithDefaultTyping() throws Exception
     {
         ObjectMapper mapper = builderWithModule()

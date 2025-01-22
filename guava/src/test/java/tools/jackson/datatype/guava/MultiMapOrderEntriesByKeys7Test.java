@@ -3,16 +3,17 @@ package tools.jackson.datatype.guava;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import tools.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.*;
 
-import static org.junit.Assert.assertNotEquals;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import tools.jackson.databind.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 // [jackson-datatype-collections#7]: [Guava] Add support for WRITE_SORTED_MAP_ENTRIES
-public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
+public class MultiMapOrderEntriesByKeys7Test extends ModuleTestBase
 {
     /*
     /**********************************************************
@@ -51,6 +52,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testMultimapSerializeOrderedByKey() throws Exception {
         final Multimap<Object, Object> multimap = HashMultimap.create();
         multimap.put("c_key", 1);
@@ -66,6 +68,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
         assertEquals(a2q("{'a_key':[1],'b_key':[1],'c_key':[1],'d_key':[1],'e_key':[1]}"), jsonStr);
     }
 
+    @Test
     public void testMultimapSerializeUnorderedByKey() throws Exception {
         final Multimap<Object, Object> multimap = HashMultimap.create();
         multimap.put("c_key", 1);
@@ -82,6 +85,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
     }
 
 
+    @Test
     public void testMultimapSerializeWithNullKeyFailure() throws Exception {
         final Multimap<Object, Object> multimap = HashMultimap.create();
         multimap.put("c_key", 1);
@@ -99,6 +103,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
         }
     }
 
+    @Test
     public void testMultimapSerializeUncomparablePojo() throws Exception {
         final Multimap<UncomparableBean, Integer> multimap = ArrayListMultimap.create();
         multimap.put(new UncomparableBean("c_key"), 1);
@@ -114,6 +119,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
         assertNotNull(a2q("{'a_key':[1],'b_key':[1],'c_key':[1],'d_key':[1],'e_key':[1]}"), jsonStr);
     }
 
+    @Test
     public void testSerializeAllTypesOfMultimapOrdered() throws Exception {
         final Multimap<String, Integer> multimap = HashMultimap.create();
         multimap.put("c_key", 1);
@@ -140,6 +146,7 @@ public class MultiMapOrderMpEntriesByKeys7Test extends ModuleTestBase
         }
     }
 
+    @Test
     public void testPolymorphicArrayMap() throws Exception {
         final Multimap<String, Integer> multimap = HashMultimap.create();
         multimap.put("c_key", 1);

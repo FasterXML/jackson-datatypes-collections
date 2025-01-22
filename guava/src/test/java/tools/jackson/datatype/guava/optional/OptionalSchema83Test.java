@@ -2,13 +2,17 @@ package tools.jackson.datatype.guava.optional;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
+import com.google.common.base.Optional;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.datatype.guava.ModuleTestBase;
 
-import com.google.common.base.Optional;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalSchema83Test
     extends ModuleTestBase
@@ -122,6 +126,7 @@ public class OptionalSchema83Test
         }
     }
 
+    @Test
     public void testOptionalTypeSchema83() throws Exception {
         VisitorWrapper wrapper = new VisitorWrapper(null, "", new HashSet<String>());
         mapperWithModule()

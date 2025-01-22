@@ -2,14 +2,14 @@ package tools.jackson.datatype.guava;
 
 import java.util.Arrays;
 
-import tools.jackson.databind.DatabindContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
-public abstract class ModuleTestBase extends junit.framework.TestCase
+import static org.junit.jupiter.api.Assertions.fail;
+
+public abstract class ModuleTestBase
 {
     public static class NoCheckSubTypeValidator
         extends PolymorphicTypeValidator.Base

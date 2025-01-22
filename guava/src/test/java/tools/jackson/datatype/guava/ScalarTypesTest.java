@@ -1,12 +1,18 @@
 package tools.jackson.datatype.guava;
 
-import tools.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+
 import com.google.common.net.InternetDomainName;
+
+import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ScalarTypesTest extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testInternetDomainNameSerialization() throws Exception
     {
         final String INPUT = "google.com";
@@ -14,6 +20,7 @@ public class ScalarTypesTest extends ModuleTestBase
         assertEquals(q(INPUT), MAPPER.writeValueAsString(name));
     }
 
+    @Test
     public void testInternetDomainNameDeserialization() throws Exception
     {
         final String INPUT = "google.com";

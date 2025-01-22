@@ -1,14 +1,7 @@
 package tools.jackson.datatype.guava;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import tools.jackson.core.JacksonException;
-
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
-import tools.jackson.datatype.guava.util.PrimitiveTypes;
+import java.util.Collections;
+import java.util.List;
 
 import com.google.common.primitives.Booleans;
 import com.google.common.primitives.Bytes;
@@ -28,8 +21,17 @@ import com.google.common.primitives.UnsignedInts;
 import com.google.common.primitives.UnsignedLong;
 import com.google.common.primitives.UnsignedLongs;
 
-import java.util.Collections;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import tools.jackson.core.JacksonException;
+
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
+import tools.jackson.datatype.guava.util.PrimitiveTypes;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that various primitive types

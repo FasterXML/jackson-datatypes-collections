@@ -1,5 +1,9 @@
 package tools.jackson.datatype.guava.optional;
 
+import org.junit.jupiter.api.Test;
+
+import com.google.common.base.Optional;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -10,7 +14,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.datatype.guava.ModuleTestBase;
 
-import com.google.common.base.Optional;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalFromEmptyTest extends ModuleTestBase
 {
@@ -27,12 +31,14 @@ public class OptionalFromEmptyTest extends ModuleTestBase
     private final ObjectMapper MAPPER = mapperWithModule();
 
     // [datatype-guava#48]
+    @Test
     public void testDeserNull() throws Exception {
         Optional<?> value = MAPPER.readValue("\"\"", new TypeReference<Optional<Integer>>() {});
         assertEquals(false, value.isPresent());
     }
 
     // [datatypes-collections#145]
+    @Test
     public void testDeserEmptyViaConstructor() throws Exception {
         OptionalBeanWithEmpty bean = MAPPER.readValue("{}",
                 OptionalBeanWithEmpty.class);
