@@ -11,7 +11,7 @@
   <parent>
     <artifactId>jackson-datatypes-collections</artifactId>
     <groupId>tools.jackson.datatype</groupId>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>3.0.0-rc1-SNAPSHOT</version>
   </parent>
   <artifactId>jackson-datatype-primitive-collections-base</artifactId>
   <name>Jackson datatype: primitive-collections-base</name>
