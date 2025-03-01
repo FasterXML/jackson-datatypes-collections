@@ -80,8 +80,8 @@ public class TestPCollections extends ModuleTestBase
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
             // 12-Nov-2024, tatu: Map exception changes in 2.19, not yet in 2.18 so
-//            _verifyImmutableException(e, PMap.class);
-            verifyException(e, "cannot find a deserializer");
+            // ... 28-Feb-2025, tatu: Except something did change
+            _verifyImmutableException(e, PMap.class);
         }
     }
 

@@ -94,11 +94,13 @@ public class ImmutableContainersTest extends ModuleTestBase
         }
 
         // 12-Nov-2024, tatu: Failure message for Maps only changed in 2.19, however
+        // ... 28-Feb-2025, tatu: Except something did change
         try {
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<ImmutableMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            verifyException(e, "Cannot find a deserializer for non-concrete");
+            _verifyImmutableException(e, ImmutableMap.class);
+//            verifyException(e, "Cannot find a deserializer for non-concrete");
         }
     }
 
