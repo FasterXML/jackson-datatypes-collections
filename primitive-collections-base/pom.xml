@@ -9,7 +9,7 @@
   <parent>
     <artifactId>jackson-datatypes-collections</artifactId>
     <groupId>tools.jackson.datatype</groupId>
-    <version>3.0.0-rc1</version>
+    <version>3.0.0-rc2-SNAPSHOT</version>
   </parent>
   <artifactId>jackson-datatype-primitive-collections-base</artifactId>
   <name>Jackson datatype: primitive-collections-base</name>
