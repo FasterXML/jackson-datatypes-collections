@@ -9,7 +9,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-3.0.0 (not yet released)
+3.0.0-rc1 (07-Mar-2025)
 
 #24: Support for Guava's Immutable{Double,Int,Long}Array
  (contributed by László-Róbert A)
