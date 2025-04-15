@@ -54,7 +54,7 @@ public class GuavaSerializers extends Serializers.Base
 
     @Override
     public ValueSerializer<?> findReferenceSerializer(SerializationConfig config,
-            ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            ReferenceType refType, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             TypeSerializer contentTypeSerializer, ValueSerializer<Object> contentValueSerializer)
     {
         if (refType.isTypeOrSubTypeOf(Optional.class)) {
@@ -67,8 +67,8 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public ValueSerializer<?> findSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc, JsonFormat.Value formatOverrides)
+    public ValueSerializer<?> findSerializer(SerializationConfig config,
+            JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         if (type.isTypeOrSubTypeOf(RangeSet.class)) {
             return new RangeSetSerializer();
@@ -100,26 +100,26 @@ public class GuavaSerializers extends Serializers.Base
 
     @Override
     public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            MapLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         if (type.isTypeOrSubTypeOf(Multimap.class)) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            Object filterId = intr.findFilterId(config, (Annotated)beanDesc.getClassInfo());
+            Object filterId = intr.findFilterId(config, (Annotated)beanDescRef.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Multimap.class,
-                    beanDesc.getClassInfo());
+                    beanDescRef.getClassInfo());
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
-            return new MultimapSerializer(type, beanDesc,
+            return new MultimapSerializer(type, beanDescRef,
                     keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
         if (type.isTypeOrSubTypeOf(Cache.class)) {
             final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-            Object filterId = intr.findFilterId(config, (Annotated)beanDesc.getClassInfo());
+            Object filterId = intr.findFilterId(config, (Annotated)beanDescRef.getClassInfo());
             JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(Cache.class,
-                beanDesc.getClassInfo());
+                    beanDescRef.getClassInfo());
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
-            return new CacheSerializer(type, beanDesc,
+            return new CacheSerializer(type, beanDescRef,
                 keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
         if (type.isTypeOrSubTypeOf(Table.class)) {
@@ -129,8 +129,8 @@ public class GuavaSerializers extends Serializers.Base
     }
 
     @Override
-    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config, CollectionLikeType type,
-            BeanDescription beanDesc, JsonFormat.Value formatOverrides, TypeSerializer elementTypeSerializer,
+    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
+            CollectionLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides, TypeSerializer elementTypeSerializer,
            ValueSerializer<Object> elementValueSerializer)
     {
         Class<?> raw = type.getRawClass();
@@ -138,7 +138,7 @@ public class GuavaSerializers extends Serializers.Base
                 .transform((ignore) -> ToStringSerializer.instance);
 
         return primitiveSerializer
-                .or(() -> super.findCollectionLikeSerializer(config, type, beanDesc, formatOverrides, elementTypeSerializer, elementValueSerializer));
+                .or(() -> super.findCollectionLikeSerializer(config, type, beanDescRef, formatOverrides, elementTypeSerializer, elementValueSerializer));
     }
 
     private JavaType _findDeclared(JavaType subtype, Class<?> target) {

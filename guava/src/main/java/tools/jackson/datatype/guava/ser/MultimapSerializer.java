@@ -55,7 +55,7 @@ public class MultimapSerializer
      */
     protected final boolean _sortKeys;
     
-    public MultimapSerializer(MapLikeType type, BeanDescription beanDesc,
+    public MultimapSerializer(MapLikeType type, BeanDescription.Supplier beanDesc,
             ValueSerializer<Object> keySerializer, TypeSerializer vts,
             ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries, Object filterId)

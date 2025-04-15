@@ -20,7 +20,7 @@ public class HppcSerializers extends Serializers.Base
     
     @Override
     public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType containerType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
+            CollectionLikeType containerType, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         if (ObjectContainer.class.isAssignableFrom(containerType.getRawClass())) {
@@ -36,7 +36,7 @@ public class HppcSerializers extends Serializers.Base
     /*
     @Override
     public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType arg1, BeanDescription arg2, JsonFormat.Value formatOverrides,
+            MapLikeType arg1, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
             JsonSerializer<Object> arg4, TypeSerializer arg5,
             JsonSerializer<Object> arg6) {
         // TODO: handle XxxMap with Object keys and/or values
@@ -50,7 +50,7 @@ public class HppcSerializers extends Serializers.Base
      */
     @Override
     public ValueSerializer<?> findSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
+            JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         return HppcContainerSerializers.getMatchingSerializer(config, type);
     }

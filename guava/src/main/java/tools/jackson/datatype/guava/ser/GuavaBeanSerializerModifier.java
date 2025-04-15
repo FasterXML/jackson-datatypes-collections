@@ -22,8 +22,7 @@ public class GuavaBeanSerializerModifier extends ValueSerializerModifier
     static final long serialVersionUID = 1L;
     @Override
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-            BeanDescription beanDesc,
-            List<BeanPropertyWriter> beanProperties)
+            BeanDescription.Supplier beanDescRef, List<BeanPropertyWriter> beanProperties)
     {
         for (int i = 0; i < beanProperties.size(); ++i) {
             final BeanPropertyWriter writer = beanProperties.get(i);

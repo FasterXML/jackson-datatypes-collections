@@ -64,8 +64,9 @@ public class CacheSerializer
     /**********************************************************
      */
 
-    public CacheSerializer(MapLikeType type, BeanDescription beanDesc,
-            ValueSerializer<Object> keySerializer, TypeSerializer vts, ValueSerializer<Object> valueSerializer,
+    public CacheSerializer(MapLikeType type, BeanDescription.Supplier beanDescRef,
+            ValueSerializer<Object> keySerializer, TypeSerializer vts,
+            ValueSerializer<Object> valueSerializer,
             Set<String> ignoredEntries, Object filterId)
     {
         super(type, null);

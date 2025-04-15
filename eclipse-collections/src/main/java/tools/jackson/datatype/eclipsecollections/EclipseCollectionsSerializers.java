@@ -58,7 +58,7 @@ public final class EclipseCollectionsSerializers extends Serializers.Base {
     public ValueSerializer<?> findCollectionLikeSerializer(
             SerializationConfig config,
             CollectionLikeType type,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer,
             ValueSerializer<Object> elementValueSerializer
@@ -76,7 +76,7 @@ public final class EclipseCollectionsSerializers extends Serializers.Base {
 
     @Override
     public ValueSerializer<?> findSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
+            JavaType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides)
     {
         Class<?> rawClass = type.getRawClass();
 
@@ -146,6 +146,6 @@ public final class EclipseCollectionsSerializers extends Serializers.Base {
                 return new DoubleIterableSerializer(null, null);
             }
         }
-        return super.findSerializer(config, type, beanDesc, formatOverrides);
+        return super.findSerializer(config, type, beanDescRef, formatOverrides);
     }
 }
