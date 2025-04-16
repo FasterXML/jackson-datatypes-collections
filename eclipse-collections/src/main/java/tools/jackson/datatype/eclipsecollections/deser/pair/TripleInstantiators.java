@@ -18,9 +18,11 @@ public class TripleInstantiators extends ValueInstantiators.Base {
     }
 
     @Override
-    public ValueInstantiator findValueInstantiator(DeserializationConfig config, BeanDescription beanDesc) {
-        if (beanDesc.getBeanClass() == Triple.class) {
-            JavaType beanType = beanDesc.getType();
+    public ValueInstantiator findValueInstantiator(DeserializationConfig config,
+            BeanDescription.Supplier beanDescRef)
+    {
+        if (beanDescRef.getBeanClass() == Triple.class) {
+            JavaType beanType = beanDescRef.getType();
             return new TripleInstantiator(
                     beanType,
                     beanType.containedType(0),
@@ -30,12 +32,12 @@ public class TripleInstantiators extends ValueInstantiators.Base {
                     null, null, null
             );
         }
-        if (beanDesc.getBeanClass() == Triplet.class) {
-            JavaType beanType = beanDesc.getType();
+        if (beanDescRef.getBeanClass() == Triplet.class) {
+            JavaType beanType = beanDescRef.getType();
             JavaType singleType = beanType.containedType(0);
             return new TripleInstantiator(beanType, singleType, singleType, singleType);
         }
-        return super.findValueInstantiator(config, beanDesc);
+        return super.findValueInstantiator(config, beanDescRef);
     }
 
     static class TripleInstantiator extends ValueInstantiator.Base {
@@ -106,7 +108,8 @@ public class TripleInstantiators extends ValueInstantiators.Base {
         }
 
         @Override
-        public ValueInstantiator createContextual(DeserializationContext ctxt, BeanDescription beanDesc) {
+        public ValueInstantiator createContextual(DeserializationContext ctxt,
+                BeanDescription.Supplier beanDescRef) {
             return new TripleInstantiator(
                     beanType,
                     oneType, twoType, threeType,

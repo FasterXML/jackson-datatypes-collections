@@ -35,15 +35,15 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
     @Override
     public ValueInstantiator findValueInstantiator(
-            DeserializationConfig config, BeanDescription beanDesc
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef
     ) {
-        Class<?> beanClass = beanDesc.getBeanClass();
+        Class<?> beanClass = beanDescRef.getBeanClass();
         ValueInstantiator purePrimitive = PURE_PRIMITIVE_INSTANTIATORS.get(beanClass);
         if (purePrimitive != null) {
             return purePrimitive;
         }
 
-        JavaType beanType = beanDesc.getType();
+        JavaType beanType = beanDescRef.getType();
 
         Function<JavaType, ValueInstantiator> keyOrValueObjectLambda =
                 KEY_OR_VALUE_OBJECT_LAMBDAS.get(beanClass);
@@ -223,7 +223,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
         @Override
         public ValueInstantiator createContextual(DeserializationContext ctxt,
-                BeanDescription beanDesc)
+                BeanDescription.Supplier beanDescRef)
         {
             TypeDeserializer typeDeserOne = ctxt.findTypeDeserializer(oneType(ctxt.getConfig()));
             TypeDeserializer typeDeserTwo = ctxt.findTypeDeserializer(twoType(ctxt.getConfig()));

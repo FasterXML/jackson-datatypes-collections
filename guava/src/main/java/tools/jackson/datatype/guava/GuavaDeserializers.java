@@ -50,7 +50,7 @@ public class GuavaDeserializers
      */
     @Override
     public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         Class<?> raw = type.getRawClass();
@@ -151,7 +151,7 @@ public class GuavaDeserializers
      */
     @Override
     public ValueDeserializer<?> findMapDeserializer(MapType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer valueTypeDeserializer, ValueDeserializer<?> valueDeserializer)
     {
@@ -192,7 +192,7 @@ public class GuavaDeserializers
 
     @Override
     public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer, TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer)
     {
@@ -273,7 +273,7 @@ public class GuavaDeserializers
 
         // @since 2.16 : support Cache deserialization
         java.util.Optional<ValueDeserializer<?>> cacheDeserializer = findCacheDeserializer(raw, type, config, 
-                beanDesc, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+                beanDescRef, keyDeserializer, elementTypeDeserializer, elementDeserializer);
         if (cacheDeserializer.isPresent()) {
             return cacheDeserializer.get();
         }
@@ -292,7 +292,7 @@ public class GuavaDeserializers
      * @since 2.16
      */
     private java.util.Optional<ValueDeserializer<?>> findCacheDeserializer(Class<?> raw, MapLikeType type,
-        DeserializationConfig config, BeanDescription beanDesc, KeyDeserializer keyDeserializer,
+        DeserializationConfig config, BeanDescription.Supplier beanDescRef, KeyDeserializer keyDeserializer,
         TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         /* // Example implementations
@@ -309,7 +309,7 @@ public class GuavaDeserializers
 
     @Override // since 2.7
     public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
     {
         // 28-Oct-2016, tatu: Should try to support subtypes too, with ValueInstantiators, but
@@ -323,7 +323,7 @@ public class GuavaDeserializers
 
     @Override
     public ValueDeserializer<?> findBeanDeserializer(final JavaType type, DeserializationConfig config,
-            BeanDescription beanDesc)
+            BeanDescription.Supplier beanDescRef)
     {
         if (type.isTypeOrSubTypeOf(RangeSet.class)) {
             return new RangeSetDeserializer();

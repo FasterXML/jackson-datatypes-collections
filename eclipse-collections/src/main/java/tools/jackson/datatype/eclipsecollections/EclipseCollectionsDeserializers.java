@@ -161,7 +161,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     public ValueDeserializer<?> findCollectionDeserializer(
             CollectionType type,
             DeserializationConfig config,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer
     ) {
@@ -176,7 +176,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     public ValueDeserializer<?> findCollectionLikeDeserializer(
             CollectionLikeType type,
             DeserializationConfig config,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer
     ) {
@@ -191,31 +191,31 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
     public ValueDeserializer<?> findMapDeserializer(
             MapType type,
             DeserializationConfig config,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer
     ) {
-        return findBeanDeserializer(type, config, beanDesc);
+        return findBeanDeserializer(type, config, beanDescRef);
     }
 
     @Override
     public ValueDeserializer<?> findMapLikeDeserializer(
             MapLikeType type,
             DeserializationConfig config,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
             ValueDeserializer<?> elementDeserializer
     ) {
-        return findBeanDeserializer(type, config, beanDesc);
+        return findBeanDeserializer(type, config, beanDescRef);
     }
 
     @Override
     public ValueDeserializer<?> findReferenceDeserializer(
             ReferenceType refType,
             DeserializationConfig config,
-            BeanDescription beanDesc,
+            BeanDescription.Supplier beanDescRef,
             TypeDeserializer contentTypeDeserializer,
             ValueDeserializer<?> contentDeserializer) {
         return findAnyEclipseDeserializer(refType, contentTypeDeserializer, contentDeserializer);
@@ -223,7 +223,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
 
     @Override
     public ValueDeserializer<?> findBeanDeserializer(
-            JavaType type, DeserializationConfig config, BeanDescription beanDesc
+            JavaType type, DeserializationConfig config, BeanDescription.Supplier beanDescRef
     ) {
         return findAnyEclipseDeserializer(type, null, null);
     }

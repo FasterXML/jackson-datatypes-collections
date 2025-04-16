@@ -20,7 +20,7 @@ public class PCollectionsDeserializers
      */
     @Override
     public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         Class<?> raw = type.getRawClass();
@@ -50,7 +50,7 @@ public class PCollectionsDeserializers
 
     @Override
     public ValueDeserializer<?> findMapDeserializer(MapType type,
-            DeserializationConfig config, BeanDescription beanDesc,
+            DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
