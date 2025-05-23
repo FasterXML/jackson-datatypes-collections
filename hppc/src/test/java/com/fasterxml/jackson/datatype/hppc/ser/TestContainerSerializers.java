@@ -5,11 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.carrotsearch.hppc.*;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.datatype.hppc.HppcTestBase;
+import com.fasterxml.jackson.datatype.hppc.ModuleTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestContainerSerializers extends HppcTestBase
+public class TestContainerSerializers extends ModuleTestBase
 {
     @Test
     public void testByteSerializer() throws Exception

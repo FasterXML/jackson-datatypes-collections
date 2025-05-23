@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public abstract class HppcTestBase
+public abstract class ModuleTestBase
 {
-    protected HppcTestBase() { }
+    protected ModuleTestBase() { }
     
     protected ObjectMapper mapperWithModule()
     {

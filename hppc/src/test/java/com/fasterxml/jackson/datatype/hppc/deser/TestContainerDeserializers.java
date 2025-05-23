@@ -8,11 +8,11 @@ import com.carrotsearch.hppc.*;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.datatype.hppc.HppcTestBase;
+import com.fasterxml.jackson.datatype.hppc.ModuleTestBase;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestContainerDeserializers extends HppcTestBase
+public class TestContainerDeserializers extends ModuleTestBase
 {
 
     @Test

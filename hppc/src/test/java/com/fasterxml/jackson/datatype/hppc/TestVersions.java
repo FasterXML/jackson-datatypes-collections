@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestVersions extends HppcTestBase
+public class TestVersions extends ModuleTestBase
 {
     @Test
     public void testMapperVersions() throws IOException
