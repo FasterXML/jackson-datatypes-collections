@@ -5,7 +5,11 @@ import tools.jackson.datatype.hppc.ModuleTestBase;
 
 import org.junit.jupiter.api.Test;
 
+<<<<<<< HEAD:hppc/src/test/java/tools/jackson/datatype/hppc/ser/TestContainerSerializers.java
 import com.carrotsearch.hppc.*;
+=======
+import com.fasterxml.jackson.datatype.hppc.ModuleTestBase;
+>>>>>>> 2.x:hppc/src/test/java/com/fasterxml/jackson/datatype/hppc/ser/TestContainerSerializers.java
 
 import static org.junit.jupiter.api.Assertions.*;
 

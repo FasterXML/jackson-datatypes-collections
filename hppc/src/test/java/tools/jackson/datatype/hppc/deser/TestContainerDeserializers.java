@@ -6,8 +6,14 @@ import org.junit.jupiter.api.Test;
 
 import com.carrotsearch.hppc.*;
 
+<<<<<<< HEAD:hppc/src/test/java/tools/jackson/datatype/hppc/deser/TestContainerDeserializers.java
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.datatype.hppc.ModuleTestBase;
+=======
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.datatype.hppc.ModuleTestBase;
+>>>>>>> 2.x:hppc/src/test/java/com/fasterxml/jackson/datatype/hppc/deser/TestContainerDeserializers.java
 
 import static org.junit.jupiter.api.Assertions.*;
 
