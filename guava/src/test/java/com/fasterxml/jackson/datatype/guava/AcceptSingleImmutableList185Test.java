@@ -2,15 +2,14 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import com.google.common.collect.ImmutableList;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.Assert.assertThrows;
-
+// [datatype-guava#185] : `GuavaCollectionDeserializer` does not respect `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
 public class AcceptSingleImmutableList185Test
     extends ModuleTestBase
 {
@@ -19,7 +18,7 @@ public class AcceptSingleImmutableList185Test
         public String data;
     }
 
-    static class Container185 {     // 문제의 필드
+    static class GuavaContainer185 {     // 문제의 필드
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public ImmutableList<Line> lines;
     }
@@ -31,29 +30,27 @@ public class AcceptSingleImmutableList185Test
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    // Sanity Check, JDK List works by default
     @Test
-    public void testGuavaImmutableListTestAsArray()
+    public void testGuavaImmutableListTestAsArrayJava()
             throws Exception
     {
-        String json = "{\"lines\":{\"data\":\"something\"}}";
+        String json = "{\"lines\":{\"data\":\"something-jdk\"}}";
 
         JavaContainer185 javaContainer = MAPPER.readValue(json, JavaContainer185.class);
         assertEquals(1, javaContainer.lines.size());
-        assertEquals("something", javaContainer.lines.get(0).data);
-
-        Container185 container = MAPPER.readValue(json, Container185.class);
-        assertEquals(1, container.lines.size());
-        assertEquals("something", container.lines.get(0).data);
+        assertEquals("something-jdk", javaContainer.lines.get(0).data);
     }
 
+    // Guava's ImmutableList does not work, but should
     @Test
     public void testGuavaImmutableListTestAsArrayGuava()
             throws Exception
     {
-        String json = "{\"lines\":{\"data\":\"something\"}}";
+        String json = "{\"lines\":{\"data\":\"something-guava\"}}";
 
-        Container185 container = MAPPER.readValue(json, Container185.class);
+        GuavaContainer185 container = MAPPER.readValue(json, GuavaContainer185.class);
         assertEquals(1, container.lines.size());
-        assertEquals("something", container.lines.get(0).data);
+        assertEquals("something-guava", container.lines.get(0).data);
     }
 }
