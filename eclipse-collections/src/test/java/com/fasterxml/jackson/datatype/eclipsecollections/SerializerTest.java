@@ -24,13 +24,15 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.eclipse.collections.impl.factory.primitive.ShortLists;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class SerializerTest extends ModuleTestBase {
     @Test
     public void ref() throws IOException {
-        Assert.assertEquals(
+        assertEquals(
                 "[\"a\",\"b\",\"c\"]",
                 mapperWithModule().writeValueAsString(Sets.immutable.of("a", "b", "c"))
         );
@@ -38,26 +40,26 @@ public final class SerializerTest extends ModuleTestBase {
 
     @Test
     public void primitive() throws IOException {
-        Assert.assertEquals("[true,false,true]", mapperWithModule().writeValueAsString(
+        assertEquals("[true,false,true]", mapperWithModule().writeValueAsString(
                 BooleanLists.immutable.of(true, false, true)));
-        Assert.assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
+        assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
                 ShortLists.immutable.of((short) 1, (short) 2, (short) 3)));
-        Assert.assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
+        assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
                 IntLists.immutable.of(1, 2, 3)));
-        Assert.assertEquals("[1.1,2.3,3.5]", mapperWithModule().writeValueAsString(
+        assertEquals("[1.1,2.3,3.5]", mapperWithModule().writeValueAsString(
                 FloatLists.immutable.of(1.1F, 2.3F, 3.5F)));
-        Assert.assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
+        assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
                 LongLists.immutable.of(1, 2, 3)));
-        Assert.assertEquals("[1.1,2.3,3.5]", mapperWithModule().writeValueAsString(
+        assertEquals("[1.1,2.3,3.5]", mapperWithModule().writeValueAsString(
                 DoubleLists.immutable.of(1.1, 2.3, 3.5)));
 
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().writeValueAsString(new byte[]{ 1, 2, 3 }),
                 mapperWithModule().writeValueAsString(ByteLists.immutable.of((byte) 1, (byte) 2, (byte) 3)));
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().writeValueAsString(new char[]{ '1', '2', '3' }),
                 mapperWithModule().writeValueAsString(CharLists.immutable.of('1', '2', '3')));
-        Assert.assertEquals(
+        assertEquals(
                 mapperWithModule().configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true)
                         .writeValueAsString(new char[]{ '1', '2', '3' }),
                 mapperWithModule().configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true)
@@ -82,7 +84,7 @@ public final class SerializerTest extends ModuleTestBase {
         Wrapper wrapper = new Wrapper();
         wrapper.object = iterable;
 
-        Assert.assertEquals("{\"object\":[\"" + iterable.getClass().getName() + "\"," + data + "]}",
+        assertEquals("{\"object\":[\"" + iterable.getClass().getName() + "\"," + data + "]}",
                             objectMapper.writeValueAsString(wrapper));
     }
 
@@ -117,27 +119,27 @@ public final class SerializerTest extends ModuleTestBase {
 
     @Test
     public void objectObjectMaps() throws IOException {
-        Assert.assertEquals(
+        assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writerFor(MutableMap.class).writeValueAsString(Maps.mutable.of("abc", "def"))
         );
-        Assert.assertEquals(
+        assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writerFor(ImmutableMap.class).writeValueAsString(Maps.immutable.of("abc", "def"))
         );
-        Assert.assertEquals(
+        assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writerFor(MapIterable.class).writeValueAsString(Maps.immutable.of("abc", "def"))
         );
-        Assert.assertEquals(
+        assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writerFor(MutableMapIterable.class).writeValueAsString(Maps.mutable.of("abc", "def"))
         );
-        Assert.assertEquals(
+        assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writeValueAsString(Maps.immutable.of("abc", "def"))
         );
-        Assert.assertEquals(
+        assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writerFor(new TypeReference<MapIterable<String, String>>() {})
                         .writeValueAsString(Maps.immutable.of("abc", "def"))
@@ -146,7 +148,7 @@ public final class SerializerTest extends ModuleTestBase {
 
     @Test
     public void typeInfoObjectMap() throws IOException {
-        Assert.assertEquals(
+        assertEquals(
                 "{\"map\":{\"0\":{\"@c\":\".SerializerTest$B\"}}}",
                 mapperWithModule().writeValueAsString(new Container())
         );

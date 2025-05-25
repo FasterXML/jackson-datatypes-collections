@@ -3,10 +3,10 @@ package com.fasterxml.jackson.datatype.eclipsecollections;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public abstract class ModuleTestBase {
-
+public abstract class ModuleTestBase
+{
     protected ObjectMapper mapperWithModule() {
         return new ObjectMapper().registerModule(new EclipseCollectionsModule());
     }

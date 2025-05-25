@@ -2,10 +2,14 @@ package com.fasterxml.jackson.datatype.guava.optional;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.ModuleTestBase;
 import com.google.common.collect.ImmutableList;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OptionalFromNullInListTest extends ModuleTestBase
 {
@@ -17,6 +21,7 @@ public class OptionalFromNullInListTest extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testImmutableListOfOptionals() throws Exception {
         ImmutableList<AtomicReference<?>> list = MAPPER.readValue("[1,null,3]",
                 new TypeReference<ImmutableList<AtomicReference<?>>>() { });

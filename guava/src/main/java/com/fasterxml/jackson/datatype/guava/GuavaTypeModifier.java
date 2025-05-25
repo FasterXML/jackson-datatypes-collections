@@ -53,6 +53,19 @@ public class GuavaTypeModifier extends TypeModifier
         if (raw == Optional.class) {
             return ReferenceType.upgradeFrom(type, type.containedTypeOrUnknown(0));
         }
+        if (raw == Table.class) {
+            MapLikeType columnValueType =
+                MapLikeType.upgradeFrom(
+                    type,
+                    type.containedTypeOrUnknown(1),
+                    type.containedTypeOrUnknown(2)
+                );
+            return MapLikeType.upgradeFrom(
+                type,
+                type.containedTypeOrUnknown(0),
+                columnValueType
+            );
+        }
         return type;
     }
 }

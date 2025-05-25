@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import java.io.IOException;
 import org.eclipse.collections.api.PrimitiveIterable;
 
@@ -30,8 +32,6 @@ public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> e
         _property = property;
         _unwrapSingle = unwrapSingle;
     }
-
-    protected abstract PrimitiveIterableSerializer<C> withResolved(BeanProperty property, Boolean unwrapSingle);
 
     @Override
     public boolean isEmpty(SerializerProvider prov, C value) {
@@ -87,4 +87,9 @@ public abstract class PrimitiveIterableSerializer<C extends PrimitiveIterable> e
     }
 
     protected abstract void serializeContents(C value, JsonGenerator gen) throws IOException;
+
+    // @since 2.19
+    protected static JavaType elementType(Class<?> rawElementType) {
+        return TypeFactory.defaultInstance().constructType(rawElementType);
+    }
 }

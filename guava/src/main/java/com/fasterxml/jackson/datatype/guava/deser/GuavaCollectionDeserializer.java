@@ -175,7 +175,7 @@ public abstract class GuavaCollectionDeserializer<T>
     {
         final JsonDeserializer<?> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        final JsonToken t = p.getCurrentToken();
+        final JsonToken t = p.currentToken();
 
         final Object value;
 

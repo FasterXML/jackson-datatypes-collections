@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.google.common.collect.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify handling of various {@link Multiset}s.
@@ -24,6 +28,7 @@ public class MultisetsTest extends ModuleTestBase
      * Multi-sets can actually be serialized as regular collections, without
      * problems.
      */
+    @Test
     public void testWithoutSerializers() throws Exception
     {
         
@@ -38,6 +43,7 @@ public class MultisetsTest extends ModuleTestBase
     }
 
     // 11-Jul-2017, tatu: Not sure if this test makes sense actually...
+    @Test
     public void testWithoutDeserializers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -61,32 +67,39 @@ public class MultisetsTest extends ModuleTestBase
      */
 
     private final ObjectMapper MAPPER = mapperWithModule();
-    
+
+    @Test
     public void testDefaultMultiset() throws Exception
     {
         _testMultiset(new TypeReference<Multiset<String>>() { });
     }
-    
+
+    @Test
     public void testDefaultSortedMultiset() throws Exception {
         _testMultiset(new TypeReference<SortedMultiset<String>>() { });
     }
 
+    @Test
     public void testLinkedHashMultiset() throws Exception {
         _testMultiset(new TypeReference<LinkedHashMultiset<String>>() { });
     }
-    
+
+    @Test
     public void testHashMultiset() throws Exception {
         _testMultiset(new TypeReference<HashMultiset<String>>() { });
     }
-    
+
+    @Test
     public void testTreeMultiset() throws Exception {
         _testMultiset(new TypeReference<TreeMultiset<String>>() { });
     }
-    
+
+    @Test
     public void testImmutableMultiset() throws Exception {
         _testMultiset(new TypeReference<ImmutableMultiset<String>>() { });
     }
 
+    @Test
     public void testImmutableSortedMultiset() throws Exception {
         _testMultiset(new TypeReference<ImmutableSortedMultiset<String>>() { });
     }
@@ -112,6 +125,7 @@ public class MultisetsTest extends ModuleTestBase
         }
     }
 
+    @Test
     public void testFromSingle() throws Exception
     {
         ObjectMapper mapper = mapperWithModule()

@@ -160,7 +160,7 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
     }
 
     private void expect(JsonParser p, JsonToken token) throws IOException {
-        if (p.getCurrentToken() != token) {
+        if (p.currentToken() != token) {
             throw new JsonMappingException(p, "Expecting " + token + " to start `Cache` value, found " + p.currentToken(),
                 p.currentLocation());
         }

@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import com.google.common.net.HostAndPort;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class HostAndPortTest extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule();
 
+    @Test
     public void testSerialization() throws Exception
     {
         HostAndPort input = HostAndPort.fromParts("localhost", 80);
@@ -16,6 +21,7 @@ public class HostAndPortTest extends ModuleTestBase
         assertEquals("\"localhost:80\"", json);
     }
 
+    @Test
     public void testDeserializationOk() throws Exception
     {
         // Actually, let's support both old style and new style
@@ -44,6 +50,7 @@ public class HostAndPortTest extends ModuleTestBase
         assertEquals(HostAndPort.fromHost(""), result);
     }
 
+    @Test
     public void testDeserializationFail() throws Exception
     {
         HostAndPort result = null;

@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.fasterxml.jackson.datatype</groupId>
     <artifactId>jackson-datatypes-collections</artifactId>
-    <version>2.18.5-SNAPSHOT</version>
+    <version>2.20.0-SNAPSHOT</version>
   </parent>
   <artifactId>jackson-datatype-pcollections</artifactId>
   <name>Jackson datatype: pcollections</name>
@@ -33,7 +33,7 @@ PCollections (https://pcollections.org/) types
   </contributors>
 
   <properties>
-    <version.pcollections>4.0.1</version.pcollections>
+    <version.pcollections>4.0.2</version.pcollections>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>com/fasterxml/jackson/datatype/pcollections</packageVersion.dir>
@@ -54,9 +54,20 @@ PCollections (https://pcollections.org/) types
         <groupId>com.google.code.maven-replacer-plugin</groupId>
         <artifactId>replacer</artifactId>
       </plugin>
+      <!-- 29-Apr-2025, tatu: SBOM generation [JSTEP-14] -->
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+      </plugin>
       <plugin>
         <groupId>org.moditect</groupId>
         <artifactId>moditect-maven-plugin</artifactId>
+      </plugin>
+      <!-- 05-Jul-2020, tatu: Add generation of Gradle Module Metadata -->
+      <!-- 28-Feb-2025, jjohannes: Apply plugin last as it has to be the last of all 'package phase' plugins -->
+      <plugin>
+        <groupId>org.gradlex</groupId>
+        <artifactId>gradle-module-metadata-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

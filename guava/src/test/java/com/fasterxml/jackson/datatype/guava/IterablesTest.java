@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IterablesTest extends ModuleTestBase
 {
@@ -23,6 +27,7 @@ public class IterablesTest extends ModuleTestBase
     /**********************************************************
      */
 
+    @Test
     public void testIterablesSerialization() throws Exception
     {
         String json = MAPPER.writeValueAsString(Iterables.limit(Iterables.cycle(1,2,3), 3));
@@ -31,6 +36,7 @@ public class IterablesTest extends ModuleTestBase
     }
 
     // for [#60]
+    @Test
     public void testIterablesWithTransform() throws Exception
     {
         Iterable<String> input = Iterables.transform(ImmutableList.of("mr", "bo", "jangles"),

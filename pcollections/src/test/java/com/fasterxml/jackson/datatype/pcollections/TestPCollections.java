@@ -9,10 +9,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
-import org.junit.Test;
 import org.pcollections.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that various PCollection types
@@ -79,8 +80,6 @@ public class TestPCollections extends ModuleTestBase
             mapper.readValue("{\"a\":true,\"b\":false}", new TypeReference<PMap<Integer,Boolean>>() { });
             fail("Expected failure for missing deserializer");
         } catch (InvalidDefinitionException e) {
-            // 12-Nov-2024, tatu: Map exception changes in 2.19, not yet in 2.18 so
-            // ... 28-Feb-2025, tatu: Except something did change
             _verifyImmutableException(e, PMap.class);
         }
     }

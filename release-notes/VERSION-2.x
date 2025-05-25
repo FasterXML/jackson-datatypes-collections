@@ -16,6 +16,18 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.20.0 (not yet released)
+
+#190: Add unit tests to verify goodness of SPI metadata for Modules
+- Generate SBOMs [JSTEP-14]
+
+2.19.0 (24-Apr-2025)
+
+#1: (guava) Add deserialization support for `Table<R, C, V>`
+ (contributed by Abhishek K)
+#174: Unify testing structure/tools [JSTEP-10]
+ (contributed by Joo-Hyuk K)
+
 2.18.4 (06-May-2025)
 2.18.3 (28-Feb-2025)
 2.18.2 (27-Nov-2024)
