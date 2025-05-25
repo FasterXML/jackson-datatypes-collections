@@ -2,12 +2,13 @@ package com.fasterxml.jackson.datatype.guava;
 
 import java.util.List;
 
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [datatype-guava#185] : `GuavaCollectionDeserializer` does not respect `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
 public class AcceptSingleImmutableList185Test
