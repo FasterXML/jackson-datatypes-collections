@@ -10,21 +10,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// [datatype-guava#185] : `GuavaCollectionDeserializer` does not respect `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
-public class AcceptSingleImmutableList185Test
+// [datatype-guava#185] : `GuavaCollectionDeserializer` does not respect
+// `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+public class ImmutableListAcceptSingle185Test
     extends ModuleTestBase
 {
-
-    static class Line {          // 서브-Pojo
+    static class Line {
         public String data;
     }
 
-    static class GuavaContainer185 {     // 문제의 필드
+    static class GuavaContainer185 {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public ImmutableList<Line> lines;
     }
 
-    static class JavaContainer185 {     // 문제의 필드
+    static class JavaContainer185 {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public List<Line> lines;
     }
@@ -33,7 +33,7 @@ public class AcceptSingleImmutableList185Test
 
     // Sanity Check, JDK List works by default
     @Test
-    public void testGuavaImmutableListTestAsArrayJava()
+    public void testJDKListWithSingleValue()
             throws Exception
     {
         String json = "{\"lines\":{\"data\":\"something-jdk\"}}";
@@ -45,7 +45,7 @@ public class AcceptSingleImmutableList185Test
 
     // Guava's ImmutableList does not work, but should
     @Test
-    public void testGuavaImmutableListTestAsArrayGuava()
+    public void testGuavaImmutableListWithSingleValue()
             throws Exception
     {
         String json = "{\"lines\":{\"data\":\"something-guava\"}}";

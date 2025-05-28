@@ -138,7 +138,7 @@ public abstract class GuavaCollectionDeserializer<T>
             return _deserializeContents(p, ctxt);
         }
         // But may support implicit arrays from single values?
-        boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
+        final boolean canWrap = (_unwrapSingle == Boolean.TRUE) ||
                 ((_unwrapSingle == null) && ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (canWrap) {
             return _deserializeFromSingleValue(p, ctxt);
