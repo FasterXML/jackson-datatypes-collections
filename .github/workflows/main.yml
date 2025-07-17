@@ -14,8 +14,9 @@ permissions:
 
 env:
   GUAVA_DEFAULT: '25.1-jre'
-  GUAVA_MIN: '20.0'
-  GUAVA_MAX: '33.1.0-jre'
+  # 17-Jul-2025, tatu: Raised min from 20 to 22 in Jackson 2.20
+  GUAVA_MIN: '22.0'
+  GUAVA_MAX: '33.4.8-jre'
 jobs:
   build:
     runs-on: 'ubuntu-24.04'
