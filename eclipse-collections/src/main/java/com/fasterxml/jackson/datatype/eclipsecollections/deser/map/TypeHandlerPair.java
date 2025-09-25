@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import java.io.IOException;
 import org.eclipse.collections.api.map.MutableMap;
+import org.eclipse.collections.api.map.sorted.MutableSortedMap;
 import org.eclipse.collections.api.map.primitive.MutableByteBooleanMap;
 import org.eclipse.collections.api.map.primitive.MutableByteByteMap;
 import org.eclipse.collections.api.map.primitive.MutableByteCharMap;
@@ -77,6 +78,7 @@ import org.eclipse.collections.api.map.primitive.MutableShortLongMap;
 import org.eclipse.collections.api.map.primitive.MutableShortObjectMap;
 import org.eclipse.collections.api.map.primitive.MutableShortShortMap;
 import org.eclipse.collections.impl.factory.Maps;
+import org.eclipse.collections.impl.factory.SortedMaps;
 import org.eclipse.collections.impl.factory.primitive.ByteBooleanMaps;
 import org.eclipse.collections.impl.factory.primitive.ByteByteMaps;
 import org.eclipse.collections.impl.factory.primitive.ByteCharMaps;
@@ -185,6 +187,33 @@ interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
                         DeserializationContext ctx, String k, JsonParser v
                 ) throws IOException {
                     target.put(kh.key(ctx, k), vh.value(ctx, v));
+                }
+            };
+
+    TypeHandlerPair<MutableSortedMap<Comparable<?>, Object>, RefKeyHandler, RefValueHandler> COMPARABLE_OBJECT =
+            new TypeHandlerPair<MutableSortedMap<Comparable<?>, Object>, RefKeyHandler, RefValueHandler>() {
+                @Override
+                public RefKeyHandler keyHandler(JavaType type) {
+                    return new RefKeyHandler(type, null);
+                }
+
+                @Override
+                public RefValueHandler valueHandler(JavaType type) {
+                    return new RefValueHandler(type, null, null);
+                }
+
+                @Override
+                public MutableSortedMap<Comparable<?>, Object> createEmpty() {
+                    return SortedMaps.mutable.empty();
+                }
+
+                @Override
+                public void add(
+                        MutableSortedMap<Comparable<?>, Object> target,
+                        RefKeyHandler kh, RefValueHandler vh,
+                        DeserializationContext ctx, String k, JsonParser v
+                ) throws IOException {
+                    target.put((Comparable<?>) kh.key(ctx, k), vh.value(ctx, v));
                 }
             };
 

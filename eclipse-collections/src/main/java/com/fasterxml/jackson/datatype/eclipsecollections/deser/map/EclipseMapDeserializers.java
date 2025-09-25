@@ -14,6 +14,9 @@ import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.map.MutableMapIterable;
 import org.eclipse.collections.api.map.UnsortedMapIterable;
+import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
+import org.eclipse.collections.api.map.sorted.MutableSortedMap;
+import org.eclipse.collections.api.map.sorted.SortedMapIterable;
 import org.eclipse.collections.api.map.primitive.ByteBooleanMap;
 import org.eclipse.collections.api.map.primitive.ByteByteMap;
 import org.eclipse.collections.api.map.primitive.ByteCharMap;
@@ -327,6 +330,10 @@ public final class EclipseMapDeserializers {
         add(UnsortedMapIterable.class, TypeHandlerPair.OBJECT_OBJECT);
         add(ImmutableMap.class, TypeHandlerPair.OBJECT_OBJECT, MutableMap::toImmutable);
         add(ImmutableMapIterable.class, TypeHandlerPair.OBJECT_OBJECT, MutableMap::toImmutable);
+
+        add(MutableSortedMap.class, TypeHandlerPair.COMPARABLE_OBJECT);
+        add(SortedMapIterable.class, TypeHandlerPair.COMPARABLE_OBJECT);
+        add(ImmutableSortedMap.class, TypeHandlerPair.COMPARABLE_OBJECT, MutableSortedMap::toImmutable);
 
         add(ObjectBooleanMap.class, TypeHandlerPair.OBJECT_BOOLEAN);
         add(MutableObjectBooleanMap.class, TypeHandlerPair.OBJECT_BOOLEAN);

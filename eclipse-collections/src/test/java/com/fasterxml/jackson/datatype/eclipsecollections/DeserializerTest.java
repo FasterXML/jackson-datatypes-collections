@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Currency;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -103,6 +105,9 @@ import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.MapIterable;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.map.UnsortedMapIterable;
+import org.eclipse.collections.api.map.sorted.ImmutableSortedMap;
+import org.eclipse.collections.api.map.sorted.MutableSortedMap;
+import org.eclipse.collections.api.map.sorted.SortedMapIterable;
 import org.eclipse.collections.api.map.primitive.IntObjectMap;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
@@ -140,6 +145,7 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.Sets;
 import org.eclipse.collections.impl.factory.SortedBags;
+import org.eclipse.collections.impl.factory.SortedMaps;
 import org.eclipse.collections.impl.factory.primitive.BooleanBags;
 import org.eclipse.collections.impl.factory.primitive.BooleanLists;
 import org.eclipse.collections.impl.factory.primitive.BooleanSets;
@@ -723,6 +729,72 @@ public final class DeserializerTest extends ModuleTestBase {
         assertEquals(
                 triple,
                 mapper.readValue(actJson, new TypeReference<Triplet<String>>() {})
+        );
+    }
+
+    @Test
+    public void mutableSortedMap() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
+        final MutableSortedMap<String, Object> sortedMap = SortedMaps.mutable.of("c", 3, "a", 1, "b", 2);
+        final String json = mapper.writeValueAsString(sortedMap);
+
+        final MutableSortedMap<String, Object> result = mapper.readValue(
+                json,
+                new TypeReference<MutableSortedMap<String, Object>>() {}
+        );
+
+        assertEquals(sortedMap, result);
+        assertTrue(result instanceof MutableSortedMap);
+    }
+
+    @Test
+    public void sortedMapIterable() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
+        final MutableSortedMap<String, Object> sortedMap = SortedMaps.mutable.of("c", 3, "a", 1, "b", 2);
+        final String json = mapper.writeValueAsString(sortedMap);
+
+        final SortedMapIterable<String, Object> result = mapper.readValue(
+                json,
+                new TypeReference<SortedMapIterable<String, Object>>() {}
+        );
+
+        assertEquals(sortedMap, result);
+        assertTrue(result instanceof SortedMapIterable);
+    }
+
+    @Test
+    public void immutableSortedMap() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
+        final ImmutableSortedMap<String, Object> sortedMap = SortedMaps.immutable.of("c", 3, "a", 1, "b", 2);
+        final String json = mapper.writeValueAsString(sortedMap);
+
+        final ImmutableSortedMap<String, Object> result = mapper.readValue(
+                json,
+                new TypeReference<ImmutableSortedMap<String, Object>>() {}
+        );
+
+        assertEquals(sortedMap, result);
+        assertTrue(result instanceof ImmutableSortedMap);
+    }
+
+    @Test
+    public void sortedMap_nonComparableKey() throws Exception {
+        final ObjectMapper mapper = mapperWithModule();
+
+        // Currency doesn't implement Comparable
+        assertFalse(Comparable.class.isAssignableFrom(Currency.class));
+
+        final MutableSortedMap<Currency, Object> sortedMap = SortedMaps.mutable
+            .of(Comparator.comparing(Currency::getCurrencyCode))
+            .withKeyValue(Currency.getInstance("USD"), 1);
+        final String json = mapper.writeValueAsString(sortedMap);
+
+        assertThrows(
+                ClassCastException.class,
+                () -> mapper.readValue(
+                        json,
+                        new TypeReference<MutableSortedMap<Currency, Object>>() {}
+                )
         );
     }
 }
