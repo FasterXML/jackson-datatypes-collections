@@ -143,3 +143,8 @@ Gergely Juhasz (@JGergely)
 Abhishek Kumar (@Abhishekkr3003)
   * Contributed #1: (guava) Add deserialization support for `Table<R, C, V>`
    (2.19.0)
+
+Nicolas Bertrand (@tampix)
+ * Contributed #198: (eclipse-collections) Add support for `MutableSortedMap`/`ImmutableSortedMap`
+   deserialization
+  (2.21.0)

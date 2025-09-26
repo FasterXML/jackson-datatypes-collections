@@ -18,7 +18,9 @@ Active Maintainers:
 
 2.21.0 (not yet released)
 
-No changes since 2.20
+#198: (eclipse-collections) Add support for `MutableSortedMap`/`ImmutableSortedMap`
+  deserialization
+ (contributed byb Nicolas B)
 
 2.20.0 (28-Aug-2025)
 
@@ -31,7 +33,7 @@ No changes since 2.19.1
 
 2.19.1 (13-Jun-2025)
 
-#185: `ACCEPT_SINGLE_VALUE_AS_ARRAY` doesn't work on Guava `ImmutableList`
+#185: (guava) `ACCEPT_SINGLE_VALUE_AS_ARRAY` doesn't work on Guava `ImmutableList`
  (reported by Gergely J)
  (fix contributed by Joo-Hyuk K)
 
