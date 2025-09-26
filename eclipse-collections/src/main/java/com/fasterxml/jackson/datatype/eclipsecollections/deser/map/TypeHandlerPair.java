@@ -190,6 +190,7 @@ interface TypeHandlerPair<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
                 }
             };
 
+    // @since 2.21
     TypeHandlerPair<MutableSortedMap<Comparable<?>, Object>, RefKeyHandler, RefValueHandler> COMPARABLE_OBJECT =
             new TypeHandlerPair<MutableSortedMap<Comparable<?>, Object>, RefKeyHandler, RefValueHandler>() {
                 @Override

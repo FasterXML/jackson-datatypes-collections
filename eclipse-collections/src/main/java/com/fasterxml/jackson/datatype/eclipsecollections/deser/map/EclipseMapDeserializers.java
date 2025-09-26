@@ -331,9 +331,10 @@ public final class EclipseMapDeserializers {
         add(ImmutableMap.class, TypeHandlerPair.OBJECT_OBJECT, MutableMap::toImmutable);
         add(ImmutableMapIterable.class, TypeHandlerPair.OBJECT_OBJECT, MutableMap::toImmutable);
 
+        // 26-Sep-2025: [datatypes-collections#198] Sorted maps
+        add(ImmutableSortedMap.class, TypeHandlerPair.COMPARABLE_OBJECT, MutableSortedMap::toImmutable);
         add(MutableSortedMap.class, TypeHandlerPair.COMPARABLE_OBJECT);
         add(SortedMapIterable.class, TypeHandlerPair.COMPARABLE_OBJECT);
-        add(ImmutableSortedMap.class, TypeHandlerPair.COMPARABLE_OBJECT, MutableSortedMap::toImmutable);
 
         add(ObjectBooleanMap.class, TypeHandlerPair.OBJECT_BOOLEAN);
         add(MutableObjectBooleanMap.class, TypeHandlerPair.OBJECT_BOOLEAN);
