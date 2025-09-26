@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.datatype.eclipsecollections;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public final class SerializerTest extends ModuleTestBase {
     @Test
-    public void ref() throws IOException {
+    public void ref() throws Exception {
         assertEquals(
                 "[\"a\",\"b\",\"c\"]",
                 mapperWithModule().writeValueAsString(Sets.immutable.of("a", "b", "c"))
@@ -39,7 +37,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void primitive() throws IOException {
+    public void primitive() throws Exception {
         assertEquals("[true,false,true]", mapperWithModule().writeValueAsString(
                 BooleanLists.immutable.of(true, false, true)));
         assertEquals("[1,2,3]", mapperWithModule().writeValueAsString(
@@ -67,7 +65,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     private void primitiveTypeSer(String data, PrimitiveIterable iterable)
-        throws IOException
+        throws Exception
     {
         primitiveTypeSer(data, iterable, mapperWithModule());
     }
@@ -76,7 +74,7 @@ public final class SerializerTest extends ModuleTestBase {
             String data,
             PrimitiveIterable iterable,
             ObjectMapper objectMapper
-    ) throws IOException {
+    ) throws Exception {
         class Wrapper {
             @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
             Object object;
@@ -89,7 +87,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void primitiveTypeSer() throws IOException
+    public void primitiveTypeSer() throws Exception
     {
         primitiveTypeSer("[true,false,true]", BooleanLists.immutable.of(true, false, true));
         primitiveTypeSer("[1,2,3]", ShortLists.immutable.of((short) 1, (short) 2, (short) 3));
@@ -118,7 +116,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void objectObjectMaps() throws IOException {
+    public void objectObjectMaps() throws Exception {
         assertEquals(
                 "{\"abc\":\"def\"}",
                 mapperWithModule().writerFor(MutableMap.class).writeValueAsString(Maps.mutable.of("abc", "def"))
@@ -147,7 +145,7 @@ public final class SerializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void typeInfoObjectMap() throws IOException {
+    public void typeInfoObjectMap() throws Exception {
         assertEquals(
                 "{\"map\":{\"0\":{\"@c\":\".SerializerTest$B\"}}}",
                 mapperWithModule().writeValueAsString(new Container())

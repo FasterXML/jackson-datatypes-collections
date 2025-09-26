@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -172,21 +171,21 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public final class DeserializerTest extends ModuleTestBase {
-    private <T> void testCollection(T expected, String json, TypeReference<T> type) throws IOException {
+    private <T> void testCollection(T expected, String json, TypeReference<T> type) throws Exception {
         ObjectMapper objectMapper = mapperWithModule();
         T value = objectMapper.readValue(json, type);
         assertEquals(expected, value);
         assertTrue(objectMapper.getTypeFactory().constructType(type).getRawClass().isInstance(value));
     }
 
-    private <T> void testCollection(T expected, String json, Class<T> type) throws IOException {
+    private <T> void testCollection(T expected, String json, Class<T> type) throws Exception {
         T value = mapperWithModule().readValue(json, type);
         assertEquals(expected, value);
         assertTrue(type.isInstance(value));
     }
 
     @Test
-    public void immutableBag() throws IOException {
+    public void immutableBag() throws Exception {
         testCollection(Bags.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableBag<String>>() {});
@@ -201,14 +200,14 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void immutableSortedBag() throws IOException {
+    public void immutableSortedBag() throws Exception {
         testCollection(SortedBags.immutable.of("3", "2", "1"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableSortedBag<String>>() {});
     }
 
     @Test
-    public void mutableBag() throws IOException {
+    public void mutableBag() throws Exception {
         testCollection(Bags.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableBag<String>>() {});
@@ -223,14 +222,14 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void mutableSortedBag() throws IOException {
+    public void mutableSortedBag() throws Exception {
         testCollection(SortedBags.mutable.of("3", "2", "1"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableSortedBag<String>>() {});
     }
 
     @Test
-    public void bag() throws IOException {
+    public void bag() throws Exception {
         testCollection(Bags.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<Bag<String>>() {});
@@ -245,7 +244,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void immutableList() throws IOException {
+    public void immutableList() throws Exception {
         testCollection(Lists.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableList<String>>() {});
@@ -260,7 +259,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void mutableList() throws IOException {
+    public void mutableList() throws Exception {
         testCollection(Lists.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableList<String>>() {});
@@ -275,7 +274,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void fixedSizeList() throws IOException {
+    public void fixedSizeList() throws Exception {
         testCollection(Lists.fixedSize.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<FixedSizeList<String>>() {});
@@ -285,7 +284,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void list() throws IOException {
+    public void list() throws Exception {
         testCollection(BooleanLists.mutable.of(true, false, true), "[true, false, true]", BooleanList.class);
         testCollection(ByteLists.mutable.of((byte) 1, (byte) 2, (byte) 3), "[1, 2, 3]", ByteList.class);
         testCollection(ShortLists.mutable.of((short) 1, (short) 2, (short) 3), "[1, 2, 3]", ShortList.class);
@@ -297,7 +296,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void iterable() throws IOException {
+    public void iterable() throws Exception {
         testCollection(Lists.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<RichIterable<String>>() {});
@@ -315,7 +314,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void mutableCollection() throws IOException {
+    public void mutableCollection() throws Exception {
         testCollection(Lists.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableCollection<String>>() {});
@@ -338,7 +337,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void immutableCollection() throws IOException {
+    public void immutableCollection() throws Exception {
         testCollection(Lists.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableCollection<String>>() {});
@@ -363,7 +362,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void immutableSet() throws IOException {
+    public void immutableSet() throws Exception {
         testCollection(Sets.immutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<ImmutableSet<String>>() {});
@@ -378,7 +377,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void mutableSet() throws IOException {
+    public void mutableSet() throws Exception {
         testCollection(Sets.mutable.of("1", "2", "3"),
                        "[\"1\", \"2\", \"3\"]",
                        new TypeReference<MutableSet<String>>() {});
@@ -393,7 +392,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void set() throws IOException {
+    public void set() throws Exception {
         testCollection(BooleanSets.mutable.of(true, false, true), "[true, false, true]", BooleanSet.class);
         testCollection(ByteSets.mutable.of((byte) 1, (byte) 2, (byte) 3), "[1, 2, 3]", ByteSet.class);
         testCollection(ShortSets.mutable.of((short) 1, (short) 2, (short) 3), "[1, 2, 3]", ShortSet.class);
@@ -405,7 +404,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void charsAsArray() throws IOException {
+    public void charsAsArray() throws Exception {
         testCollection(CharSets.mutable.of('a', 'b', 'c'), "[\"a\", \"b\", \"c\"]", CharSet.class);
     }
 
@@ -509,7 +508,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void objectObjectMaps() throws IOException {
+    public void objectObjectMaps() throws Exception {
         assertEquals(
                 mapperWithModule().readValue("{\"abc\":\"def\"}", new TypeReference<MutableMap<String, String>>() {}),
                 Maps.mutable.of("abc", "def")
@@ -544,7 +543,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void typeInfoObjectMap() throws IOException {
+    public void typeInfoObjectMap() throws Exception {
         assertEquals(
                 mapperWithModule()
                         .readValue("{\"map\":{\"0\":{\"@c\":\".DeserializerTest$B\"}}}", Container.class).map,
@@ -578,7 +577,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void typeInfoNestedMapList() throws IOException {
+    public void typeInfoNestedMapList() throws Exception {
         // test case for jackson-datatypes-collections#71
         ImmutableMap<String, ImmutableList<A>> property =
                 Maps.immutable.of("foo", Lists.immutable.of(new B()));
@@ -591,7 +590,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     @Test
-    public void typeInfoNestedMapMap() throws IOException {
+    public void typeInfoNestedMapMap() throws Exception {
         // auxiliary test case for jackson-datatypes-collections#71 - also worked before fix
         ImmutableMap<String, ImmutableMap<String, A>> property =
                 Maps.immutable.of("foo", Maps.immutable.of("bar", new B()));
