@@ -3,6 +3,7 @@ package com.fasterxml.jackson.datatype.eclipsecollections.deser.map;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -241,7 +242,7 @@ public final class EclipseMapDeserializers {
     private EclipseMapDeserializers() {
     }
 
-    public static EclipseMapDeserializer<?, ?, ?, ?> createDeserializer(JavaType type) {
+    public static EclipseMapDeserializer<?, ?, ?, ?> createDeserializer(JavaType type) throws JsonMappingException {
         Class<?> rawClass = type.getRawClass();
         Entry<?, ?, ?, ?> entry = ENTRIES.get(rawClass);
         if (entry == null) { return null; }
@@ -274,13 +275,28 @@ public final class EclipseMapDeserializers {
             this.finish = finish;
         }
 
-        EclipseMapDeserializer<T, I, K, V> createDeserializer(JavaType type) {
+        EclipseMapDeserializer<T, I, K, V> createDeserializer(JavaType type) throws JsonMappingException {
             Class<?> rawClass = type.getRawClass();
             List<JavaType> typeParameters = type.getBindings().getTypeParameters();
             boolean refValue = PrimitiveObjectMap.class.isAssignableFrom(rawClass) ||
                                MapIterable.class.isAssignableFrom(rawClass);
             boolean refKey = refValue ? (typeParameters.size() == 2) : (typeParameters.size() == 1);
 
+            // Generic key type validation
+            if (typeHandlerPair == TypeHandlerPair.COMPARABLE_OBJECT) {
+                Class<?> expectedKeyClass = Comparable.class;
+                Class<?> actualKeyClass = typeParameters.get(0).getRawClass();
+
+                if (!expectedKeyClass.isAssignableFrom(actualKeyClass)) {
+                    String message = String.format(
+                        "Cannot deserialize %s: key type %s is not assignable to required type %s",
+                        rawClass.getSimpleName(),
+                        actualKeyClass.getName(),
+                        expectedKeyClass.getName()
+                    );
+                    throw new JsonMappingException(null, message);
+                }
+            }
             K keyHandler = typeHandlerPair.keyHandler(refKey ? typeParameters.get(0) : null);
             V valueHandler = typeHandlerPair.valueHandler(refValue ? typeParameters.get(typeParameters.size() - 1) : null);
 

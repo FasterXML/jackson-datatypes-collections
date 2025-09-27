@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -777,17 +778,21 @@ public final class DeserializerTest extends ModuleTestBase {
         // Currency doesn't implement Comparable
         assertFalse(Comparable.class.isAssignableFrom(Currency.class));
 
-        final MutableSortedMap<Currency, Object> sortedMap = SortedMaps.mutable
-            .of(Comparator.comparing(Currency::getCurrencyCode))
-            .withKeyValue(Currency.getInstance("USD"), 1);
-        final String json = mapper.writeValueAsString(sortedMap);
+        final String json = "{\"USD\":1}";
 
-        assertThrows(
-                ClassCastException.class,
+        final JsonMappingException e = assertThrows(
+                JsonMappingException.class,
                 () -> mapper.readValue(
                         json,
                         new TypeReference<MutableSortedMap<Currency, Object>>() {}
                 )
         );
+        final String expectedMessage = String.format(
+                "Cannot deserialize %s: key type %s is not assignable to required type %s",
+                MutableSortedMap.class.getSimpleName(),
+                Currency.class.getName(),
+                Comparable.class.getName()
+        );
+        assertEquals(e.getMessage(), expectedMessage);
     }
 }
