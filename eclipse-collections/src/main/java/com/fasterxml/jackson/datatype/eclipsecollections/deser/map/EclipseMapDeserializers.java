@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.util.ClassUtil;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -289,12 +291,12 @@ public final class EclipseMapDeserializers {
 
                 if (!expectedKeyClass.isAssignableFrom(actualKeyClass)) {
                     String message = String.format(
-                        "Cannot deserialize %s: key type %s is not assignable to required type %s",
-                        rawClass.getSimpleName(),
-                        actualKeyClass.getName(),
-                        expectedKeyClass.getName()
+                        "Cannot deserialize %s: key type %s does not implement %s",
+                        ClassUtil.getTypeDescription(type),
+                        ClassUtil.nameOf(actualKeyClass),
+                        ClassUtil.nameOf(expectedKeyClass)
                     );
-                    throw new JsonMappingException(null, message);
+                    throw JsonMappingException.from((JsonParser) null, message);
                 }
             }
             K keyHandler = typeHandlerPair.keyHandler(refKey ? typeParameters.get(0) : null);

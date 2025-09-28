@@ -787,12 +787,7 @@ public final class DeserializerTest extends ModuleTestBase {
                         new TypeReference<MutableSortedMap<Currency, Object>>() {}
                 )
         );
-        final String expectedMessage = String.format(
-                "Cannot deserialize %s: key type %s is not assignable to required type %s",
-                MutableSortedMap.class.getSimpleName(),
-                Currency.class.getName(),
-                Comparable.class.getName()
-        );
-        assertEquals(e.getMessage(), expectedMessage);
+        verifyException(e, "Cannot deserialize `org.eclipse.collections.api.map.sorted.MutableSortedMap<java.util.Currency,java.lang.Object>`");
+        verifyException(e, "key type `java.util.Currency` does not implement `java.lang.Comparable`");
     }
 }
