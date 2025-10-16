@@ -261,6 +261,11 @@ public class GuavaDeserializers
                     elementTypeDeserializer, elementDeserializer);
         }
 
+        if (RangeMap.class.isAssignableFrom(raw)) {
+            return new RangeMapDeserializer(type, keyDeserializer,
+                    elementTypeDeserializer, elementDeserializer, ImmutableRangeMap.class.isAssignableFrom(raw));
+        }
+
         if (Table.class.isAssignableFrom(raw)) {
             if (HashBasedTable.class.isAssignableFrom(raw)) {
                 return new HashBasedTableDeserializer(type);
