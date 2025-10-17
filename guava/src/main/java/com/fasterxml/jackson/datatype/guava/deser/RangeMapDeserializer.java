@@ -18,7 +18,12 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
- * @author mvolkhart
+ * Jackson deserializer for a Guava {@link RangeMap}.
+ * <p>
+ * Only string serializable ranges are supported at this time.
+ *
+ * @author mcvayc
+ * @since 2.21
  */
 public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
         extends StdDeserializer<T> implements ContextualDeserializer {
@@ -30,7 +35,6 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
     private final TypeDeserializer elementTypeDeserializer;
     private final JsonDeserializer<?> elementDeserializer;
 
-    // since 2.9.5: in 3.x demote to `ContainerDeserializerBase`
     private final NullValueProvider nullProvider;
     private final boolean isImmutable;
     private final boolean skipNullValues;
@@ -42,6 +46,9 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
      */
     private final Method creatorMethod;
 
+    /**
+     * @since 2.21
+     */
     public RangeMapDeserializer(MapLikeType type, KeyDeserializer keyDeserializer,
                                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
                                 boolean isImmutable
@@ -50,6 +57,9 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
                 findTransformer(type.getRawClass()), null, isImmutable);
     }
 
+    /**
+     * @since 2.21
+     */
     public RangeMapDeserializer(MapLikeType type, KeyDeserializer keyDeserializer,
                                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
                                 Method creatorMethod, NullValueProvider nvp, boolean isImmutable) {
@@ -78,8 +88,6 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
                 }
             } catch (NoSuchMethodException e) {
             }
-            // pass SecurityExceptions as-is:
-            // } catch (SecurityException e) { }
         }
 
         // If not working, possibly super types too (should we?)
@@ -91,14 +99,12 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
                 }
             } catch (NoSuchMethodException e) {
             }
-            // pass SecurityExceptions as-is:
-            // } catch (SecurityException e) { }
         }
 
         return null;
     }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Map;
     }
@@ -133,22 +139,10 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-
-        //check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-            return deserializeFromSingleValue(p, ctxt);
-        }
-        // if not deserialize the normal way
-        return deserializeContents(p, ctxt);
-    }
-
-    private T deserializeContents(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
         RangeMap rangeMap = TreeRangeMap.create();
 
         JsonToken currToken = p.currentToken();
         if (currToken != JsonToken.FIELD_NAME) {
-            // 01-Mar-2023, tatu: [datatypes-collections#104] Handle empty Maps too
             if (currToken != JsonToken.END_OBJECT) {
                 expect(p, JsonToken.START_OBJECT);
                 currToken = p.nextToken();
@@ -187,62 +181,6 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
         } catch (IllegalAccessException e) {
             throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
         }
-    }
-
-    private T deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
-        RangeMap rangeMap = TreeRangeMap.create();
-
-        expect(p, JsonToken.START_OBJECT);
-
-        while (p.nextToken() != JsonToken.END_OBJECT) {
-            final Range<Comparable<?>> key = (Range<Comparable<?>>) keyDeserializer.deserializeKey(p.currentName(), ctxt);
-
-            p.nextToken();
-
-            // if there is an array, parse the array and add the elements
-            if (p.currentToken() == JsonToken.START_ARRAY) {
-
-                while (p.nextToken() != JsonToken.END_ARRAY) {
-                    // get the current token value
-                    final Object value = getCurrentTokenValue(p, ctxt);
-                    // add the token value to the map
-                    rangeMap.put(key, value);
-                }
-            }
-            // if the element is a String, then add it as a List
-            else {
-                // get the current token value
-                final Object value = getCurrentTokenValue(p, ctxt);
-                // add the single value
-                rangeMap.put(key, value);
-            }
-        }
-        if (creatorMethod == null) {
-            return (T) rangeMap;
-        }
-        try {
-            @SuppressWarnings("unchecked")
-            T map = (T) creatorMethod.invoke(null, rangeMap);
-            return map;
-        } catch (InvocationTargetException e) {
-            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
-        } catch (IllegalArgumentException e) {
-            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
-        } catch (IllegalAccessException e) {
-            throw new JsonMappingException(p, "Could not map to " + type, _peel(e));
-        }
-    }
-
-    private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
-            throws IOException {
-        if (p.currentToken() == JsonToken.VALUE_NULL) {
-            return null;
-        }
-        if (elementTypeDeserializer != null) {
-            return elementDeserializer.deserializeWithType(p, ctxt, elementTypeDeserializer);
-        }
-        return elementDeserializer.deserialize(p, ctxt);
     }
 
     private void expect(JsonParser p, JsonToken token) throws IOException {

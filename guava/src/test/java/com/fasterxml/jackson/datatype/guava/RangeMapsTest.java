@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.base.Optional;
 import com.google.common.collect.*;
 import org.junit.jupiter.api.Test;
@@ -13,16 +17,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify handling of various {@link RangeMap}s.
  *
- * @author steven@nesscomputing.com
+ * @author mcvayc
  */
 public class RangeMapsTest extends ModuleTestBase {
-    // Test for issue #13 on github, provided by stevenschlansker
     public enum MyEnum {
         YAY,
         BOO
@@ -34,13 +36,30 @@ public class RangeMapsTest extends ModuleTestBase {
         RangeMap<String, String> map = TreeRangeMap.create();
     }
 
+    static class RangeMapWithFilter {
+        @JsonProperty
+        @JsonFilter("myFilter")
+        RangeMap<Integer, String> map = TreeRangeMap.create();
+
+        public RangeMapWithFilter() {
+            map.put(Range.range(0, BoundType.OPEN, 10, BoundType.CLOSED), "A");
+            map.put(Range.range(10, BoundType.OPEN, 20, BoundType.CLOSED), "B");
+            map.put(Range.range(20, BoundType.OPEN, 30, BoundType.CLOSED), "C");
+            map.put(Range.range(30, BoundType.OPEN, 40, BoundType.CLOSED), "D");
+            map.put(Range.range(40, BoundType.OPEN, 50, BoundType.CLOSED), "E");
+        }
+    }
+
     static class RangeMapWithIgnores {
-        @JsonIgnoreProperties({"x", "y"})
+        @JsonIgnoreProperties({"(20..30]", "(30..40]"})
         public RangeMap<Integer, String> map = TreeRangeMap.create();
 
         public RangeMapWithIgnores() {
             map.put(Range.range(0, BoundType.OPEN, 10, BoundType.CLOSED), "A");
             map.put(Range.range(10, BoundType.OPEN, 20, BoundType.CLOSED), "B");
+            map.put(Range.range(20, BoundType.OPEN, 30, BoundType.CLOSED), "C");
+            map.put(Range.range(30, BoundType.OPEN, 40, BoundType.CLOSED), "D");
+            map.put(Range.range(40, BoundType.OPEN, 50, BoundType.CLOSED), "E");
         }
     }
 
@@ -140,7 +159,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testRangeMapIssue3() throws Exception {
+    public void testRangeMapCompatibilityWithMap() throws Exception {
         RangeMap<Integer, String> m1 = TreeRangeMap.create();
         m1.put(Range.range(0, BoundType.OPEN, 10, BoundType.CLOSED), "A");
         m1.put(Range.range(10, BoundType.OPEN, 20, BoundType.CLOSED), "B");
@@ -175,7 +194,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testEnumValue() throws Exception {
+    public void testRangeMapWithEnumValue() throws Exception {
         final TypeReference<TreeRangeMap<Integer, MyEnum>> type = new TypeReference<TreeRangeMap<Integer, MyEnum>>() {
         };
         final RangeMap<Integer, MyEnum> map = TreeRangeMap.create();
@@ -244,8 +263,26 @@ public class RangeMapsTest extends ModuleTestBase {
 
     @Test
     public void testRangeMapWithIgnores() throws IOException {
-        assertEquals("{\"map\":{\"(0..10]\":\"A\",\"(10..20]\":\"B\"}}",
+        assertEquals("{\"map\":{\"(0..10]\":\"A\",\"(10..20]\":\"B\",\"(40..50]\":\"E\"}}",
                 MAPPER.writeValueAsString(new RangeMapWithIgnores()));
+    }
+
+    @Test
+    public void testRangeMapWithFilters() throws IOException {
+        FilterProvider filters = new SimpleFilterProvider() .addFilter(
+                "myFilter", SimpleBeanPropertyFilter.filterOutAllExcept("(10..20]", "(40..50]"));
+
+        assertEquals("{\"map\":{\"(10..20]\":\"B\",\"(40..50]\":\"E\"}}",
+                MAPPER.writer(filters).writeValueAsString(new RangeMapWithFilter()));
+    }
+
+    @Test
+    public void testRangeMapDeserializationWithEmptyStringKey() throws IOException {
+        ValueInstantiationException exception = assertThrows(ValueInstantiationException.class,() ->
+            MAPPER.readValue("{\"\":\"B\",\"(40..50]\":\"E\"}", new TypeReference<ImmutableRangeMap<String, String>>() {})
+        );
+
+        assertTrue(exception.getMessage().contains("RangeMap keys can't be null or empty."));
     }
 
     @Test
@@ -256,17 +293,6 @@ public class RangeMapsTest extends ModuleTestBase {
 
         ImmutableRangeMapWrapper output = MAPPER.readValue(json, ImmutableRangeMapWrapper.class);
         assertEquals(input, output);
-    }
-
-    @Test
-    public void testFromSingleValue() throws Exception {
-        ObjectMapper mapper = mapperWithModule()
-                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        SampleRangeMapTest sampleTest = mapper.readValue("{\"map\":{\"(1..10]\":\"value\"}}",
-                new TypeReference<SampleRangeMapTest>() {
-                });
-
-        assertEquals("value", sampleTest.map.get(5));
     }
 
 }

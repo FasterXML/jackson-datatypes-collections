@@ -29,8 +29,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Serializer for Guava's {@link RangeMap} values. Output format encloses all
+ * Serializer for Guava's {@link RangeMap} values. Output format encloses
  * values in JSON Map.
+ *
+ * @author mcvayc
+ * @since 2.21
  */
 public class RangeMapSerializer
         extends ContainerSerializer<RangeMap<Comparable<?>, ?>>
@@ -45,34 +48,29 @@ public class RangeMapSerializer
 
     /**
      * Set of entries to omit during serialization, if any
-     *
-     * @since 2.5
      */
     protected final Set<String> _ignoredEntries;
 
     /**
      * If value type can not be statically determined, mapping from
      * runtime value types to serializers are stored in this object.
-     *
-     * @since 2.5
      */
     protected PropertySerializerMap _dynamicValueSerializers;
 
     /**
      * Id of the property filter to use, if any; null if none.
-     *
-     * @since 2.5
      */
     protected final Object _filterId;
 
     /**
      * Flag set if output is forced to be sorted by keys (usually due
      * to annotation).
-     *
-     * @since 2.15
      */
     protected final boolean _sortKeys;
 
+    /**
+     * @since 2.21
+     */
     public RangeMapSerializer(MapLikeType type, BeanDescription beanDesc,
                               JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
                               Set<String> ignoredEntries, Object filterId) {
@@ -161,7 +159,7 @@ public class RangeMapSerializer
         if (valueSer == null) {
             valueSer = _valueSerializer;
         }
-        // [datatype-guava#124]: May have a content converter
+        // May have a content converter
         valueSer = findContextualConvertingSerializer(provider, property, valueSer);
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
@@ -204,8 +202,7 @@ public class RangeMapSerializer
             Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
             sortKeys = (b != null) && b.booleanValue();
         }
-        // 19-May-2016, tatu: Also check per-property format features, even if
-        //    this isn't yet used (as per [guava#7])
+        // Also check per-property format features, even if this isn't yet used (as per [guava#7])
         JsonFormat.Value format = findFormatOverrides(provider, property, handledType());
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
@@ -253,7 +250,7 @@ public class RangeMapSerializer
     public void serialize(RangeMap<Comparable<?>, ?> value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         gen.writeStartObject();
-        // [databind#631]: Assign current value, to be accessible by custom serializers
+        // Assign current value, to be accessible by custom serializers
         gen.assignCurrentValue(value);
         if (!isEmpty(value)) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
@@ -294,7 +291,7 @@ public class RangeMapSerializer
         typeSer.writeTypeSuffix(gen, typeIdDef);
     }
 
-    private final void serializeFields(Map<Range<Comparable<?>>, ?> rmap, JsonGenerator
+    private void serializeFields(Map<Range<Comparable<?>>, ?> rmap, JsonGenerator
             gen, SerializerProvider provider)
             throws IOException {
         final Set<String> ignored = _ignoredEntries;
@@ -302,7 +299,7 @@ public class RangeMapSerializer
         for (Entry<Range<Comparable<?>>, ?> entry : rmap.entrySet()) {
             // First, serialize key
             Range<?> key = entry.getKey();
-            if ((ignored != null) && ignored.contains(key)) {
+            if ((ignored != null) && ignored.contains(key.toString())) {
                 continue;
             }
             if (key == null) {
@@ -333,7 +330,7 @@ public class RangeMapSerializer
         }
     }
 
-    private final void serializeFilteredFields(Map<Range<Comparable<?>>, ?> rmap, JsonGenerator gen, SerializerProvider provider)
+    private void serializeFilteredFields(Map<Range<Comparable<?>>, ?> rmap, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
         final Set<String> ignored = _ignoredEntries;
         PropertyFilter filter = findPropertyFilter(provider, _filterId, rmap);
@@ -368,6 +365,9 @@ public class RangeMapSerializer
     /**********************************************************
      */
 
+    /**
+     * @since 2.21
+     */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException {
@@ -404,7 +404,7 @@ public class RangeMapSerializer
      */
 
     /**
-     * @since 2.15
+     * @since 2.21
      */
     protected <X> RangeMap<Comparable<?>, X> _orderEntriesByKey(RangeMap<Comparable<?>, X> value, JsonGenerator gen, SerializerProvider provider)
             throws IOException {
@@ -414,7 +414,7 @@ public class RangeMapSerializer
             return ordered;
         } catch (ClassCastException e) {
             // Either key or value type not Comparable?
-            // 20-Mar-2023, tatu: Should we actually wrap & propagate failure or... ?
+            // Should we actually wrap & propagate failure or... ?
             return value;
         } catch (NullPointerException e) {
             // Most likely null key that TreeRangeMap won't accept. So... ?

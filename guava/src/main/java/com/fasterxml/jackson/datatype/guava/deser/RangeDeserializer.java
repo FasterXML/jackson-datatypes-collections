@@ -249,39 +249,7 @@ public class RangeDeserializer
             return null;
         }
 
-        if (isValidBracketNotation(rangeInterval)) {
-            BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
-            BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
-
-            rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
-            String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
-
-            if (parts.length == 2) {
-                boolean isLowerInfinite = parts[0].equals("-∞");
-                boolean isUpperInfinite = parts[1].equals("+∞");
-
-                if (isLowerInfinite && isUpperInfinite) {
-                    return RangeFactory.all();
-                } else if (isLowerInfinite) {
-                    return RangeFactory.upTo(deserializeStringified(context, parts[1]), upperBoundType);
-                } else if (isUpperInfinite) {
-                    return RangeFactory.downTo(deserializeStringified(context, parts[0]), lowerBoundType);
-                } else {
-                    return RangeFactory.range(deserializeStringified(context, parts[0]),
-                            lowerBoundType,
-                            deserializeStringified(context, parts[1]),
-                            upperBoundType);
-                }
-            }
-        } else {
-            String msg = "Invalid Range: should start with '[' or '(', end with ')' or ']'";
-            return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval, msg);
-        }
-
-        // Give generic failure if no specific reason can be given.
-        // Although most likely will happen because `..` is absent, since we are validating brackets above.
-        return (Range<?>) context.handleWeirdStringValue(handledType(), rangeInterval,
-                "Invalid bracket-notation representation (possibly missing \"..\" delimiter in your Stringified Range)");
+        return RangeHelper.getRangeFromString(rangeInterval, context, _fromStringDeserializer, _rangeType, handledType());
     }
 
     private BoundType deserializeBoundType(DeserializationContext context, JsonParser p) throws IOException
