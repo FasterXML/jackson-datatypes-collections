@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import com.fasterxml.jackson.datatype.guava.ser.RangeMapSerializer;
+import com.google.common.collect.RangeMap;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -104,6 +106,15 @@ public class GuavaSerializers extends Serializers.Base
                     beanDesc.getClassInfo());
             Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
             return new MultimapSerializer(type, beanDesc,
+                    keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
+        }
+        if (type.isTypeOrSubTypeOf(RangeMap.class)) {
+            final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+            Object filterId = intr.findFilterId(beanDesc.getClassInfo());
+            JsonIgnoreProperties.Value ignorals = config.getDefaultPropertyIgnorals(RangeMap.class,
+                    beanDesc.getClassInfo());
+            Set<String> ignored = (ignorals == null) ? null : ignorals.getIgnored();
+            return new RangeMapSerializer(type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer, ignored, filterId);
         }
         if (type.isTypeOrSubTypeOf(Cache.class)) {
