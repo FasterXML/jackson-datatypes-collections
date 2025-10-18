@@ -3,6 +3,7 @@ package com.fasterxml.jackson.datatype.guava;
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.datatype.guava.deser.RangeKeyDeserializer;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaBeanSerializerModifier;
 import com.google.common.collect.BoundType;
 
@@ -53,6 +54,7 @@ public class GuavaModule extends com.fasterxml.jackson.databind.Module // can't 
     public void setupModule(SetupContext context)
     {
         context.addDeserializers(new GuavaDeserializers(_defaultBoundType));
+        context.addKeyDeserializers(new GuavaKeyDeserializers());
         context.addSerializers(new GuavaSerializers());
         context.addTypeModifier(new GuavaTypeModifier());
 
