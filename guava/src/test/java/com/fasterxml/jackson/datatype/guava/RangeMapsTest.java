@@ -233,7 +233,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testImmutableRangeMap() throws IOException {
+    public void testImmutableRangeMap() throws Exception {
         RangeMap<String, String> map =
                 _verifyRangeMapRead(new TypeReference<ImmutableRangeMap<String, String>>() {
                 });
@@ -241,7 +241,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testTreeRangeMap() throws IOException {
+    public void testTreeRangeMap() throws Exception {
         RangeMap<String, String> map =
                 _verifyRangeMapRead(new TypeReference<TreeRangeMap<String, String>>() {
                 });
@@ -249,7 +249,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     private RangeMap<String, String> _verifyRangeMapRead(TypeReference<?> type)
-            throws IOException {
+            throws Exception {
         RangeMap<String, String> map = (RangeMap<String, String>) MAPPER
                 .readValue("{\"(a..c]\":\"b\",\"(d..f]\":\"e\",\"(g..i]\":\"h\"}", type);
         assertEquals(3, map.asMapOfRanges().size());
@@ -260,13 +260,13 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testRangeMapWithIgnores() throws IOException {
+    public void testRangeMapWithIgnores() throws Exception {
         assertEquals("{\"map\":{\"(0..10]\":\"A\",\"(10..20]\":\"B\",\"(40..50]\":\"E\"}}",
                 MAPPER.writeValueAsString(new RangeMapWithIgnores()));
     }
 
     @Test
-    public void testRangeMapWithFilters() throws IOException {
+    public void testRangeMapWithFilters() throws Exception {
         FilterProvider filters = new SimpleFilterProvider() .addFilter(
                 "myFilter", SimpleBeanPropertyFilter.filterOutAllExcept("(10..20]", "(40..50]"));
 
@@ -275,7 +275,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testRangeMapDeserializationWithEmptyStringKey() throws IOException {
+    public void testRangeMapDeserializationWithEmptyStringKey() throws Exception {
         ValueInstantiationException exception = assertThrows(ValueInstantiationException.class,() ->
             MAPPER.readValue("{\"\":\"B\",\"(40..50]\":\"E\"}", new TypeReference<ImmutableRangeMap<String, String>>() {})
         );
@@ -284,7 +284,7 @@ public class RangeMapsTest extends ModuleTestBase {
     }
 
     @Test
-    public void testPolymorphicValue() throws IOException {
+    public void testPolymorphicValue() throws Exception {
         ImmutableRangeMapWrapper input = new ImmutableRangeMapWrapper(ImmutableRangeMap.of(Range.range(0, BoundType.OPEN, 10, BoundType.CLOSED), "A"));
 
         String json = MAPPER.writeValueAsString(input);
@@ -292,5 +292,4 @@ public class RangeMapsTest extends ModuleTestBase {
         ImmutableRangeMapWrapper output = MAPPER.readValue(json, ImmutableRangeMapWrapper.class);
         assertEquals(input, output);
     }
-
 }

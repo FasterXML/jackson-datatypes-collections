@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * Serializer for Guava's {@link RangeMap} values. Output format encloses
- * values in JSON Map.
+ * values in JSON Object.
  *
  * @author mcvayc
  * @since 2.21
@@ -68,9 +68,6 @@ public class RangeMapSerializer
      */
     protected final boolean _sortKeys;
 
-    /**
-     * @since 2.21
-     */
     public RangeMapSerializer(MapLikeType type, BeanDescription beanDesc,
                               JsonSerializer<Object> keySerializer, TypeSerializer vts, JsonSerializer<Object> valueSerializer,
                               Set<String> ignoredEntries, Object filterId) {
@@ -87,9 +84,6 @@ public class RangeMapSerializer
         _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
-    /**
-     * @since 2.5
-     */
     @SuppressWarnings("unchecked")
     protected RangeMapSerializer(RangeMapSerializer src, BeanProperty property,
                                  JsonSerializer<?> keySerializer,
@@ -257,7 +251,7 @@ public class RangeMapSerializer
     }
 
     private void serializeValue(RangeMap<Comparable<?>, ?> value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        if (!isEmpty(value)) {
+        if (!isEmpty(provider, value)) {
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntriesByKey(value, gen, provider);
             }
