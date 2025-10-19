@@ -87,8 +87,9 @@ public class RangeHelper
         return pns.nameForField(config, af, field.getName());
     }
 
+    // @since 2.21
     public static Range<? extends Comparable> getRangeFromString(String rangeInterval, DeserializationContext context, KeyDeserializer fromStringDeserializer, JavaType rangeType, Class<?> targetClass) throws IOException {
-        if (isValidBracketNotation(rangeInterval)) {
+        if (_isValidBracketNotation(rangeInterval)) {
             BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
             BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
 
@@ -123,6 +124,7 @@ public class RangeHelper
                 "Invalid bracket-notation representation (possibly missing \"..\" delimiter in your Stringified Range)");
     }
 
+    // @since 2.21
     private static Comparable<?> deserializeStringified(DeserializationContext context, String value, KeyDeserializer fromStringDeserializer, JavaType rangeType) throws IOException {
         Object obj = fromStringDeserializer.deserializeKey(value, context);
         if (!(obj instanceof Comparable)) {
@@ -137,11 +139,13 @@ public class RangeHelper
     }
 
 
-    private static boolean isValidBracketNotation(String range) {
+    private static boolean _isValidBracketNotation(String range) {
+        if (range.isEmpty()) {
+            return false;
+        }
         char first = range.charAt(0);
         char last = range.charAt(range.length() - 1);
 
         return (first == '[' || first == '(') && (last == ']' || last == ')');
     }
-
 }

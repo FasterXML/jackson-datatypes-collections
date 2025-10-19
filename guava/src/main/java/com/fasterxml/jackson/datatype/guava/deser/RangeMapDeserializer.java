@@ -46,23 +46,17 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
      */
     private final Method creatorMethod;
 
-    /**
-     * @since 2.21
-     */
     public RangeMapDeserializer(MapLikeType type, KeyDeserializer keyDeserializer,
-                                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
-                                boolean isImmutable
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
+            boolean isImmutable
     ) {
         this(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
                 findTransformer(type.getRawClass()), null, isImmutable);
     }
 
-    /**
-     * @since 2.21
-     */
     public RangeMapDeserializer(MapLikeType type, KeyDeserializer keyDeserializer,
-                                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
-                                Method creatorMethod, NullValueProvider nvp, boolean isImmutable) {
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer,
+            Method creatorMethod, NullValueProvider nvp, boolean isImmutable) {
         super(type);
         this.type = type;
         this.keyDeserializer = keyDeserializer;
@@ -137,6 +131,7 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
                 findContentNullProvider(ctxt, property, valueDeser), isImmutable);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         RangeMap rangeMap = TreeRangeMap.create();
@@ -171,7 +166,6 @@ public class RangeMapDeserializer<T extends RangeMap<Comparable<?>, Object>>
             return (T) rangeMap;
         }
         try {
-            @SuppressWarnings("unchecked")
             T map = (T) creatorMethod.invoke(null, rangeMap);
             return map;
         } catch (InvocationTargetException e) {

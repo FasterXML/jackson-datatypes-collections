@@ -16,10 +16,9 @@ import java.io.IOException;
  * @since 2.21
  */
 public class RangeKeyDeserializer
-        extends KeyDeserializer
-        implements ContextualKeyDeserializer {
-    private static final long serialVersionUID = 1L;
-
+    extends KeyDeserializer
+    implements ContextualKeyDeserializer
+{
     protected final JavaType _rangeType;
 
     protected final KeyDeserializer _fromStringDeserializer;
@@ -38,7 +37,9 @@ public class RangeKeyDeserializer
 
     @Override
     public KeyDeserializer createContextual(DeserializationContext ctxt,
-                                            BeanProperty property) throws JsonMappingException {
+            BeanProperty property)
+        throws JsonMappingException
+    {
         JavaType endpointType = _rangeType.containedType(0);
         if (endpointType == null) { // should this ever occur?
             endpointType = TypeFactory.unknownType();
@@ -52,12 +53,13 @@ public class RangeKeyDeserializer
     }
 
     @Override
-    public Object deserializeKey(String rangeInterval, DeserializationContext context) throws IOException {
+    public Object deserializeKey(String rangeInterval, DeserializationContext context)
+        throws IOException
+    {
         if (rangeInterval.isEmpty()) {
             throw context.instantiationException(RangeMap.class, "RangeMap keys can't be null or empty.");
         }
 
         return RangeHelper.getRangeFromString(rangeInterval, context, _fromStringDeserializer, _rangeType, Range.class);
     }
-
 }
