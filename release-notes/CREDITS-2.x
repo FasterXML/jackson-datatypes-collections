@@ -144,6 +144,10 @@ Abhishek Kumar (@Abhishekkr3003)
   * Contributed #1: (guava) Add deserialization support for `Table<R, C, V>`
    (2.19.0)
 
+Christopher Mcvay (@mcvayc)
+ * Contributed #195: (guava) Add support for `RangeMap` class
+  (2.21.0)
+
 Nicolas Bertrand (@tampix)
  * Contributed #198: (eclipse-collections) Add support for `MutableSortedMap`/`ImmutableSortedMap`
    deserialization

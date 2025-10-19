@@ -18,9 +18,11 @@ Active Maintainers:
 
 2.21.0 (not yet released)
 
+#195: (guava) Add support for `RangeMap` class
+ (contributed by Christopher M)
 #198: (eclipse-collections) Add support for `MutableSortedMap`/`ImmutableSortedMap`
   deserialization
- (contributed byb Nicolas B)
+ (contributed by Nicolas B)
 
 2.20.0 (28-Aug-2025)
 
