@@ -30,7 +30,7 @@ import java.util.Set;
 
 /**
  * Serializer for Guava's {@link RangeMap} values. Output format encloses
- * values in JSON Map.
+ * values in JSON Object.
  *
  * @author mcvayc
  * @since 2.21
