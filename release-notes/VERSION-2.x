@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.18.5 (not yet released)
+2.18.5 (27-Oct-2025)
 
 #185: `ACCEPT_SINGLE_VALUE_AS_ARRAY` doesn't work on Guava `ImmutableList`
  (reported by Gergely J)
