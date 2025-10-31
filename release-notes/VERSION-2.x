@@ -16,6 +16,10 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
+2.20.1 (30-Oct-2025)
+
+No changes since 2.20.0
+
 2.20.0 (28-Aug-2025)
 
 #190: Add unit tests to verify goodness of SPI metadata for Modules
