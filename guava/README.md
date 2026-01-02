@@ -4,7 +4,7 @@ Supports JSON serialization and deserialization of
 
 ## Status
 
-[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-guava.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-guava/)
+[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-guava.svg)](https://central.sonatype.com/artifact/tools.jackson.datatype/jackson-datatype-guava)
 [![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-guava.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-guava)
 
 ## Usage
