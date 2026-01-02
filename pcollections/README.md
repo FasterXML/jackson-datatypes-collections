@@ -6,8 +6,8 @@ Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.
 
 ## Status
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-pcollections/)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-pcollections.svg)](https://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-pcollections)
+[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-pcollections.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-pcollections/)
+[![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-pcollections.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-pcollections)
 
 ## Usage
 
@@ -17,9 +17,9 @@ To use module on Maven-based projects, use following dependency:
 
 ```xml
 <dependency>
-  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <groupId>tools.jackson.datatype</groupId>
   <artifactId>jackson-datatype-pcollections</artifactId>
-  <version>2.7.0</version>
+  <version>3.0.3</version>
 </dependency>
 ```
 

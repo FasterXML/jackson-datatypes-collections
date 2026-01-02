@@ -10,7 +10,7 @@ To use module on Maven-based projects, use following dependency:
 
 ```xml
 <dependency>
-  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <groupId>tools.jackson.datatype</groupId>
   <artifactId>jackson-datatype-guava</artifactId>
   <version>3.0.3</version>
 </dependency>
