@@ -30,8 +30,9 @@ To use module on Maven-based projects, use following dependency:
 Like all standard Jackson modules (libraries that implement Module interface), registration is done as follows:
 
 ```java
-ObjectMapper mapper = new ObjectMapper()
-    .registerModule(new PCollectionsModule());
+ObjectMapper mapper = JsonMapper.builder()
+    .addModule(new PCollectionsModule())
+    .build();
 ```
 
 after which functionality is available for all normal Jackson operations.
