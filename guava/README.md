@@ -12,7 +12,7 @@ To use module on Maven-based projects, use following dependency:
 <dependency>
   <groupId>com.fasterxml.jackson.datatype</groupId>
   <artifactId>jackson-datatype-guava</artifactId>
-  <version>3.0.0-rc5</version>
+  <version>3.0.3</version>
 </dependency>
 ```
 
