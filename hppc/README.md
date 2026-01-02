@@ -6,10 +6,10 @@ Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.
 
 ## Status
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-hppc/)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-hppc.svg)](https://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-hppc)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-hppc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-hppc/)
+[![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-hppc.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-hppc)
 
-Currently (2.7) following things are supported:
+Currently, the following things are supported:
 
 * Serializing of all 'XxxContainer' (IntContainer, IntSet, IntArrayList, LongContainer, DoubleContainer etc) types
 * Deserialization of all `int` valued container types
@@ -28,8 +28,7 @@ contribute code. Jackson team is happy to merge code contributions, and help wit
 
 ### JDK version
 
-Starting with version 2.6 of the module, minimum JDK is 1.7. This is because
-HPPC 0.7.1 requires it. Jackson core components only require 1.6.
+Starting with version 3.0 of the module, minimum JDK is 17.
 
 ### Maven dependency
 
@@ -37,9 +36,9 @@ To use module on Maven-based projects, use following dependency:
 
 ```xml
 <dependency>
-  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <groupId>tools.jackson.datatype</groupId>
   <artifactId>jackson-datatype-hppc</artifactId>
-  <version>2.5.3</version>
+  <version>3.0.3</version>
 </dependency>
 ```
 
@@ -51,8 +50,9 @@ To use the the Module in Jackson, simply register it with the ObjectMapper insta
 Modules are registered through ObjectMapper, like so:
 
 ```java
-ObjectMapper mapper = new ObjectMapper();
-mapper.register(new HppcModule());
+ObjectMapper mapper = JsonMapper.builder()
+    .addModule(new HppcModule())
+    .build();
 ```
 
 after which you can read JSON as HPPC types, as well as write HPPC types as JSON. It's really that simple; convenient and efficient.
