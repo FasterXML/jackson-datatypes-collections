@@ -6,8 +6,8 @@ Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.
 
 ## Status
 
-[![Maven Central](https://img.shields.io/maven-central/v/com.fasterxml.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.datatype/jackson-datatype-eclipse-collections/)
-[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://www.javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-eclipse-collections)
+[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-eclipse-collections/)
+[![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-eclipse-collections)
 
 ## Usage
 
@@ -17,9 +17,9 @@ To use module on Maven-based projects, use following dependency:
 
 ```xml
 <dependency>
-  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <groupId>tools.jackson.datatype</groupId>
   <artifactId>jackson-datatype-eclipse-collections</artifactId>
-  <version>2.14.0</version>
+  <version>3.0.3</version>
 </dependency>
 ```
 
@@ -30,8 +30,9 @@ To use module on Maven-based projects, use following dependency:
 Like all standard Jackson modules (libraries that implement Module interface), registration is done as follows:
 
 ```java
-ObjectMapper mapper = new ObjectMapper()
-    .registerModule(new EclipseCollectionsModule());
+ObjectMapper mapper = JsonMapper.builder()
+    .addModule(new EclipseCollectionsModule())
+    .build();
 ```
 
 after which functionality is available for all normal Jackson operations.
