@@ -2,6 +2,11 @@ One of standard [Jackson](../../../..jackson) Collection type [Datatype modules]
 Supports JSON serialization and deserialization of
 [Guava](https://github.com/google/guava) data types.
 
+## Status
+
+[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-guava.svg)](https://central.sonatype.com/artifact/tools.jackson.datatype/jackson-datatype-guava)
+[![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-guava.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-guava)
+
 ## Usage
 
 ### Maven dependency

@@ -6,7 +6,7 @@ Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.
 
 ## Status
 
-[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-eclipse-collections/)
+[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://central.sonatype.com/artifact/tools.jackson.datatype/jackson-datatype-eclipse-collections)
 [![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-eclipse-collections.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-eclipse-collections)
 
 ## Usage

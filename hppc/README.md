@@ -6,7 +6,7 @@ Licensed under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0.
 
 ## Status
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-hppc/badge.svg)](https://maven-badges.herokuapp.com/maven-central/tools.jackson.datatype/jackson-datatype-hppc/)
+[![Maven Central](https://img.shields.io/maven-central/v/tools.jackson.datatype/jackson-datatype-hppc.svg)](https://central.sonatype.com/artifact/tools.jackson.datatype/jackson-datatype-hppc)
 [![Javadoc](https://javadoc.io/badge/tools.jackson.datatype/jackson-datatype-hppc.svg)](https://www.javadoc.io/doc/tools.jackson.datatype/jackson-datatype-hppc)
 
 Currently, the following things are supported:
