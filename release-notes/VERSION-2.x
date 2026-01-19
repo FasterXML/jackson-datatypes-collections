@@ -16,7 +16,7 @@ Active Maintainers:
 === Releases ===
 ------------------------------------------------------------------------
 
-2.21.0 (not yet released)
+2.21.0 (18-Jan-2026)
 
 #195: (guava) Add support for `RangeMap` class
  (contributed by Christopher M)
@@ -24,11 +24,17 @@ Active Maintainers:
   deserialization
  (contributed by Nicolas B)
 
+2.20.1 (30-Oct-2025)
+
+No changes since 2.20.0
+
 2.20.0 (28-Aug-2025)
 
 #190: Add unit tests to verify goodness of SPI metadata for Modules
 - Generate SBOMs [JSTEP-14]
 
+2.19.4 (29-Oct-2025)
+2.19.3 (29-Oct-2025)
 2.19.2 (18-Jul-2025)
 
 No changes since 2.19.1
@@ -46,7 +52,7 @@ No changes since 2.19.1
 #174: Unify testing structure/tools [JSTEP-10]
  (contributed by Joo-Hyuk K)
 
-2.18.5 (not yet released)
+2.18.5 (27-Oct-2025)
 
 #185: `ACCEPT_SINGLE_VALUE_AS_ARRAY` doesn't work on Guava `ImmutableList`
  (reported by Gergely J)
