@@ -26,8 +26,8 @@ public class HashMultimapDeserializer
 
     public HashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
-            Method creatorMethod, NullValueProvider nvp) {
-        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod, nvp);
+            Method creatorMethod, NullValueProvider nvp, Boolean unwrapSingle) {
+        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod, nvp, unwrapSingle);
     }
 
     @Override
@@ -38,8 +38,9 @@ public class HashMultimapDeserializer
     @Override
     protected ValueDeserializer<?> _createContextual(JavaType type,
             KeyDeserializer keyDeserializer, TypeDeserializer typeDeserializer,
-            ValueDeserializer<?> elementDeserializer, Method method, NullValueProvider nvp) {
+            ValueDeserializer<?> elementDeserializer, Method method, NullValueProvider nvp,
+            Boolean unwrapSingle) {
         return new HashMultimapDeserializer(type, keyDeserializer, typeDeserializer,
-                elementDeserializer, method, nvp);
+                elementDeserializer, method, nvp, unwrapSingle);
     }
 }

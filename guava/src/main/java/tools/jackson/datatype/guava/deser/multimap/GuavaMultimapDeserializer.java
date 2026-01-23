@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -41,15 +43,15 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
         this(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
-                findTransformer(type.getRawClass()), null);
+                findTransformer(type.getRawClass()), null, null);
     }
 
     @SuppressWarnings("unchecked")
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
-            Method creatorMethod, NullValueProvider nvp)
+            Method creatorMethod, NullValueProvider nvp, Boolean unwrapSingle)
     {
-        super(type, nvp, null);
+        super(type, nvp, unwrapSingle);
         this._keyDeserializer = keyDeserializer;
         this._valueTypeDeserializer = elementTypeDeserializer;
         this._valueDeserializer = (ValueDeserializer<Object>) elementDeserializer;
@@ -128,20 +130,25 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
+        // [datatypes-collections#211]: Handle @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        Boolean unwrapSingle = findFormatFeature(ctxt, property, Multimap.class,
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         return _createContextual(_containerType, kd, vtd, valueDeser, creatorMethod,
-                findContentNullProvider(ctxt, property, valueDeser));
+                findContentNullProvider(ctxt, property, valueDeser), unwrapSingle);
     }
 
     protected abstract ValueDeserializer<?> _createContextual(JavaType t,
             KeyDeserializer kd, TypeDeserializer vtd,
-            ValueDeserializer<?> vd, Method method, NullValueProvider np);
+            ValueDeserializer<?> vd, Method method, NullValueProvider np, Boolean unwrapSingle);
 
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        //check if ACCEPT_SINGLE_VALUE_AS_ARRAY feature is enabled
-        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+        // [datatypes-collections#211]: Check per-property @JsonFormat first, then global feature
+        final boolean acceptSingle = (_unwrapSingle == Boolean.TRUE) ||
+                ((_unwrapSingle == null) && ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+        if (acceptSingle) {
             return deserializeFromSingleValue(p, ctxt);
         }
         // if not deserialize the normal way
