@@ -21,11 +21,12 @@ public final class ImmutableDoubleArraySerializer extends StdSerializer<Immutabl
 
     @Override
     public void serialize(ImmutableDoubleArray value, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
-        if (value.length() == 1 && serializerProvider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+        int len = value.length();
+        if (len== 1 && serializerProvider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
             generator.writeNumber(value.get(0));
         } else {
-            generator.writeStartArray();
-            for (int i = 0; i < value.length(); i++) {
+            generator.writeStartArray(value, len);
+            for (int i = 0; i < len; i++) {
                 generator.writeNumber(value.get(i));
             }
             generator.writeEndArray();
