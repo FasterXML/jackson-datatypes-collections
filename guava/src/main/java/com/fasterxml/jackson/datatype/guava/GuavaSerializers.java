@@ -29,10 +29,12 @@ import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
 import com.google.common.primitives.ImmutableDoubleArray;
 import com.google.common.primitives.ImmutableIntArray;
+import com.google.common.primitives.ImmutableLongArray;
 import com.fasterxml.jackson.datatype.guava.ser.CacheSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaOptionalSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.ImmutableDoubleArraySerializer;
 import com.fasterxml.jackson.datatype.guava.ser.ImmutableIntArraySerializer;
+import com.fasterxml.jackson.datatype.guava.ser.ImmutableLongArraySerializer;
 import com.fasterxml.jackson.datatype.guava.ser.MultimapSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSerializer;
 import com.fasterxml.jackson.datatype.guava.ser.RangeSetSerializer;
@@ -97,6 +99,9 @@ public class GuavaSerializers extends Serializers.Base
         }
         if (type.isTypeOrSubTypeOf(ImmutableIntArray.class)) {
             return new ImmutableIntArraySerializer();
+        }
+        if (type.isTypeOrSubTypeOf(ImmutableLongArray.class)) {
+            return new ImmutableLongArraySerializer();
         }
         if (type.isTypeOrSubTypeOf(ImmutableDoubleArray.class)) {
             return new ImmutableDoubleArraySerializer();

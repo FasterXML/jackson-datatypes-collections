@@ -12,7 +12,9 @@ import com.google.common.primitives.ImmutableIntArray;
 
 import java.io.IOException;
 
-public final class ImmutableIntArrayDeserializer extends StdDeserializer<ImmutableIntArray> {
+public final class ImmutableIntArrayDeserializer extends StdDeserializer<ImmutableIntArray>
+{
+    private static final long serialVersionUID = 1L;
 
     private final JsonDeserializer<int[]> intArrayDeserializer;
 
@@ -39,12 +41,12 @@ public final class ImmutableIntArrayDeserializer extends StdDeserializer<Immutab
     }
 
     @Override
-    public ImmutableIntArray getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public ImmutableIntArray getEmptyValue(DeserializationContext ctxt) {
         return ImmutableIntArray.of();
     }
 
     @Override
-    public ImmutableIntArray deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return ImmutableIntArray.copyOf(intArrayDeserializer.deserialize(jsonParser, deserializationContext));
+    public ImmutableIntArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return ImmutableIntArray.copyOf(intArrayDeserializer.deserialize(p, ctxt));
     }
 }

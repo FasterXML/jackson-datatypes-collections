@@ -3,7 +3,6 @@ package com.fasterxml.jackson.datatype.guava;
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.datatype.guava.deser.RangeKeyDeserializer;
 import com.fasterxml.jackson.datatype.guava.ser.GuavaBeanSerializerModifier;
 import com.google.common.collect.BoundType;
 

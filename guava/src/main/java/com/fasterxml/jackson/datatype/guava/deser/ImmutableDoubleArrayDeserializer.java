@@ -12,7 +12,9 @@ import com.google.common.primitives.ImmutableDoubleArray;
 
 import java.io.IOException;
 
-public final class ImmutableDoubleArrayDeserializer extends StdDeserializer<ImmutableDoubleArray> {
+public final class ImmutableDoubleArrayDeserializer extends StdDeserializer<ImmutableDoubleArray>
+{
+    private static final long serialVersionUID = 1L;
 
     private final JsonDeserializer<double[]> doubleArrayDeserializer;
 
@@ -39,12 +41,12 @@ public final class ImmutableDoubleArrayDeserializer extends StdDeserializer<Immu
     }
 
     @Override
-    public ImmutableDoubleArray getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+    public ImmutableDoubleArray getEmptyValue(DeserializationContext ctxt) {
         return ImmutableDoubleArray.of();
     }
 
     @Override
-    public ImmutableDoubleArray deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        return ImmutableDoubleArray.copyOf(doubleArrayDeserializer.deserialize(jsonParser, deserializationContext));
+    public ImmutableDoubleArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        return ImmutableDoubleArray.copyOf(doubleArrayDeserializer.deserialize(p, ctxt));
     }
 }
