@@ -1,5 +1,8 @@
 package tools.jackson.datatype.guava.util;
 
+import java.io.Serializable;
+import java.util.function.Supplier;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.datatype.guava.deser.primitives.BaseImmutableArrayDeserializer;
@@ -18,9 +21,6 @@ import com.google.common.primitives.ImmutableLongArray;
 
 import static tools.jackson.datatype.guava.util.PrimitiveTypes.typeRefOf;
 
-import java.io.Serializable;
-import java.util.function.Supplier;
-
 /**
  * Utility class to cover all {@code Immutable[Primitive]Array} primitive types
  *
@@ -31,14 +31,6 @@ public class ImmutablePrimitiveTypes {
      * An enum with all the primitives
      */
     public enum ImmutablePrimitiveArrays {
-        INT(ImmutableIntArrayType, int.class, Integer.class,
-                ImmutableIntArraySerializer::new,
-                ImmutableIntArrayDeserializer::new
-        ),
-        DOUBLE(ImmutableDoubleArrayType, double.class, Double.class,
-                ImmutableDoubleArraySerializer::new,
-                ImmutableDoubleArrayDeserializer::new
-        ),
         LONG(ImmutableLongArrayType, long.class, Long.class,
                 ImmutableLongArraySerializer::new,
                 ImmutableLongArrayDeserializer::new

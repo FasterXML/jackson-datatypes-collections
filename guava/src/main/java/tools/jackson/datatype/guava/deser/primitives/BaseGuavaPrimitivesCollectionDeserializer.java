@@ -16,6 +16,7 @@ public abstract class BaseGuavaPrimitivesCollectionDeserializer<ObjectType, Prim
         super(cls, itemType);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected IntermediateCollection createIntermediateCollection() {
         return (IntermediateCollection) new ArrayList<ObjectType>();

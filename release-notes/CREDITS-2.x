@@ -152,3 +152,7 @@ Nicolas Bertrand (@tampix)
  * Contributed #198: (eclipse-collections) Add support for `MutableSortedMap`/`ImmutableSortedMap`
    deserialization
   (2.21.0)
+
+Patrick Strawderman (@kilink)
+ * Contributed #157: Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
+  (2.22.0)

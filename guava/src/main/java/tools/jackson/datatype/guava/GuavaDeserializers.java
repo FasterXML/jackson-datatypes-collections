@@ -16,16 +16,22 @@ import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
 import tools.jackson.databind.type.ReferenceType;
+
 import tools.jackson.datatype.guava.deser.*;
 import tools.jackson.datatype.guava.deser.multimap.list.ArrayListMultimapDeserializer;
 import tools.jackson.datatype.guava.deser.multimap.list.LinkedListMultimapDeserializer;
 import tools.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import tools.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
+import tools.jackson.datatype.guava.deser.primitives.ImmutableDoubleArrayDeserializer;
+import tools.jackson.datatype.guava.deser.primitives.ImmutableIntArrayDeserializer;
 import tools.jackson.datatype.guava.deser.table.HashBasedTableDeserializer;
 import tools.jackson.datatype.guava.deser.table.ImmutableTableDeserializer;
 import tools.jackson.datatype.guava.deser.table.TreeBasedTableDeserializer;
 import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
+
+import com.google.common.primitives.ImmutableDoubleArray;
+import com.google.common.primitives.ImmutableIntArray;
 
 /**
  * Custom deserializers module offers.
@@ -132,7 +138,6 @@ public class GuavaDeserializers
                     elementDeserializer, elementTypeDeserializer,
                     null, null);
         }
-
         return PrimitiveTypes.isAssignableFromPrimitive(raw)
                 .transform(PrimitiveTypes.Primitives::newDeserializer)
                 .orNull();
@@ -262,8 +267,9 @@ public class GuavaDeserializers
         }
 
         if (RangeMap.class.isAssignableFrom(raw)) {
-            return new RangeMapDeserializer(type, keyDeserializer,
-                    elementTypeDeserializer, elementDeserializer, ImmutableRangeMap.class.isAssignableFrom(raw));
+            return new RangeMapDeserializer<>(type, keyDeserializer,
+                    elementTypeDeserializer, elementDeserializer,
+                    ImmutableRangeMap.class.isAssignableFrom(raw));
         }
 
         if (Table.class.isAssignableFrom(raw)) {
@@ -345,6 +351,12 @@ public class GuavaDeserializers
         if (type.hasRawClass(HashCode.class)) {
             return HashCodeDeserializer.std;
         }
+        if (type.hasRawClass(ImmutableIntArray.class)) {
+            return new ImmutableIntArrayDeserializer();
+        }
+        if (type.hasRawClass(ImmutableDoubleArray.class)) {
+            return new ImmutableDoubleArrayDeserializer();
+        }
         return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(type.getRawClass())
                 .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newDeserializer)
                 .orNull();
@@ -366,6 +378,8 @@ public class GuavaDeserializers
                     || PrimitiveTypes.isAssignableFromPrimitive(valueType).isPresent()
                     || ImmutablePrimitiveTypes.isAssignableFromImmutableArray(valueType).isPresent()
                     || ImmutableRangeSet.class.isAssignableFrom(valueType)
+                    || (valueType == ImmutableIntArray.class)
+                    || (valueType == ImmutableDoubleArray.class)
                     ;
         }
         return false;

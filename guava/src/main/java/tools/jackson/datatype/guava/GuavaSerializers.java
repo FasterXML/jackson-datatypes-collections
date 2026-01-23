@@ -7,6 +7,7 @@ import com.google.common.collect.RangeMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -17,13 +18,9 @@ import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.ser.std.StdDelegatingSerializer;
 import tools.jackson.databind.util.StdConverter;
-import tools.jackson.datatype.guava.ser.CacheSerializer;
-import tools.jackson.datatype.guava.ser.GuavaOptionalSerializer;
-import tools.jackson.datatype.guava.ser.MultimapSerializer;
-import tools.jackson.datatype.guava.ser.RangeMapSerializer;
-import tools.jackson.datatype.guava.ser.RangeSerializer;
-import tools.jackson.datatype.guava.ser.RangeSetSerializer;
-import tools.jackson.datatype.guava.ser.TableSerializer;
+import tools.jackson.datatype.guava.ser.*;
+import tools.jackson.datatype.guava.ser.primitives.ImmutableDoubleArraySerializer;
+import tools.jackson.datatype.guava.ser.primitives.ImmutableIntArraySerializer;
 import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
@@ -39,6 +36,8 @@ import com.google.common.collect.Table;
 import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
+import com.google.common.primitives.ImmutableDoubleArray;
+import com.google.common.primitives.ImmutableIntArray;
 
 public class GuavaSerializers extends Serializers.Base
     implements Serializable
@@ -95,10 +94,16 @@ public class GuavaSerializers extends Serializers.Base
             JavaType iterableType = _findDeclared(type, Iterable.class);
             return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
         }
+        if (type.isTypeOrSubTypeOf(ImmutableIntArray.class)) {
+            return new ImmutableIntArraySerializer();
+        }
+        if (type.isTypeOrSubTypeOf(ImmutableDoubleArray.class)) {
+            return new ImmutableDoubleArraySerializer();
+        }
         return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(type.getRawClass())
                 .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newSerializer)
                 .orNull();
-    }
+   }
 
     @Override
     public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,

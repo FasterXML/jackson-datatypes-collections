@@ -1,34 +1,47 @@
 package tools.jackson.datatype.guava.deser.primitives;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
+import tools.jackson.databind.*;
+
+import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.util.AccessPattern;
 
 import com.google.common.primitives.ImmutableDoubleArray;
 
-public class ImmutableDoubleArrayDeserializer
-        extends BaseImmutableArrayDeserializer<Double, ImmutableDoubleArray, ImmutableDoubleArray.Builder> {
+public final class ImmutableDoubleArrayDeserializer extends StdDeserializer<ImmutableDoubleArray>
+{
+    private final ValueDeserializer<double[]> _doubleArrayDeserializer;
+
+    @SuppressWarnings("unchecked")
     public ImmutableDoubleArrayDeserializer() {
-        super(ImmutablePrimitiveTypes.ImmutableDoubleArrayType, Double.class);
+        super(ImmutableDoubleArray.class);
+        _doubleArrayDeserializer =
+            (ValueDeserializer<double[]>) PrimitiveArrayDeserializers.forType(double.class);
     }
 
     @Override
-    protected ImmutableDoubleArray.Builder createIntermediateCollection() {
-        return ImmutableDoubleArray.builder();
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
     }
 
     @Override
-    protected void collect(ImmutableDoubleArray.Builder intermediateBuilder, Double value) {
-        intermediateBuilder.add(value);
+    public boolean isCachable() {
+        return true;
     }
 
     @Override
-    protected ImmutableDoubleArray finish(ImmutableDoubleArray.Builder builder) {
-        return builder.build();
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.CONSTANT;
     }
 
     @Override
-    protected Double asPrimitive(JsonParser parser) throws JacksonException {
-        return parser.getDoubleValue();
+    public ImmutableDoubleArray getEmptyValue(DeserializationContext ctxt) {
+        return ImmutableDoubleArray.of();
+    }
+
+    @Override
+    public ImmutableDoubleArray deserialize(JsonParser p, DeserializationContext ctxt) {
+        return ImmutableDoubleArray.copyOf(_doubleArrayDeserializer.deserialize(p, ctxt));
     }
 }
