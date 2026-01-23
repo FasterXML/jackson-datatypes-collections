@@ -15,5 +15,13 @@ László-Róbert Albert (albertlr@github)
 
 * Contributed #24: Support for Guava's Immutable{Double,Int,Long}Array
  [3.0.0]
-* Contributed #69: (guava) Add support for Guava primitives during deserialization
+* Contributed #69: (guava) Add support for Guava primitives during deserializatio
  [3.0.0]
+
+Alexander Nesterenok (@anesterenok)
+
+* Reported #211: `GuavaMultimapDeserializer` does not respect
+  `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ [3.1.0]
+
+
