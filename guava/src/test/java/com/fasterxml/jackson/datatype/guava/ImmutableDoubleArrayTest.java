@@ -1,30 +1,32 @@
 package com.fasterxml.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.primitives.ImmutableDoubleArray;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class ImmutableDoubleArrayTest extends ModuleTestBase {
-
-    private final ObjectMapper MAPPER = mapperWithModule();
+public class ImmutableDoubleArrayTest extends ModuleTestBase
+{
+    private final ObjectMapper MAPPER = builderWithModule()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build();
 
     @Test
-    public void testSerialization() throws IOException {
+    public void testSerialization() throws Exception {
         assertEquals("[]", MAPPER.writeValueAsString(ImmutableDoubleArray.of()));
         assertEquals("[42.0]", MAPPER.writeValueAsString(ImmutableDoubleArray.of(42.0)));
         assertEquals("[-1.0,0.0,1.0,2.0,3.1]", MAPPER.writeValueAsString(ImmutableDoubleArray.of(-1, 0, 1, 2, 3.1)));
     }
 
     @Test
-    public void testSerializationWriteSingleElemArraysUnwrapped() throws IOException {
-        ObjectMapper mapper = builderWithModule().enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+    public void testSerializationWriteSingleElemArraysUnwrapped() throws Exception {
+        ObjectMapper mapper = builderWithModule()
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .build();
         assertEquals("[]", MAPPER.writeValueAsString(ImmutableDoubleArray.of()));
         assertEquals("42.0", mapper.writeValueAsString(ImmutableDoubleArray.of(42.0)));
@@ -32,7 +34,7 @@ public class ImmutableDoubleArrayTest extends ModuleTestBase {
     }
 
     @Test
-    public void testDeserialization() throws IOException {
+    public void testDeserialization() throws Exception {
         assertNull(MAPPER.readValue("null", ImmutableDoubleArray.class));
         assertEquals(ImmutableDoubleArray.of(), MAPPER.readValue("[]", ImmutableDoubleArray.class));
         assertEquals(ImmutableDoubleArray.of(1, 2, 3), MAPPER.readValue("[1, 2, 3]", ImmutableDoubleArray.class));
@@ -41,10 +43,11 @@ public class ImmutableDoubleArrayTest extends ModuleTestBase {
     }
 
     @Test
-    public void testDeserializationWriteSingleElemArraysUnwrapped() throws IOException {
+    public void testDeserializationWriteSingleElemArraysUnwrapped() throws Exception {
         ObjectMapper mapper = builderWithModule().enable(
-                DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                    DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
+                    DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
         assertNull(mapper.readValue("null", ImmutableDoubleArray.class));
         assertEquals(ImmutableDoubleArray.of(), mapper.readValue("[]", ImmutableDoubleArray.class));

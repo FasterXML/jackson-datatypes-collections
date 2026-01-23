@@ -5,8 +5,6 @@ import com.fasterxml.jackson.datatype.guava.deser.table.ImmutableTableDeserializ
 import com.fasterxml.jackson.datatype.guava.deser.table.TreeBasedTableDeserializer;
 import java.io.Serializable;
 
-import com.fasterxml.jackson.databind.type.CollectionLikeType;
-import com.fasterxml.jackson.datatype.guava.ser.ImmutableDoubleArraySerializer;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.collect.*;
@@ -28,6 +26,7 @@ import com.fasterxml.jackson.datatype.guava.deser.multimap.set.HashMultimapDeser
 import com.fasterxml.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
 import com.google.common.primitives.ImmutableDoubleArray;
 import com.google.common.primitives.ImmutableIntArray;
+import com.google.common.primitives.ImmutableLongArray;
 
 /**
  * Custom deserializers module offers.
@@ -265,7 +264,7 @@ public class GuavaDeserializers
         }
 
         if (RangeMap.class.isAssignableFrom(raw)) {
-            return new RangeMapDeserializer(type, keyDeserializer,
+            return new RangeMapDeserializer<>(type, keyDeserializer,
                     elementTypeDeserializer, elementDeserializer, ImmutableRangeMap.class.isAssignableFrom(raw));
         }
 
@@ -350,6 +349,9 @@ public class GuavaDeserializers
         }
         if (type.hasRawClass(ImmutableIntArray.class)) {
             return new ImmutableIntArrayDeserializer();
+        }
+        if (type.hasRawClass(ImmutableLongArray.class)) {
+            return new ImmutableLongArrayDeserializer();
         }
         if (type.hasRawClass(ImmutableDoubleArray.class)) {
             return new ImmutableDoubleArrayDeserializer();
