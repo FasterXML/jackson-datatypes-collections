@@ -46,8 +46,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
                 findTransformer(type.getRawClass()), null, null);
     }
 
+    // @since 3.1.0 (added `unwrapSingle`)
     @SuppressWarnings("unchecked")
-    public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
+    protected GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
             Method creatorMethod, NullValueProvider nvp, Boolean unwrapSingle)
     {

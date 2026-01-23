@@ -24,10 +24,11 @@ public class HashMultimapDeserializer
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
     }
 
-    public HashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
+    protected HashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
             Method creatorMethod, NullValueProvider nvp, Boolean unwrapSingle) {
-        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod, nvp, unwrapSingle);
+        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
+                creatorMethod, nvp, unwrapSingle);
     }
 
     @Override

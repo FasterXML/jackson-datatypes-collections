@@ -24,10 +24,11 @@ public class LinkedHashMultimapDeserializer
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
     }
 
-    public LinkedHashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
+    protected LinkedHashMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
             Method creatorMethod, NullValueProvider nvp, Boolean unwrapSingle) {
-        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod, nvp, unwrapSingle);
+        super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
+                creatorMethod, nvp, unwrapSingle);
     }
 
     @Override

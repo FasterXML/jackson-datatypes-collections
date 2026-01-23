@@ -24,7 +24,7 @@ public class LinkedListMultimapDeserializer
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
     }
 
-    public LinkedListMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
+    protected LinkedListMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer,
             Method creatorMethod, NullValueProvider nvp, Boolean unwrapSingle) {
         super(type, keyDeserializer, elementTypeDeserializer, elementDeserializer, creatorMethod, nvp, unwrapSingle);
