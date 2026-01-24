@@ -4,6 +4,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 
 import com.google.common.primitives.ImmutableLongArray;
@@ -17,6 +18,11 @@ public final class ImmutableLongArrayDeserializer extends StdDeserializer<Immuta
         @SuppressWarnings("unchecked")
         ValueDeserializer<long[]> deser = (ValueDeserializer<long[]>) PrimitiveArrayDeserializers.forType(long.class);
         _longArrayDeserializer = deser;
+    }
+
+    @Override
+    public LogicalType logicalType() {
+        return LogicalType.Array;
     }
 
     @Override

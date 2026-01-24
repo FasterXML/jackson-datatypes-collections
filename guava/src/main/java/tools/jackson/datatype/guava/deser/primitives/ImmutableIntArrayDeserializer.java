@@ -4,6 +4,7 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import com.google.common.primitives.ImmutableIntArray;
 
@@ -15,6 +16,11 @@ public final class ImmutableIntArrayDeserializer extends StdDeserializer<Immutab
     public ImmutableIntArrayDeserializer() {
         super(ImmutableIntArray.class);
         _intArrayDeserializer = (ValueDeserializer<int[]>) PrimitiveArrayDeserializers.forType(int.class);
+    }
+
+    @Override
+    public LogicalType logicalType() {
+        return LogicalType.Array;
     }
 
     @Override

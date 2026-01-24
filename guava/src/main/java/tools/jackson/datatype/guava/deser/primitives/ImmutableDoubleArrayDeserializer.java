@@ -5,6 +5,7 @@ import tools.jackson.databind.*;
 
 import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 
 import com.google.common.primitives.ImmutableDoubleArray;
@@ -20,6 +21,11 @@ public final class ImmutableDoubleArrayDeserializer extends StdDeserializer<Immu
             (ValueDeserializer<double[]>) PrimitiveArrayDeserializers.forType(double.class);
     }
 
+    @Override
+    public LogicalType logicalType() {
+        return LogicalType.Array;
+    }
+    
     @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.FALSE;
