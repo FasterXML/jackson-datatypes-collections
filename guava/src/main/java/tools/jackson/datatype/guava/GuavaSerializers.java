@@ -22,7 +22,6 @@ import tools.jackson.datatype.guava.ser.*;
 import tools.jackson.datatype.guava.ser.primitives.ImmutableDoubleArraySerializer;
 import tools.jackson.datatype.guava.ser.primitives.ImmutableIntArraySerializer;
 import tools.jackson.datatype.guava.ser.primitives.ImmutableLongArraySerializer;
-import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
@@ -151,12 +150,16 @@ public class GuavaSerializers extends Serializers.Base
             CollectionLikeType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides, TypeSerializer elementTypeSerializer,
            ValueSerializer<Object> elementValueSerializer)
     {
+        // 23-Jan-2026, tatu: Appears unneeded; commenting out won't fail any tests
+        /*
         Class<?> raw = type.getRawClass();
         Optional<ValueSerializer<?>> primitiveSerializer = PrimitiveTypes.isAssignableFromPrimitive(raw)
                 .transform((ignore) -> ToStringSerializer.instance);
 
         return primitiveSerializer
                 .or(() -> super.findCollectionLikeSerializer(config, type, beanDescRef, formatOverrides, elementTypeSerializer, elementValueSerializer));
+                */
+        return null;
     }
 
     private JavaType _findDeclared(JavaType subtype, Class<?> target) {
