@@ -21,7 +21,7 @@ import tools.jackson.databind.util.StdConverter;
 import tools.jackson.datatype.guava.ser.*;
 import tools.jackson.datatype.guava.ser.primitives.ImmutableDoubleArraySerializer;
 import tools.jackson.datatype.guava.ser.primitives.ImmutableIntArraySerializer;
-import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
+import tools.jackson.datatype.guava.ser.primitives.ImmutableLongArraySerializer;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.base.Optional;
@@ -38,6 +38,7 @@ import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
 import com.google.common.primitives.ImmutableDoubleArray;
 import com.google.common.primitives.ImmutableIntArray;
+import com.google.common.primitives.ImmutableLongArray;
 
 public class GuavaSerializers extends Serializers.Base
     implements Serializable
@@ -97,12 +98,13 @@ public class GuavaSerializers extends Serializers.Base
         if (type.isTypeOrSubTypeOf(ImmutableIntArray.class)) {
             return new ImmutableIntArraySerializer();
         }
+        if (type.isTypeOrSubTypeOf(ImmutableLongArray.class)) {
+            return new ImmutableLongArraySerializer();
+        }
         if (type.isTypeOrSubTypeOf(ImmutableDoubleArray.class)) {
             return new ImmutableDoubleArraySerializer();
         }
-        return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(type.getRawClass())
-                .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newSerializer)
-                .orNull();
+        return null;
    }
 
     @Override

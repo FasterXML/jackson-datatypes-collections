@@ -2,9 +2,7 @@ package tools.jackson.datatype.guava;
 
 import org.junit.jupiter.api.Test;
 
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.*;
 
 import com.google.common.primitives.ImmutableDoubleArray;
 
@@ -46,8 +44,8 @@ public class ImmutableDoubleArrayTest extends ModuleTestBase
     @Test
     public void testDeserializationWriteSingleElemArraysUnwrapped() throws Exception {
         ObjectMapper mapper = builderWithModule().enable(
-                DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
-                DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                    DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY,
+                    DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .build();
         assertNull(mapper.readValue("null", ImmutableDoubleArray.class));

@@ -1,34 +1,46 @@
 package tools.jackson.datatype.guava.deser.primitives;
 
-import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
+import tools.jackson.databind.*;
+import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.util.AccessPattern;
 
 import com.google.common.primitives.ImmutableLongArray;
 
-public class ImmutableLongArrayDeserializer
-        extends BaseImmutableArrayDeserializer<Long, ImmutableLongArray, ImmutableLongArray.Builder> {
+public final class ImmutableLongArrayDeserializer extends StdDeserializer<ImmutableLongArray>
+{
+    private final ValueDeserializer<long[]> _longArrayDeserializer;
+
     public ImmutableLongArrayDeserializer() {
-        super(ImmutablePrimitiveTypes.ImmutableLongArrayType, Long.class);
+        super(ImmutableLongArray.class);
+        @SuppressWarnings("unchecked")
+        ValueDeserializer<long[]> deser = (ValueDeserializer<long[]>) PrimitiveArrayDeserializers.forType(long.class);
+        _longArrayDeserializer = deser;
     }
 
     @Override
-    protected ImmutableLongArray.Builder createIntermediateCollection() {
-        return ImmutableLongArray.builder();
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return Boolean.FALSE;
     }
 
     @Override
-    protected void collect(ImmutableLongArray.Builder intermediateBuilder, Long value) {
-        intermediateBuilder.add(value);
+    public boolean isCachable() {
+        return true;
     }
 
     @Override
-    protected ImmutableLongArray finish(ImmutableLongArray.Builder builder) {
-        return builder.build();
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.CONSTANT;
     }
 
     @Override
-    protected Long asPrimitive(JsonParser parser) throws JacksonException {
-        return parser.getLongValue();
+    public ImmutableLongArray getEmptyValue(DeserializationContext ctxt) {
+        return ImmutableLongArray.of();
+    }
+
+    @Override
+    public ImmutableLongArray deserialize(JsonParser p, DeserializationContext ctxt) {
+        return ImmutableLongArray.copyOf(_longArrayDeserializer.deserialize(p, ctxt));
     }
 }

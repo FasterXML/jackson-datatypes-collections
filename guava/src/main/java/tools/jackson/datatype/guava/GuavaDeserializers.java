@@ -24,14 +24,15 @@ import tools.jackson.datatype.guava.deser.multimap.set.HashMultimapDeserializer;
 import tools.jackson.datatype.guava.deser.multimap.set.LinkedHashMultimapDeserializer;
 import tools.jackson.datatype.guava.deser.primitives.ImmutableDoubleArrayDeserializer;
 import tools.jackson.datatype.guava.deser.primitives.ImmutableIntArrayDeserializer;
+import tools.jackson.datatype.guava.deser.primitives.ImmutableLongArrayDeserializer;
 import tools.jackson.datatype.guava.deser.table.HashBasedTableDeserializer;
 import tools.jackson.datatype.guava.deser.table.ImmutableTableDeserializer;
 import tools.jackson.datatype.guava.deser.table.TreeBasedTableDeserializer;
-import tools.jackson.datatype.guava.util.ImmutablePrimitiveTypes;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.primitives.ImmutableDoubleArray;
 import com.google.common.primitives.ImmutableIntArray;
+import com.google.common.primitives.ImmutableLongArray;
 
 /**
  * Custom deserializers module offers.
@@ -354,12 +355,13 @@ public class GuavaDeserializers
         if (type.hasRawClass(ImmutableIntArray.class)) {
             return new ImmutableIntArrayDeserializer();
         }
+        if (type.hasRawClass(ImmutableLongArray.class)) {
+            return new ImmutableLongArrayDeserializer();
+        }
         if (type.hasRawClass(ImmutableDoubleArray.class)) {
             return new ImmutableDoubleArrayDeserializer();
         }
-        return ImmutablePrimitiveTypes.isAssignableFromImmutableArray(type.getRawClass())
-                .transform(ImmutablePrimitiveTypes.ImmutablePrimitiveArrays::newDeserializer)
-                .orNull();
+        return null;
     }
 
     @Override
@@ -376,7 +378,9 @@ public class GuavaDeserializers
                     || ImmutableMap.class.isAssignableFrom(valueType)
                     || BiMap.class.isAssignableFrom(valueType)
                     || PrimitiveTypes.isAssignableFromPrimitive(valueType).isPresent()
-                    || ImmutablePrimitiveTypes.isAssignableFromImmutableArray(valueType).isPresent()
+                    || ImmutableDoubleArray.class.isAssignableFrom(valueType)
+                    || ImmutableIntArray.class.isAssignableFrom(valueType)
+                    || ImmutableLongArray.class.isAssignableFrom(valueType)
                     || ImmutableRangeSet.class.isAssignableFrom(valueType)
                     || (valueType == ImmutableIntArray.class)
                     || (valueType == ImmutableDoubleArray.class)
