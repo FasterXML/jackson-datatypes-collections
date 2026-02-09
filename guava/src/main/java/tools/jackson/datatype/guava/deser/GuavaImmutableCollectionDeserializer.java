@@ -48,14 +48,14 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         throws JacksonException
     {
         Object first = null;
-        int count = 0;
+        boolean hasFirst = false;
 
         while (p.nextToken() != JsonToken.END_ARRAY) {
             Object value = _deserializeSingleValue(p, ctxt);
             if (value == null) {
                 // Null values need builder for proper error handling
                 ImmutableCollection.Builder<Object> builder = createBuilder();
-                if (count > 0) {
+                if (hasFirst) {
                     builder.add(first);
                 }
                 if (!_skipNullValues) {
@@ -63,9 +63,9 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 }
                 return _finishWithBuilder(p, ctxt, builder);
             }
-            if (count == 0) {
+            if (!hasFirst) {
                 first = value;
-                count = 1;
+                hasFirst = true;
             } else {
                 ImmutableCollection.Builder<Object> builder = createBuilder();
                 builder.add(first);
@@ -74,7 +74,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
             }
         }
 
-        if (count == 0) {
+        if (!hasFirst) {
             return _createEmpty(ctxt);
         }
         return _createWithSingleElement(ctxt, first);
