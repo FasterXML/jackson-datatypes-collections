@@ -21,10 +21,10 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
      * ImmutableMap.Builder.build() throws IllegalArgumentException when there are duplicate keys
      */
     @Test
-    public void testImmutableMapDuplicateKeysHandling() throws Exception
+    public void testImmutableMapDuplicateKeysHandling()
     {
         // ImmutableMap does not allow duplicate keys, so this should trigger an error during build()
-        String json = "{\"a\":1,\"b\":2,\"a\":3}";
+        String json = a2q("{'a':1,'b':2,'a':3}");
         try {
             MAPPER.readValue(json, ImmutableMap.class);
             fail("Should have thrown an exception for duplicate keys");
@@ -40,9 +40,9 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
      * ImmutableBiMap.Builder.build() throws IllegalArgumentException for duplicate keys or values
      */
     @Test
-    public void testImmutableBiMapDuplicateKeysHandling() throws Exception
+    public void testImmutableBiMapDuplicateKeysHandling()
     {
-        String json = "{\"a\":1,\"b\":2,\"a\":3}";
+        String json = a2q("{'a':1,'b':2,'a':3}");
         try {
             MAPPER.readValue(json, ImmutableBiMap.class);
             fail("Should have thrown an exception for duplicate keys");
@@ -58,9 +58,9 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
      * if the elements are not mutually comparable
      */
     @Test
-    public void testImmutableSortedMapDuplicateKeysHandling() throws Exception
+    public void testImmutableSortedMapDuplicateKeysHandling()
     {
-        String json = "{\"a\":1,\"b\":2,\"a\":3}";
+        String json = a2q("{'a':1,'b':2,'a':3}");
         try {
             MAPPER.readValue(json, ImmutableSortedMap.class);
             fail("Should have thrown an exception for duplicate keys");
@@ -77,7 +77,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
     @Test
     public void testImmutableMapValidData() throws Exception
     {
-        String json = "{\"a\":1,\"b\":2,\"c\":3}";
+        String json = a2q("{'a':1,'b':2,'c':3}");
         ImmutableMap<?,?> result = MAPPER.readValue(json, ImmutableMap.class);
         assertNotNull(result);
         assertEquals(3, result.size());
@@ -93,10 +93,10 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
      * during build(), it will be properly caught and reported.
      */
     @Test
-    public void testImmutableTableDuplicateCellHandling() throws Exception
+    public void testImmutableTableDuplicateCellHandling()
     {
         // Table with duplicate row/column combination
-        String json = "{\"row1\":{\"col1\":\"val1\",\"col1\":\"val2\"}}";
+        String json = a2q("{'row1':{'col1':'val1','col1':'val2'}}");
         try {
             MAPPER.readValue(json, ImmutableTable.class);
             fail("Should have thrown an exception for duplicate cells");
@@ -117,7 +117,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
     @Test
     public void testImmutableTableValidData() throws Exception
     {
-        String json = "{\"row1\":{\"col1\":\"val1\",\"col2\":\"val2\"},\"row2\":{\"col1\":\"val3\"}}";
+        String json = a2q("{'row1':{'col1':'val1','col2':'val2'},'row2':{'col1':'val3'}}");
         ImmutableTable<?,?,?> result = MAPPER.readValue(json, ImmutableTable.class);
         assertNotNull(result);
         assertEquals(3, result.size());
