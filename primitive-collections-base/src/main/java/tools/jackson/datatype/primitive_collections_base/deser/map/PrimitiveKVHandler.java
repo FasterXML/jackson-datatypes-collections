@@ -5,6 +5,7 @@ import tools.jackson.core.JsonParser;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 /**
  * @author yawkat
@@ -35,7 +36,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Byte extends PrimitiveKVHandler<Byte> {
         public static final Byte INSTANCE = new Byte();
 
-        public byte key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public byte key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
                 return java.lang.Byte.parseByte(key);
             } catch (NumberFormatException e) {
@@ -52,7 +53,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Short extends PrimitiveKVHandler<Short> {
         public static final Short INSTANCE = new Short();
 
-        public short key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public short key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
                 return java.lang.Short.parseShort(key);
             } catch (NumberFormatException e) {
@@ -99,7 +100,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Int extends PrimitiveKVHandler<Int> {
         public static final Int INSTANCE = new Int();
 
-        public int key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public int key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
                 return Integer.parseInt(key);
             } catch (NumberFormatException e) {
@@ -116,7 +117,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Float extends PrimitiveKVHandler<Float> {
         public static final Float INSTANCE = new Float();
 
-        public float key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public float key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
                 return java.lang.Float.parseFloat(key);
             } catch (NumberFormatException e) {
@@ -133,7 +134,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Long extends PrimitiveKVHandler<Long> {
         public static final Long INSTANCE = new Long();
 
-        public long key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public long key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
                 return java.lang.Long.parseLong(key);
             } catch (NumberFormatException e) {
@@ -150,7 +151,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     public static final class Double extends PrimitiveKVHandler<Double> {
         public static final Double INSTANCE = new Double();
 
-        public double key(DeserializationContext ctx, String key) throws JsonMappingException {
+        public double key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
                 return java.lang.Double.parseDouble(key);
             } catch (NumberFormatException e) {

@@ -1,7 +1,7 @@
 package tools.jackson.datatype.eclipsecollections;
 
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.JsonMappingException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ObjectMapper;
 import org.eclipse.collections.api.map.primitive.ByteIntMap;
 import org.eclipse.collections.api.map.primitive.ShortIntMap;
@@ -9,10 +9,10 @@ import org.eclipse.collections.api.map.primitive.IntIntMap;
 import org.eclipse.collections.api.map.primitive.LongIntMap;
 import org.eclipse.collections.api.map.primitive.FloatIntMap;
 import org.eclipse.collections.api.map.primitive.DoubleIntMap;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests to verify that number parsing errors are properly handled
@@ -27,16 +27,14 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<ByteIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            // Verify it's a JsonMappingException (not NumberFormatException)
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             // Verify the error message contains the problematic value
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("not_a_byte"));
-            assertTrue("Message should mention parse error: " + message,
-                       message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"));
+            assertTrue(message.contains("not_a_byte"),
+                "Message should contain the invalid value: " + message);
+            assertTrue(message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"),
+                "Message should mention parse error: " + message);
         }
     }
 
@@ -47,14 +45,13 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<ShortIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("invalid_short"));
-            assertTrue("Message should mention parse error: " + message,
-                       message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"));
+            assertTrue(message.contains("invalid_short"),
+                "Message should contain the invalid value: " + message);
+            assertTrue(message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"),
+                "Message should mention parse error: " + message);
         }
     }
 
@@ -65,14 +62,13 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<IntIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("not_an_int"));
-            assertTrue("Message should mention parse error: " + message,
-                       message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"));
+            assertTrue(message.contains("not_an_int"),
+                "Message should contain the invalid value: " + message);
+            assertTrue(message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"),
+                "Message should mention parse error: " + message);
         }
     }
 
@@ -83,14 +79,13 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<LongIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("not_a_long"));
-            assertTrue("Message should mention parse error: " + message,
-                       message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"));
+            assertTrue(message.contains("not_a_long"),
+                "Message should contain the invalid value: " + message);
+            assertTrue(message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"),
+                "Message should mention parse error: " + message);
         }
     }
 
@@ -101,14 +96,13 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<FloatIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("not_a_float"));
-            assertTrue("Message should mention parse error: " + message,
-                       message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"));
+            assertTrue(message.contains("not_a_float"),
+                "Message should contain the invalid value: " + message);
+            assertTrue(message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"),
+                "Message should mention parse error: " + message);
         }
     }
 
@@ -119,14 +113,13 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<DoubleIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("not_a_double"));
-            assertTrue("Message should mention parse error: " + message,
-                       message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"));
+            assertTrue(message.contains("not_a_double"),
+                "Message should contain the invalid value: " + message);
+            assertTrue(message.toLowerCase().contains("parse") || message.toLowerCase().contains("cannot"),
+                "Message should mention parse error: " + message);
         }
     }
 
@@ -138,11 +131,10 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         try {
             mapper.readValue(json, new TypeReference<ByteIntMap>() {});
             fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("999"));
+            assertTrue(message.contains("999"),
+                "Message should contain the invalid value: " + message);
         }
     }
 
@@ -153,12 +145,10 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         
         try {
             mapper.readValue(json, new TypeReference<ShortIntMap>() {});
-            fail("Should have thrown JsonMappingException");
-        } catch (JsonMappingException e) {
-            assertTrue("Exception should be JsonMappingException", e instanceof JsonMappingException);
+            fail("Should have thrown MismatchedInputException");
+        } catch (MismatchedInputException e) {
             String message = e.getMessage();
-            assertTrue("Message should contain the invalid value: " + message, 
-                       message.contains("99999"));
+            assertTrue(message.contains("99999"), "Message should contain the invalid value: " + message );
         }
     }
 
@@ -169,32 +159,32 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
         // Test that valid values still work correctly
         ByteIntMap byteMap = mapper.readValue("{\"127\": 1, \"-128\": 2}", 
                                                new TypeReference<ByteIntMap>() {});
-        assertTrue("Map should contain key 127", byteMap.containsKey((byte)127));
-        assertTrue("Map should contain key -128", byteMap.containsKey((byte)-128));
+        assertTrue(byteMap.containsKey((byte)127), "Map should contain key 127");
+        assertTrue(byteMap.containsKey((byte)-128), "Map should contain key -128");
         
         ShortIntMap shortMap = mapper.readValue("{\"32767\": 1, \"-32768\": 2}", 
                                                  new TypeReference<ShortIntMap>() {});
-        assertTrue("Map should contain key 32767", shortMap.containsKey((short)32767));
-        assertTrue("Map should contain key -32768", shortMap.containsKey((short)-32768));
+        assertTrue(shortMap.containsKey((short)32767), "Map should contain key 32767");
+        assertTrue(shortMap.containsKey((short)-32768), "Map should contain key -32768");
         
         IntIntMap intMap = mapper.readValue("{\"2147483647\": 1, \"-2147483648\": 2}", 
                                              new TypeReference<IntIntMap>() {});
-        assertTrue("Map should contain key 2147483647", intMap.containsKey(2147483647));
-        assertTrue("Map should contain key -2147483648", intMap.containsKey(-2147483648));
+        assertTrue(intMap.containsKey(2147483647), "Map should contain key 2147483647");
+        assertTrue(intMap.containsKey(-2147483648), "Map should contain key -2147483648");
         
         LongIntMap longMap = mapper.readValue("{\"9223372036854775807\": 1}", 
                                                new TypeReference<LongIntMap>() {});
-        assertTrue("Map should contain key 9223372036854775807", 
-                   longMap.containsKey(9223372036854775807L));
+        assertTrue(longMap.containsKey(9223372036854775807L),
+            "Map should contain key 9223372036854775807");
         
         FloatIntMap floatMap = mapper.readValue("{\"3.14\": 1, \"-2.5\": 2}", 
                                                  new TypeReference<FloatIntMap>() {});
-        assertTrue("Map should contain key 3.14", floatMap.containsKey(3.14f));
-        assertTrue("Map should contain key -2.5", floatMap.containsKey(-2.5f));
+        assertTrue(floatMap.containsKey(3.14f), "Map should contain key 3.14");
+        assertTrue(floatMap.containsKey(-2.5f), "Map should contain key -2.5");
         
         DoubleIntMap doubleMap = mapper.readValue("{\"3.141592653589793\": 1}", 
                                                    new TypeReference<DoubleIntMap>() {});
-        assertTrue("Map should contain key 3.141592653589793", 
-                   doubleMap.containsKey(3.141592653589793));
+        assertTrue(doubleMap.containsKey(3.141592653589793),
+            "Map should contain key 3.141592653589793");
     }
 }
