@@ -3,7 +3,7 @@ package tools.jackson.datatype.guava;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import com.google.common.collect.*;
 
@@ -28,7 +28,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         try {
             MAPPER.readValue(json, ImmutableMap.class);
             fail("Should have thrown an exception for duplicate keys");
-        } catch (ValueInstantiationException e) {
+        } catch (MismatchedInputException e) {
             // Expected - should contain meaningful error message
             String msg = e.getMessage();
             assertTrue(msg.contains("Failed to build ImmutableMap") || msg.contains("duplicate"),
@@ -46,7 +46,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         try {
             MAPPER.readValue(json, ImmutableBiMap.class);
             fail("Should have thrown an exception for duplicate keys");
-        } catch (ValueInstantiationException e) {
+        } catch (MismatchedInputException e) {
             String msg = e.getMessage();
             assertTrue(msg.contains("Failed to build ImmutableMap") || msg.contains("duplicate"),
                     "Error message should mention build failure or duplicate, got: " + msg);
@@ -64,7 +64,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         try {
             MAPPER.readValue(json, ImmutableSortedMap.class);
             fail("Should have thrown an exception for duplicate keys");
-        } catch (ValueInstantiationException e) {
+        } catch (MismatchedInputException e) {
             String msg = e.getMessage();
             assertTrue(msg.contains("Failed to build ImmutableMap") || msg.contains("duplicate"),
                     "Error message should mention build failure or duplicate, got: " + msg);
