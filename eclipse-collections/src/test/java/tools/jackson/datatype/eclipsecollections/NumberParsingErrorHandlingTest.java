@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class NumberParsingErrorHandlingTest extends ModuleTestBase {
 
     @Test
-    public void testInvalidByteKeyFormat() throws Exception {
+    public void testInvalidByteKeyFormat() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"not_a_byte\": 1}";
+        String json = a2q("{'not_a_byte': 1}");
         
         try {
             mapper.readValue(json, new TypeReference<ByteIntMap>() {});
@@ -39,9 +39,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testInvalidShortKeyFormat() throws Exception {
+    public void testInvalidShortKeyFormat() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"invalid_short\": 1}";
+        String json = a2q("{'invalid_short': 1}");
         
         try {
             mapper.readValue(json, new TypeReference<ShortIntMap>() {});
@@ -56,9 +56,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testInvalidIntKeyFormat() throws Exception {
+    public void testInvalidIntKeyFormat() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"not_an_int\": 1}";
+        String json = a2q("{'not_an_int': 1}");
         
         try {
             mapper.readValue(json, new TypeReference<IntIntMap>() {});
@@ -73,9 +73,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testInvalidLongKeyFormat() throws Exception {
+    public void testInvalidLongKeyFormat() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"not_a_long\": 1}";
+        String json = a2q("{'not_a_long': 1}");
         
         try {
             mapper.readValue(json, new TypeReference<LongIntMap>() {});
@@ -90,9 +90,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testInvalidFloatKeyFormat() throws Exception {
+    public void testInvalidFloatKeyFormat() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"not_a_float\": 1}";
+        String json = a2q("{'not_a_float': 1}");
         
         try {
             mapper.readValue(json, new TypeReference<FloatIntMap>() {});
@@ -107,9 +107,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testInvalidDoubleKeyFormat() throws Exception {
+    public void testInvalidDoubleKeyFormat() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"not_a_double\": 1}";
+        String json = a2q("{'not_a_double': 1}");
         
         try {
             mapper.readValue(json, new TypeReference<DoubleIntMap>() {});
@@ -124,9 +124,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testByteKeyOverflow() throws Exception {
+    public void testByteKeyOverflow() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"999\": 1}"; // 999 is too large for a byte
+        String json = a2q("{'999': 1}"); // 999 is too large for a byte
         
         try {
             mapper.readValue(json, new TypeReference<ByteIntMap>() {});
@@ -139,9 +139,9 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testShortKeyOverflow() throws Exception {
+    public void testShortKeyOverflow() {
         ObjectMapper mapper = mapperWithModule();
-        String json = "{\"99999\": 1}"; // 99999 is too large for a short
+        String json = a2q("{'99999': 1}"); // 99999 is too large for a short
         
         try {
             mapper.readValue(json, new TypeReference<ShortIntMap>() {});
@@ -153,38 +153,39 @@ public class NumberParsingErrorHandlingTest extends ModuleTestBase {
     }
 
     @Test
-    public void testValidNumberParsing() throws Exception {
+    public void testValidNumberParsing() {
         ObjectMapper mapper = mapperWithModule();
         
         // Test that valid values still work correctly
-        ByteIntMap byteMap = mapper.readValue("{\"127\": 1, \"-128\": 2}", 
+        ByteIntMap byteMap = mapper.readValue(a2q("{'127': 1, '-128': 2}"),
                                                new TypeReference<ByteIntMap>() {});
         assertTrue(byteMap.containsKey((byte)127), "Map should contain key 127");
         assertTrue(byteMap.containsKey((byte)-128), "Map should contain key -128");
         
-        ShortIntMap shortMap = mapper.readValue("{\"32767\": 1, \"-32768\": 2}", 
+        ShortIntMap shortMap = mapper.readValue(a2q("{'32767': 1, '-32768': 2}"),
                                                  new TypeReference<ShortIntMap>() {});
         assertTrue(shortMap.containsKey((short)32767), "Map should contain key 32767");
         assertTrue(shortMap.containsKey((short)-32768), "Map should contain key -32768");
         
-        IntIntMap intMap = mapper.readValue("{\"2147483647\": 1, \"-2147483648\": 2}", 
+        IntIntMap intMap = mapper.readValue(a2q("{'2147483647': 1, '-2147483648': 2}"),
                                              new TypeReference<IntIntMap>() {});
         assertTrue(intMap.containsKey(2147483647), "Map should contain key 2147483647");
         assertTrue(intMap.containsKey(-2147483648), "Map should contain key -2147483648");
         
-        LongIntMap longMap = mapper.readValue("{\"9223372036854775807\": 1}", 
+        LongIntMap longMap = mapper.readValue(a2q("{'9223372036854775807': 1}"),
                                                new TypeReference<LongIntMap>() {});
         assertTrue(longMap.containsKey(9223372036854775807L),
             "Map should contain key 9223372036854775807");
         
-        FloatIntMap floatMap = mapper.readValue("{\"3.14\": 1, \"-2.5\": 2}", 
+        FloatIntMap floatMap = mapper.readValue(a2q("{'3.14': 1, '-2.5': 2}"),
                                                  new TypeReference<FloatIntMap>() {});
         assertTrue(floatMap.containsKey(3.14f), "Map should contain key 3.14");
         assertTrue(floatMap.containsKey(-2.5f), "Map should contain key -2.5");
         
-        DoubleIntMap doubleMap = mapper.readValue("{\"3.141592653589793\": 1}", 
+        DoubleIntMap doubleMap = mapper.readValue(a2q("{'3.141592653589793': 1}"),
                                                    new TypeReference<DoubleIntMap>() {});
         assertTrue(doubleMap.containsKey(3.141592653589793),
             "Map should contain key 3.141592653589793");
     }
+
 }
