@@ -3,7 +3,6 @@ package tools.jackson.datatype.guava;
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 
 import com.google.common.collect.*;
@@ -88,7 +87,10 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
     }
 
     /**
-     * ImmutableTable.Builder.build() can throw IllegalArgumentException for duplicate row+column keys
+     * ImmutableTable.Builder.build() can throw IllegalArgumentException for duplicate row+column keys.
+     * Note: This test uses duplicate JSON keys, which may be handled by the JSON parser itself
+     * before reaching the builder. The test validates that if a RuntimeException does occur
+     * during build(), it will be properly caught and reported.
      */
     @Test
     public void testImmutableTableDuplicateCellHandling() throws Exception
