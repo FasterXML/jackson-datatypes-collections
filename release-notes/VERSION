@@ -14,6 +14,8 @@ Modules:
 
 #215: (guava) Add special handling for 0 and 1 size Guava immutable collections
  (contributed by Oliver G)
+#218: Fix input mismatch error message in `RangeDeserializer`
+ (fixed by @pjfanning)
 
 3.1.0-rc1 (26-Jan-2026)
 

@@ -237,6 +237,34 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.OPEN, r.upperBoundType());
     }
 
+    // [datatypes-collections#218]: only upperEndpoint, missing upperBoundType
+    @Test
+    public void testUpperEndpointOnlyMissingBoundType() throws Exception
+    {
+        String json = "{\"upperEndpoint\": 5}";
+
+        try {
+            MAPPER.readValue(json, Range.class);
+            fail("Should have failed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "'upperEndpoint' field found, but not 'upperBoundType'");
+        }
+    }
+
+    // [datatypes-collections#218]: only lowerEndpoint, missing lowerBoundType
+    @Test
+    public void testLowerEndpointOnlyMissingBoundType() throws Exception
+    {
+        String json = "{\"lowerEndpoint\": 5}";
+
+        try {
+            MAPPER.readValue(json, Range.class);
+            fail("Should have failed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "'lowerEndpoint' field found, but not 'lowerBoundType'");
+        }
+    }
+
     @Test
     public void testDefaultBoundTypeBothBoundTypesOpen() throws Exception
     {
