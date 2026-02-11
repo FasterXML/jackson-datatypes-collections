@@ -40,8 +40,14 @@ public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectio
     @Override
     protected ImmutableSortedMultiset<Object> _createWithSingleElement(DeserializationContext ctxt,
             Object value) {
-        return (ImmutableSortedMultiset<Object>) createBuilder()
-                .add(value)
-                .build();
+        try {
+            return (ImmutableSortedMultiset<Object>) createBuilder()
+                    .add(value)
+                    .build();
+        } catch (RuntimeException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Failed to build ImmutableSortedMultiset from single element: %s",
+                    e.getMessage());
+        }
     }
 }
