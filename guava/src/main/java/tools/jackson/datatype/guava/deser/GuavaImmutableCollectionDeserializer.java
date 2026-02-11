@@ -106,9 +106,15 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
-        @SuppressWarnings("unchecked")
-        T collection = (T) builder.build();
-        return collection;
+        try {
+            @SuppressWarnings("unchecked")
+            T collection = (T) builder.build();
+            return collection;
+        } catch (RuntimeException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Failed to build ImmutableCollection from deserialized entries: %s",
+                    e.getMessage());
+        }
     }
 
     protected Object _resolveNullToValue(DeserializationContext ctxt)

@@ -100,7 +100,13 @@ public class ImmutableTableDeserializer
             }
             expect(ctxt, JsonToken.END_OBJECT, p.currentToken());
         }
-        return table.build();
+        try {
+            return table.build();
+        } catch (RuntimeException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Failed to build ImmutableTable from deserialized entries: %s",
+                    e.getMessage());
+        }
     }
     
     @Override

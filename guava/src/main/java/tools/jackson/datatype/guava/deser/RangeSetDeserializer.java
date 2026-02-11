@@ -88,7 +88,13 @@ public class RangeSetDeserializer
             Range<Comparable<?>> range = (Range<Comparable<?>>) ob;
             builder.add(range);
         }
-        return builder.build();
+        try {
+            return builder.build();
+        } catch (RuntimeException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Failed to build RangeSet from deserialized entries: %s",
+                    e.getMessage());
+        }
     }
 
     /**

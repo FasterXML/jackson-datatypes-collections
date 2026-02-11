@@ -68,8 +68,14 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
-        @SuppressWarnings("unchecked")
-        T map = (T) builder.build();
-        return map;
+        try {
+            @SuppressWarnings("unchecked")
+            T map = (T) builder.build();
+            return map;
+        } catch (RuntimeException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Failed to build ImmutableMap from deserialized entries: %s",
+                    e.getMessage());
+        }
     }
 }
