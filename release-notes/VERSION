@@ -10,9 +10,14 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
+3.1.0 (not yet released)
+
+#215: (guava) Add special handling for 0 and 1 size Guava immutable collections
+ (contributed by Oliver G)
+
 3.1.0-rc1 (26-Jan-2026)
 
-#211: `GuavaMultimapDeserializer` does not respect
+#211: (guava) `GuavaMultimapDeserializer` does not respect
   `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
  (reported by Alexander N)
 

@@ -47,33 +47,62 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        ValueDeserializer<?> valueDes = _valueDeserializer;
-        JsonToken t;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        // No way to pass actual type parameter; but does not matter, just
-        // compiler-time fluff:
-        ImmutableCollection.Builder<Object> builder = createBuilder();
+        Object first = null;
+        boolean hasFirst = false;
 
-        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-            Object value;
-
-            if (t == JsonToken.VALUE_NULL) {
-                if (_skipNullValues) {
-                    continue;
-                }
-                value = _resolveNullToValue(ctxt);
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(p, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-            }
-
+        while (p.nextToken() != JsonToken.END_ARRAY) {
+            Object value = _deserializeSingleValue(p, ctxt);
             if (value == null) {
-                _tryToAddNull(p, ctxt, builder);
-                continue;
+                // Null values need builder for proper error handling
+                ImmutableCollection.Builder<Object> builder = createBuilder();
+                if (hasFirst) {
+                    builder.add(first);
+                }
+                if (!_skipNullValues) {
+                    _tryToAddNull(p, ctxt, builder);
+                }
+                return _finishWithBuilder(p, ctxt, builder);
             }
+            if (!hasFirst) {
+                first = value;
+                hasFirst = true;
+            } else {
+                ImmutableCollection.Builder<Object> builder = createBuilder();
+                builder.add(first);
+                builder.add(value);
+                return _finishWithBuilder(p, ctxt, builder);
+            }
+        }
 
-            builder.add(value);
+        if (!hasFirst) {
+            return _createEmpty(ctxt);
+        }
+        return _createWithSingleElement(ctxt, first);
+    }
+
+    private Object _deserializeSingleValue(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        if (p.currentToken() == JsonToken.VALUE_NULL) {
+            return _resolveNullToValue(ctxt);
+        }
+        return _valueTypeDeserializer == null
+            ? _valueDeserializer.deserialize(p, ctxt)
+            : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+    }
+
+    private T _finishWithBuilder(JsonParser p, DeserializationContext ctxt,
+            ImmutableCollection.Builder<Object> builder) throws JacksonException
+    {
+        while (p.nextToken() != JsonToken.END_ARRAY) {
+            Object value = _deserializeSingleValue(p, ctxt);
+            if (value == null) {
+                if (!_skipNullValues) {
+                    _tryToAddNull(p, ctxt, builder);
+                }
+            } else {
+                builder.add(value);
+            }
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
