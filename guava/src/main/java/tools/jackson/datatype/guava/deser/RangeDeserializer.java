@@ -216,7 +216,8 @@ public class RangeDeserializer
             if (upperBoundType == null) {
                 return ctxt.reportInputMismatch(getValueType(ctxt), String.format(
                         "'%s' field found, but not '%s'",
-                        _fieldNames.lowerEndpoint));
+                        _fieldNames.upperEndpoint,
+                        _fieldNames.upperBoundType));
             }
             return RangeFactory.upTo(upperEndpoint, upperBoundType);
         }
