@@ -34,3 +34,5 @@ PJ Fanning (@pjfanning)
 
 * Fixed #218: Fix input mismatch error message in `RangeDeserializer`
  [3.1.0]
+* Fixed #219: Improve error handling for number parsing
+ [3.1.0]
