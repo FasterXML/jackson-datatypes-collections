@@ -45,14 +45,8 @@ public class ImmutableSortedSetDeserializer
 
     @Override
     protected ImmutableSortedSet<Object> _createWithSingleElement(DeserializationContext ctxt, Object value) {
-        try {
-            return (ImmutableSortedSet<Object>) createBuilder()
-                    .add(value)
-                    .build();
-        } catch (ClassCastException e) {
-            return ctxt.reportInputMismatch(this,
-                    "Failed to build `ImmutableSortedSet` from single element: %s",
-                    e.getMessage());
-        }
+        return (ImmutableSortedSet<Object>) createBuilder()
+                .add(value)
+                .build();
     }
 }
