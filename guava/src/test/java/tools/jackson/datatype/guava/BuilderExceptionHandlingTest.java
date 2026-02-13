@@ -2,6 +2,7 @@ package tools.jackson.datatype.guava;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -122,6 +123,27 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         assertEquals("val1", result.get("row1", "col1"));
         assertEquals("val2", result.get("row1", "col2"));
         assertEquals("val3", result.get("row2", "col1"));
+    }
+
+    /**
+     * ImmutableRangeSet.Builder.build() throws IllegalArgumentException for overlapping ranges
+     */
+    @Test
+    public void testRangeSetOverlappingRangesHandling()
+    {
+        // Two overlapping ranges: [1,5] and [3,7]
+        String json = a2q("["
+                + "{'lowerEndpoint':1,'lowerBoundType':'CLOSED','upperEndpoint':5,'upperBoundType':'CLOSED'},"
+                + "{'lowerEndpoint':3,'lowerBoundType':'CLOSED','upperEndpoint':7,'upperBoundType':'CLOSED'}"
+                + "]");
+        try {
+            MAPPER.readValue(json, new TypeReference<ImmutableRangeSet<Integer>>() {});
+            fail("Should have thrown an exception for overlapping ranges");
+        } catch (MismatchedInputException e) {
+            String msg = e.getMessage();
+            assertTrue(msg.contains("Failed to build `RangeSet`"),
+                    "Error message should mention RangeSet build failure, got: " + msg);
+        }
     }
 
     /**
