@@ -36,3 +36,5 @@ PJ Fanning (@pjfanning)
  [3.1.0]
 * Fixed #219: (eclipse-collections) Improve error handling for number parsing
  [3.1.0]
+* Fixed #221: (guava) Add try catch for guava deserializers
+ [3.1.0]

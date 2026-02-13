@@ -14,9 +14,8 @@ import com.google.common.collect.TreeBasedTable;
  * @author Abhishekkr3003
  */
 public class TreeBasedTableDeserializer
-    extends MutableTableDeserializer<TreeBasedTable<Object, Object, Object>> {
-    private static final long serialVersionUID = 1L;
-    
+    extends MutableTableDeserializer<TreeBasedTable<Object, Object, Object>>
+{
     public TreeBasedTableDeserializer(MapLikeType type) {
         super(type);
     }

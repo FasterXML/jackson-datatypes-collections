@@ -1,7 +1,5 @@
 package tools.jackson.datatype.guava;
 
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -257,6 +255,7 @@ public class RangeMapsTest extends ModuleTestBase
 
     private RangeMap<String, String> _verifyRangeMapRead(TypeReference<?> type)
             throws Exception {
+        @SuppressWarnings("unchecked")
         RangeMap<String, String> map = (RangeMap<String, String>) MAPPER
                 .readValue("{\"(a..c]\":\"b\",\"(d..f]\":\"e\",\"(g..i]\":\"h\"}", type);
         assertEquals(3, map.asMapOfRanges().size());

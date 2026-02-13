@@ -88,7 +88,13 @@ public class RangeSetDeserializer
             Range<Comparable<?>> range = (Range<Comparable<?>>) ob;
             builder.add(range);
         }
-        return builder.build();
+        try {
+            return builder.build();
+        } catch (IllegalArgumentException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Failed to build `RangeSet` from deserialized entries: %s",
+                    e.getMessage());
+        }
     }
 
     /**
@@ -105,7 +111,7 @@ public class RangeSetDeserializer
             builder.add(null);
         } catch (NullPointerException e) {
             ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
-                    "Guava `RangeSet` does not accept `null` values");
+                    "`RangeSet` does not accept `null` values");
         }
     }
 }
