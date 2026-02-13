@@ -100,13 +100,11 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         try {
             MAPPER.readValue(json, ImmutableTable.class);
             fail("Should have thrown an exception for duplicate cells");
-        } catch (Exception e) {
-            // Expected - either during JSON parsing (duplicate key in JSON)
-            // or during build() if it gets that far
+        } catch (MismatchedInputException e) {
+            // Expected - during build() if it gets that far (test does not enable
+            // duplicate detection)
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build ImmutableTable") 
-                    || msg.contains("duplicate") 
-                    || msg.contains("Duplicate"),
+            assertTrue(msg.contains("Failed to build ImmutableTable"),
                     "Error message should indicate build failure or duplicate, got: " + msg);
         }
     }
