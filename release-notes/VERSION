@@ -12,6 +12,9 @@ Modules:
 
 3.1.0 (not yet released)
 
+#211: (guava) `GuavaMultimapDeserializer` does not respect
+  `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
+ (reported by Alexander N)
 #215: (guava) Add special handling for 0 and 1 size Guava immutable collections
  (contributed by Oliver G)
 #218: (guava) Fix input mismatch error message in `RangeDeserializer`
@@ -20,12 +23,7 @@ Modules:
  (fixed by @pjfanning)
 #221: (guava) Add try catch for guava deserializers
  (fixed by @pjfanning)
-
-3.1.0-rc1 (26-Jan-2026)
-
-#211: (guava) `GuavaMultimapDeserializer` does not respect
-  `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
- (reported by Alexander N)
+- (guava) Update "preferred" Guava version to 33.5.0-jre (from 33.4.8-jre)
 
 3.0.4 (21-Jan-2026)
 

@@ -12,10 +12,6 @@ on:
 permissions:
   contents: read
 
-env:
-  GUAVA_DEFAULT: '33.4.8-jre'
-  GUAVA_MIN: '25.1-jre'
-  GUAVA_MAX: '33.4.8-jre'
 jobs:
   build:
     runs-on: 'ubuntu-24.04'
@@ -23,11 +19,12 @@ jobs:
       fail-fast: false
       matrix:
         java_version: ['17', '21', '25']
-        guava_version: [ $GUAVA_DEFAULT, $GUAVA_MIN, $GUAVA_MAX ]
+	# Note: first is MIN, second DEFAULT/MAX
+        guava_version: ['25.1-jre', '33.5.0-jre']
         # Indicate combination for which Snapshot build enabled
         include:
           - java_version: '17'
-            guava_version: $GUAVA_DEFAULT
+            guava_version: '33.5.0-jre'
             snapshot: 1
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
