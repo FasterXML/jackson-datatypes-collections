@@ -57,4 +57,8 @@ public abstract class ModuleTestBase
             assertInstanceOf(type, value);
         }
     }
+
+    protected String a2q(String json) {
+        return json.replace("'", "\"");
+    }
 }

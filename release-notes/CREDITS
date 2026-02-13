@@ -32,5 +32,7 @@ Oliver Gillespie (@olivergillespie)
 
 PJ Fanning (@pjfanning)
 
-* Fixed #218: Fix input mismatch error message in `RangeDeserializer`
+* Fixed #218: (guava) Fix input mismatch error message in `RangeDeserializer`
+ [3.1.0]
+* Fixed #219: (eclipse-collections) Improve error handling for number parsing
  [3.1.0]

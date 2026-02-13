@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['17', '21', '24']
+        java_version: ['17', '21', '25']
         guava_version: [ $GUAVA_DEFAULT, $GUAVA_MIN, $GUAVA_MAX ]
         # Indicate combination for which Snapshot build enabled
         include:
