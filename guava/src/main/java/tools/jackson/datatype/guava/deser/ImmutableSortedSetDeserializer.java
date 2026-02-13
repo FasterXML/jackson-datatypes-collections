@@ -49,9 +49,9 @@ public class ImmutableSortedSetDeserializer
             return (ImmutableSortedSet<Object>) createBuilder()
                     .add(value)
                     .build();
-        } catch (RuntimeException e) {
+        } catch (ClassCastException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build ImmutableSortedSet from single element: %s",
+                    "Failed to build `ImmutableSortedSet` from single element: %s",
                     e.getMessage());
         }
     }

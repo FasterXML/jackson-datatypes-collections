@@ -110,9 +110,9 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
             @SuppressWarnings("unchecked")
             T collection = (T) builder.build();
             return collection;
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | ClassCastException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build ImmutableCollection from deserialized entries: %s",
+                    "Failed to build `ImmutableCollection` from deserialized entries: %s",
                     e.getMessage());
         }
     }

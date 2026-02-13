@@ -16,7 +16,7 @@ import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.databind.type.CollectionLikeType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.ReferenceType;
-import tools.jackson.databind.ser.std.StdDelegatingSerializer;
+import tools.jackson.databind.ser.std.StdConvertingSerializer;
 import tools.jackson.databind.util.StdConverter;
 import tools.jackson.datatype.guava.ser.*;
 import tools.jackson.datatype.guava.ser.primitives.ImmutableDoubleArraySerializer;
@@ -92,7 +92,7 @@ public class GuavaSerializers extends Serializers.Base
         }
         if (type.isTypeOrSubTypeOf(FluentIterable.class)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
-            return new StdDelegatingSerializer(FluentConverter.instance, iterableType, null, null);
+            return new StdConvertingSerializer(FluentConverter.instance, iterableType, null, null);
         }
         if (type.isTypeOrSubTypeOf(ImmutableIntArray.class)) {
             return new ImmutableIntArraySerializer();

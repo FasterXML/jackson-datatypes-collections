@@ -72,9 +72,9 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             @SuppressWarnings("unchecked")
             T map = (T) builder.build();
             return map;
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException | ClassCastException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build ImmutableMap from deserialized entries: %s",
+                    "Failed to build `ImmutableMap` from deserialized entries: %s",
                     e.getMessage());
         }
     }

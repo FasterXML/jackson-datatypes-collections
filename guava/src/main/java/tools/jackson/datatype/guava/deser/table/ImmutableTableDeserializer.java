@@ -102,9 +102,9 @@ public class ImmutableTableDeserializer
         }
         try {
             return table.build();
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build ImmutableTable from deserialized entries: %s",
+                    "Failed to build `ImmutableTable` from deserialized entries: %s",
                     e.getMessage());
         }
     }

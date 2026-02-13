@@ -63,7 +63,7 @@ public class RangeSetTest extends ModuleTestBase {
                     new TypeReference<ImmutableRangeSet<Integer>>() {});
             fail("Should not pass, got: "+rs);
         } catch (MismatchedInputException e) {
-            verifyException(e, "Guava `RangeSet` does not accept `null` values");
+            verifyException(e, "`RangeSet` does not accept `null` values");
         }
     }
 }

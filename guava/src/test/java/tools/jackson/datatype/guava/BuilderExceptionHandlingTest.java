@@ -31,7 +31,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         } catch (MismatchedInputException e) {
             // Expected - should contain meaningful error message
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build ImmutableMap") || msg.contains("duplicate"),
+            assertTrue(msg.contains("Failed to build `ImmutableMap`"),
                     "Error message should mention ImmutableMap build failure or duplicate keys, got: " + msg);
         }
     }
@@ -48,8 +48,8 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             fail("Should have thrown an exception for duplicate keys");
         } catch (MismatchedInputException e) {
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build ImmutableMap") || msg.contains("duplicate"),
-                    "Error message should mention build failure or duplicate, got: " + msg);
+            assertTrue(msg.contains("Failed to build `ImmutableMap`"),
+                    "Error message should mention build failure, got: " + msg);
         }
     }
 
@@ -66,7 +66,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             fail("Should have thrown an exception for duplicate keys");
         } catch (MismatchedInputException e) {
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build ImmutableMap") || msg.contains("duplicate"),
+            assertTrue(msg.contains("Failed to build `ImmutableMap`"),
                     "Error message should mention build failure or duplicate, got: " + msg);
         }
     }
@@ -104,7 +104,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             // Expected - during build() if it gets that far (test does not enable
             // duplicate detection)
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build ImmutableTable"),
+            assertTrue(msg.contains("Failed to build `ImmutableTable`"),
                     "Error message should indicate build failure or duplicate, got: " + msg);
         }
     }
