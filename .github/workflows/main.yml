@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         java_version: ['17', '21', '25']
-	# Note: first is MIN, second DEFAULT/MAX
+        # Note: first is MIN, second DEFAULT/MAX
         guava_version: ['25.1-jre', '33.5.0-jre']
         # Indicate combination for which Snapshot build enabled
         include:
