@@ -200,7 +200,14 @@ public class RangeDeserializer
                     _fieldNames.upperEndpoint,
                     _fieldNames.upperBoundType));
             }
-            return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
+            try {
+                return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
+            } catch (IllegalArgumentException iae) {
+                return ctxt.reportInputMismatch(this,
+                        "Failed to construct `Range` from (%s/'%s', %s/'%s'): %s",
+                        lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType,
+                        iae.getMessage());
+            }
         }
 
         if (lowerEndpoint != null) {

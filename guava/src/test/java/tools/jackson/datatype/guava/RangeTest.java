@@ -372,4 +372,21 @@ public class RangeTest extends ModuleTestBase
         assertEquals(BoundType.CLOSED, result.lowerBoundType());
         assertEquals(BoundType.CLOSED, result.upperBoundType());
     }
+
+    // error case from OSS-Fuzz: https://issues.oss-fuzz.com/u/1/issues/469521785?pli=1
+    @Test
+    public void testWrongOrdering() throws Exception
+    {
+        String json = a2q("{'lowerEndpoint': 32, 'lowerBoundType': 'OPEN', 'upperEndpoint': 0, 'upperBoundType': 'OPEN'}");
+
+        try {
+            MAPPER.readValue(json, Range.class);
+            fail("Should have failed");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Failed to construct `Range`");
+            verifyException(e, "from (32/'open', 0/'open')");
+            verifyException(e, "Invalid range: (32..0)");
+        }
+    }
+
 }

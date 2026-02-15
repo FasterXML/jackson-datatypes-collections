@@ -23,6 +23,8 @@ Modules:
  (fixed by @pjfanning)
 #221: (guava) Add try catch for guava deserializers
  (fixed by @pjfanning)
+#223: (guava) Catch and re-throw `IllegalArgumentException` for `Range`
+  construction
 - (guava) Update "preferred" Guava version to 33.5.0-jre (from 33.4.8-jre)
 
 3.0.4 (21-Jan-2026)
