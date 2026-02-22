@@ -39,6 +39,10 @@ No changes since 2.19.1
 #174: Unify testing structure/tools [JSTEP-10]
  (contributed by Joo-Hyuk K)
 
+2.18.6 (22-Feb-2026)
+
+No changes since 2.18.5
+
 2.18.5 (27-Oct-2025)
 
 #185: `ACCEPT_SINGLE_VALUE_AS_ARRAY` doesn't work on Guava `ImmutableList`
