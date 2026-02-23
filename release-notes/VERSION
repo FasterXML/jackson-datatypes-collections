@@ -10,7 +10,7 @@ Modules:
 === Releases ===
 ------------------------------------------------------------------------
 
-3.1.0 (not yet released)
+3.1.0 (23-Feb-2026)
 
 #211: (guava) `GuavaMultimapDeserializer` does not respect
   `JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
