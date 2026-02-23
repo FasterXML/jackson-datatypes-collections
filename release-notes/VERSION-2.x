@@ -21,6 +21,10 @@ Active Maintainers:
 #157: Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
  (contributed by Patrick S)
 
+2.21.1 (22-Feb-2026)
+
+No changes since 2.21.0
+
 2.21.0 (18-Jan-2026)
 
 #195: (guava) Add support for `RangeMap` class
