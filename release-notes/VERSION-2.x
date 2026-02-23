@@ -21,6 +21,10 @@ Active Maintainers:
 #157: Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
  (contributed by Patrick S)
 
+2.21.1 (22-Feb-2026)
+
+No changes since 2.21.0
+
 2.21.0 (18-Jan-2026)
 
 #195: (guava) Add support for `RangeMap` class
@@ -29,6 +33,7 @@ Active Maintainers:
   deserialization
  (contributed by Nicolas B)
 
+2.20.2 (19-Jan-2026)
 2.20.1 (30-Oct-2025)
 
 No changes since 2.20.0
@@ -56,6 +61,10 @@ No changes since 2.19.1
  (contributed by Abhishek K)
 #174: Unify testing structure/tools [JSTEP-10]
  (contributed by Joo-Hyuk K)
+
+2.18.6 (22-Feb-2026)
+
+No changes since 2.18.5
 
 2.18.5 (27-Oct-2025)
 
