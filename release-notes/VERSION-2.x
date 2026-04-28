@@ -21,6 +21,7 @@ Active Maintainers:
 #157: Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
  (contributed by Patrick S)
 
+2.21.3 (28-Apr-2026)
 2.21.2 (20-Mar-2026)
 2.21.1 (22-Feb-2026)
 
