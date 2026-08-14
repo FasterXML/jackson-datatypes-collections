@@ -8,7 +8,7 @@
   <groupId>tools.jackson.datatype</groupId>
   <artifactId>jackson-datatypes-collections</artifactId>
   <name>Jackson datatypes: collections</name>
-  <version>3.1.6-SNAPSHOT</version>
+  <version>3.1.6</version>
   <packaging>pom</packaging>
   <description>Parent pom for Jackson Collection datatype modules.
   </description>
@@ -25,12 +25,12 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-datatypes-collections.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatypes-collections.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-datatypes-collections</url>    
-    <tag>HEAD</tag>
+    <tag>jackson-datatypes-collections-3.1.6</tag>
   </scm>
 
   <properties>
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2026-07-08T01:50:08Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-08-14T20:38:35Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
