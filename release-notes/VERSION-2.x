@@ -30,6 +30,7 @@ No changes since 2.22.0
 #157: Add support for Guava `ImmutableIntArray` / `ImmutableDoubleArray`
  (contributed by Patrick S)
 
+2.21.7 (21-Sep-2026)
 2.21.6 (14-Aug-2026)
 2.21.5 (06-Jul-2026)
 2.21.4 (28-May-2026)
@@ -76,6 +77,7 @@ No changes since 2.19.1
 #174: Unify testing structure/tools [JSTEP-10]
  (contributed by Joo-Hyuk K)
 
+2.18.11 (20-Sep-2026)
 2.18.10 (15-Aug-2026)
 2.18.9 (07-Jul-2026)
 2.18.8 (28-May-2026)
