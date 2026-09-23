@@ -44,6 +44,12 @@ public class PCollectionsDeserializers
             if (raw.isAssignableFrom(MapPBag.class)) {
                 return new HashTreePBagDeserializer(type, elementTypeDeserializer, elementDeserializer);
             }
+            if (raw.isAssignableFrom(TreePSet.class)) {
+                return new TreePSetDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            }
+            if (raw.isAssignableFrom(AmortizedPQueue.class)) {
+                return new AmortizedPQueueDeserializer(type, elementTypeDeserializer, elementDeserializer);
+            }
         }
         return null;
     }
@@ -59,6 +65,12 @@ public class PCollectionsDeserializers
         if (PMap.class.isAssignableFrom(raw)) {
             if (raw.isAssignableFrom(HashPMap.class)) {
                 return new HashTreePMapDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            }
+            if (raw.isAssignableFrom(TreePMap.class)) {
+                return new TreePMapDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            }
+            if (raw.isAssignableFrom(OrderedPMap.class)) {
+                return new OrderedPMapDeserializer(type, keyDeserializer, elementTypeDeserializer, elementDeserializer);
             }
         }
 

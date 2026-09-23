@@ -232,4 +232,85 @@ public class TestPCollections extends ModuleTestBase
         assertEquals(Integer.valueOf(2), map.get("b"));
     }
 
+    @Test
+    public void pSortedSet() throws Exception
+    {
+        PSortedSet<Integer> set = MAPPER.readValue("[3,1,2,1]", new TypeReference<PSortedSet<Integer>>() { });
+        assertEquals(TreePSet.class, set.getClass());
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(set.toArray()));
+    }
+
+    @Test
+    public void treePSet() throws Exception
+    {
+        TreePSet<String> set = MAPPER.readValue("[\"c\",\"a\",\"b\"]", new TypeReference<TreePSet<String>>() { });
+        assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(set.toArray()));
+        assertEquals("a", set.first());
+        assertEquals("c", set.last());
+    }
+
+    @Test
+    public void pQueue() throws Exception
+    {
+        PQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<PQueue<Integer>>() { });
+        assertEquals(AmortizedPQueue.class, queue.getClass());
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
+        assertEquals(Integer.valueOf(1), queue.peek());
+    }
+
+    @Test
+    public void amortizedPQueue() throws Exception
+    {
+        AmortizedPQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<AmortizedPQueue<Integer>>() { });
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
+        assertEquals(Arrays.asList(2, 3), Arrays.asList(queue.minus().toArray()));
+    }
+
+    @Test
+    public void pSortedMap() throws Exception
+    {
+        PSortedMap<String, Integer> map = MAPPER.readValue("{\"b\":2,\"c\":3,\"a\":1}", new TypeReference<PSortedMap<String, Integer>>() { });
+        assertEquals(TreePMap.class, map.getClass());
+        assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(map.keySet().toArray()));
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(map.values().toArray()));
+    }
+
+    @Test
+    public void treePMap() throws Exception
+    {
+        TreePMap<Integer, Boolean> map = MAPPER.readValue("{\"10\":true,\"2\":false}", new TypeReference<TreePMap<Integer, Boolean>>() { });
+        assertEquals(Arrays.asList(2, 10), Arrays.asList(map.keySet().toArray()));
+        assertEquals(Boolean.FALSE, map.get(2));
+        assertEquals(Boolean.TRUE, map.get(10));
+    }
+
+    @Test
+    public void orderedPMap() throws Exception
+    {
+        OrderedPMap<String, Integer> map = MAPPER.readValue("{\"c\":3,\"a\":1,\"b\":2}", new TypeReference<OrderedPMap<String, Integer>>() { });
+        assertEquals(Arrays.asList("c", "a", "b"), Arrays.asList(map.keySet().toArray()));
+        assertEquals(Arrays.asList(3, 1, 2), Arrays.asList(map.values().toArray()));
+    }
+
+    @Test
+    public void newTypesRoundTrip() throws Exception
+    {
+        _verifyRoundTrip(TreePSet.from(Arrays.asList(3, 1, 2)),
+                new TypeReference<TreePSet<Integer>>() { });
+        _verifyRoundTrip(AmortizedPQueue.<Integer>empty().plus(1).plus(2),
+                new TypeReference<AmortizedPQueue<Integer>>() { });
+        _verifyRoundTrip(TreePMap.singleton("b", 2).plus("a", 1),
+                new TypeReference<TreePMap<String, Integer>>() { });
+        _verifyRoundTrip(OrderedPMap.<String, Integer>empty().plus("b", 2).plus("a", 1),
+                new TypeReference<OrderedPMap<String, Integer>>() { });
+    }
+
+    private void _verifyRoundTrip(Object value, TypeReference<?> type) throws Exception
+    {
+        String json = MAPPER.writeValueAsString(value);
+        Object result = MAPPER.readValue(json, type);
+        assertEquals(value.getClass(), result.getClass());
+        assertEquals(json, MAPPER.writeValueAsString(result));
+    }
+
 }
