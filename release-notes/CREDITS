@@ -39,14 +39,8 @@ PJ Fanning (@pjfanning)
 * Fixed #221: (guava) Add try catch for guava deserializers
  [3.1.0]
 
-Mateusz Bajorek (@mateusz-bajorek)
-
-* Reported #35: (pcollections) Add deserializers for `TreePSet`, `TreePMap`,
-  `OrderedPMap` and `AmortizedPQueue`
- [3.3.0]
-
 Vanya (@vanyamanko)
 
-* Contributed fix for #35: (pcollections) Add deserializers for `TreePSet`,
-  `TreePMap`, `OrderedPMap` and `AmortizedPQueue`
+* Contributed #229: (pcollections) Add deserializers for PCollection `TreePSet`,
+  `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
