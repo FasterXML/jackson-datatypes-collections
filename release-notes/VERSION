@@ -12,7 +12,10 @@ Modules:
 
 3.3.0 (not yet released)
 
-No changes since 3.2
+#35: (pcollections) Add deserializers for `TreePSet`, `TreePMap`, `OrderedPMap`
+  and `AmortizedPQueue`
+ (reported by Mateusz B)
+ (fix contributed by Vanya M)
 
 3.2.3 (21-Sep-2026)
 
