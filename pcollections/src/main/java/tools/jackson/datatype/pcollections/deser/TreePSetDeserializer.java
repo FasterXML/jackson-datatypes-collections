@@ -1,5 +1,7 @@
 package tools.jackson.datatype.pcollections.deser;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.CollectionType;
@@ -25,5 +27,15 @@ public class TreePSetDeserializer extends
     protected TreePSet<Object> createEmptyCollection() {
         // Natural ordering: elements must be `Comparable`
         return (TreePSet) TreePSet.empty();
+    }
+
+    // `TreePSet` does not accept `null` elements
+    @Override
+    protected Object _nullElement(DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return ctxt.reportInputMismatch(this,
+                "Cannot deserialize `null` element into %s: `null` elements not allowed",
+                _containerType);
     }
 }

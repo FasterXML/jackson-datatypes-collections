@@ -131,7 +131,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
             Object value;
 
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = _nullElement(ctxt);
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
@@ -145,6 +145,18 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         return collection;
     }
 
+    /**
+     * Method called to get the value to add for a JSON {@code null} element.
+     * Default implementation returns {@code null}; sub-classes for collection
+     * types that do not accept {@code null} elements should override this
+     * to report an error.
+     */
+    protected Object _nullElement(DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return null;
+    }
+
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
@@ -155,7 +167,7 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = null;
+            value = _nullElement(ctxt);
         } else if (typeDeser == null) {
             value = valueDes.deserialize(p, ctxt);
         } else {

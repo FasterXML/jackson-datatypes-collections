@@ -6,8 +6,10 @@ import java.util.Iterator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.type.TypeReference;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import org.pcollections.*;
 
@@ -247,6 +249,27 @@ public class TestPCollections extends ModuleTestBase
         assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(set.toArray()));
         assertEquals("a", set.first());
         assertEquals("c", set.last());
+    }
+
+    @Test
+    public void treePSetWithNullElement() throws Exception
+    {
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[1,null]", new TypeReference<TreePSet<Integer>>() { }));
+        assertTrue(e.getMessage().contains("`null` elements not allowed"), e.getMessage());
+
+        e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[null]", new TypeReference<PSortedSet<Integer>>() { }));
+        assertTrue(e.getMessage().contains("`null` elements not allowed"), e.getMessage());
+
+        // and same with single-value-as-array
+        ObjectMapper mapper = mapperWithModule().rebuild()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        TreePSet<Integer> set = mapper.readValue("7", new TypeReference<TreePSet<Integer>>() { });
+        assertEquals(Arrays.asList(7), Arrays.asList(set.toArray()));
+        // but plain JSON `null` is still `null` collection, not an element
+        assertNull(mapper.readValue("null", new TypeReference<TreePSet<Integer>>() { }));
     }
 
     @Test
