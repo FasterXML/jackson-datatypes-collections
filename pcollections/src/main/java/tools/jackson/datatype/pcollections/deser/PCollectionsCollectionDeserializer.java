@@ -9,6 +9,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.ClassUtil;
 
 import org.pcollections.PCollection;
 
@@ -131,18 +132,27 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
             Object value;
 
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = _nullElement(ctxt);
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            // .plus is always overridden to return the correct subclass
-            @SuppressWarnings("unchecked")
-            T newCollection = (T) collection.plus(value);
-            collection = newCollection;
+            collection = _plus(ctxt, collection, value);
         }
         return collection;
+    }
+
+    /**
+     * Method called to get the value to add for a JSON {@code null} element.
+     * Default implementation returns {@code null}; sub-classes for collection
+     * types that do not accept {@code null} elements should override this
+     * to report an error.
+     */
+    protected Object _nullElement(DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return null;
     }
 
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
@@ -155,14 +165,33 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         Object value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = null;
+            value = _nullElement(ctxt);
         } else if (typeDeser == null) {
             value = valueDes.deserialize(p, ctxt);
         } else {
             value = valueDes.deserializeWithType(p, ctxt, typeDeser);
         }
-        @SuppressWarnings("unchecked")
-        T result = (T) createEmptyCollection().plus(value);
-        return result;
+        return _plus(ctxt, createEmptyCollection(), value);
+    }
+
+    /**
+     * Helper method for adding given value in collection: needed to convert
+     * {@link ClassCastException} (thrown by sorted collections like
+     * {@link org.pcollections.TreePSet} for non-{@code Comparable} elements)
+     * into Jackson exception.
+     */
+    protected T _plus(DeserializationContext ctxt, T collection, Object value)
+        throws JacksonException
+    {
+        try {
+            // .plus is always overridden to return the correct subclass
+            @SuppressWarnings("unchecked")
+            T newCollection = (T) collection.plus(value);
+            return newCollection;
+        } catch (ClassCastException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Cannot add element of type %s into %s: %s",
+                    ClassUtil.classNameOf(value), _containerType, e.getMessage());
+        }
     }
 }

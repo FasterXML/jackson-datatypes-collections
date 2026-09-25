@@ -6,8 +6,10 @@ import java.util.Iterator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.type.TypeReference;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import org.pcollections.*;
 
@@ -230,6 +232,135 @@ public class TestPCollections extends ModuleTestBase
         assertEquals(2, map.size());
         assertEquals(Integer.valueOf(1), map.get("a"));
         assertEquals(Integer.valueOf(2), map.get("b"));
+    }
+
+    @Test
+    public void pSortedSet() throws Exception
+    {
+        PSortedSet<Integer> set = MAPPER.readValue("[3,1,2,1]", new TypeReference<PSortedSet<Integer>>() { });
+        assertEquals(TreePSet.class, set.getClass());
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(set.toArray()));
+    }
+
+    @Test
+    public void treePSet() throws Exception
+    {
+        TreePSet<String> set = MAPPER.readValue("[\"c\",\"a\",\"b\"]", new TypeReference<TreePSet<String>>() { });
+        assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(set.toArray()));
+        assertEquals("a", set.first());
+        assertEquals("c", set.last());
+    }
+
+    static class NonComparable {
+        public int x;
+    }
+
+    @Test
+    public void treePSetWithNonComparableElements() throws Exception
+    {
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[1,\"a\"]", new TypeReference<TreePSet<Object>>() { }));
+        assertTrue(e.getMessage().contains("Cannot add element of type"), e.getMessage());
+
+        e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[{\"x\":1},{\"x\":2}]",
+                        new TypeReference<PSortedSet<NonComparable>>() { }));
+        assertTrue(e.getMessage().contains("Cannot add element of type"), e.getMessage());
+    }
+
+    @Test
+    public void treePSetWithNullElement() throws Exception
+    {
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[1,null]", new TypeReference<TreePSet<Integer>>() { }));
+        assertTrue(e.getMessage().contains("`null` elements not allowed"), e.getMessage());
+
+        e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[null]", new TypeReference<PSortedSet<Integer>>() { }));
+        assertTrue(e.getMessage().contains("`null` elements not allowed"), e.getMessage());
+
+        // and same with single-value-as-array
+        ObjectMapper mapper = mapperWithModule().rebuild()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        TreePSet<Integer> set = mapper.readValue("7", new TypeReference<TreePSet<Integer>>() { });
+        assertEquals(Arrays.asList(7), Arrays.asList(set.toArray()));
+        // but plain JSON `null` is still `null` collection, not an element
+        assertNull(mapper.readValue("null", new TypeReference<TreePSet<Integer>>() { }));
+    }
+
+    @Test
+    public void pQueue() throws Exception
+    {
+        PQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<PQueue<Integer>>() { });
+        assertEquals(AmortizedPQueue.class, queue.getClass());
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
+        assertEquals(Integer.valueOf(1), queue.peek());
+    }
+
+    @Test
+    public void amortizedPQueue() throws Exception
+    {
+        AmortizedPQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<AmortizedPQueue<Integer>>() { });
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
+        assertEquals(Arrays.asList(2, 3), Arrays.asList(queue.minus().toArray()));
+    }
+
+    @Test
+    public void treePMapWithNonComparableKeys() throws Exception
+    {
+        // `Locale` has key deserializer but is not `Comparable`
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("{\"en\":1,\"fi\":2}",
+                        new TypeReference<TreePMap<java.util.Locale, Integer>>() { }));
+        assertTrue(e.getMessage().contains("Cannot add key of type"), e.getMessage());
+    }
+
+    @Test
+    public void pSortedMap() throws Exception
+    {
+        PSortedMap<String, Integer> map = MAPPER.readValue("{\"b\":2,\"c\":3,\"a\":1}", new TypeReference<PSortedMap<String, Integer>>() { });
+        assertEquals(TreePMap.class, map.getClass());
+        assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(map.keySet().toArray()));
+        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(map.values().toArray()));
+    }
+
+    @Test
+    public void treePMap() throws Exception
+    {
+        TreePMap<Integer, Boolean> map = MAPPER.readValue("{\"10\":true,\"2\":false}", new TypeReference<TreePMap<Integer, Boolean>>() { });
+        assertEquals(Arrays.asList(2, 10), Arrays.asList(map.keySet().toArray()));
+        assertEquals(Boolean.FALSE, map.get(2));
+        assertEquals(Boolean.TRUE, map.get(10));
+    }
+
+    @Test
+    public void orderedPMap() throws Exception
+    {
+        OrderedPMap<String, Integer> map = MAPPER.readValue("{\"c\":3,\"a\":1,\"b\":2}", new TypeReference<OrderedPMap<String, Integer>>() { });
+        assertEquals(Arrays.asList("c", "a", "b"), Arrays.asList(map.keySet().toArray()));
+        assertEquals(Arrays.asList(3, 1, 2), Arrays.asList(map.values().toArray()));
+    }
+
+    @Test
+    public void newTypesRoundTrip() throws Exception
+    {
+        _verifyRoundTrip(TreePSet.from(Arrays.asList(3, 1, 2)),
+                new TypeReference<TreePSet<Integer>>() { });
+        _verifyRoundTrip(AmortizedPQueue.<Integer>empty().plus(1).plus(2),
+                new TypeReference<AmortizedPQueue<Integer>>() { });
+        _verifyRoundTrip(TreePMap.singleton("b", 2).plus("a", 1),
+                new TypeReference<TreePMap<String, Integer>>() { });
+        _verifyRoundTrip(OrderedPMap.<String, Integer>empty().plus("b", 2).plus("a", 1),
+                new TypeReference<OrderedPMap<String, Integer>>() { });
+    }
+
+    private void _verifyRoundTrip(Object value, TypeReference<?> type) throws Exception
+    {
+        String json = MAPPER.writeValueAsString(value);
+        Object result = MAPPER.readValue(json, type);
+        assertEquals(value.getClass(), result.getClass());
+        assertEquals(json, MAPPER.writeValueAsString(result));
     }
 
 }
