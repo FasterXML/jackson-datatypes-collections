@@ -7,6 +7,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.MapType;
+import tools.jackson.databind.util.ClassUtil;
 
 import org.pcollections.PMap;
 
@@ -158,9 +159,7 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            @SuppressWarnings("unchecked")
-            T newMap = (T) map.plus(key, value);
-            map = newMap;
+            map = _plus(ctxt, map, key, value);
         }
         return map;
     }
@@ -180,11 +179,29 @@ public abstract class PCollectionsMapDeserializer<T extends PMap<Object, Object>
         // Actually, first, see if there's an alternative to Java null
         Object nvl = valueDeser.getNullValue(ctxt);
         if (nvl != null) {
-            @SuppressWarnings("unchecked")
-            T newMap = (T) map.plus(key, nvl);
-            return newMap;
+            return _plus(ctxt, map, key, nvl);
         } else {
             return map;
+        }
+    }
+
+    /**
+     * Helper method for adding given entry in map: needed to convert
+     * {@link ClassCastException} (thrown by sorted maps like
+     * {@link org.pcollections.TreePMap} for non-{@code Comparable} keys)
+     * into Jackson exception.
+     */
+    protected T _plus(DeserializationContext ctxt, T map, Object key, Object value)
+        throws JacksonException
+    {
+        try {
+            @SuppressWarnings("unchecked")
+            T newMap = (T) map.plus(key, value);
+            return newMap;
+        } catch (ClassCastException e) {
+            return ctxt.reportInputMismatch(this,
+                    "Cannot add key of type %s into %s: %s",
+                    ClassUtil.classNameOf(key), _mapType, e.getMessage());
         }
     }
 }

@@ -251,6 +251,23 @@ public class TestPCollections extends ModuleTestBase
         assertEquals("c", set.last());
     }
 
+    static class NonComparable {
+        public int x;
+    }
+
+    @Test
+    public void treePSetWithNonComparableElements() throws Exception
+    {
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[1,\"a\"]", new TypeReference<TreePSet<Object>>() { }));
+        assertTrue(e.getMessage().contains("Cannot add element of type"), e.getMessage());
+
+        e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[{\"x\":1},{\"x\":2}]",
+                        new TypeReference<PSortedSet<NonComparable>>() { }));
+        assertTrue(e.getMessage().contains("Cannot add element of type"), e.getMessage());
+    }
+
     @Test
     public void treePSetWithNullElement() throws Exception
     {
@@ -287,6 +304,16 @@ public class TestPCollections extends ModuleTestBase
         AmortizedPQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<AmortizedPQueue<Integer>>() { });
         assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
         assertEquals(Arrays.asList(2, 3), Arrays.asList(queue.minus().toArray()));
+    }
+
+    @Test
+    public void treePMapWithNonComparableKeys() throws Exception
+    {
+        // `Locale` has key deserializer but is not `Comparable`
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("{\"en\":1,\"fi\":2}",
+                        new TypeReference<TreePMap<java.util.Locale, Integer>>() { }));
+        assertTrue(e.getMessage().contains("Cannot add key of type"), e.getMessage());
     }
 
     @Test
