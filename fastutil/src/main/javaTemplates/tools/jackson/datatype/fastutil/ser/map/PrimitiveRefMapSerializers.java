@@ -35,10 +35,10 @@ public final class PrimitiveRefMapSerializers
         @Override
         protected void serializeEntries(Char2ObjectMap<V> value, JsonGenerator g, SerializationContext ctxt) {
             Char2ObjectMaps.fastForEach(value, e -> {
-                /* if char|float|double key */
+                /* if !(int|long key) */
                 g.writeName(String.valueOf(e.getCharKey()));
-                /* elif !(char|float|double key) //
-                // avoids allocating a String per key
+                /* elif int|long key //
+                // as Jackson does for `Integer` and `Long` keys of `java.util.Map`s
                 g.writePropertyId(e.getCharKey());
                 // endif */
                 V v = e.getValue();

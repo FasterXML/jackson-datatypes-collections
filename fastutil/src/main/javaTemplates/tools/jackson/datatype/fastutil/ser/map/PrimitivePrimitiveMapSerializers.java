@@ -44,11 +44,11 @@ public final class PrimitivePrimitiveMapSerializers {
                 protected void serializeEntries(Byte2ShortMap value, JsonGenerator g, SerializationContext ctxt)
                 {
                     Byte2ShortMaps.fastForEach(value, e -> {
-                        /* if !(char|float|double key) */
-                        // avoids allocating a String per key
-                        g.writePropertyId(e.getByteKey());
-                        /* elif char|float|double key //
+                        /* if !(int|long key) */
                         g.writeName(String.valueOf(e.getByteKey()));
+                        /* elif int|long key //
+                        // as Jackson does for `Integer` and `Long` keys of `java.util.Map`s
+                        g.writePropertyId(e.getByteKey());
                         // endif */
                         /* if !(char|boolean value) */
                         g.writeNumber(e.getShortValue());
