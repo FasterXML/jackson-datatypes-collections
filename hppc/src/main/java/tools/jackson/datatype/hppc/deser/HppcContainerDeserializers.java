@@ -16,7 +16,7 @@ public class HppcContainerDeserializers
      * override of definitions by app code (by using ObjectMapper resolution)
      */
     protected final static HashMap<Class<?>, Class<?>> _concreteMapping =
-        new HashMap<Class<?>, Class<?>>();
+        new HashMap<>();
     static {
         // int:
         _concreteMapping.put(IntContainer.class, IntArrayList.class);
