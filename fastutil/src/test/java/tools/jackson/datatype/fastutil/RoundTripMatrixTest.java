@@ -71,6 +71,25 @@ public class RoundTripMatrixTest extends ModuleTestBase
         assertEquals(71 * 7, mapTypes().count());
     }
 
+    // Handlers for types that may be missing at runtime (as with `fastutil-core`) are
+    // registered so that missing classes are skipped: verify none are skipped here,
+    // since falling back to standard Jackson handling would not always be noticed
+    @ParameterizedTest(name = "{1}")
+    @MethodSource("collectionTypes")
+    void testCollectionHandlersRegistered(String primitive, Class<?> type)
+    {
+        assertThat(findModuleSerializer(MAPPER, type)).isNotNull();
+        assertThat(findModuleDeserializer(MAPPER, type)).isNotNull();
+    }
+
+    @ParameterizedTest(name = "{2}")
+    @MethodSource("mapTypes")
+    void testMapHandlersRegistered(String key, String value, Class<?> type)
+    {
+        assertThat(findModuleSerializer(MAPPER, type)).isNotNull();
+        assertThat(findModuleDeserializer(MAPPER, type)).isNotNull();
+    }
+
     @ParameterizedTest(name = "{1}")
     @MethodSource("collectionTypes")
     void testCollectionRoundTrip(String primitive, Class<?> type) throws Exception

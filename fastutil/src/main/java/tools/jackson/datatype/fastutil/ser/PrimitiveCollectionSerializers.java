@@ -1,6 +1,9 @@
 package tools.jackson.datatype.fastutil.ser;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Supplier;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -14,6 +17,7 @@ import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.ser.PrimitiveIterableSerializer;
 
 import it.unimi.dsi.fastutil.booleans.BooleanCollection;
@@ -45,35 +49,37 @@ public final class PrimitiveCollectionSerializers
 
     private PrimitiveCollectionSerializers() { }
 
+    // Collection types missing from `fastutil-core` (a subset of `fastutil`, without
+    // `boolean` or `byte` collections) are skipped
+    private static final List<Entry> ENTRIES = new ArrayList<>();
+
+    static {
+        _register(() -> new Entry(BooleanCollection.class, () -> new BooleanSerializer(null, null)));
+        _register(() -> new Entry(ByteCollection.class, () -> new ByteSerializer(null, null)));
+        _register(() -> new Entry(ShortCollection.class, () -> new ShortSerializer(null, null)));
+        _register(() -> new Entry(CharCollection.class, () -> CharSerializer.INSTANCE));
+        _register(() -> new Entry(IntCollection.class, () -> new IntSerializer(null, null)));
+        _register(() -> new Entry(LongCollection.class, () -> new LongSerializer(null, null)));
+        _register(() -> new Entry(FloatCollection.class, () -> new FloatSerializer(null, null)));
+        _register(() -> new Entry(DoubleCollection.class, () -> new DoubleSerializer(null, null)));
+    }
+
+    private static void _register(Supplier<Entry> entry) {
+        OptionalTypes.registerIfPresent(() -> ENTRIES.add(entry.get()));
+    }
+
+    private record Entry(Class<?> collectionType, Supplier<ValueSerializer<?>> serializer) { }
+
     /**
      * @return Serializer for given type if it is a fastutil collection of primitive
      *    values; {@code null} otherwise
      */
     public static ValueSerializer<?> findSerializer(Class<?> rawType)
     {
-        if (BooleanCollection.class.isAssignableFrom(rawType)) {
-            return new BooleanSerializer(null, null);
-        }
-        if (ByteCollection.class.isAssignableFrom(rawType)) {
-            return new ByteSerializer(null, null);
-        }
-        if (ShortCollection.class.isAssignableFrom(rawType)) {
-            return new ShortSerializer(null, null);
-        }
-        if (CharCollection.class.isAssignableFrom(rawType)) {
-            return CharSerializer.INSTANCE;
-        }
-        if (IntCollection.class.isAssignableFrom(rawType)) {
-            return new IntSerializer(null, null);
-        }
-        if (LongCollection.class.isAssignableFrom(rawType)) {
-            return new LongSerializer(null, null);
-        }
-        if (FloatCollection.class.isAssignableFrom(rawType)) {
-            return new FloatSerializer(null, null);
-        }
-        if (DoubleCollection.class.isAssignableFrom(rawType)) {
-            return new DoubleSerializer(null, null);
+        for (Entry entry : ENTRIES) {
+            if (entry.collectionType().isAssignableFrom(rawType)) {
+                return entry.serializer().get();
+            }
         }
         return null;
     }

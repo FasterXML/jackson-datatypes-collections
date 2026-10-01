@@ -27,6 +27,36 @@ To use module on Maven-based projects, use following dependency:
 
 (or whatever version is most up-to-date at the moment)
 
+The module does not bring in fastutil itself (the dependency is `optional`): add one of the
+two fastutil jars to your project as well.
+
+### `fastutil` or `fastutil-core`
+
+fastutil is published as two jars with the same package and class names:
+
+* [`it.unimi.dsi:fastutil`](https://central.sonatype.com/artifact/it.unimi.dsi/fastutil): all types (about 23 MB)
+* [`it.unimi.dsi:fastutil-core`](https://central.sonatype.com/artifact/it.unimi.dsi/fastutil-core): a subset (about 6 MB) with
+  * all collections and maps of `int`, `long` and `double` (and objects), including maps between
+    these types (like `Int2LongMap` or `Object2DoubleMap`)
+  * only lists (`XCollection`, `XList`, `XBigList`, `XArrayList`, `XImmutableList`) of `short`, `char` and `float`
+  * no collections of `boolean` or `byte`, no maps with `byte`, `short`, `char`, `float` or `boolean`
+    keys or values, and no `Reference` types (like `ReferenceList` or `Int2ReferenceMap`)
+
+The module works with either jar: support for types that are not available is skipped. Use only
+one of them, since they contain the same classes.
+
+```xml
+<dependency>
+  <groupId>it.unimi.dsi</groupId>
+  <artifactId>fastutil</artifactId> <!-- or `fastutil-core` -->
+  <version>8.5.19</version>
+</dependency>
+```
+
+Note that `fastutil-core` is only supported on the class path: its Java module name
+(`it.unimi.dsi.fastutil.core`) differs from that of `fastutil` (`it.unimi.dsi.fastutil`), which
+the module descriptor of this module requires. When using the module path, use `fastutil`.
+
 ### Registering module
 
 Like all standard Jackson modules (libraries that implement Module interface), registration is done as follows:
@@ -140,3 +170,16 @@ files are not checked in: to change them, edit the templates. The templates are:
 
 Collection (de)serializers only need one class per primitive type, so they are regular,
 hand-written sources under `src/main/java/`.
+
+## Implementation notes: optional types (`fastutil-core`)
+
+Since classes may be missing at runtime when `fastutil-core` is used, handlers are registered
+through `OptionalTypes.registerIfPresent(...)` (or `ContainerFamily.addIfPresent(...)`), with all
+references to fastutil types (class literals like `IntSet.class`, method references like
+`IntOpenHashSet::new`) inside the lambda passed to it: these load the referenced classes when
+evaluated, so a `NoClassDefFoundError` then only skips that one registration. Keep to this pattern
+when adding support for more types, including in the JPSG templates.
+
+The build runs `FastutilCoreTest` a second time with only `fastutil-core` on the class path (see the
+`test-fastutil-core` Surefire execution in `pom.xml`). In the normal test run,
+`RoundTripMatrixTest` verifies that no handler is skipped with the full `fastutil` jar.

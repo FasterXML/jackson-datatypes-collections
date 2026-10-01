@@ -6,8 +6,11 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import tools.jackson.datatype.fastutil.util.OptionalTypes;
 
 /**
  * Describes a family of fastutil container types that share the same element type
@@ -62,6 +65,16 @@ public final class ContainerFamily<C>
     public ContainerFamily<C> add(Class<?> iface,
             Supplier<? extends C> defaultImpl, Supplier<? extends C> orderedImpl) {
         _kinds.add(new Kind<>(iface, defaultImpl, orderedImpl));
+        return this;
+    }
+
+    /**
+     * Calls {@link #add} through given callback, unless the types it uses are not
+     * available (for example {@code ShortSet}, which {@code fastutil-core} does not
+     * include, although it does include {@code ShortList}).
+     */
+    public ContainerFamily<C> addIfPresent(Consumer<ContainerFamily<C>> registration) {
+        OptionalTypes.registerIfPresent(() -> registration.accept(this));
         return this;
     }
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
 
+import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
 
 import it.unimi.dsi.fastutil.bytes.*;
@@ -34,46 +35,41 @@ public final class PrimitivePrimitiveMapSerializers {
 
     private static final Map<Class<?>, PrimitiveMapSerializer<?>> INSTANCES;
 
-    /* with
-        byte|char|short|int|long|float|double key
-        short|byte|char|int|long|float|double|boolean value
-    */
-    private static final PrimitiveMapSerializer<Byte2ShortMap> BYTE_SHORT =
-            new PrimitiveMapSerializer<>(Byte2ShortMap.class) {
-                @Override
-                protected void serializeEntries(Byte2ShortMap value, JsonGenerator g, SerializationContext ctxt)
-                {
-                    Byte2ShortMaps.fastForEach(value, e -> {
-                        /* if !(int|long key) */
-                        g.writeName(String.valueOf(e.getByteKey()));
-                        /* elif int|long key //
-                        // as Jackson does for `Integer` and `Long` keys of `java.util.Map`s
-                        g.writePropertyId(e.getByteKey());
-                        // endif */
-                        /* if !(char|boolean value) */
-                        g.writeNumber(e.getShortValue());
-                        /* elif char value //
-                        g.writeString(new char[]{e.getShortValue()}, 0, 1);
-                        /* elif boolean value //
-                        g.writeBoolean(e.getShortValue());
-                        // endif */
-                    });
-                }
-
-                @Override
-                public boolean isEmpty(SerializationContext ctxt, Byte2ShortMap value) {
-                    return value.isEmpty();
-                }
-            };
-    /* endwith */
-
+    // Key/value type combinations missing from `fastutil-core` (a subset of `fastutil`
+    // that, for example, has no maps with `float` keys) are skipped
     static {
         Map<Class<?>, PrimitiveMapSerializer<?>> instances = new LinkedHashMap<>();
         /* with
             byte|char|short|int|long|float|double key
             short|byte|char|int|long|float|double|boolean value
         */
-        instances.put(Byte2ShortMap.class, BYTE_SHORT);
+        OptionalTypes.registerIfPresent(() -> instances.put(Byte2ShortMap.class,
+                new PrimitiveMapSerializer<Byte2ShortMap>(Byte2ShortMap.class) {
+                    @Override
+                    protected void serializeEntries(Byte2ShortMap value, JsonGenerator g, SerializationContext ctxt)
+                    {
+                        Byte2ShortMaps.fastForEach(value, e -> {
+                            /* if !(int|long key) */
+                            g.writeName(String.valueOf(e.getByteKey()));
+                            /* elif int|long key //
+                            // as Jackson does for `Integer` and `Long` keys of `java.util.Map`s
+                            g.writePropertyId(e.getByteKey());
+                            // endif */
+                            /* if !(char|boolean value) */
+                            g.writeNumber(e.getShortValue());
+                            /* elif char value //
+                            g.writeString(new char[]{e.getShortValue()}, 0, 1);
+                            /* elif boolean value //
+                            g.writeBoolean(e.getShortValue());
+                            // endif */
+                        });
+                    }
+
+                    @Override
+                    public boolean isEmpty(SerializationContext ctxt, Byte2ShortMap value) {
+                        return value.isEmpty();
+                    }
+                }));
         /* endwith */
         INSTANCES = Collections.unmodifiableMap(instances);
     }

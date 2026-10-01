@@ -1,6 +1,9 @@
 package tools.jackson.datatype.fastutil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -15,6 +18,7 @@ import tools.jackson.datatype.fastutil.ser.PrimitiveCollectionSerializers;
 import tools.jackson.datatype.fastutil.ser.map.PrimitivePrimitiveMapSerializers;
 import tools.jackson.datatype.fastutil.ser.map.PrimitiveRefMapSerializers;
 import tools.jackson.datatype.fastutil.ser.map.RefPrimitiveMapSerializers;
+import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
 
 import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
@@ -41,6 +45,59 @@ import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
  */
 public class FastutilSerializers extends Serializers.Base
 {
+    // Maps with a reference key or value; types missing from `fastutil-core` (a subset
+    // of `fastutil`, without maps that have `byte`, `short`, `char` or `float` keys or
+    // values) are skipped
+    private static final List<MapEntry> MAP_ENTRIES = new ArrayList<>();
+
+    static {
+        // Primitive keys, reference values
+        _register(() -> new MapEntry(Byte2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Byte<>(t, null, vts, vs)));
+        _register(() -> new MapEntry(Short2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Short<>(t, null, vts, vs)));
+        _register(() -> new MapEntry(Char2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Char<>(t, null, vts, vs)));
+        _register(() -> new MapEntry(Int2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Int<>(t, null, vts, vs)));
+        _register(() -> new MapEntry(Long2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Long<>(t, null, vts, vs)));
+        _register(() -> new MapEntry(Float2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Float<>(t, null, vts, vs)));
+        _register(() -> new MapEntry(Double2ObjectMap.class,
+                (t, ks, vts, vs) -> new PrimitiveRefMapSerializers.Double<>(t, null, vts, vs)));
+
+        // Reference keys, primitive values
+        _register(() -> new MapEntry(Object2BooleanMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Boolean<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2ByteMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Byte<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2ShortMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Short<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2CharMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Char<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2IntMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Int<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2LongMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Long<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2FloatMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Float<>(t, null, ks)));
+        _register(() -> new MapEntry(Object2DoubleMap.class,
+                (t, ks, vts, vs) -> new RefPrimitiveMapSerializers.Double<>(t, null, ks)));
+    }
+
+    private static void _register(Supplier<MapEntry> entry) {
+        OptionalTypes.registerIfPresent(() -> MAP_ENTRIES.add(entry.get()));
+    }
+
+    @FunctionalInterface
+    private interface MapSerializerFactory {
+        ValueSerializer<?> create(MapType type, ValueSerializer<Object> keySerializer,
+                TypeSerializer valueTypeSerializer, ValueSerializer<Object> valueSerializer);
+    }
+
+    private record MapEntry(Class<?> mapType, MapSerializerFactory factory) { }
+
     @Override
     public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
             CollectionType type, BeanDescription.Supplier beanDescRef,
@@ -63,53 +120,11 @@ public class FastutilSerializers extends Serializers.Base
             elementTypeSerializer = (TypeSerializer) type.getContentType().getTypeHandler();
         }
 
-        // Primitive keys, reference values
-        if (Byte2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Byte<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-        if (Short2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Short<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-        if (Char2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Char<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-        if (Int2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Int<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-        if (Long2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Long<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-        if (Float2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Float<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-        if (Double2ObjectMap.class.isAssignableFrom(raw)) {
-            return new PrimitiveRefMapSerializers.Double<>(type, null, elementTypeSerializer, elementValueSerializer);
-        }
-
-        // Reference keys, primitive values
-        if (Object2BooleanMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Boolean<>(type, null, keySerializer);
-        }
-        if (Object2ByteMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Byte<>(type, null, keySerializer);
-        }
-        if (Object2ShortMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Short<>(type, null, keySerializer);
-        }
-        if (Object2CharMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Char<>(type, null, keySerializer);
-        }
-        if (Object2IntMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Int<>(type, null, keySerializer);
-        }
-        if (Object2LongMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Long<>(type, null, keySerializer);
-        }
-        if (Object2FloatMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Float<>(type, null, keySerializer);
-        }
-        if (Object2DoubleMap.class.isAssignableFrom(raw)) {
-            return new RefPrimitiveMapSerializers.Double<>(type, null, keySerializer);
+        for (MapEntry entry : MAP_ENTRIES) {
+            if (entry.mapType().isAssignableFrom(raw)) {
+                return entry.factory().create(type, keySerializer,
+                        elementTypeSerializer, elementValueSerializer);
+            }
         }
 
         // Primitive keys, primitive values

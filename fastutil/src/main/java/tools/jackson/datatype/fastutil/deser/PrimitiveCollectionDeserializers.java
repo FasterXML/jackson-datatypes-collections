@@ -1,7 +1,10 @@
 package tools.jackson.datatype.fastutil.deser;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
@@ -10,6 +13,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCollectionDeserializer;
 
@@ -30,78 +34,79 @@ public final class PrimitiveCollectionDeserializers
 {
     private PrimitiveCollectionDeserializers() { }
 
-    private static final ContainerFamily<BooleanCollection> BOOLEANS =
-            new ContainerFamily<BooleanCollection>(BooleanCollection.class)
-                .add(BooleanSet.class, BooleanOpenHashSet::new, BooleanArraySet::new)
-                .add(BooleanBigList.class, BooleanBigArrayBigList::new, BooleanBigArrayBigList::new)
-                .add(BooleanList.class, BooleanArrayList::new, BooleanArrayList::new)
-                .add(BooleanCollection.class, BooleanArrayList::new, BooleanArrayList::new);
+    // Collection types of `fastutil-core` (a subset of `fastutil`) that are missing are
+    // skipped: it has no `boolean` or `byte` collections, and only lists of `short`,
+    // `char` and `float`
+    private static final List<Support<?>> SUPPORTS = new ArrayList<>();
 
-    private static final ContainerFamily<ByteCollection> BYTES =
-            new ContainerFamily<ByteCollection>(ByteCollection.class)
-                .add(ByteSortedSet.class, ByteRBTreeSet::new, ByteRBTreeSet::new)
-                .add(ByteSet.class, ByteOpenHashSet::new, ByteLinkedOpenHashSet::new)
-                .add(ByteBigList.class, ByteBigArrayBigList::new, ByteBigArrayBigList::new)
-                .add(ByteList.class, ByteArrayList::new, ByteArrayList::new)
-                .add(ByteCollection.class, ByteArrayList::new, ByteArrayList::new);
+    static {
+        _register(() -> new Support<>(new ContainerFamily<BooleanCollection>(BooleanCollection.class)
+                .addIfPresent(f -> f.add(BooleanSet.class, BooleanOpenHashSet::new, BooleanArraySet::new))
+                .addIfPresent(f -> f.add(BooleanBigList.class, BooleanBigArrayBigList::new, BooleanBigArrayBigList::new))
+                .addIfPresent(f -> f.add(BooleanList.class, BooleanArrayList::new, BooleanArrayList::new))
+                .addIfPresent(f -> f.add(BooleanCollection.class, BooleanArrayList::new, BooleanArrayList::new)),
+                BooleanDeserializer::new));
+        _register(() -> new Support<>(new ContainerFamily<ByteCollection>(ByteCollection.class)
+                .addIfPresent(f -> f.add(ByteSortedSet.class, ByteRBTreeSet::new, ByteRBTreeSet::new))
+                .addIfPresent(f -> f.add(ByteSet.class, ByteOpenHashSet::new, ByteLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(ByteBigList.class, ByteBigArrayBigList::new, ByteBigArrayBigList::new))
+                .addIfPresent(f -> f.add(ByteList.class, ByteArrayList::new, ByteArrayList::new))
+                .addIfPresent(f -> f.add(ByteCollection.class, ByteArrayList::new, ByteArrayList::new)),
+                ByteDeserializer::new));
+        _register(() -> new Support<>(new ContainerFamily<ShortCollection>(ShortCollection.class)
+                .addIfPresent(f -> f.add(ShortSortedSet.class, ShortRBTreeSet::new, ShortRBTreeSet::new))
+                .addIfPresent(f -> f.add(ShortSet.class, ShortOpenHashSet::new, ShortLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(ShortBigList.class, ShortBigArrayBigList::new, ShortBigArrayBigList::new))
+                .addIfPresent(f -> f.add(ShortList.class, ShortArrayList::new, ShortArrayList::new))
+                .addIfPresent(f -> f.add(ShortCollection.class, ShortArrayList::new, ShortArrayList::new)),
+                ShortDeserializer::new));
+        _register(() -> new Support<>(new ContainerFamily<CharCollection>(CharCollection.class)
+                .addIfPresent(f -> f.add(CharSortedSet.class, CharRBTreeSet::new, CharRBTreeSet::new))
+                .addIfPresent(f -> f.add(CharSet.class, CharOpenHashSet::new, CharLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(CharBigList.class, CharBigArrayBigList::new, CharBigArrayBigList::new))
+                .addIfPresent(f -> f.add(CharList.class, CharArrayList::new, CharArrayList::new))
+                .addIfPresent(f -> f.add(CharCollection.class, CharArrayList::new, CharArrayList::new)),
+                (type, creator) -> new CharDeserializer(type.getRawClass(), creator)));
+        _register(() -> new Support<>(new ContainerFamily<IntCollection>(IntCollection.class)
+                .addIfPresent(f -> f.add(IntSortedSet.class, IntRBTreeSet::new, IntRBTreeSet::new))
+                .addIfPresent(f -> f.add(IntSet.class, IntOpenHashSet::new, IntLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(IntBigList.class, IntBigArrayBigList::new, IntBigArrayBigList::new))
+                .addIfPresent(f -> f.add(IntList.class, IntArrayList::new, IntArrayList::new))
+                .addIfPresent(f -> f.add(IntCollection.class, IntArrayList::new, IntArrayList::new)),
+                IntDeserializer::new));
+        _register(() -> new Support<>(new ContainerFamily<LongCollection>(LongCollection.class)
+                .addIfPresent(f -> f.add(LongSortedSet.class, LongRBTreeSet::new, LongRBTreeSet::new))
+                .addIfPresent(f -> f.add(LongSet.class, LongOpenHashSet::new, LongLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(LongBigList.class, LongBigArrayBigList::new, LongBigArrayBigList::new))
+                .addIfPresent(f -> f.add(LongList.class, LongArrayList::new, LongArrayList::new))
+                .addIfPresent(f -> f.add(LongCollection.class, LongArrayList::new, LongArrayList::new)),
+                LongDeserializer::new));
+        _register(() -> new Support<>(new ContainerFamily<FloatCollection>(FloatCollection.class)
+                .addIfPresent(f -> f.add(FloatSortedSet.class, FloatRBTreeSet::new, FloatRBTreeSet::new))
+                .addIfPresent(f -> f.add(FloatSet.class, FloatOpenHashSet::new, FloatLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(FloatBigList.class, FloatBigArrayBigList::new, FloatBigArrayBigList::new))
+                .addIfPresent(f -> f.add(FloatList.class, FloatArrayList::new, FloatArrayList::new))
+                .addIfPresent(f -> f.add(FloatCollection.class, FloatArrayList::new, FloatArrayList::new)),
+                FloatDeserializer::new));
+        _register(() -> new Support<>(new ContainerFamily<DoubleCollection>(DoubleCollection.class)
+                .addIfPresent(f -> f.add(DoubleSortedSet.class, DoubleRBTreeSet::new, DoubleRBTreeSet::new))
+                .addIfPresent(f -> f.add(DoubleSet.class, DoubleOpenHashSet::new, DoubleLinkedOpenHashSet::new))
+                .addIfPresent(f -> f.add(DoubleBigList.class, DoubleBigArrayBigList::new, DoubleBigArrayBigList::new))
+                .addIfPresent(f -> f.add(DoubleList.class, DoubleArrayList::new, DoubleArrayList::new))
+                .addIfPresent(f -> f.add(DoubleCollection.class, DoubleArrayList::new, DoubleArrayList::new)),
+                DoubleDeserializer::new));
+    }
 
-    private static final ContainerFamily<ShortCollection> SHORTS =
-            new ContainerFamily<ShortCollection>(ShortCollection.class)
-                .add(ShortSortedSet.class, ShortRBTreeSet::new, ShortRBTreeSet::new)
-                .add(ShortSet.class, ShortOpenHashSet::new, ShortLinkedOpenHashSet::new)
-                .add(ShortBigList.class, ShortBigArrayBigList::new, ShortBigArrayBigList::new)
-                .add(ShortList.class, ShortArrayList::new, ShortArrayList::new)
-                .add(ShortCollection.class, ShortArrayList::new, ShortArrayList::new);
-
-    private static final ContainerFamily<CharCollection> CHARS =
-            new ContainerFamily<CharCollection>(CharCollection.class)
-                .add(CharSortedSet.class, CharRBTreeSet::new, CharRBTreeSet::new)
-                .add(CharSet.class, CharOpenHashSet::new, CharLinkedOpenHashSet::new)
-                .add(CharBigList.class, CharBigArrayBigList::new, CharBigArrayBigList::new)
-                .add(CharList.class, CharArrayList::new, CharArrayList::new)
-                .add(CharCollection.class, CharArrayList::new, CharArrayList::new);
-
-    private static final ContainerFamily<IntCollection> INTS =
-            new ContainerFamily<IntCollection>(IntCollection.class)
-                .add(IntSortedSet.class, IntRBTreeSet::new, IntRBTreeSet::new)
-                .add(IntSet.class, IntOpenHashSet::new, IntLinkedOpenHashSet::new)
-                .add(IntBigList.class, IntBigArrayBigList::new, IntBigArrayBigList::new)
-                .add(IntList.class, IntArrayList::new, IntArrayList::new)
-                .add(IntCollection.class, IntArrayList::new, IntArrayList::new);
-
-    private static final ContainerFamily<LongCollection> LONGS =
-            new ContainerFamily<LongCollection>(LongCollection.class)
-                .add(LongSortedSet.class, LongRBTreeSet::new, LongRBTreeSet::new)
-                .add(LongSet.class, LongOpenHashSet::new, LongLinkedOpenHashSet::new)
-                .add(LongBigList.class, LongBigArrayBigList::new, LongBigArrayBigList::new)
-                .add(LongList.class, LongArrayList::new, LongArrayList::new)
-                .add(LongCollection.class, LongArrayList::new, LongArrayList::new);
-
-    private static final ContainerFamily<FloatCollection> FLOATS =
-            new ContainerFamily<FloatCollection>(FloatCollection.class)
-                .add(FloatSortedSet.class, FloatRBTreeSet::new, FloatRBTreeSet::new)
-                .add(FloatSet.class, FloatOpenHashSet::new, FloatLinkedOpenHashSet::new)
-                .add(FloatBigList.class, FloatBigArrayBigList::new, FloatBigArrayBigList::new)
-                .add(FloatList.class, FloatArrayList::new, FloatArrayList::new)
-                .add(FloatCollection.class, FloatArrayList::new, FloatArrayList::new);
-
-    private static final ContainerFamily<DoubleCollection> DOUBLES =
-            new ContainerFamily<DoubleCollection>(DoubleCollection.class)
-                .add(DoubleSortedSet.class, DoubleRBTreeSet::new, DoubleRBTreeSet::new)
-                .add(DoubleSet.class, DoubleOpenHashSet::new, DoubleLinkedOpenHashSet::new)
-                .add(DoubleBigList.class, DoubleBigArrayBigList::new, DoubleBigArrayBigList::new)
-                .add(DoubleList.class, DoubleArrayList::new, DoubleArrayList::new)
-                .add(DoubleCollection.class, DoubleArrayList::new, DoubleArrayList::new);
-
-    private static final List<ContainerFamily<?>> FAMILIES = List.of(
-            BOOLEANS, BYTES, SHORTS, CHARS, INTS, LONGS, FLOATS, DOUBLES);
+    private static void _register(Supplier<Support<?>> support) {
+        OptionalTypes.registerIfPresent(() -> SUPPORTS.add(support.get()));
+    }
 
     /**
      * @return Whether given type is a fastutil collection of primitive values
      */
     public static boolean handles(Class<?> rawType) {
-        for (ContainerFamily<?> family : FAMILIES) {
-            if (family.handles(rawType)) {
+        for (Support<?> support : SUPPORTS) {
+            if (support.family().handles(rawType)) {
                 return true;
             }
         }
@@ -114,40 +119,21 @@ public final class PrimitiveCollectionDeserializers
      */
     public static ValueDeserializer<?> findDeserializer(JavaType type)
     {
-        final Class<?> raw = type.getRawClass();
-        if (BOOLEANS.handles(raw)) {
-            ContainerFamily.Creator<BooleanCollection> creator = BOOLEANS.findCreator(raw);
-            return (creator == null) ? null : new BooleanDeserializer(type, creator);
-        }
-        if (BYTES.handles(raw)) {
-            ContainerFamily.Creator<ByteCollection> creator = BYTES.findCreator(raw);
-            return (creator == null) ? null : new ByteDeserializer(type, creator);
-        }
-        if (SHORTS.handles(raw)) {
-            ContainerFamily.Creator<ShortCollection> creator = SHORTS.findCreator(raw);
-            return (creator == null) ? null : new ShortDeserializer(type, creator);
-        }
-        if (CHARS.handles(raw)) {
-            ContainerFamily.Creator<CharCollection> creator = CHARS.findCreator(raw);
-            return (creator == null) ? null : new CharDeserializer(raw, creator);
-        }
-        if (INTS.handles(raw)) {
-            ContainerFamily.Creator<IntCollection> creator = INTS.findCreator(raw);
-            return (creator == null) ? null : new IntDeserializer(type, creator);
-        }
-        if (LONGS.handles(raw)) {
-            ContainerFamily.Creator<LongCollection> creator = LONGS.findCreator(raw);
-            return (creator == null) ? null : new LongDeserializer(type, creator);
-        }
-        if (FLOATS.handles(raw)) {
-            ContainerFamily.Creator<FloatCollection> creator = FLOATS.findCreator(raw);
-            return (creator == null) ? null : new FloatDeserializer(type, creator);
-        }
-        if (DOUBLES.handles(raw)) {
-            ContainerFamily.Creator<DoubleCollection> creator = DOUBLES.findCreator(raw);
-            return (creator == null) ? null : new DoubleDeserializer(type, creator);
+        for (Support<?> support : SUPPORTS) {
+            if (support.family().handles(type.getRawClass())) {
+                return support.findDeserializer(type);
+            }
         }
         return null;
+    }
+
+    private record Support<C>(ContainerFamily<C> family,
+            BiFunction<JavaType, ContainerFamily.Creator<C>, ValueDeserializer<?>> deserializerFactory)
+    {
+        ValueDeserializer<?> findDeserializer(JavaType type) {
+            ContainerFamily.Creator<C> creator = family.findCreator(type.getRawClass());
+            return (creator == null) ? null : deserializerFactory.apply(type, creator);
+        }
     }
 
     /**
