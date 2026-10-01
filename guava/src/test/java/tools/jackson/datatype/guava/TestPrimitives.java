@@ -8,6 +8,7 @@ import com.google.common.primitives.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
@@ -308,6 +309,44 @@ public class TestPrimitives extends ModuleTestBase
         assertEquals(1L, array.get(0));
         assertEquals(2L, array.get(1));
         assertEquals(3L, array.get(2));
+    }
+
+    // Large enough to need multiple chunks / buffer growth in the deserializers
+    @Test
+    public void testLargeArrays() throws Exception {
+        final int count = 1000;
+        boolean[] booleans = new boolean[count];
+        byte[] bytes = new byte[count];
+        char[] chars = new char[count];
+        short[] shorts = new short[count];
+        int[] ints = new int[count];
+        long[] longs = new long[count];
+        float[] floats = new float[count];
+        double[] doubles = new double[count];
+        for (int i = 0; i < count; ++i) {
+            booleans[i] = (i % 3) == 0;
+            bytes[i] = (byte) i;
+            chars[i] = (char) ('a' + (i % 26));
+            shorts[i] = (short) (i * 7);
+            ints[i] = i * 100_003;
+            longs[i] = i * 10_000_000_019L;
+            floats[i] = i + 0.25f;
+            doubles[i] = i + 0.125;
+        }
+        _verifyRoundTrip(Booleans.asList(booleans), PrimitiveTypes.BooleansTypeReference, PrimitiveTypes.BooleansTypeName);
+        _verifyRoundTrip(Bytes.asList(bytes), PrimitiveTypes.BytesTypeReference, PrimitiveTypes.BytesTypeName);
+        _verifyRoundTrip(Chars.asList(chars), PrimitiveTypes.CharsTypeReference, PrimitiveTypes.CharsTypeName);
+        _verifyRoundTrip(Shorts.asList(shorts), PrimitiveTypes.ShortsTypeReference, PrimitiveTypes.ShortsTypeName);
+        _verifyRoundTrip(Ints.asList(ints), PrimitiveTypes.IntsTypeReference, PrimitiveTypes.IntsTypeName);
+        _verifyRoundTrip(Longs.asList(longs), PrimitiveTypes.LongsTypeReference, PrimitiveTypes.LongsTypeName);
+        _verifyRoundTrip(Floats.asList(floats), PrimitiveTypes.FloatsTypeReference, PrimitiveTypes.FloatsTypeName);
+        _verifyRoundTrip(Doubles.asList(doubles), PrimitiveTypes.DoublesTypeReference, PrimitiveTypes.DoublesTypeName);
+    }
+
+    private <T> void _verifyRoundTrip(List<T> input, TypeReference<List<T>> type, String typeName) throws Exception {
+        List<T> result = MAPPER.readValue(MAPPER.writeValueAsString(input), type);
+        assertEquals(input, result);
+        assertEquals(typeName, result.getClass().getName());
     }
 
     @Test
