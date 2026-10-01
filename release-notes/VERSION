@@ -15,6 +15,9 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
+  primitive maps silently lose data
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
