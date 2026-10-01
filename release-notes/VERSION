@@ -15,6 +15,9 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
+  and implementation classes (default typing); `Triplet` read as `TripleImpl`
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 

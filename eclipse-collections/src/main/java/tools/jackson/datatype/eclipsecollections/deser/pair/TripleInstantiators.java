@@ -1,5 +1,8 @@
 package tools.jackson.datatype.eclipsecollections.deser.pair;
 
+import java.util.Arrays;
+import java.util.List;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.CreatorProperty;
 import tools.jackson.databind.deser.SettableBeanProperty;
@@ -17,24 +20,32 @@ public class TripleInstantiators extends ValueInstantiators.Base {
         Triple.class.getName();
     }
 
+    private static final List<Class<?>> TRIPLE_TYPES = Arrays.asList(Triple.class, Triplet.class);
+
     @Override
     public ValueInstantiator findValueInstantiator(DeserializationConfig config,
             BeanDescription.Supplier beanDescRef)
     {
-        if (beanDescRef.getBeanClass() == Triple.class) {
-            JavaType beanType = beanDescRef.getType();
+        Class<?> beanClass = beanDescRef.getBeanClass();
+        JavaType beanType = beanDescRef.getType();
+        // Implementation class (like `TripleImpl`, as named by a type id with default typing)?
+        Class<?> tripleType = PairInstantiators.implementedTupleType(beanClass, TRIPLE_TYPES);
+        if (tripleType != null) {
+            beanClass = tripleType;
+            beanType = beanType.findSuperType(tripleType);
+        }
+        if (beanClass == Triple.class) {
             return new TripleInstantiator(
                     beanType,
-                    beanType.containedType(0),
-                    beanType.containedType(1),
-                    beanType.containedType(2),
+                    beanType.containedTypeOrUnknown(0),
+                    beanType.containedTypeOrUnknown(1),
+                    beanType.containedTypeOrUnknown(2),
                     // type deserializers are filled in by createContextual
                     null, null, null
             );
         }
-        if (beanDescRef.getBeanClass() == Triplet.class) {
-            JavaType beanType = beanDescRef.getType();
-            JavaType singleType = beanType.containedType(0);
+        if (beanClass == Triplet.class) {
+            JavaType singleType = beanType.containedTypeOrUnknown(0);
             return new TripleInstantiator(beanType, singleType, singleType, singleType);
         }
         return super.findValueInstantiator(config, beanDescRef);
@@ -121,6 +132,9 @@ public class TripleInstantiators extends ValueInstantiators.Base {
 
         @Override
         public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
+            if (beanType.hasRawClass(Triplet.class)) {
+                return Tuples.triplet(args[0], args[1], args[2]);
+            }
             return Tuples.triple(args[0], args[1], args[2]);
         }
     }
