@@ -2,6 +2,7 @@ package tools.jackson.datatype.pcollections;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.type.TypeReference;
@@ -48,7 +49,7 @@ public class TestPCollections extends ModuleTestBase
     @Test
     public void withoutSerializers() throws Exception
     {
-        PVector<Integer> list = TreePVector.from(Arrays.asList(1, 2, 3));
+        PVector<Integer> list = TreePVector.from(List.of(1, 2, 3));
         assertEquals("[1,2,3]", MAPPER.writeValueAsString(list));
 
         PStack<String> stack = ConsPStack.singleton("def").plus("abc");
@@ -239,14 +240,14 @@ public class TestPCollections extends ModuleTestBase
     {
         PSortedSet<Integer> set = MAPPER.readValue("[3,1,2,1]", new TypeReference<PSortedSet<Integer>>() { });
         assertEquals(TreePSet.class, set.getClass());
-        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(set.toArray()));
+        assertEquals(List.of(1, 2, 3), Arrays.asList(set.toArray()));
     }
 
     @Test
     public void treePSet() throws Exception
     {
         TreePSet<String> set = MAPPER.readValue("[\"c\",\"a\",\"b\"]", new TypeReference<TreePSet<String>>() { });
-        assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(set.toArray()));
+        assertEquals(List.of("a", "b", "c"), Arrays.asList(set.toArray()));
         assertEquals("a", set.first());
         assertEquals("c", set.last());
     }
@@ -284,7 +285,7 @@ public class TestPCollections extends ModuleTestBase
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         TreePSet<Integer> set = mapper.readValue("7", new TypeReference<TreePSet<Integer>>() { });
-        assertEquals(Arrays.asList(7), Arrays.asList(set.toArray()));
+        assertEquals(List.of(7), Arrays.asList(set.toArray()));
         // but plain JSON `null` is still `null` collection, not an element
         assertNull(mapper.readValue("null", new TypeReference<TreePSet<Integer>>() { }));
     }
@@ -294,7 +295,7 @@ public class TestPCollections extends ModuleTestBase
     {
         PQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<PQueue<Integer>>() { });
         assertEquals(AmortizedPQueue.class, queue.getClass());
-        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
+        assertEquals(List.of(1, 2, 3), Arrays.asList(queue.toArray()));
         assertEquals(Integer.valueOf(1), queue.peek());
     }
 
@@ -302,8 +303,8 @@ public class TestPCollections extends ModuleTestBase
     public void amortizedPQueue() throws Exception
     {
         AmortizedPQueue<Integer> queue = MAPPER.readValue("[1,2,3]", new TypeReference<AmortizedPQueue<Integer>>() { });
-        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(queue.toArray()));
-        assertEquals(Arrays.asList(2, 3), Arrays.asList(queue.minus().toArray()));
+        assertEquals(List.of(1, 2, 3), Arrays.asList(queue.toArray()));
+        assertEquals(List.of(2, 3), Arrays.asList(queue.minus().toArray()));
     }
 
     @Test
@@ -321,15 +322,15 @@ public class TestPCollections extends ModuleTestBase
     {
         PSortedMap<String, Integer> map = MAPPER.readValue("{\"b\":2,\"c\":3,\"a\":1}", new TypeReference<PSortedMap<String, Integer>>() { });
         assertEquals(TreePMap.class, map.getClass());
-        assertEquals(Arrays.asList("a", "b", "c"), Arrays.asList(map.keySet().toArray()));
-        assertEquals(Arrays.asList(1, 2, 3), Arrays.asList(map.values().toArray()));
+        assertEquals(List.of("a", "b", "c"), Arrays.asList(map.keySet().toArray()));
+        assertEquals(List.of(1, 2, 3), Arrays.asList(map.values().toArray()));
     }
 
     @Test
     public void treePMap() throws Exception
     {
         TreePMap<Integer, Boolean> map = MAPPER.readValue("{\"10\":true,\"2\":false}", new TypeReference<TreePMap<Integer, Boolean>>() { });
-        assertEquals(Arrays.asList(2, 10), Arrays.asList(map.keySet().toArray()));
+        assertEquals(List.of(2, 10), Arrays.asList(map.keySet().toArray()));
         assertEquals(Boolean.FALSE, map.get(2));
         assertEquals(Boolean.TRUE, map.get(10));
     }
@@ -338,14 +339,14 @@ public class TestPCollections extends ModuleTestBase
     public void orderedPMap() throws Exception
     {
         OrderedPMap<String, Integer> map = MAPPER.readValue("{\"c\":3,\"a\":1,\"b\":2}", new TypeReference<OrderedPMap<String, Integer>>() { });
-        assertEquals(Arrays.asList("c", "a", "b"), Arrays.asList(map.keySet().toArray()));
-        assertEquals(Arrays.asList(3, 1, 2), Arrays.asList(map.values().toArray()));
+        assertEquals(List.of("c", "a", "b"), Arrays.asList(map.keySet().toArray()));
+        assertEquals(List.of(3, 1, 2), Arrays.asList(map.values().toArray()));
     }
 
     @Test
     public void newTypesRoundTrip() throws Exception
     {
-        _verifyRoundTrip(TreePSet.from(Arrays.asList(3, 1, 2)),
+        _verifyRoundTrip(TreePSet.from(List.of(3, 1, 2)),
                 new TypeReference<TreePSet<Integer>>() { });
         _verifyRoundTrip(AmortizedPQueue.<Integer>empty().plus(1).plus(2),
                 new TypeReference<AmortizedPQueue<Integer>>() { });

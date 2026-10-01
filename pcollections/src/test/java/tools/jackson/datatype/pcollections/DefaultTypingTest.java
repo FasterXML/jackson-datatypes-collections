@@ -32,8 +32,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Point)) return false;
-            Point other = (Point) o;
+            if (!(o instanceof Point other)) return false;
             return x == other.x && y == other.y;
         }
 
@@ -103,21 +102,21 @@ public class DefaultTypingTest extends ModuleTestBase
     {
         final ObjectMapper mapper = _mapper(typing);
 
-        _rootRoundTrip(mapper, TreePVector.from(Arrays.asList("a", "b", "c")),
+        _rootRoundTrip(mapper, TreePVector.from(List.of("a", "b", "c")),
                 new TypeReference<PCollection<String>>() { }, TreePVector.class);
-        _rootRoundTrip(mapper, TreePVector.from(Arrays.asList("a", "b", "c")),
+        _rootRoundTrip(mapper, TreePVector.from(List.of("a", "b", "c")),
                 new TypeReference<PSequence<String>>() { }, TreePVector.class);
-        _rootRoundTrip(mapper, TreePVector.from(Arrays.asList("a", "b", "c")),
+        _rootRoundTrip(mapper, TreePVector.from(List.of("a", "b", "c")),
                 new TypeReference<PVector<String>>() { }, TreePVector.class);
-        _rootRoundTrip(mapper, ConsPStack.from(Arrays.asList(1, 2, 3)),
+        _rootRoundTrip(mapper, ConsPStack.from(List.of(1, 2, 3)),
                 new TypeReference<PStack<Integer>>() { }, ConsPStack.class);
-        _rootRoundTrip(mapper, HashTreePSet.from(Arrays.asList("a", "b", "c")),
+        _rootRoundTrip(mapper, HashTreePSet.from(List.of("a", "b", "c")),
                 new TypeReference<PSet<String>>() { }, MapPSet.class);
-        _rootRoundTrip(mapper, OrderedPSet.from(Arrays.asList("c", "a", "b")),
+        _rootRoundTrip(mapper, OrderedPSet.from(List.of("c", "a", "b")),
                 new TypeReference<PSet<String>>() { }, OrderedPSet.class);
-        _rootRoundTrip(mapper, HashTreePBag.from(Arrays.asList("a", "b", "a")),
+        _rootRoundTrip(mapper, HashTreePBag.from(List.of("a", "b", "a")),
                 new TypeReference<PBag<String>>() { }, MapPBag.class);
-        _rootRoundTrip(mapper, TreePSet.from(Arrays.asList("c", "a", "b")),
+        _rootRoundTrip(mapper, TreePSet.from(List.of("c", "a", "b")),
                 new TypeReference<PSortedSet<String>>() { }, TreePSet.class);
         _rootRoundTrip(mapper, AmortizedPQueue.<String>empty().plus("a").plus("b").plus("c"),
                 new TypeReference<PQueue<String>>() { }, AmortizedPQueue.class);
@@ -134,17 +133,17 @@ public class DefaultTypingTest extends ModuleTestBase
     {
         final ObjectMapper mapper = _mapper(typing);
 
-        _rootRoundTrip(mapper, TreePVector.from(Arrays.asList("a", "b", "c")),
+        _rootRoundTrip(mapper, TreePVector.from(List.of("a", "b", "c")),
                 new TypeReference<TreePVector<String>>() { }, TreePVector.class);
-        _rootRoundTrip(mapper, ConsPStack.from(Arrays.asList(1, 2, 3)),
+        _rootRoundTrip(mapper, ConsPStack.from(List.of(1, 2, 3)),
                 new TypeReference<ConsPStack<Integer>>() { }, ConsPStack.class);
-        _rootRoundTrip(mapper, HashTreePSet.from(Arrays.asList("a", "b", "c")),
+        _rootRoundTrip(mapper, HashTreePSet.from(List.of("a", "b", "c")),
                 new TypeReference<MapPSet<String>>() { }, MapPSet.class);
-        _rootRoundTrip(mapper, OrderedPSet.from(Arrays.asList("c", "a", "b")),
+        _rootRoundTrip(mapper, OrderedPSet.from(List.of("c", "a", "b")),
                 new TypeReference<OrderedPSet<String>>() { }, OrderedPSet.class);
-        _rootRoundTrip(mapper, HashTreePBag.from(Arrays.asList("a", "b", "a")),
+        _rootRoundTrip(mapper, HashTreePBag.from(List.of("a", "b", "a")),
                 new TypeReference<MapPBag<String>>() { }, MapPBag.class);
-        _rootRoundTrip(mapper, TreePSet.from(Arrays.asList("c", "a", "b")),
+        _rootRoundTrip(mapper, TreePSet.from(List.of("c", "a", "b")),
                 new TypeReference<TreePSet<String>>() { }, TreePSet.class);
         _rootRoundTrip(mapper, AmortizedPQueue.<String>empty().plus("a").plus("b").plus("c"),
                 new TypeReference<AmortizedPQueue<String>>() { }, AmortizedPQueue.class);
@@ -163,15 +162,15 @@ public class DefaultTypingTest extends ModuleTestBase
     {
         final ObjectMapper mapper = _mapper(typing);
 
-        _rootRoundTrip(mapper, TreePVector.<Object>from(Arrays.asList("a", 1, true, new Point(1, 2))),
+        _rootRoundTrip(mapper, TreePVector.<Object>from(List.of("a", 1, true, new Point(1, 2))),
                 new TypeReference<PVector<Object>>() { }, TreePVector.class);
-        _rootRoundTrip(mapper, ConsPStack.<Object>from(Arrays.asList("a", 1, new Point(1, 2))),
+        _rootRoundTrip(mapper, ConsPStack.<Object>from(List.of("a", 1, new Point(1, 2))),
                 new TypeReference<PStack<Object>>() { }, ConsPStack.class);
-        _rootRoundTrip(mapper, HashTreePSet.<Object>from(Arrays.asList("a", 1, new Point(1, 2))),
+        _rootRoundTrip(mapper, HashTreePSet.<Object>from(List.of("a", 1, new Point(1, 2))),
                 new TypeReference<PSet<Object>>() { }, MapPSet.class);
-        _rootRoundTrip(mapper, OrderedPSet.<Object>from(Arrays.asList("a", 1, new Point(1, 2))),
+        _rootRoundTrip(mapper, OrderedPSet.<Object>from(List.of("a", 1, new Point(1, 2))),
                 new TypeReference<PSet<Object>>() { }, OrderedPSet.class);
-        _rootRoundTrip(mapper, HashTreePBag.<Object>from(Arrays.asList("a", 1, new Point(1, 2), "a")),
+        _rootRoundTrip(mapper, HashTreePBag.<Object>from(List.of("a", 1, new Point(1, 2), "a")),
                 new TypeReference<PBag<Object>>() { }, MapPBag.class);
         _rootRoundTrip(mapper, AmortizedPQueue.<Object>empty().plus("a").plus(1).plus(new Point(1, 2)),
                 new TypeReference<PQueue<Object>>() { }, AmortizedPQueue.class);
@@ -185,8 +184,8 @@ public class DefaultTypingTest extends ModuleTestBase
                         .plus("c", new Point(1, 2)).plus("a", 1).plus("b", "x"),
                 new TypeReference<OrderedPMap<String, Object>>() { }, OrderedPMap.class);
         // nested PCollection as Object-typed element value
-        _rootRoundTrip(mapper, TreePVector.<Object>from(Arrays.asList("a",
-                        TreePVector.from(Arrays.asList("b", "c")))),
+        _rootRoundTrip(mapper, TreePVector.<Object>from(List.of("a",
+                        TreePVector.from(List.of("b", "c")))),
                 new TypeReference<PVector<Object>>() { }, TreePVector.class);
     }
 
@@ -204,16 +203,16 @@ public class DefaultTypingTest extends ModuleTestBase
         final ObjectMapper mapper = _mapper(typing);
 
         InterfaceTypedHolder input = new InterfaceTypedHolder();
-        input.collection = TreePVector.from(Arrays.asList("a", "b"));
-        input.sequence = ConsPStack.from(Arrays.asList("c", "d"));
-        input.vector = TreePVector.from(Arrays.asList("a", "b", "c"));
-        input.objectVector = TreePVector.<Object>from(Arrays.asList("a", 1, true, new Point(3, 4)));
-        input.stack = ConsPStack.from(Arrays.asList(1, 2, 3));
-        input.set = HashTreePSet.from(Arrays.asList("a", "b"));
-        input.objectSet = HashTreePSet.<Object>from(Arrays.asList("a", 2, new Point(5, 6)));
-        input.orderedSet = OrderedPSet.from(Arrays.asList("z", "y", "x"));
-        input.bag = HashTreePBag.from(Arrays.asList("a", "a", "b"));
-        input.sortedSet = TreePSet.from(Arrays.asList("c", "a", "b"));
+        input.collection = TreePVector.from(List.of("a", "b"));
+        input.sequence = ConsPStack.from(List.of("c", "d"));
+        input.vector = TreePVector.from(List.of("a", "b", "c"));
+        input.objectVector = TreePVector.<Object>from(List.of("a", 1, true, new Point(3, 4)));
+        input.stack = ConsPStack.from(List.of(1, 2, 3));
+        input.set = HashTreePSet.from(List.of("a", "b"));
+        input.objectSet = HashTreePSet.<Object>from(List.of("a", 2, new Point(5, 6)));
+        input.orderedSet = OrderedPSet.from(List.of("z", "y", "x"));
+        input.bag = HashTreePBag.from(List.of("a", "a", "b"));
+        input.sortedSet = TreePSet.from(List.of("c", "a", "b"));
         input.queue = AmortizedPQueue.<String>empty().plus("q1").plus("q2");
         input.map = HashTreePMap.<String, Integer>empty().plus("a", 1).plus("b", 2);
         input.objectMap = HashTreePMap.<String, Object>empty()
@@ -249,12 +248,12 @@ public class DefaultTypingTest extends ModuleTestBase
         final ObjectMapper mapper = _mapper(typing);
 
         ConcreteTypedHolder input = new ConcreteTypedHolder();
-        input.vector = TreePVector.from(Arrays.asList("a", "b", "c"));
-        input.stack = ConsPStack.from(Arrays.asList(1, 2, 3));
-        input.set = HashTreePSet.from(Arrays.asList("a", "b"));
-        input.orderedSet = OrderedPSet.from(Arrays.asList("z", "y", "x"));
-        input.bag = HashTreePBag.from(Arrays.asList("a", "a", "b"));
-        input.sortedSet = TreePSet.from(Arrays.asList("c", "a", "b"));
+        input.vector = TreePVector.from(List.of("a", "b", "c"));
+        input.stack = ConsPStack.from(List.of(1, 2, 3));
+        input.set = HashTreePSet.from(List.of("a", "b"));
+        input.orderedSet = OrderedPSet.from(List.of("z", "y", "x"));
+        input.bag = HashTreePBag.from(List.of("a", "a", "b"));
+        input.sortedSet = TreePSet.from(List.of("c", "a", "b"));
         input.queue = AmortizedPQueue.<String>empty().plus("q1").plus("q2");
         input.map = HashTreePMap.<String, Integer>empty().plus("a", 1).plus("b", 2);
         input.sortedMap = TreePMap.<String, Integer>empty().plus("b", 2).plus("a", 1);
@@ -285,12 +284,12 @@ public class DefaultTypingTest extends ModuleTestBase
         final ObjectMapper mapper = _mapper(typing);
 
         ObjectTypedHolder input = new ObjectTypedHolder();
-        input.vector = TreePVector.<Object>from(Arrays.asList("a", 1, new Point(1, 2)));
-        input.stack = ConsPStack.from(Arrays.asList(1, 2, 3));
-        input.set = HashTreePSet.from(Arrays.asList("a", "b"));
-        input.orderedSet = OrderedPSet.from(Arrays.asList("z", "y", "x"));
-        input.bag = HashTreePBag.from(Arrays.asList("a", "a", "b"));
-        input.sortedSet = TreePSet.from(Arrays.asList("c", "a", "b"));
+        input.vector = TreePVector.<Object>from(List.of("a", 1, new Point(1, 2)));
+        input.stack = ConsPStack.from(List.of(1, 2, 3));
+        input.set = HashTreePSet.from(List.of("a", "b"));
+        input.orderedSet = OrderedPSet.from(List.of("z", "y", "x"));
+        input.bag = HashTreePBag.from(List.of("a", "a", "b"));
+        input.sortedSet = TreePSet.from(List.of("c", "a", "b"));
         input.queue = AmortizedPQueue.<String>empty().plus("q1").plus("q2");
         input.map = HashTreePMap.<String, Object>empty().plus("a", 1).plus("p", new Point(3, 4));
         input.sortedMap = TreePMap.<String, Integer>empty().plus("b", 2).plus("a", 1);
@@ -338,15 +337,15 @@ public class DefaultTypingTest extends ModuleTestBase
         assertEquals(expectedClass, actual.getClass(), "Wrong type from JSON: " + json);
         // ConsPStack is built by pushing elements in JSON order, so contents come
         // back reversed (same as without default typing; see TestPCollections.consPStack())
-        if (expected instanceof PStack<?>) {
-            List<?> reversed = new ArrayList<>((Collection<?>) expected);
+        if (expected instanceof PStack<?> stack) {
+            List<?> reversed = new ArrayList<>(stack);
             Collections.reverse(reversed);
             assertEquals(reversed, actual, "JSON: " + json);
             return;
         }
         // AmortizedPQueue does not implement equals(); compare contents in order
-        if (expected instanceof Queue<?>) {
-            assertEquals(new ArrayList<>((Collection<?>) expected),
+        if (expected instanceof Queue<?> queue) {
+            assertEquals(new ArrayList<>(queue),
                     new ArrayList<>((Collection<?>) actual), "JSON: " + json);
         } else {
             assertEquals(expected, actual, "JSON: " + json);
