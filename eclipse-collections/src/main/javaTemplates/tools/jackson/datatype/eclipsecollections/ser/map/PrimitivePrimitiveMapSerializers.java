@@ -34,12 +34,17 @@ public final class PrimitivePrimitiveMapSerializers {
                 @Override
                 protected void serializeEntries(ByteShortMap value, JsonGenerator g, SerializationContext ctxt)
                 {
+                    /* if char value //
+                    // reused for each entry, rather than allocating per value
+                    final char[] buf = new char[1];
+                    // endif */
                     value.forEachKeyValue((k, v) -> {
                         g.writeName(String.valueOf(k));
                         /* if !(char|boolean value) */
                         g.writeNumber(v);
                         /* elif char value //
-                        g.writeString(new char[]{v}, 0, 1);
+                        buf[0] = v;
+                        g.writeString(buf, 0, 1);
                         /* elif boolean value //
                         g.writeBoolean(v);
                         // endif */
