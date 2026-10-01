@@ -26,7 +26,7 @@ public class TableTest extends ModuleTestBase
 
         public ComplexKeyModule()
         {
-            this.addKeySerializer(ComplexKey.class, new ValueSerializer<ComplexKey>() {
+            this.addKeySerializer(ComplexKey.class, new ValueSerializer<>() {
                 @Override
                 public void serialize( final ComplexKey value, final JsonGenerator g, final SerializationContext ctxt)
                 {
@@ -96,10 +96,9 @@ public class TableTest extends ModuleTestBase
             if (obj == null) {
                 return false;
             }
-            if ( !(obj instanceof ComplexKey)) {
+            if ( !(obj instanceof ComplexKey other)) {
                 return false;
             }
-            final ComplexKey other = (ComplexKey) obj;
             if (this.key1 == null) {
                 if (other.key1 != null) {
                     return false;

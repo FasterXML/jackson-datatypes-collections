@@ -128,7 +128,7 @@ public class OptionalSchema83Test
 
     @Test
     public void testOptionalTypeSchema83() throws Exception {
-        VisitorWrapper wrapper = new VisitorWrapper(null, "", new HashSet<String>());
+        VisitorWrapper wrapper = new VisitorWrapper(null, "", new HashSet<>());
         mapperWithModule()
                 .acceptJsonFormatVisitor(TopLevel.class, wrapper);
         Set<String> properties = wrapper.getTraversedProperties();

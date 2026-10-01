@@ -176,7 +176,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
     @Test
     public void testSerPropInclusionAlways() throws Exception {
-        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        OptionalGenericData<String> data = new OptionalGenericData<>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = builderWithModule(true)
@@ -189,7 +189,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
     @Test
     public void testSerPropInclusionNonNull() throws Exception {
-        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        OptionalGenericData<String> data = new OptionalGenericData<>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = builderWithModule(true)
@@ -202,7 +202,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
     @Test
     public void testSerPropInclusionNonAbsent() throws Exception {
-        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        OptionalGenericData<String> data = new OptionalGenericData<>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = builderWithModule(true)
@@ -215,7 +215,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
     @Test
     public void testSerPropInclusionNonEmpty() throws Exception {
-        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        OptionalGenericData<String> data = new OptionalGenericData<>();
         data.myData = Optional.of("simpleString");
         // NOTE: pass 'true' to ensure "legacy" setting
         String value = builderWithModule(true)
@@ -228,7 +228,7 @@ public class OptionalBasicTest extends ModuleTestBase
 
     @Test
     public void testSerGeneric() throws Exception {
-        OptionalGenericData<String> data = new OptionalGenericData<String>();
+        OptionalGenericData<String> data = new OptionalGenericData<>();
         data.myData = Optional.of("simpleString");
         String value = MAPPER.writeValueAsString(Optional.of(data));
         assertEquals("{\"myData\":\"simpleString\"}", value);

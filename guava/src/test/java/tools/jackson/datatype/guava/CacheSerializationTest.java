@@ -68,7 +68,7 @@ public class CacheSerializationTest extends ModuleTestBase {
     }
 
     static List<String> _makeStringList(String... str) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (String s : str) {
             list.add(s);
         }
@@ -342,8 +342,8 @@ public class CacheSerializationTest extends ModuleTestBase {
 
     private Cache<String, String> _buildCacheWithKeys(String... keys) {
         Cache<String, String> cache = CacheBuilder.newBuilder().build();
-        for (int i = 0; i < keys.length; i++) {
-            cache.put(keys[i], "value");
+        for (String key : keys) {
+            cache.put(key, "value");
         }
         return cache;
     }
