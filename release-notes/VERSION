@@ -15,6 +15,9 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#40: (eclipse-collections) Ignored entries of `MapIterable` not matched for
+  non-String keys
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
