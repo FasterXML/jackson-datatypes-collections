@@ -18,6 +18,10 @@ public abstract class ModuleTestBase
                 .build();
     }
 
+    protected String a2q(String json) {
+        return json.replace("'", "\"");
+    }
+
     protected void verifyException(Throwable e, String... matches)
     {
         String msg = e.getMessage();
