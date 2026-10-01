@@ -102,17 +102,17 @@ public class TestContainerSerializers extends ModuleTestBase
 
         CharArrayList array = new CharArrayList();
         array.add('a', 'b', 'c');
-        assertEquals("\"abc\"", mapper.writeValueAsString(array));
+        assertEquals(a2q("'abc'"), mapper.writeValueAsString(array));
 
         // removed trailing element may remain in the backing buffer: must not be written
         array.add('d');
         array.removeAt(3);
-        assertEquals("\"abc\"", mapper.writeValueAsString(array));
+        assertEquals(a2q("'abc'"), mapper.writeValueAsString(array));
 
         CharHashSet set = new CharHashSet();
         set.addAll('d','e');
         String str = mapper.writeValueAsString(set);
-        if (!"\"de\"".equals(str) && !"\"ed\"".equals(str)) {
+        if (!a2q("'de'").equals(str) && !a2q("'ed'").equals(str)) {
             fail("Incorrect serialization: "+str);
         }
     }
