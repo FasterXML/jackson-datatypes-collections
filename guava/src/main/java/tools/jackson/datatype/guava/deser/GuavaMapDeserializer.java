@@ -95,8 +95,8 @@ public abstract class GuavaMapDeserializer<T>
         if (keyDeser == null) {
             keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         } else {
-            if (keyDeser instanceof ContextualKeyDeserializer) {
-                keyDeser = ((ContextualKeyDeserializer) keyDeser).createContextual(ctxt, property);
+            if (keyDeser instanceof ContextualKeyDeserializer contextualKeyDeser) {
+                keyDeser = contextualKeyDeser.createContextual(ctxt, property);
             }
         }
         final JavaType vt = _containerType.getContentType();

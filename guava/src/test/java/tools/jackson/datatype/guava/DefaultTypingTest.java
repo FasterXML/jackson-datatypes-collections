@@ -49,8 +49,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof ImmutableCollections)) return false;
-            ImmutableCollections other = (ImmutableCollections) o;
+            if (!(o instanceof ImmutableCollections other)) return false;
             return Objects.equals(list, other.list)
                     && Objects.equals(set, other.set)
                     && Objects.equals(sortedSet, other.sortedSet)
@@ -88,8 +87,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Multisets)) return false;
-            Multisets other = (Multisets) o;
+            if (!(o instanceof Multisets other)) return false;
             return Objects.equals(multiset, other.multiset)
                     && Objects.equals(treeMultiset, other.treeMultiset)
                     && Objects.equals(sortedMultiset, other.sortedMultiset)
@@ -121,8 +119,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Multimaps)) return false;
-            Multimaps other = (Multimaps) o;
+            if (!(o instanceof Multimaps other)) return false;
             return Objects.equals(arrayList, other.arrayList)
                     && Objects.equals(hash, other.hash)
                     && Objects.equals(linkedList, other.linkedList)
@@ -153,8 +150,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Tables)) return false;
-            Tables other = (Tables) o;
+            if (!(o instanceof Tables other)) return false;
             return Objects.equals(hashBased, other.hashBased)
                     && Objects.equals(treeBased, other.treeBased)
                     && Objects.equals(immutable, other.immutable)
@@ -180,8 +176,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Ranges)) return false;
-            Ranges other = (Ranges) o;
+            if (!(o instanceof Ranges other)) return false;
             return Objects.equals(rangeMap, other.rangeMap)
                     && Objects.equals(immutableRangeMap, other.immutableRangeMap)
                     && Objects.equals(objectRangeMap, other.objectRangeMap);
@@ -206,8 +201,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof PrimitiveArrays)) return false;
-            PrimitiveArrays other = (PrimitiveArrays) o;
+            if (!(o instanceof PrimitiveArrays other)) return false;
             return Objects.equals(ints, other.ints)
                     && Objects.equals(longs, other.longs)
                     && Objects.equals(doubles, other.doubles);
@@ -230,8 +224,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Scalars)) return false;
-            Scalars other = (Scalars) o;
+            if (!(o instanceof Scalars other)) return false;
             return Objects.equals(hostAndPort, other.hostAndPort)
                     && Objects.equals(domainName, other.domainName)
                     && Objects.equals(untypedHostAndPort, other.untypedHostAndPort)
