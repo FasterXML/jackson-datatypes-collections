@@ -16,7 +16,10 @@ import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
@@ -60,9 +63,14 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     }
 
     private static Method findTransformer(Class<?> rawType) {
-        // Very first thing: if it's a "standard multi-map type", can avoid copying
-        if (rawType == LinkedListMultimap.class || rawType == ListMultimap.class || rawType ==
-                Multimap.class) {
+        // Very first thing: if it's a "standard multi-map type", can avoid copying.
+        // Includes types that `createMultimap()` builds directly: otherwise their
+        // `create(Multimap)` factory would be found below, copying every entry again
+        if (rawType == LinkedListMultimap.class || rawType == ListMultimap.class
+                || rawType == Multimap.class
+                || rawType == ArrayListMultimap.class
+                || rawType == HashMultimap.class
+                || rawType == LinkedHashMultimap.class) {
             return null;
         }
 
