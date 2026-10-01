@@ -19,6 +19,7 @@
     <module>hppc</module>
     <module>eclipse-collections</module>
     <module>pcollections</module>
+    <module>fastutil</module>
   </modules>
 
   <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
