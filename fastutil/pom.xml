@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <!-- This module was also published with a richer model, Gradle metadata,  -->
+  <!-- which should be used instead. Do not delete the following line which  -->
+  <!-- is to indicate to Gradle or any Gradle module metadata file consumer  -->
+  <!-- that they should prefer consuming it instead. -->
+  <!-- do_not_remove: published-with-gradle-metadata -->
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>tools.jackson.datatype</groupId>
+    <artifactId>jackson-datatypes-collections</artifactId>
+    <version>3.3.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>jackson-datatype-fastutil</artifactId>
+  <name>Jackson datatype: fastutil</name>
+  <packaging>jar</packaging>
+  <description>Add-on datatype-support module for Jackson (https://github.com/FasterXML/jackson) that handles
+    fastutil (https://fastutil.di.unimi.it/) types
+  </description>
+  <url>https://github.com/FasterXML/jackson-datatypes-collections</url>
+
+  <properties>
+    <version.fastutil>8.5.19</version.fastutil>
+    <version.assertj>3.27.7</version.assertj>
+
+    <!-- Generate PackageVersion.java into this directory. -->
+    <packageVersion.dir>tools/jackson/datatype/fastutil</packageVersion.dir>
+    <packageVersion.package>${project.groupId}.fastutil</packageVersion.package>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>tools.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-primitive-collections-base</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <!-- Optional: users add either `fastutil` or the smaller `fastutil-core`
+         (which only includes a subset of the types) themselves -->
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>${version.fastutil}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${version.assertj}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+      </plugin>
+      <!-- 29-Apr-2025, tatu: SBOM generation [JSTEP-14] -->
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>io.timeandspace</groupId>
+        <artifactId>jpsg-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>jpsg-main</id>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Also run `FastutilCoreTest` with only `fastutil-core` (the smaller subset of
+           fastutil some projects use instead) on the class path, to verify that
+           types missing from it are skipped rather than failing -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-fastutil-core</id>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <!-- `fastutil-core` has a different module name than `fastutil` -->
+              <useModulePath>false</useModulePath>
+              <classpathDependencyExcludes>
+                <classpathDependencyExclude>it.unimi.dsi:fastutil</classpathDependencyExclude>
+              </classpathDependencyExcludes>
+              <additionalClasspathDependencies>
+                <additionalClasspathDependency>
+                  <groupId>it.unimi.dsi</groupId>
+                  <artifactId>fastutil-core</artifactId>
+                  <version>${version.fastutil}</version>
+                </additionalClasspathDependency>
+              </additionalClasspathDependencies>
+              <includes>
+                <include>**/FastutilCoreTest.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <expectFastutilCore>true</expectFastutilCore>
+              </systemPropertyVariables>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- 05-Jul-2020, tatu: Add generation of Gradle Module Metadata -->
+      <!-- 28-Feb-2025, jjohannes: Apply plugin last as it has to be the last of all 'package phase' plugins -->
+      <plugin>
+        <groupId>org.gradlex</groupId>
+        <artifactId>gradle-module-metadata-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

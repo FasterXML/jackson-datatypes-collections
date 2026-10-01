@@ -2,6 +2,7 @@ Project: jackson-modules-base
 Major version: 3 (for earlier, see VERSION-2.x)
 Modules:
   jackson-datatype-eclipse-collections
+  jackson-datatype-fastutil
   jackson-datatype-guava
   jackson-datatype-hppc
   jackson-datatype-pcollections
@@ -12,6 +13,8 @@ Modules:
 
 3.3.0 (not yet released)
 
+#38: Add new `jackson-datatype-fastutil` module for fastutil collection types
+ (contributed by @pjfanning)
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)

@@ -38,6 +38,8 @@ PJ Fanning (@pjfanning)
  [3.1.0]
 * Fixed #221: (guava) Add try catch for guava deserializers
  [3.1.0]
+* Contributed #38: Add new `jackson-datatype-fastutil` module for fastutil collection types
+ [3.3.0]
 
 Vanya (@vanyamanko)
 
