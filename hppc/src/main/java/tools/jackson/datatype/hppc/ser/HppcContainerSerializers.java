@@ -171,7 +171,7 @@ public class HppcContainerSerializers
         {
             ValueSerializer<?> ser = super.getSerializer(type);
             if (ser != null) {
-                if (IntIndexedContainer.class.isAssignableFrom(type.getClass())) {
+                if (IntIndexedContainer.class.isAssignableFrom(type.getRawClass())) {
                     return new Indexed();
                 }
             }
@@ -238,16 +238,16 @@ public class HppcContainerSerializers
             protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
             {
-                int[] array;
                 if (value instanceof IntArrayList arrayList) {
-                    array = arrayList.buffer;
-                } else {
-                    array = value.toArray();
+                    int[] array = arrayList.buffer;
+                    for (int i = 0, len = value.size(); i < len; ++i) {
+                        gen.writeNumber(array[i]);
+                    }
+                    return;
                 }
                 for (int i = 0, len = value.size(); i < len; ++i) {
-                    gen.writeNumber(array[i]);
+                    gen.writeNumber(value.get(i));
                 }
-                return;
             }
         }
         

@@ -64,6 +64,10 @@ public class TestContainerSerializers extends ModuleTestBase
         IntArrayList array = new IntArrayList();
         array.add(-12, 0);
         assertEquals("[-12,0]", mapper.writeValueAsString(array));
+        // indexed containers should get the specialized serializer
+        assertInstanceOf(HppcContainerSerializers.IntContainerSerializer.Indexed.class,
+                HppcContainerSerializers.getMatchingSerializer(mapper.serializationConfig(),
+                        mapper.constructType(IntArrayList.class)));
 
         IntHashSet set = new IntHashSet();
         set.addAll(1, 2);
