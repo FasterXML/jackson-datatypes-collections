@@ -286,7 +286,7 @@ public final class DeserializerTest extends ModuleTestBase {
     }
 
     static void primitiveMaps0(ObjectMapper mapper, boolean serialize) throws Exception {
-        List<Class<?>> keyPrimitives = Arrays.asList(
+        List<Class<?>> keyPrimitives = List.of(
                 Object.class, byte.class, short.class, char.class, int.class, float.class, long.class, double.class);
         List<Class<?>> valuePrimitives = new ArrayList<>(keyPrimitives);
         valuePrimitives.add(boolean.class);
@@ -474,7 +474,7 @@ public final class DeserializerTest extends ModuleTestBase {
 
     @Test
     public void primitivePairs() throws Exception {
-        List<Class<?>> types = Arrays.asList(
+        List<Class<?>> types = List.of(
                 Object.class,
                 boolean.class,
                 byte.class,
