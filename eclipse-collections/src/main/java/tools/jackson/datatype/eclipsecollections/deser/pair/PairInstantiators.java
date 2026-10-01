@@ -38,12 +38,23 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             DeserializationConfig config, BeanDescription.Supplier beanDescRef
     ) {
         Class<?> beanClass = beanDescRef.getBeanClass();
+        JavaType beanType = beanDescRef.getType();
+        ValueInstantiator inst = _findValueInstantiator(beanClass, beanType);
+        if (inst == null) {
+            // Implementation class (like `PairImpl`, as named by a type id with default typing)?
+            Class<?> pairType = implementedTupleType(beanClass, ALL_PAIR_CLASSES);
+            if (pairType != null) {
+                inst = _findValueInstantiator(pairType, beanType.findSuperType(pairType));
+            }
+        }
+        return inst;
+    }
+
+    private ValueInstantiator _findValueInstantiator(Class<?> beanClass, JavaType beanType) {
         ValueInstantiator purePrimitive = PURE_PRIMITIVE_INSTANTIATORS.get(beanClass);
         if (purePrimitive != null) {
             return purePrimitive;
         }
-
-        JavaType beanType = beanDescRef.getType();
 
         Function<JavaType, ValueInstantiator> keyOrValueObjectLambda =
                 KEY_OR_VALUE_OBJECT_LAMBDAS.get(beanClass);
@@ -61,12 +72,12 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
                 @Override
                 JavaType oneType(DeserializationConfig config) {
-                    return beanType.containedType(0);
+                    return beanType.containedTypeOrUnknown(0);
                 }
 
                 @Override
                 JavaType twoType(DeserializationConfig config) {
-                    return beanType.containedType(1);
+                    return beanType.containedTypeOrUnknown(1);
                 }
             };
         }
@@ -81,17 +92,42 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
                 @Override
                 JavaType oneType(DeserializationConfig config) {
-                    return beanType.containedType(0);
+                    return beanType.containedTypeOrUnknown(0);
                 }
 
                 @Override
                 JavaType twoType(DeserializationConfig config) {
-                    return beanType.containedType(0);
+                    return beanType.containedTypeOrUnknown(0);
                 }
             };
         }
 
         return null;
+    }
+
+    /**
+     * For an Eclipse Collections tuple implementation class (like {@code PairImpl} or
+     * {@code IntLongPairImpl}), find the most specific supported tuple interface it implements.
+     *
+     * @return Most specific matching type from {@code tupleTypes}, if exactly one;
+     *    {@code null} otherwise (including for interfaces, and classes outside of Eclipse Collections)
+     */
+    static Class<?> implementedTupleType(Class<?> implClass, Collection<Class<?>> tupleTypes) {
+        if (implClass.isInterface() || !implClass.getName().startsWith("org.eclipse.collections.")) {
+            return null;
+        }
+        Class<?> match = null;
+        for (Class<?> candidate : tupleTypes) {
+            if (!candidate.isAssignableFrom(implClass)) {
+                continue;
+            }
+            if (match == null || match.isAssignableFrom(candidate)) {
+                match = candidate;
+            } else if (!candidate.isAssignableFrom(match)) { // unrelated: ambiguous
+                return null;
+            }
+        }
+        return match;
     }
 
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
@@ -122,7 +158,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
             @Override
             JavaType twoType(DeserializationConfig config) {
-                return inputType.containedType(0);
+                return inputType.containedTypeOrUnknown(0);
             }
         };
     }
@@ -143,7 +179,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
             @Override
             JavaType oneType(DeserializationConfig config) {
-                return inputType.containedType(0);
+                return inputType.containedTypeOrUnknown(0);
             }
 
             @Override
