@@ -15,6 +15,9 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#232: (guava) Invalid stringified `Range` and incomparable sorted elements throw
+  raw runtime exceptions
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
