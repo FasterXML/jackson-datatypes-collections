@@ -2,6 +2,8 @@ package tools.jackson.datatype.guava;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -17,6 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BuilderExceptionHandlingTest extends ModuleTestBase
 {
     private final ObjectMapper MAPPER = mapperWithModule();
+
+    private final ObjectMapper POLY_MAPPER = builderWithModule()
+            .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+            .build();
 
     /**
      * ImmutableMap.Builder.build() throws IllegalArgumentException when there are duplicate keys
@@ -173,4 +179,63 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         assertTrue(result.contains(1));
         assertTrue(result.contains(5));
     }
+
+    // Elements of a sorted container must be `Comparable`, so mixed element types
+    // can only show up via polymorphic handling
+    static class SortedSetWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public ImmutableSortedSet<Comparable<?>> values;
+    }
+
+    static class SortedMultisetWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public ImmutableSortedMultiset<Comparable<?>> values;
+    }
+
+    /**
+     * Sorted builders throw ClassCastException when elements are not mutually comparable
+     */
+    @Test
+    public void testImmutableSortedSetIncomparableElementsHandling()
+    {
+        try {
+            POLY_MAPPER.readValue(_mixedTypes(1), SortedSetWrapper.class);
+            fail("Should have thrown an exception for incomparable elements");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Failed to build `ImmutableSortedSet`");
+        }
+    }
+
+    @Test
+    public void testImmutableSortedSetIncomparableElementsInLargeInputHandling()
+    {
+        // Large enough that the builder may sort while elements are still being added
+        try {
+            POLY_MAPPER.readValue(_mixedTypes(100), SortedSetWrapper.class);
+            fail("Should have thrown an exception for incomparable elements");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Failed to build `ImmutableSortedSet`");
+        }
+    }
+
+    @Test
+    public void testImmutableSortedMultisetIncomparableElementsHandling()
+    {
+        try {
+            POLY_MAPPER.readValue(_mixedTypes(1), SortedMultisetWrapper.class);
+            fail("Should have thrown an exception for incomparable elements");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Failed to build `ImmutableSortedMultiset`");
+        }
+    }
+
+    // JSON with `count` Integer elements followed by one String element
+    private static String _mixedTypes(int count) {
+        StringBuilder sb = new StringBuilder("{\"values\":[");
+        for (int i = 0; i < count; i++) {
+            sb.append("[\"java.lang.Integer\",").append(i).append("],");
+        }
+        return sb.append("[\"java.lang.String\",\"a\"]]}").toString();
+    }
+
 }

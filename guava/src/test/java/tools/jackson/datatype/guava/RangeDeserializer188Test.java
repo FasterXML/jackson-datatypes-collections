@@ -138,6 +138,12 @@ public class RangeDeserializer188Test extends ModuleTestBase
         testInvalidStringifiedDeserialization("[24, 15)", RangeError.GENERIC_INVALID);
     }
 
+    @Test
+    public void testWrongOrderingFromBracketNotation() throws Exception {
+        testInvalidStringifiedDeserialization("[24..15)", RangeError.WRONG_ORDER);
+        testInvalidStringifiedDeserialization("(32..0)", RangeError.WRONG_ORDER);
+    }
+
     private void testInvalidStringifiedDeserialization(String json, RangeError error) throws Exception {
         json = "{\"r\":\"" + json + "\"}";
 
@@ -176,7 +182,8 @@ public class RangeDeserializer188Test extends ModuleTestBase
 
     public enum RangeError {
         INVALID_BRACKET("Invalid Range: should start with '[' or '(', end with ')' or ']"),
-        GENERIC_INVALID("Invalid bracket-notation representation");
+        GENERIC_INVALID("Invalid bracket-notation representation"),
+        WRONG_ORDER("Invalid range");
 
         private final String errorMessage;
 
