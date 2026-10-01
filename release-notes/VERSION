@@ -18,6 +18,9 @@ Modules:
 #232: (guava) Invalid stringified `Range` and incomparable sorted elements throw
   raw runtime exceptions
  (fixed by @pjfanning)
+#245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
+  as `Object` with default typing
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
