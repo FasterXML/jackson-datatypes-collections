@@ -35,7 +35,12 @@ public final class PrimitiveRefMapSerializers
         @Override
         protected void serializeEntries(Char2ObjectMap<V> value, JsonGenerator g, SerializationContext ctxt) {
             Char2ObjectMaps.fastForEach(value, e -> {
+                /* if char|float|double key */
                 g.writeName(String.valueOf(e.getCharKey()));
+                /* elif !(char|float|double key) //
+                // avoids allocating a String per key
+                g.writePropertyId(e.getCharKey());
+                // endif */
                 V v = e.getValue();
                 if (v == null) {
                     ctxt.defaultSerializeNullValue(g);

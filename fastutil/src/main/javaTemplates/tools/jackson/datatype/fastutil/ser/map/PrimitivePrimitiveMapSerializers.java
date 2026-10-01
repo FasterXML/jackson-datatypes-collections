@@ -44,7 +44,12 @@ public final class PrimitivePrimitiveMapSerializers {
                 protected void serializeEntries(Byte2ShortMap value, JsonGenerator g, SerializationContext ctxt)
                 {
                     Byte2ShortMaps.fastForEach(value, e -> {
+                        /* if !(char|float|double key) */
+                        // avoids allocating a String per key
+                        g.writePropertyId(e.getByteKey());
+                        /* elif char|float|double key //
                         g.writeName(String.valueOf(e.getByteKey()));
+                        // endif */
                         /* if !(char|boolean value) */
                         g.writeNumber(e.getShortValue());
                         /* elif char value //
