@@ -540,7 +540,7 @@ public class HppcContainerSerializers
         {
             // Write up to the highest set bit: `size()` is the allocated capacity
             // (a multiple of 64), which may be far beyond it
-            for (int i = 0, len = (int) value.length(); i < len; ++i) {
+            for (long i = 0, len = value.length(); i < len; ++i) {
                 gen.writeBoolean(value.get(i));
             }
         }
