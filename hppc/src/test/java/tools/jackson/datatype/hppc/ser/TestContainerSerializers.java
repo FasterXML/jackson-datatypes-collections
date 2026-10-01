@@ -156,7 +156,7 @@ public class TestContainerSerializers extends ModuleTestBase
     {
         ObjectMapper mapper = mapperWithModule();
         // first, untyped case
-        ObjectArrayList<Object> list = new ObjectArrayList<Object>();
+        ObjectArrayList<Object> list = new ObjectArrayList<>();
         list.add("foo");
         list.add(Integer.valueOf(3));
         list.add((Object) null);
