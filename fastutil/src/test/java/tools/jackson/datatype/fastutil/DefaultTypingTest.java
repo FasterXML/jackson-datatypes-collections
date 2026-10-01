@@ -36,6 +36,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 import it.unimi.dsi.fastutil.shorts.ShortImmutableList;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -216,7 +217,7 @@ public class DefaultTypingTest extends ModuleTestBase
                 .build();
         Bean input = Bean.create();
         String json = mapper.writeValueAsString(input);
-        assertTrue(json.contains("[\"a\",\"b\"]"), json);
+        assertThat(json).contains("[\"a\",\"b\"]");
         input.assertEqualTo(mapper.readValue(json, Bean.class),
                 typing != DefaultTyping.JAVA_LANG_OBJECT);
     }

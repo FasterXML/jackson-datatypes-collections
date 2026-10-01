@@ -1,35 +1,23 @@
 package tools.jackson.datatype.fastutil;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
+
 import org.junit.jupiter.api.Test;
 
 import tools.jackson.databind.JacksonModule;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.ServiceLoader;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ModuleSPIMetadataTest extends ModuleTestBase
 {
     @Test
     void testModuleSPIMetadata() {
-        ServiceLoader<JacksonModule> loader
-            = ServiceLoader.load(JacksonModule.class);
-        assertTrue(loader.iterator().hasNext(),
-                "Expected at least one `Module` implementation to be found via `ServiceLoader`");
-        final String exp = FastutilModule.class.getName();
-        int count = 0;
-
-        try {
-            for (JacksonModule service : loader) {
-                ++count;
-                if (service.getClass().getName().equals(exp)) {
-                    return;
-                }
-            }
-        } catch (Throwable t) {
-            fail("Expected to find `"+exp+"` Module (found "+count+" so far), problem: "+t);
+        List<String> moduleNames = new ArrayList<>();
+        for (JacksonModule module : ServiceLoader.load(JacksonModule.class)) {
+            moduleNames.add(module.getClass().getName());
         }
-        fail("Expected to find `"+exp+"` Module (found "+count+" others)");
-        assertEquals(1, count);
+        assertThat(moduleNames).contains(FastutilModule.class.getName());
     }
 }

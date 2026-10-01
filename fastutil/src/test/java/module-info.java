@@ -15,6 +15,7 @@ module tools.jackson.datatype.fastutil
     // Additional test lib/framework dependencies
     requires org.junit.jupiter.api;
     requires org.junit.jupiter.params;
+    requires org.assertj.core;
 
     // Further, need to open up test packages for JUnit et al
     opens tools.jackson.datatype.fastutil;

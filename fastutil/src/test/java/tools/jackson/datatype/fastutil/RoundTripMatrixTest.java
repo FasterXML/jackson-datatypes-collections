@@ -14,6 +14,7 @@ import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationFeature;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -65,7 +66,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
     @Test
     void testMatrixCoverage() {
         // 8 element types, some types (like `BooleanSortedSet`) do not exist
-        assertTrue(collectionTypes().count() > 90, "collection types: " + collectionTypes().count());
+        assertThat(collectionTypes()).hasSizeGreaterThan(90);
         // 71 key/value combinations, 7 types each
         assertEquals(71 * 7, mapTypes().count());
     }
@@ -105,7 +106,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
         Collection<Object> input = FastutilTypes.newCollection(type,
                 FastutilTypes.sampleValues(primitive));
         String json = mapper.writeValueAsString(input);
-        assertTrue(json.startsWith("["), json);
+        assertThat(json).startsWith("[");
         assertEquals(input, mapper.readValue(json, type));
     }
 
@@ -130,7 +131,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
         Collection<Object> input = FastutilTypes.newCollection(type,
                 FastutilTypes.sampleValues(primitive));
         String json = mapper.writeValueAsString(new Wrapper(input));
-        assertTrue(json.contains(input.getClass().getName()), json);
+        assertThat(json).contains(input.getClass().getName());
 
         Wrapper result = mapper.readValue(json, Wrapper.class);
         assertInstanceOf(input.getClass(), result.value);
@@ -181,7 +182,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
         Map<Object, Object> input = FastutilTypes.newMap(type,
                 FastutilTypes.sampleValues(key), FastutilTypes.sampleValues(value));
         String json = mapper.writeValueAsString(new Wrapper(input));
-        assertTrue(json.contains(input.getClass().getName()), json);
+        assertThat(json).contains(input.getClass().getName());
 
         Wrapper result = mapper.readValue(json, Wrapper.class);
         assertInstanceOf(input.getClass(), result.value);

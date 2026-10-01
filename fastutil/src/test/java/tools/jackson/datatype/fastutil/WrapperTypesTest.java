@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanMaps;
 import it.unimi.dsi.fastutil.shorts.ShortCollections;
 import it.unimi.dsi.fastutil.shorts.ShortArrayList;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -99,7 +100,7 @@ public class WrapperTypesTest extends ModuleTestBase
     void testWrapperRoundTrip(Object input, boolean unmodifiable) throws Exception
     {
         String json = MAPPER.writeValueAsString(new Holder(input));
-        assertTrue(json.contains(input.getClass().getName()), json);
+        assertThat(json).contains(input.getClass().getName());
 
         Object result = MAPPER.readValue(json, Holder.class).value;
         if (input instanceof Collection && !(input instanceof java.util.List)

@@ -10,6 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -80,7 +81,10 @@ public class ReferenceContainersTest extends ModuleTestBase
     private void _verify(Class<?> expectedType, String json, TypeReference<?> type) throws Exception {
         Object result = MAPPER.readValue(a2q(json), type);
         assertInstanceOf(expectedType, result);
-        assertFalse(((result instanceof java.util.Map) ? ((java.util.Map<?, ?>) result).isEmpty()
-                : ((java.util.Collection<?>) result).isEmpty()));
+        if (result instanceof java.util.Map) {
+            assertThat((java.util.Map<?, ?>) result).isNotEmpty();
+        } else {
+            assertThat((java.util.Collection<?>) result).isNotEmpty();
+        }
     }
 }

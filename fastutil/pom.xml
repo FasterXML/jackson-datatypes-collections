@@ -21,6 +21,7 @@
 
   <properties>
     <version.fastutil>8.5.19</version.fastutil>
+    <version.assertj>3.27.7</version.assertj>
 
     <!-- Generate PackageVersion.java into this directory. -->
     <packageVersion.dir>tools/jackson/datatype/fastutil</packageVersion.dir>
@@ -37,6 +38,14 @@
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
       <version>${version.fastutil}</version>
+    </dependency>
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>${version.assertj}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
