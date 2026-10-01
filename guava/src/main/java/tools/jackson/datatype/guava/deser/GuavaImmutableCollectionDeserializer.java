@@ -50,7 +50,12 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         Object first = null;
         boolean hasFirst = false;
 
-        while (p.nextToken() != JsonToken.END_ARRAY) {
+        JsonToken t;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            // Only JSON nulls are skipped; null from value deserializer is not
+            if (t == JsonToken.VALUE_NULL && _skipNullValues) {
+                continue;
+            }
             Object value = _deserializeSingleValue(p, ctxt);
             if (value == null) {
                 // Null values need builder for proper error handling
@@ -58,9 +63,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 if (hasFirst) {
                     builder.add(first);
                 }
-                if (!_skipNullValues) {
-                    _tryToAddNull(p, ctxt, builder);
-                }
+                _tryToAddNull(p, ctxt, builder);
                 return _finishWithBuilder(p, ctxt, builder);
             }
             if (!hasFirst) {
@@ -94,12 +97,14 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     private T _finishWithBuilder(JsonParser p, DeserializationContext ctxt,
             ImmutableCollection.Builder<Object> builder) throws JacksonException
     {
-        while (p.nextToken() != JsonToken.END_ARRAY) {
+        JsonToken t;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            if (t == JsonToken.VALUE_NULL && _skipNullValues) {
+                continue;
+            }
             Object value = _deserializeSingleValue(p, ctxt);
             if (value == null) {
-                if (!_skipNullValues) {
-                    _tryToAddNull(p, ctxt, builder);
-                }
+                _tryToAddNull(p, ctxt, builder);
             } else {
                 builder.add(value);
             }

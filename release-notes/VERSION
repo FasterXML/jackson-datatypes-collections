@@ -15,6 +15,9 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#233: (guava) `Nulls.SKIP` on immutable collection contents drops `null`s
+  returned by value deserializer
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
