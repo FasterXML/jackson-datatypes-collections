@@ -30,7 +30,7 @@ public final class PrimitivePrimitiveMapSerializers {
         short|byte|char|int|long|float|double|boolean value
     */
     private static final PrimitiveMapSerializer<ByteShortMap> BYTE_SHORT =
-            new PrimitiveMapSerializer<ByteShortMap>(ByteShortMap.class) {
+            new PrimitiveMapSerializer<>(ByteShortMap.class) {
                 @Override
                 protected void serializeEntries(ByteShortMap value, JsonGenerator g, SerializationContext ctxt)
                 {
