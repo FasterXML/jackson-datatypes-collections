@@ -107,9 +107,8 @@ public class HppcContainerSerializers
         protected void serializeContents(final ByteContainer value, final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
         {
-            if (value instanceof ByteArrayList) {
+            if (value instanceof ByteArrayList list) {
                 // Write straight from the backing buffer, avoiding a copy
-                ByteArrayList list = (ByteArrayList) value;
                 gen.writeBinary(list.buffer, 0, list.size());
                 return;
             }
@@ -391,9 +390,8 @@ public class HppcContainerSerializers
                 final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
         {
-            if (value instanceof CharArrayList) {
+            if (value instanceof CharArrayList list) {
                 // Write straight from the backing buffer, avoiding a copy
-                CharArrayList list = (CharArrayList) value;
                 gen.writeString(list.buffer, 0, list.size());
                 return;
             }
