@@ -173,8 +173,15 @@ public class TestContainerSerializers extends ModuleTestBase
         bitset.set(1);
         bitset.set(4);
 
-        // note: since storage is in units of 64 bits, we may get more than what we asked for, so:
-        String str = mapper.writeValueAsString(bitset);
-        assertTrue(str.startsWith("[false,true,false,false,true"));
+        // only up to the highest set bit, not the allocated capacity
+        assertEquals("[false,true,false,false,true]", mapper.writeValueAsString(bitset));
+
+        // pre-sized: capacity far beyond the highest set bit
+        BitSet large = new BitSet(1_000_000);
+        large.set(2);
+        assertEquals("[false,false,true]", mapper.writeValueAsString(large));
+
+        assertEquals("[]", mapper.writeValueAsString(new BitSet()));
+        assertEquals("[]", mapper.writeValueAsString(new BitSet(1_000)));
     }
 }

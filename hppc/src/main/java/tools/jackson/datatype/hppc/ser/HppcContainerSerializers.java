@@ -520,7 +520,7 @@ public class HppcContainerSerializers
 
         @Override
         public boolean hasSingleElement(BitSet value) {
-            return value.size() == 1;
+            return value.length() == 1;
         }
 
         @Override
@@ -538,11 +538,10 @@ public class HppcContainerSerializers
         protected void serializeContents(final BitSet value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
-            // is size() close enough to the last set bit?
-            if (!value.isEmpty()) {
-                for (int i = 0, len = (int) value.size(); i < len; ++i) {
-                    gen.writeBoolean(value.get(i));
-                }
+            // Write up to the highest set bit: `size()` is the allocated capacity
+            // (a multiple of 64), which may be far beyond it
+            for (long i = 0, len = value.length(); i < len; ++i) {
+                gen.writeBoolean(value.get(i));
             }
         }
     }
