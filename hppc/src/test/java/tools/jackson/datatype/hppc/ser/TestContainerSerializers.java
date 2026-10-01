@@ -25,6 +25,11 @@ public class TestContainerSerializers extends ModuleTestBase
         
         assertEquals(mapper.writeValueAsString(input), mapper.writeValueAsString(array));
 
+        // removed trailing element may remain in the backing buffer: must not be written
+        array.removeAt(3);
+        assertEquals(mapper.writeValueAsString(new byte[] { (byte)-12, (byte)0, (byte) -1 }),
+                mapper.writeValueAsString(array));
+
         // 07-May-2015, tatu: HPPC-0.7 dropped byte/float/double key associate sets/maps:
 /*        
         ByteHashSet set = new ByteHashSet();
@@ -97,6 +102,11 @@ public class TestContainerSerializers extends ModuleTestBase
 
         CharArrayList array = new CharArrayList();
         array.add('a', 'b', 'c');
+        assertEquals("\"abc\"", mapper.writeValueAsString(array));
+
+        // removed trailing element may remain in the backing buffer: must not be written
+        array.add('d');
+        array.removeAt(3);
         assertEquals("\"abc\"", mapper.writeValueAsString(array));
 
         CharHashSet set = new CharHashSet();
