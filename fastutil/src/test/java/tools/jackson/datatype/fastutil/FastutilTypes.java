@@ -9,39 +9,39 @@ import java.util.*;
  */
 final class FastutilTypes
 {
-    static final List<String> PRIMITIVES = Arrays.asList(
+    static final List<String> PRIMITIVES = List.of(
             "Boolean", "Byte", "Short", "Char", "Int", "Long", "Float", "Double");
 
-    static final List<String> MAP_KEYS = Arrays.asList(
+    static final List<String> MAP_KEYS = List.of(
             "Byte", "Short", "Char", "Int", "Long", "Float", "Double", "Object");
 
-    static final List<String> MAP_VALUES = Arrays.asList(
+    static final List<String> MAP_VALUES = List.of(
             "Boolean", "Byte", "Short", "Char", "Int", "Long", "Float", "Double", "Object");
 
-    static final List<String> COLLECTION_SUFFIXES = Arrays.asList(
+    static final List<String> COLLECTION_SUFFIXES = List.of(
             "Collection", "List", "Set", "SortedSet", "BigList",
             "ArrayList", "ImmutableList", "BigArrayBigList",
             "OpenHashSet", "LinkedOpenHashSet", "ArraySet", "RBTreeSet", "AVLTreeSet", "OpenHashBigSet");
 
-    static final List<String> MAP_SUFFIXES = Arrays.asList(
+    static final List<String> MAP_SUFFIXES = List.of(
             "Map", "SortedMap",
             "OpenHashMap", "LinkedOpenHashMap", "ArrayMap", "RBTreeMap", "AVLTreeMap");
 
     private FastutilTypes() { }
 
     static String packageName(String type) {
-        switch (type) {
-        case "Boolean": return "it.unimi.dsi.fastutil.booleans";
-        case "Byte": return "it.unimi.dsi.fastutil.bytes";
-        case "Short": return "it.unimi.dsi.fastutil.shorts";
-        case "Char": return "it.unimi.dsi.fastutil.chars";
-        case "Int": return "it.unimi.dsi.fastutil.ints";
-        case "Long": return "it.unimi.dsi.fastutil.longs";
-        case "Float": return "it.unimi.dsi.fastutil.floats";
-        case "Double": return "it.unimi.dsi.fastutil.doubles";
-        case "Object": return "it.unimi.dsi.fastutil.objects";
-        default: throw new IllegalArgumentException(type);
-        }
+        return switch (type) {
+            case "Boolean" -> "it.unimi.dsi.fastutil.booleans";
+            case "Byte" -> "it.unimi.dsi.fastutil.bytes";
+            case "Short" -> "it.unimi.dsi.fastutil.shorts";
+            case "Char" -> "it.unimi.dsi.fastutil.chars";
+            case "Int" -> "it.unimi.dsi.fastutil.ints";
+            case "Long" -> "it.unimi.dsi.fastutil.longs";
+            case "Float" -> "it.unimi.dsi.fastutil.floats";
+            case "Double" -> "it.unimi.dsi.fastutil.doubles";
+            case "Object" -> "it.unimi.dsi.fastutil.objects";
+            default -> throw new IllegalArgumentException(type);
+        };
     }
 
     /**
@@ -68,18 +68,18 @@ final class FastutilTypes
      * @return Distinct sample values for given element type, in insertion order
      */
     static List<Object> sampleValues(String type) {
-        switch (type) {
-        case "Boolean": return Arrays.asList(true, false);
-        case "Byte": return Arrays.asList((byte) 3, (byte) -128, (byte) 127);
-        case "Short": return Arrays.asList((short) 3, Short.MIN_VALUE, Short.MAX_VALUE);
-        case "Char": return Arrays.asList('x', 'a', 'é');
-        case "Int": return Arrays.asList(3, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        case "Long": return Arrays.asList(3L, Long.MIN_VALUE, Long.MAX_VALUE);
-        case "Float": return Arrays.asList(3.5f, -0.25f, 1e10f);
-        case "Double": return Arrays.asList(3.5d, -0.25d, 1e100d);
-        case "Object": return Arrays.asList("x", "a", "b");
-        default: throw new IllegalArgumentException(type);
-        }
+        return switch (type) {
+            case "Boolean" -> List.of(true, false);
+            case "Byte" -> List.of((byte) 3, (byte) -128, (byte) 127);
+            case "Short" -> List.of((short) 3, Short.MIN_VALUE, Short.MAX_VALUE);
+            case "Char" -> List.of('x', 'a', 'é');
+            case "Int" -> List.of(3, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            case "Long" -> List.of(3L, Long.MIN_VALUE, Long.MAX_VALUE);
+            case "Float" -> List.of(3.5f, -0.25f, 1e10f);
+            case "Double" -> List.of(3.5d, -0.25d, 1e100d);
+            case "Object" -> List.of("x", "a", "b");
+            default -> throw new IllegalArgumentException(type);
+        };
     }
 
     /**

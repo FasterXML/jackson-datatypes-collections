@@ -68,28 +68,17 @@ public final class FastutilMapDeserializers
 
     private static Entry<?, ?, ?> _findEntry(Class<?> rawType) {
         for (Entry<?, ?, ?> entry : ENTRIES) {
-            if (entry.family.handles(rawType)) {
+            if (entry.family().handles(rawType)) {
                 return entry;
             }
         }
         return null;
     }
 
-    private static final class Entry<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
+    private record Entry<M, K extends KeyHandler<K>, V extends ValueHandler<V>>(
+            boolean refKey, boolean refValue,
+            ContainerFamily<M> family, TypeHandlerPair<M, K, V> typeHandlerPair)
     {
-        private final boolean refKey;
-        private final boolean refValue;
-        final ContainerFamily<M> family;
-        final TypeHandlerPair<M, K, V> typeHandlerPair;
-
-        Entry(boolean refKey, boolean refValue,
-                ContainerFamily<M> family, TypeHandlerPair<M, K, V> typeHandlerPair) {
-            this.refKey = refKey;
-            this.refValue = refValue;
-            this.family = family;
-            this.typeHandlerPair = typeHandlerPair;
-        }
-
         @SuppressWarnings("unchecked")
         ValueDeserializer<?> createDeserializer(MapType type, KeyDeserializer keyDeserializer,
                 TypeDeserializer valueTypeDeserializer, ValueDeserializer<?> valueDeserializer)
@@ -104,7 +93,7 @@ public final class FastutilMapDeserializers
             V valueHandler = refValue
                     ? (V) new RefValueHandler(type.getContentType(), valueDeserializer, valueTypeDeserializer)
                     : typeHandlerPair.valueHandler(type.getContentType());
-            TypeHandlerPair<M, K, V> pair = new TypeHandlerPair<M, K, V>() {
+            TypeHandlerPair<M, K, V> pair = new TypeHandlerPair<>() {
                 @Override
                 public K keyHandler(JavaType t) {
                     return typeHandlerPair.keyHandler(t);

@@ -1,6 +1,5 @@
 package tools.jackson.datatype.fastutil.deser;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -94,7 +93,7 @@ public final class PrimitiveCollectionDeserializers
                 .add(DoubleList.class, DoubleArrayList::new, DoubleArrayList::new)
                 .add(DoubleCollection.class, DoubleArrayList::new, DoubleArrayList::new);
 
-    private static final List<ContainerFamily<?>> FAMILIES = Arrays.asList(
+    private static final List<ContainerFamily<?>> FAMILIES = List.of(
             BOOLEANS, BYTES, SHORTS, CHARS, INTS, LONGS, FLOATS, DOUBLES);
 
     /**

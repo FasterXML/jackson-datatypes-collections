@@ -81,10 +81,10 @@ public class ReferenceContainersTest extends ModuleTestBase
     private void _verify(Class<?> expectedType, String json, TypeReference<?> type) throws Exception {
         Object result = MAPPER.readValue(a2q(json), type);
         assertInstanceOf(expectedType, result);
-        if (result instanceof java.util.Map) {
-            assertThat((java.util.Map<?, ?>) result).isNotEmpty();
+        if (result instanceof java.util.Map<?, ?> map) {
+            assertThat(map).isNotEmpty();
         } else {
-            assertThat((java.util.Collection<?>) result).isNotEmpty();
+            assertThat(assertInstanceOf(java.util.Collection.class, result)).isNotEmpty();
         }
     }
 }

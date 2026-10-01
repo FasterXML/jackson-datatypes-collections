@@ -45,9 +45,7 @@ final class TypeHandlerPairs {
     private static final TypeHandlerPair</*MapType*/Byte2ShortMap/**/,
             /*KeyHandlerType*/PrimitiveKVHandler.Byte/**/,
             /*ValueHandlerType*/PrimitiveKVHandler.Short/**/> BYTE_SHORT =
-            new TypeHandlerPair</*MapType*/Byte2ShortMap/**/,
-                    /*KeyHandlerType*/PrimitiveKVHandler.Byte/**/,
-                    /*ValueHandlerType*/PrimitiveKVHandler.Short/**/>() {
+            new TypeHandlerPair<>() {
                 @Override
                 public /*KeyHandlerType*/PrimitiveKVHandler.Byte/**/ keyHandler(JavaType type) {
                     return /* if !(object key) */PrimitiveKVHandler.Byte.INSTANCE

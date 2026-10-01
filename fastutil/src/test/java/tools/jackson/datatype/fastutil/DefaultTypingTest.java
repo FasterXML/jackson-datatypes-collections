@@ -54,7 +54,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            return (o instanceof Point) && ((Point) o).x == x && ((Point) o).y == y;
+            return (o instanceof Point other) && other.x == x && other.y == y;
         }
 
         @Override

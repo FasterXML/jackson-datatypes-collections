@@ -103,12 +103,12 @@ public class WrapperTypesTest extends ModuleTestBase
         assertThat(json).contains(input.getClass().getName());
 
         Object result = MAPPER.readValue(json, Holder.class).value;
-        if (input instanceof Collection && !(input instanceof java.util.List)
+        if (input instanceof Collection<?> inputColl && !(input instanceof java.util.List)
                 && !(input instanceof java.util.Set)) {
             // Like `java.util.Collections.unmodifiableCollection()`, plain collection
             // wrappers do not implement `equals()`: compare contents instead
-            assertEquals(new java.util.ArrayList<>((Collection<?>) input),
-                    new java.util.ArrayList<>((Collection<?>) result));
+            assertEquals(new java.util.ArrayList<>(inputColl),
+                    new java.util.ArrayList<>(assertInstanceOf(Collection.class, result)));
         } else {
             assertEquals(input, result);
         }
@@ -147,8 +147,8 @@ public class WrapperTypesTest extends ModuleTestBase
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private static void _modify(Object container) {
-        if (container instanceof Map) {
-            ((Map) container).clear();
+        if (container instanceof Map<?, ?> map) {
+            map.clear();
         } else {
             // `clear()` may be a no-op on empty unmodifiable collections, but `add()` is not
             Collection coll = (Collection) container;

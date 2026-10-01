@@ -92,7 +92,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
         assertInstanceOf(type, result);
         assertEquals(input, result);
         if (_isOrdered(input)) {
-            assertEquals(new ArrayList<>(input), new ArrayList<>((Collection<?>) result));
+            assertEquals(new ArrayList<>(input), new ArrayList<>(assertInstanceOf(Collection.class, result)));
         }
     }
 
@@ -114,7 +114,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
     @MethodSource("collectionTypes")
     void testEmptyCollectionRoundTrip(String primitive, Class<?> type) throws Exception
     {
-        Collection<Object> input = FastutilTypes.newCollection(type, Collections.emptyList());
+        Collection<Object> input = FastutilTypes.newCollection(type, List.of());
         String json = MAPPER.writeValueAsString(input);
         assertEquals("Char".equals(primitive) ? "\"\"" : "[]", json);
         Object result = MAPPER.readValue(json, type);
@@ -156,7 +156,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
         // also verify that ordering is retained, where it exists
         if (_isOrdered(input)) {
             assertEquals(new ArrayList<>(input.keySet()),
-                    new ArrayList<>(((Map<?, ?>) result).keySet()));
+                    new ArrayList<>(assertInstanceOf(Map.class, result).keySet()));
         }
     }
 
@@ -165,7 +165,7 @@ public class RoundTripMatrixTest extends ModuleTestBase
     void testEmptyMapRoundTrip(String key, String value, Class<?> type) throws Exception
     {
         Map<Object, Object> input = FastutilTypes.newMap(type,
-                Collections.emptyList(), FastutilTypes.sampleValues(value));
+                List.of(), FastutilTypes.sampleValues(value));
         String json = MAPPER.writeValueAsString(input);
         assertEquals("{}", json);
         Object result = MAPPER.readValue(json, type);

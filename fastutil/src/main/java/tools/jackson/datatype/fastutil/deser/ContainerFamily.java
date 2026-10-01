@@ -83,14 +83,14 @@ public final class ContainerFamily<C>
             return null;
         }
         for (Kind<C> kind : _kinds) {
-            if (kind.iface == rawType) {
-                return new Creator<>(kind.defaultImpl, null);
+            if (kind.iface() == rawType) {
+                return new Creator<>(kind.defaultImpl(), null);
             }
         }
         if (rawType.isInterface() || Modifier.isAbstract(rawType.getModifiers())) {
             for (Kind<C> kind : _kinds) {
-                if (rawType.isInstance(kind.defaultImpl.get())) {
-                    return new Creator<>(kind.defaultImpl, null);
+                if (rawType.isInstance(kind.defaultImpl().get())) {
+                    return new Creator<>(kind.defaultImpl(), null);
                 }
             }
             return null;
@@ -144,19 +144,19 @@ public final class ContainerFamily<C>
             return null;
         }
         for (Kind<C> kind : _kinds) {
-            if (!kind.iface.isAssignableFrom(rawType)) {
+            if (!kind.iface().isAssignableFrom(rawType)) {
                 continue;
             }
             final Method factory;
             try {
-                factory = enclosing.getMethod(factoryName, kind.iface);
+                factory = enclosing.getMethod(factoryName, kind.iface());
             } catch (NoSuchMethodException e) {
                 continue;
             }
             if (!Modifier.isStatic(factory.getModifiers())) {
                 continue;
             }
-            return new Creator<>(kind.orderedImpl, value -> {
+            return new Creator<>(kind.orderedImpl(), value -> {
                 try {
                     return (C) factory.invoke(null, value);
                 } catch (IllegalAccessException | InvocationTargetException e) {
@@ -171,12 +171,12 @@ public final class ContainerFamily<C>
     private Creator<C> _findCopyConstructorCreator(Class<?> rawType)
     {
         for (Kind<C> kind : _kinds) {
-            if (!kind.iface.isAssignableFrom(rawType)) {
+            if (!kind.iface().isAssignableFrom(rawType)) {
                 continue;
             }
             Constructor<?> ctor;
             try {
-                ctor = rawType.getConstructor(kind.iface);
+                ctor = rawType.getConstructor(kind.iface());
             } catch (NoSuchMethodException e) {
                 try {
                     ctor = rawType.getConstructor(_baseType);
@@ -185,7 +185,7 @@ public final class ContainerFamily<C>
                 }
             }
             final Constructor<?> copyCtor = ctor;
-            return new Creator<>(kind.orderedImpl, value -> {
+            return new Creator<>(kind.orderedImpl(), value -> {
                 try {
                     return (C) copyCtor.newInstance(value);
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -202,17 +202,9 @@ public final class ContainerFamily<C>
                 + rawType.getName() + ": " + t, t);
     }
 
-    private static final class Kind<C>
+    private record Kind<C>(Class<?> iface,
+            Supplier<? extends C> defaultImpl, Supplier<? extends C> orderedImpl)
     {
-        final Class<?> iface;
-        final Supplier<? extends C> defaultImpl;
-        final Supplier<? extends C> orderedImpl;
-
-        Kind(Class<?> iface, Supplier<? extends C> defaultImpl, Supplier<? extends C> orderedImpl) {
-            this.iface = iface;
-            this.defaultImpl = defaultImpl;
-            this.orderedImpl = orderedImpl;
-        }
     }
 
     /**
