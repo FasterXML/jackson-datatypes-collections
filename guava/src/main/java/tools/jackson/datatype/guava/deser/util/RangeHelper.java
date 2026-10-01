@@ -85,6 +85,7 @@ public class RangeHelper
             DeserializationContext context, KeyDeserializer fromStringDeserializer,
             JavaType rangeType, Class<?> targetClass)
     {
+        final String original = rangeInterval;
         if (_isValidBracketNotation(rangeInterval)) {
             BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
             BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
@@ -103,10 +104,15 @@ public class RangeHelper
                 } else if (isUpperInfinite) {
                     return RangeFactory.downTo(deserializeStringified(context, parts[0], fromStringDeserializer, rangeType), lowerBoundType);
                 } else {
-                    return RangeFactory.range(deserializeStringified(context, parts[0], fromStringDeserializer, rangeType),
-                            lowerBoundType,
-                            deserializeStringified(context, parts[1], fromStringDeserializer, rangeType),
-                            upperBoundType);
+                    Comparable<?> lowerEndpoint = deserializeStringified(context, parts[0], fromStringDeserializer, rangeType);
+                    Comparable<?> upperEndpoint = deserializeStringified(context, parts[1], fromStringDeserializer, rangeType);
+                    try {
+                        return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
+                    } catch (IllegalArgumentException iae) {
+                        // e.g. lower endpoint greater than upper endpoint
+                        return (Range<?>) context.handleWeirdStringValue(targetClass, original,
+                                "%s", iae.getMessage());
+                    }
                 }
             }
         } else {

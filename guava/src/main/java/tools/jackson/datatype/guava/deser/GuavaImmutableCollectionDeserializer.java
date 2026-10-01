@@ -56,7 +56,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 // Null values need builder for proper error handling
                 ImmutableCollection.Builder<Object> builder = createBuilder();
                 if (hasFirst) {
-                    builder.add(first);
+                    _add(ctxt, builder, first);
                 }
                 if (!_skipNullValues) {
                     _tryToAddNull(p, ctxt, builder);
@@ -68,8 +68,8 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 hasFirst = true;
             } else {
                 ImmutableCollection.Builder<Object> builder = createBuilder();
-                builder.add(first);
-                builder.add(value);
+                _add(ctxt, builder, first);
+                _add(ctxt, builder, value);
                 return _finishWithBuilder(p, ctxt, builder);
             }
         }
@@ -101,14 +101,38 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                     _tryToAddNull(p, ctxt, builder);
                 }
             } else {
-                builder.add(value);
+                _add(ctxt, builder, value);
             }
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
-        @SuppressWarnings("unchecked")
-        T collection = (T) builder.build();
-        return collection;
+        try {
+            @SuppressWarnings("unchecked")
+            T collection = (T) builder.build();
+            return collection;
+        } catch (ClassCastException e) {
+            // Sorted builders fail this way if elements are not mutually comparable
+            return _reportBuildFailure(ctxt, e);
+        }
+    }
+
+    private void _add(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder,
+            Object value) throws JacksonException
+    {
+        try {
+            builder.add(value);
+        } catch (ClassCastException e) {
+            // Sorted builders may sort (and fail) while elements are still being added
+            _reportBuildFailure(ctxt, e);
+        }
+    }
+
+    private T _reportBuildFailure(DeserializationContext ctxt, RuntimeException e)
+        throws JacksonException
+    {
+        return ctxt.reportInputMismatch(this,
+                "Failed to build `%s` from deserialized elements: %s",
+                handledType().getSimpleName(), e.getMessage());
     }
 
     protected Object _resolveNullToValue(DeserializationContext ctxt)
