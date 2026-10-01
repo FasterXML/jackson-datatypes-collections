@@ -1,5 +1,6 @@
 package tools.jackson.datatype.eclipsecollections;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import tools.jackson.databind.*;
@@ -10,6 +11,7 @@ import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
 import tools.jackson.databind.type.ReferenceType;
+import tools.jackson.datatype.eclipsecollections.deser.ImplementationTypeDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.bag.ImmutableBagDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.bag.MutableBagDeserializer;
@@ -85,6 +87,7 @@ import org.eclipse.collections.api.collection.primitive.MutableIntCollection;
 import org.eclipse.collections.api.collection.primitive.MutableLongCollection;
 import org.eclipse.collections.api.collection.primitive.MutableShortCollection;
 import org.eclipse.collections.api.list.FixedSizeList;
+import org.eclipse.collections.api.map.MutableMapIterable;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.BooleanList;
@@ -156,6 +159,8 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             = new HashMap<>();
     @SuppressWarnings("rawtypes")
     private static final Set<Class<? extends InternalIterable>> REFERENCE_TYPES = new HashSet<>();
+    // all of above, plus supported Map types; initialized below
+    private static final Set<Class<?>> ALL_SUPPORTED_TYPES = new HashSet<>();
 
     @Override
     public ValueDeserializer<?> findCollectionDeserializer(
@@ -169,7 +174,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             return findReferenceDeserializer(type, type.getContentType(),
                                              elementTypeDeserializer, elementDeserializer);
         }
-        return null;
+        return findImplementationDeserializer(type, elementTypeDeserializer, elementDeserializer);
     }
 
     @Override
@@ -184,7 +189,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             return findReferenceDeserializer(type, type.getContentType(),
                                              elementTypeDeserializer, elementDeserializer);
         }
-        return null;
+        return findImplementationDeserializer(type, elementTypeDeserializer, elementDeserializer);
     }
 
     @Override
@@ -243,7 +248,90 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             return findReferenceDeserializer(type, type.containedTypeOrUnknown(0), elementTypeDeserializer, elementDeserializer);
         }
 
-        return EclipseMapDeserializers.createDeserializer(type); // May return null
+        deserializer = EclipseMapDeserializers.createDeserializer(type);
+        if (deserializer != null) {
+            return deserializer;
+        }
+        return findImplementationDeserializer(type, elementTypeDeserializer, elementDeserializer); // May return null
+    }
+
+    /**
+     * Handling for concrete implementation types (like {@code IntIntHashMap}, or
+     * {@code ImmutableTripletonList}), as named by polymorphic type ids, or used
+     * as declared types: use deserializer of the most specific supported
+     * interface type, verifying that it produces instances of the implementation type.
+     *
+     * @return Deserializer to use, if any; {@code null} if type is not handled
+     */
+    private ValueDeserializer<?> findImplementationDeserializer(JavaType type,
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
+        final Class<?> rawClass = type.getRawClass();
+        if (rawClass.isInterface() || _handledByDefaultDeserializer(rawClass)) {
+            return null;
+        }
+        Class<?> supportedType = _mostSpecificSupportedType(rawClass);
+        if (supportedType == null) {
+            return null;
+        }
+        ValueDeserializer<?> deserializer = findAnyEclipseDeserializer(type.findSuperType(supportedType),
+                elementTypeDeserializer, elementDeserializer);
+        if (deserializer == null) {
+            return null;
+        }
+        return new ImplementationTypeDeserializer(rawClass, deserializer);
+    }
+
+    /**
+     * Mutable implementations of {@link java.util.Collection} and {@link java.util.Map}
+     * with a public no-arguments constructor (like {@code FastList} or {@code UnifiedMap})
+     * are already handled by standard databind deserializers: leave those as is.
+     */
+    private static boolean _handledByDefaultDeserializer(Class<?> rawClass) {
+        if (FixedSizeCollection.class.isAssignableFrom(rawClass)) {
+            return false;
+        }
+        boolean mutableCollection = Collection.class.isAssignableFrom(rawClass)
+                && MutableCollection.class.isAssignableFrom(rawClass);
+        boolean mutableMap = Map.class.isAssignableFrom(rawClass)
+                && MutableMapIterable.class.isAssignableFrom(rawClass);
+        if (!mutableCollection && !mutableMap) {
+            return false;
+        }
+        try {
+            return Modifier.isPublic(rawClass.getConstructor().getModifiers());
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    /**
+     * @return Supported type assignable from given class that is not a supertype
+     *    of any other such type, if exactly one exists; {@code null} otherwise
+     */
+    private static Class<?> _mostSpecificSupportedType(Class<?> rawClass) {
+        List<Class<?>> candidates = new ArrayList<>();
+        for (Class<?> supported : ALL_SUPPORTED_TYPES) {
+            if (supported.isAssignableFrom(rawClass)) {
+                candidates.add(supported);
+            }
+        }
+        Class<?> match = null;
+        for (Class<?> candidate : candidates) {
+            boolean mostSpecific = true;
+            for (Class<?> other : candidates) {
+                if (other != candidate && candidate.isAssignableFrom(other)) {
+                    mostSpecific = false;
+                    break;
+                }
+            }
+            if (mostSpecific) {
+                if (match != null) { // ambiguous
+                    return null;
+                }
+                match = candidate;
+            }
+        }
+        return match;
     }
 
     private ValueDeserializer<?> findReferenceDeserializer(
@@ -431,6 +519,10 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         PRIMITIVE_DESERIALIZERS.put(DoubleSet.class, MutableSetDeserializer.Double.INSTANCE);
         PRIMITIVE_DESERIALIZERS.put(MutableDoubleSet.class, MutableSetDeserializer.Double.INSTANCE);
         PRIMITIVE_DESERIALIZERS.put(ImmutableDoubleSet.class, ImmutableSetDeserializer.Double.INSTANCE);
+
+        ALL_SUPPORTED_TYPES.addAll(REFERENCE_TYPES);
+        ALL_SUPPORTED_TYPES.addAll(PRIMITIVE_DESERIALIZERS.keySet());
+        ALL_SUPPORTED_TYPES.addAll(EclipseMapDeserializers.supportedTypes());
     }
 
     @Override

@@ -8,10 +8,12 @@ import tools.jackson.datatype.primitive_collections_base.deser.map.MapDeserializ
 import tools.jackson.datatype.primitive_collections_base.deser.map.TypeHandlerPair;
 import tools.jackson.datatype.primitive_collections_base.deser.map.ValueHandler;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 
 public final class EclipseMapDeserializers
@@ -26,6 +28,13 @@ public final class EclipseMapDeserializers
         }
 
         return entry.createDeserializer(type);
+    }
+
+    /**
+     * @return Map types (interfaces) for which deserializers are registered
+     */
+    public static Set<Class<?>> supportedTypes() {
+        return Collections.unmodifiableSet(ENTRIES.keySet());
     }
 
     @SuppressWarnings("unused") // Used from TypeHandlerPairs
