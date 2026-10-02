@@ -19,8 +19,8 @@ public class TreeMultisetDeserializer extends GuavaMultisetDeserializer<TreeMult
      */
     public TreeMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries);
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries, maxSize);
     }
 
     @SuppressWarnings("unchecked")
@@ -35,6 +35,6 @@ public class TreeMultisetDeserializer extends GuavaMultisetDeserializer<TreeMult
     public GuavaCollectionDeserializer<TreeMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new TreeMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries, _maxSize);
     }
 }

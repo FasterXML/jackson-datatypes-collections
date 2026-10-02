@@ -25,17 +25,25 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
      */
     protected final boolean _asEntries;
 
+    /**
+     * Maximum number of elements (sum of counts) allowed when reading entries.
+     *
+     * @since 3.3
+     */
+    protected final int _maxSize;
+
     GuavaMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        this(selfType, deser, typeDeser, nuller, unwrapSingle, true);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, true, DEFAULT_MAX_MULTISET_SIZE);
     }
 
     GuavaMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
         _asEntries = asEntries;
+        _maxSize = maxSize;
     }
 
     protected abstract T createMultiset();
@@ -57,7 +65,7 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     {
         if (_asEntries) {
             T set = createMultiset();
-            _deserializeMultisetEntries(p, ctxt, set::add);
+            _deserializeMultisetEntries(p, ctxt, set::add, _maxSize);
             return set;
         }
         ValueDeserializer<?> valueDes = _valueDeserializer;
@@ -93,7 +101,7 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     {
         if (_asEntries) {
             T set = createMultiset();
-            _deserializeMultisetEntry(p, ctxt, set::add);
+            _deserializeMultisetEntry(p, ctxt, set::add, 0, _maxSize);
             return set;
         }
         return super._deserializeFromSingleValue(p, ctxt);

@@ -21,6 +21,14 @@ public abstract class GuavaCollectionDeserializer<T>
     extends ContainerDeserializerBase<T>
 {
     /**
+     * Default maximum size (sum of element counts) of a
+     * {@link com.google.common.collect.Multiset} read from entries.
+     *
+     * @since 3.3
+     */
+    public final static int DEFAULT_MAX_MULTISET_SIZE = 10_000_000;
+
+    /**
      * Deserializer used for values contained in collection being deserialized;
      * either assigned on constructor, or during resolve().
      */
@@ -200,11 +208,12 @@ public abstract class GuavaCollectionDeserializer<T>
      * @since 3.3
      */
     protected void _deserializeMultisetEntries(JsonParser p, DeserializationContext ctxt,
-            ObjIntConsumer<Object> adder)
+            ObjIntConsumer<Object> adder, int maxSize)
         throws JacksonException
     {
+        int size = 0;
         while (p.nextToken() != JsonToken.END_ARRAY) {
-            _deserializeMultisetEntry(p, ctxt, adder);
+            size += _deserializeMultisetEntry(p, ctxt, adder, size, maxSize);
         }
     }
 
@@ -212,10 +221,15 @@ public abstract class GuavaCollectionDeserializer<T>
      * Helper method for reading a single {@link com.google.common.collect.Multiset}
      * entry: parser is expected to point to {@code START_OBJECT} of the entry.
      *
+     * @param sizeSoFar Number of elements (sum of counts) already read
+     * @param maxSize Maximum number of elements (sum of counts) allowed
+     *
+     * @return Number of elements added (count of the entry, or 0 if skipped)
+     *
      * @since 3.3
      */
-    protected void _deserializeMultisetEntry(JsonParser p, DeserializationContext ctxt,
-            ObjIntConsumer<Object> adder)
+    protected int _deserializeMultisetEntry(JsonParser p, DeserializationContext ctxt,
+            ObjIntConsumer<Object> adder, int sizeSoFar, int maxSize)
         throws JacksonException
     {
         if (!p.hasToken(JsonToken.START_OBJECT)) {
@@ -263,10 +277,16 @@ public abstract class GuavaCollectionDeserializer<T>
             ctxt.reportInputMismatch(this, "Invalid `Multiset` entry: missing \"count\" property");
         }
         if (skipEntry) {
-            return;
+            return 0;
+        }
+        if ((long) sizeSoFar + count > maxSize) {
+            ctxt.reportInputMismatch(this,
+                    "`Multiset` size (%d) exceeds the maximum allowed (%d, from `GuavaModule.configureMaxMultisetSize()`)",
+                    (long) sizeSoFar + count, maxSize);
         }
         try {
             adder.accept(element, count);
+            return count;
         } catch (NullPointerException e) {
             if (element != null) {
                 throw e;
@@ -278,6 +298,7 @@ public abstract class GuavaCollectionDeserializer<T>
             // elements of sorted Multiset not mutually comparable; or too many occurrences
             _reportMultisetFailure(ctxt, e);
         }
+        return 0;
     }
 
     /**

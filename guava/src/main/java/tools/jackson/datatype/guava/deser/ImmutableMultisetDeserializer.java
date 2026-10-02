@@ -14,7 +14,7 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeseria
     public ImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        this(selfType, deser, typeDeser, nuller, unwrapSingle, true);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, true, DEFAULT_MAX_MULTISET_SIZE);
     }
 
     /**
@@ -22,8 +22,8 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeseria
      */
     public ImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries);
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries, maxSize);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeseria
     public GuavaCollectionDeserializer<ImmutableMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries, _maxSize);
     }
 
     @Override

@@ -22,15 +22,15 @@ public class HashMultisetDeserializer
      */
     public HashMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries);
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries, maxSize);
     }
 
     @Override
     public HashMultisetDeserializer withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new HashMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries, _maxSize);
     }
 
     @Override

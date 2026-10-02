@@ -23,11 +23,17 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
      */
     protected final boolean _asEntries;
 
+    /**
+     * Maximum number of elements (sum of counts) allowed when reading entries.
+     */
+    protected final int _maxSize;
+
     GuavaImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
         _asEntries = asEntries;
+        _maxSize = maxSize;
     }
 
     @Override
@@ -38,7 +44,7 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
             return super._deserializeContents(p, ctxt);
         }
         ImmutableMultiset.Builder<Object> builder = (ImmutableMultiset.Builder<Object>) createBuilder();
-        _deserializeMultisetEntries(p, ctxt, builder::addCopies);
+        _deserializeMultisetEntries(p, ctxt, builder::addCopies, _maxSize);
         return _build(ctxt, builder);
     }
 
@@ -50,7 +56,7 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
             return super._deserializeFromSingleValue(p, ctxt);
         }
         ImmutableMultiset.Builder<Object> builder = (ImmutableMultiset.Builder<Object>) createBuilder();
-        _deserializeMultisetEntry(p, ctxt, builder::addCopies);
+        _deserializeMultisetEntry(p, ctxt, builder::addCopies, 0, _maxSize);
         return _build(ctxt, builder);
     }
 

@@ -1,5 +1,8 @@
 package tools.jackson.datatype.guava;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -339,18 +342,64 @@ public class MultisetsTest extends ModuleTestBase
     }
 
     @Test
-    public void testTooManyOccurrences() throws Exception
+    public void testMaxSize() throws Exception
     {
-        final String json = a2q("[{'element':'a','count':2147483647},{'element':'a','count':1}]");
-        for (TypeReference<?> ref : new TypeReference<?>[] {
+        final TypeReference<?>[] refs = new TypeReference<?>[] {
                 new TypeReference<HashMultiset<String>>() { },
                 new TypeReference<TreeMultiset<String>>() { },
                 new TypeReference<ImmutableMultiset<String>>() { },
-                new TypeReference<ImmutableSortedMultiset<String>>() { } }) {
+                new TypeReference<ImmutableSortedMultiset<String>>() { } };
+        // default limit
+        for (TypeReference<?> ref : refs) {
             MismatchedInputException e = assertThrows(MismatchedInputException.class,
-                    () -> MAPPER.readValue(json, ref));
-            verifyException(e, "Failed to build `");
+                    () -> MAPPER.readValue(a2q("[{'element':'a','count':2147483647}]"), ref));
+            verifyException(e, "`Multiset` size (2147483647) exceeds the maximum allowed (10000000");
         }
+
+        // custom limit: applies to sum of counts of all entries
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new GuavaModule().configureMaxMultisetSize(5))
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        for (TypeReference<?> ref : refs) {
+            Multiset<?> set = (Multiset<?>) mapper.readValue(
+                    a2q("[{'element':'a','count':3},{'element':'b','count':2}]"), ref);
+            assertEquals(5, set.size());
+
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> mapper.readValue(a2q("[{'element':'a','count':3},{'element':'a','count':3}]"), ref));
+            verifyException(e, "`Multiset` size (6) exceeds the maximum allowed (5");
+
+            e = assertThrows(MismatchedInputException.class,
+                    () -> mapper.readValue(a2q("{'element':'a','count':6}"), ref));
+            verifyException(e, "`Multiset` size (6) exceeds the maximum allowed (5");
+        }
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new GuavaModule().configureMaxMultisetSize(0));
+    }
+
+    // Serialization uses actual type of value, deserialization declared type
+    static class CollectionWrapper {
+        public Collection<String> values;
+    }
+
+    @Test
+    public void testMultisetDeclaredAsCollection() throws Exception
+    {
+        CollectionWrapper w = new CollectionWrapper();
+        w.values = HashMultiset.create(Arrays.asList("a", "a"));
+
+        String json = MAPPER.writeValueAsString(w);
+        assertEquals(a2q("{'values':[{'element':'a','count':2}]}"), json);
+        assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue(json, CollectionWrapper.class));
+
+        // with old format, round-trip works
+        String jsonElements = MAPPER_ELEMENTS.writeValueAsString(w);
+        assertEquals(a2q("{'values':['a','a']}"), jsonElements);
+        assertEquals(Arrays.asList("a", "a"),
+                MAPPER_ELEMENTS.readValue(jsonElements, CollectionWrapper.class).values);
     }
 
     static class SkipNullsWrapper {

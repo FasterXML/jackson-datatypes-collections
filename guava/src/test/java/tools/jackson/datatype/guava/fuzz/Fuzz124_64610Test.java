@@ -35,13 +35,13 @@ public class Fuzz124_64610Test
         MismatchedInputException e = assertThrows(
                 MismatchedInputException.class,
             () ->  MAPPER_ELEMENTS.readValue("[null]", ref));
-        assertTrue(e.getMessage().contains("Guava `Collection` of type "));
-        assertTrue(e.getMessage().contains("does not accept `null` values"));
+        verifyException(e, "Guava `Collection` of type ");
+        verifyException(e, "does not accept `null` values");
 
         e = assertThrows(
                 MismatchedInputException.class,
-            () ->  MAPPER.readValue("[{\"element\":null,\"count\":1}]", ref));
-        assertTrue(e.getMessage().contains("Guava `Collection` of type "));
-        assertTrue(e.getMessage().contains("does not accept `null` values"));
+            () ->  MAPPER.readValue(a2q("[{'element':null,'count':1}]"), ref));
+        verifyException(e, "Guava `Collection` of type ");
+        verifyException(e, "does not accept `null` values");
     }
 }
