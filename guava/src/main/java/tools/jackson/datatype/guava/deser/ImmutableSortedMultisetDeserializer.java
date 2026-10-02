@@ -9,19 +9,28 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableSortedMultiset;
 
-public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectionDeserializer<ImmutableSortedMultiset<Object>>
+public class ImmutableSortedMultisetDeserializer extends GuavaImmutableMultisetDeserializer<ImmutableSortedMultiset<Object>>
 {
     public ImmutableSortedMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, true, DEFAULT_MAX_MULTISET_SIZE);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public ImmutableSortedMultisetDeserializer(JavaType selfType,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries, maxSize);
     }
 
     @Override
     public GuavaCollectionDeserializer<ImmutableSortedMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableSortedMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries, _maxSize);
     }
 
     @Override

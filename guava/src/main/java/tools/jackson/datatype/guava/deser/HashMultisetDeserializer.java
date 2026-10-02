@@ -17,11 +17,20 @@ public class HashMultisetDeserializer
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
+    /**
+     * @since 3.3
+     */
+    public HashMultisetDeserializer(JavaType selfType,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries, maxSize);
+    }
+
     @Override
     public HashMultisetDeserializer withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new HashMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries, _maxSize);
     }
 
     @Override

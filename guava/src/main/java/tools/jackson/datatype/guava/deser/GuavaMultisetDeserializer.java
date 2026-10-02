@@ -10,16 +10,40 @@ import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 
 import com.google.common.collect.Multiset;
 
 abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     extends GuavaCollectionDeserializer<T>
 {
+    /**
+     * Whether entries are expected as {@code {"element":...,"count":...}}
+     * (if {@code true}) or as repeated elements (if {@code false}).
+     *
+     * @since 3.3
+     */
+    protected final boolean _asEntries;
+
+    /**
+     * Maximum number of elements (sum of counts) allowed when reading entries.
+     *
+     * @since 3.3
+     */
+    protected final int _maxSize;
+
     GuavaMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, true, DEFAULT_MAX_MULTISET_SIZE);
+    }
+
+    GuavaMultisetDeserializer(JavaType selfType,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
+        _asEntries = asEntries;
+        _maxSize = maxSize;
     }
 
     protected abstract T createMultiset();
@@ -39,6 +63,11 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        if (_asEntries) {
+            T set = createMultiset();
+            _deserializeMultisetEntries(p, ctxt, set::add, _maxSize);
+            return set;
+        }
         ValueDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -61,9 +90,21 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            set.add(value);
+            _addToMultiset(ctxt, set, value);
         }
         return set;
+    }
+
+    @Override
+    protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        if (_asEntries) {
+            T set = createMultiset();
+            _deserializeMultisetEntry(p, ctxt, set::add, 0, _maxSize);
+            return set;
+        }
+        return super._deserializeFromSingleValue(p, ctxt);
     }
 
     @Override
@@ -74,7 +115,25 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     @Override
     protected T _createWithSingleElement(DeserializationContext ctxt, Object value) {
         final T result = createMultiset();
-        result.add(value);
+        _addToMultiset(ctxt, result, value);
         return result;
+    }
+
+    private void _addToMultiset(DeserializationContext ctxt, T set, Object value)
+        throws JacksonException
+    {
+        try {
+            set.add(value);
+        } catch (NullPointerException e) {
+            if (value != null) {
+                throw e;
+            }
+            ctxt.reportInputMismatch(this,
+                    "Guava `Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        } catch (ClassCastException e) {
+            // elements of sorted Multiset not mutually comparable
+            _reportMultisetFailure(ctxt, e);
+        }
     }
 }
