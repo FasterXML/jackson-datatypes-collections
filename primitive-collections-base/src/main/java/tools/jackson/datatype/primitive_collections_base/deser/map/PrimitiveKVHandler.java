@@ -2,6 +2,7 @@ package tools.jackson.datatype.primitive_collections_base.deser.map;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.io.NumberInput;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
@@ -102,8 +103,9 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
 
         public int key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
-                return Integer.parseInt(key);
-            } catch (NumberFormatException e) {
+                return NumberInput.parseInt(key);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                // `NumberInput` throws `StringIndexOutOfBoundsException` for an empty key
                 return ctx.reportInputMismatch(int.class,
                     "Cannot parse '%s' as int value for map key", key);
             }
@@ -119,7 +121,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
 
         public float key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
-                return java.lang.Float.parseFloat(key);
+                return NumberInput.parseFloat(key, false);
             } catch (NumberFormatException e) {
                 return ctx.reportInputMismatch(float.class,
                     "Cannot parse '%s' as float value for map key", key);
@@ -136,8 +138,9 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
 
         public long key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
-                return java.lang.Long.parseLong(key);
-            } catch (NumberFormatException e) {
+                return NumberInput.parseLong(key);
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                // `NumberInput` throws `StringIndexOutOfBoundsException` for an empty key
                 return ctx.reportInputMismatch(long.class,
                     "Cannot parse '%s' as long value for map key", key);
             }
@@ -153,7 +156,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
 
         public double key(DeserializationContext ctx, String key) throws MismatchedInputException {
             try {
-                return java.lang.Double.parseDouble(key);
+                return NumberInput.parseDouble(key, false);
             } catch (NumberFormatException e) {
                 return ctx.reportInputMismatch(double.class,
                     "Cannot parse '%s' as double value for map key", key);
