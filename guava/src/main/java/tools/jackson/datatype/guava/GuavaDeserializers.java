@@ -44,12 +44,25 @@ public class GuavaDeserializers
     static final long serialVersionUID = 1L;
     protected BoundType _defaultBoundType;
 
+    /**
+     * @since 3.3
+     */
+    protected final boolean _cfgMultisetsAsEntries;
+
     public GuavaDeserializers() {
         this(null);
     }
 
     public GuavaDeserializers(BoundType defaultBoundType) {
+        this(defaultBoundType, true);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public GuavaDeserializers(BoundType defaultBoundType, boolean multisetsAsEntries) {
         _defaultBoundType = defaultBoundType;
+        _cfgMultisetsAsEntries = multisetsAsEntries;
     }
 
     /**
@@ -76,12 +89,12 @@ public class GuavaDeserializers
                     requireCollectionOfComparableElements(type, "ImmutableSortedMultiset");
                     return new ImmutableSortedMultisetDeserializer(type,
                             elementDeserializer, elementTypeDeserializer,
-                            null, null);
+                            null, null, _cfgMultisetsAsEntries);
                 }
                 // nah, just regular one
                 return new ImmutableMultisetDeserializer(type,
                         elementDeserializer, elementTypeDeserializer,
-                        null, null);
+                        null, null, _cfgMultisetsAsEntries);
             }
             if (ImmutableSet.class.isAssignableFrom(raw)) {
                 // sorted one?
@@ -110,25 +123,25 @@ public class GuavaDeserializers
                 if (TreeMultiset.class.isAssignableFrom(raw)) {
                     return new TreeMultisetDeserializer(type,
                             elementDeserializer, elementTypeDeserializer,
-                            null, null);
+                            null, null, _cfgMultisetsAsEntries);
                 }
 
                 // TODO: make configurable (for now just default blindly)
                 return new TreeMultisetDeserializer(type,
                         elementDeserializer, elementTypeDeserializer,
-                        null, null);
+                        null, null, _cfgMultisetsAsEntries);
             }
 
             // Quite a few variations...
             if (LinkedHashMultiset.class.isAssignableFrom(raw)) {
                 return new LinkedHashMultisetDeserializer(type,
                         elementDeserializer, elementTypeDeserializer,
-                        null, null);
+                        null, null, _cfgMultisetsAsEntries);
            }
             if (HashMultiset.class.isAssignableFrom(raw)) {
                 return new HashMultisetDeserializer(type,
                         elementDeserializer, elementTypeDeserializer,
-                        null, null);
+                        null, null, _cfgMultisetsAsEntries);
             }
             if (EnumMultiset.class.isAssignableFrom(raw)) {
                 // !!! TODO
@@ -137,7 +150,7 @@ public class GuavaDeserializers
             // TODO: make configurable (for now just default blindly)
             return new HashMultisetDeserializer(type,
                     elementDeserializer, elementTypeDeserializer,
-                    null, null);
+                    null, null, _cfgMultisetsAsEntries);
         }
         return PrimitiveTypes.isAssignableFromPrimitive(raw)
                 .transform(PrimitiveTypes.Primitives::newDeserializer)

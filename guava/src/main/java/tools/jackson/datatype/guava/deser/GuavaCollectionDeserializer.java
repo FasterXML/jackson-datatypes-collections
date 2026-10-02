@@ -1,6 +1,7 @@
 package tools.jackson.datatype.guava.deser;
 
 import java.util.Collection;
+import java.util.function.ObjIntConsumer;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -190,6 +191,107 @@ public abstract class GuavaCollectionDeserializer<T>
     protected abstract T _createEmpty(DeserializationContext ctxt);
 
     protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
+
+    /**
+     * Helper method for reading {@link com.google.common.collect.Multiset} entries,
+     * serialized as {@code {"element":...,"count":...}}, until the end of
+     * enclosing JSON Array.
+     *
+     * @since 3.3
+     */
+    protected void _deserializeMultisetEntries(JsonParser p, DeserializationContext ctxt,
+            ObjIntConsumer<Object> adder)
+        throws JacksonException
+    {
+        while (p.nextToken() != JsonToken.END_ARRAY) {
+            _deserializeMultisetEntry(p, ctxt, adder);
+        }
+    }
+
+    /**
+     * Helper method for reading a single {@link com.google.common.collect.Multiset}
+     * entry: parser is expected to point to {@code START_OBJECT} of the entry.
+     *
+     * @since 3.3
+     */
+    protected void _deserializeMultisetEntry(JsonParser p, DeserializationContext ctxt,
+            ObjIntConsumer<Object> adder)
+        throws JacksonException
+    {
+        if (!p.hasToken(JsonToken.START_OBJECT)) {
+            ctxt.reportInputMismatch(this,
+"Unexpected token (%s) for `Multiset` entry: expected JSON Object with properties \"element\" and \"count\"",
+                    p.currentToken());
+        }
+        Object element = null;
+        boolean hasElement = false;
+        boolean skipEntry = false;
+        int count = 0;
+        boolean hasCount = false;
+
+        for (String name = p.nextName(); name != null; name = p.nextName()) {
+            final JsonToken t = p.nextToken();
+            if ("element".equals(name)) {
+                hasElement = true;
+                if (t == JsonToken.VALUE_NULL) {
+                    skipEntry = _skipNullValues;
+                    element = skipEntry ? null : _nullProvider.getNullValue(ctxt);
+                } else if (_valueTypeDeserializer == null) {
+                    element = _valueDeserializer.deserialize(p, ctxt);
+                } else {
+                    element = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+                }
+            } else if ("count".equals(name)) {
+                if (t != JsonToken.VALUE_NUMBER_INT) {
+                    ctxt.reportInputMismatch(this,
+                            "Invalid `Multiset` entry \"count\": expected positive integer, got %s", t);
+                }
+                count = p.getIntValue();
+                if (count < 1) {
+                    ctxt.reportInputMismatch(this,
+                            "Invalid `Multiset` entry \"count\": expected positive integer, got %d", count);
+                }
+                hasCount = true;
+            } else {
+                handleUnknownProperty(p, ctxt, handledType(), name);
+            }
+        }
+        if (!hasElement) {
+            ctxt.reportInputMismatch(this, "Invalid `Multiset` entry: missing \"element\" property");
+        }
+        if (!hasCount) {
+            ctxt.reportInputMismatch(this, "Invalid `Multiset` entry: missing \"count\" property");
+        }
+        if (skipEntry) {
+            return;
+        }
+        try {
+            adder.accept(element, count);
+        } catch (NullPointerException e) {
+            if (element != null) {
+                throw e;
+            }
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "Guava `Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        } catch (ClassCastException | IllegalArgumentException e) {
+            // elements of sorted Multiset not mutually comparable; or too many occurrences
+            _reportMultisetFailure(ctxt, e);
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected <R> R _reportMultisetFailure(DeserializationContext ctxt, RuntimeException e)
+        throws JacksonException
+    {
+        String msg = e.getMessage();
+        return ctxt.reportInputMismatch(this,
+                "Failed to build `%s` from deserialized elements: %s",
+                handledType().getSimpleName(),
+                (msg == null) ? ClassUtil.nameOf(e.getClass()) : msg);
+    }
 
     /**
      * Some/many Guava containers do not allow addition of {@code null} values,

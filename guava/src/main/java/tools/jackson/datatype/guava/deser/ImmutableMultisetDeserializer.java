@@ -9,12 +9,21 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableMultiset;
 
-public class ImmutableMultisetDeserializer extends GuavaImmutableCollectionDeserializer<ImmutableMultiset<Object>>
+public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeserializer<ImmutableMultiset<Object>>
 {
     public ImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, true);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public ImmutableMultisetDeserializer(JavaType selfType,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries);
     }
 
     @Override
@@ -26,7 +35,7 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableCollectionDeser
     public GuavaCollectionDeserializer<ImmutableMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries);
     }
 
     @Override

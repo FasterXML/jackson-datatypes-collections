@@ -77,3 +77,7 @@ Configurable settings of the module are:
     * In either case, `Optional.absent()` values are always excluded with Inclusion values of:
         * NON_EMPTY
         * NON_ABSENT (new in Jackson 2.6)
+* `configureMultisetsAsEntries` (default: true) (added in 3.3)
+    * If enabled, `Multiset`s are serialized as `[{"element":"apple","count":5},{"element":"pear","count":2}]`
+    * If disabled, each element is repeated as many times as it occurs: `["apple","apple","apple","apple","apple","pear","pear"]` (format used before 3.3)
+    * Same format is expected when deserializing

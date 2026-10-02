@@ -21,6 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  *     Note that the defaults for other "Optional" types are different; Guava setting is chosen solely
  *     for backwards compatibility.
  *  </li>
+ * <li><code>configureMultisetsAsEntries</code> (default: <code>true</code>):
+ *    Determines whether <code>Multiset</code>s are serialized as a JSON Array of
+ *    <code>{"element":...,"count":...}</code> entries (if true), or by repeating each
+ *    element as many times as it occurs (if false).
+ *  </li>
  *</ul>
  */
 public class GuavaModule extends JacksonModule // can't use just SimpleModule, due to generic types
@@ -43,6 +48,17 @@ public class GuavaModule extends JacksonModule // can't use just SimpleModule, d
      * changes after registration will have no effect.
      */
     protected boolean _cfgHandleAbsentAsNull = false;
+
+    /**
+     * Configuration setting that determines whether {@link com.google.common.collect.Multiset}s
+     * are serialized as a JSON Array of entries ({@code [{"element":"a","count":2}]});
+     * if disabled, each element is repeated as many times as it occurs
+     * ({@code ["a","a"]}). Same format is expected when deserializing.
+     *<p>
+     * Default value is {@code true}.
+     */
+    protected boolean _cfgMultisetsAsEntries = true;
+
     protected BoundType _defaultBoundType;
     
     public GuavaModule() {
@@ -55,9 +71,9 @@ public class GuavaModule extends JacksonModule // can't use just SimpleModule, d
     @Override
     public void setupModule(SetupContext context)
     {
-        context.addDeserializers(new GuavaDeserializers(_defaultBoundType));
+        context.addDeserializers(new GuavaDeserializers(_defaultBoundType, _cfgMultisetsAsEntries));
         context.addKeyDeserializers(new GuavaKeyDeserializers());
-        context.addSerializers(new GuavaSerializers());
+        context.addSerializers(new GuavaSerializers(_cfgMultisetsAsEntries));
         context.addTypeModifier(new GuavaTypeModifier());
 
         // 28-Apr-2015, tatu: Allow disabling "treat Optional.absent() like Java nulls"
@@ -79,6 +95,22 @@ public class GuavaModule extends JacksonModule // can't use just SimpleModule, d
      */
     public GuavaModule configureAbsentsAsNulls(boolean state) {
         _cfgHandleAbsentAsNull = state;
+        return this;
+    }
+
+    /**
+     * Configuration method that may be used to change configuration setting
+     * <code>_cfgMultisetsAsEntries</code>: enabling (default) means that
+     * {@link com.google.common.collect.Multiset}s are serialized as entries
+     * of element and count; disabling that each element is repeated as many
+     * times as it occurs (format used before 3.3).
+     *
+     * @return This module instance, useful for chaining calls
+     *
+     * @since 3.3
+     */
+    public GuavaModule configureMultisetsAsEntries(boolean state) {
+        _cfgMultisetsAsEntries = state;
         return this;
     }
 

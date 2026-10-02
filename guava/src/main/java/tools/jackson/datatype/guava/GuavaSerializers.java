@@ -14,6 +14,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.Serializers;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 import tools.jackson.databind.type.CollectionLikeType;
+import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.ReferenceType;
 import tools.jackson.databind.ser.std.StdConvertingSerializer;
@@ -29,6 +30,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheBuilderSpec;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.Table;
@@ -43,6 +45,22 @@ public class GuavaSerializers extends Serializers.Base
     implements Serializable
 {
     static final long serialVersionUID = 1L;
+
+    /**
+     * @since 3.3
+     */
+    protected final boolean _cfgMultisetsAsEntries;
+
+    public GuavaSerializers() {
+        this(true);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public GuavaSerializers(boolean multisetsAsEntries) {
+        _cfgMultisetsAsEntries = multisetsAsEntries;
+    }
 
     static class FluentConverter extends StdConverter<Object,Iterable<?>> {
         static final FluentConverter instance = new FluentConverter();
@@ -141,6 +159,20 @@ public class GuavaSerializers extends Serializers.Base
         }
         if (type.isTypeOrSubTypeOf(Table.class)) {
             return new TableSerializer(type);
+        }
+        return null;
+    }
+
+    @Override
+    public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
+            CollectionType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
+    {
+        if (_cfgMultisetsAsEntries && type.isTypeOrSubTypeOf(Multiset.class)) {
+            boolean staticTyping = (elementTypeSerializer == null)
+                    && config.isEnabled(MapperFeature.USE_STATIC_TYPING);
+            return new MultisetSerializer(type.getContentType(), staticTyping,
+                    elementTypeSerializer, elementValueSerializer);
         }
         return null;
     }

@@ -16,6 +16,15 @@ public class LinkedHashMultisetDeserializer
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
     }
 
+    /**
+     * @since 3.3
+     */
+    public LinkedHashMultisetDeserializer(JavaType selfType,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries);
+    }
+
     @Override
     protected LinkedHashMultiset<Object> createMultiset() {
         return LinkedHashMultiset.create();
@@ -25,6 +34,6 @@ public class LinkedHashMultisetDeserializer
     public GuavaCollectionDeserializer<LinkedHashMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new LinkedHashMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle);
+                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries);
     }
 }

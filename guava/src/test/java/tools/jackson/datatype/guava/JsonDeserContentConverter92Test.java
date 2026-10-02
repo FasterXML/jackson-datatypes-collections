@@ -103,13 +103,14 @@ public class JsonDeserContentConverter92Test extends ModuleTestBase {
     public void testJsonDeserialize() throws Exception {
         String withIntsArr = a2q("{'ints': [1,2,3] }");
         String withIntsMap = a2q("{'ints': {'one':1, 'two':2, 'three':3}}");
+        String withIntsEntries = a2q("{'ints': [{'element':1,'count':1},{'element':2,'count':1},{'element':3,'count':1}] }");
 
         List<List<Integer>> inputs = new ArrayList<>();
         inputs.add(_read(withIntsArr, StandardHolder.class).ints);
         inputs.add(_read(withIntsArr, GuavaImmutableListHolder.class).ints);
         inputs.add(_read(withIntsArr, GuavaImmutableSetHolder.class).ints.asList());
         inputs.add(_read(withIntsArr, GuavaImmutableSortedSetHolder.class).ints.asList());
-        inputs.add(_read(withIntsArr, GuavaImmutableMultisetHolder.class).ints.asList());
+        inputs.add(_read(withIntsEntries, GuavaImmutableMultisetHolder.class).ints.asList());
         inputs.add(_read(withIntsMap, GuavaImmutableMapHolder.class).ints.values().asList());
         inputs.add(_read(withIntsMap, GuavaImmutableBiMapHolder.class).ints.values().asList());
 
