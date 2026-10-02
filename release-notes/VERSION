@@ -15,6 +15,8 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#270: (eclipse-collections) Use `NumberInput` to parse numeric primitive map keys,
+  as `jackson-databind` does
 
 3.2.3 (21-Sep-2026)
 
