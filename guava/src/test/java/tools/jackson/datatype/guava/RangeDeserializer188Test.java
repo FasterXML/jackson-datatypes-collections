@@ -185,7 +185,7 @@ public class RangeDeserializer188Test extends ModuleTestBase
     public enum RangeError {
         INVALID_BRACKET("Invalid Range: should start with '[' or '(', end with ')' or ']"),
         GENERIC_INVALID("Invalid bracket-notation representation"),
-        WRONG_ORDER("Invalid range");
+        WRONG_ORDER("Failed to construct `Range` from '");
 
         private final String errorMessage;
 

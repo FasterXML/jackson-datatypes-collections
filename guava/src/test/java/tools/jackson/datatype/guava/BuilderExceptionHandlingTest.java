@@ -47,7 +47,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         } catch (MismatchedInputException e) {
             // Expected - should contain meaningful error message
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build `ImmutableMap`"),
+            assertTrue(msg.contains("Failed to build `com.google.common.collect.ImmutableMap<"),
                     "Error message should mention ImmutableMap build failure or duplicate keys, got: " + msg);
         }
     }
@@ -64,7 +64,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             fail("Should have thrown an exception for duplicate keys");
         } catch (MismatchedInputException e) {
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build `ImmutableMap`"),
+            assertTrue(msg.contains("Failed to build `com.google.common.collect.ImmutableBiMap<"),
                     "Error message should mention build failure, got: " + msg);
         }
     }
@@ -82,7 +82,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             fail("Should have thrown an exception for duplicate keys");
         } catch (MismatchedInputException e) {
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build `ImmutableMap`"),
+            assertTrue(msg.contains("Failed to build `com.google.common.collect.ImmutableSortedMap<"),
                     "Error message should mention build failure or duplicate, got: " + msg);
         }
     }
@@ -120,7 +120,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             // Expected - during build() if it gets that far (test does not enable
             // duplicate detection)
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build `ImmutableTable`"),
+            assertTrue(msg.contains("Failed to build `com.google.common.collect.ImmutableTable`"),
                     "Error message should indicate build failure or duplicate, got: " + msg);
         }
     }
@@ -156,7 +156,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             fail("Should have thrown an exception for overlapping ranges");
         } catch (MismatchedInputException e) {
             String msg = e.getMessage();
-            assertTrue(msg.contains("Failed to build `RangeSet`"),
+            assertTrue(msg.contains("Failed to build `com.google.common.collect.RangeSet`"),
                     "Error message should mention RangeSet build failure, got: " + msg);
         }
     }

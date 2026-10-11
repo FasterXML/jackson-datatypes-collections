@@ -110,7 +110,7 @@ public class RangeHelper
                     } catch (IllegalArgumentException iae) {
                         // e.g. lower endpoint greater than upper endpoint
                         return (Range<?>) context.handleWeirdStringValue(targetClass, rangeInterval,
-                                "%s", iae.getMessage());
+                                "Failed to construct `Range` from '%s': %s", rangeInterval, iae.getMessage());
                     }
                 }
             }

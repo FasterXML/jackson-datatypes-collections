@@ -11,6 +11,7 @@ import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -74,8 +75,8 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             return map;
         } catch (IllegalArgumentException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build `ImmutableMap` from deserialized entries: %s",
-                    e.getMessage());
+                    "Failed to build %s from deserialized entries: %s",
+                    ClassUtil.getTypeDescription(_containerType), e.getMessage());
         }
     }
 }
