@@ -63,8 +63,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof Point)) { return false; }
-            Point other = (Point) o;
+            if (!(o instanceof Point other)) { return false; }
             return x == other.x && y == other.y;
         }
 
@@ -92,8 +91,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof CollectionsBean)) { return false; }
-            CollectionsBean other = (CollectionsBean) o;
+            if (!(o instanceof CollectionsBean other)) { return false; }
             return Objects.equals(list, other.list)
                     && Objects.equals(set, other.set)
                     && Objects.equals(bag, other.bag)
@@ -120,8 +118,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof MapsBean)) { return false; }
-            MapsBean other = (MapsBean) o;
+            if (!(o instanceof MapsBean other)) { return false; }
             return Objects.equals(map, other.map)
                     && Objects.equals(sortedMap, other.sortedMap)
                     && Objects.equals(biMap, other.biMap)

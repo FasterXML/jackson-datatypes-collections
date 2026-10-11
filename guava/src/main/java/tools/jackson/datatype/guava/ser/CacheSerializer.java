@@ -13,7 +13,6 @@ import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
-import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
@@ -189,7 +188,7 @@ public class CacheSerializer
             if (ignorals != null) {
                 Set<String> newIgnored = ignorals.findIgnoredForSerialization();
                 if ((newIgnored != null) && !newIgnored.isEmpty()) {
-                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<>(ignored);
+                    ignored = (ignored == null) ? new HashSet<>() : new HashSet<>(ignored);
                     for (String str : newIgnored) {
                         ignored.add(str);
                     }
@@ -380,17 +379,11 @@ public class CacheSerializer
                 valueSer = _findAndAddDynamic(_dynamicValueSerializers, vt, ctxt);
             }
             final ValueSerializer<?> valueSer2 = valueSer;
-            v2.valueFormat(new JsonFormatVisitable() {
-                final JavaType arrayType = ctxt.getTypeFactory().constructArrayType(vt);
-                @Override
-                public void acceptJsonFormatVisitor(
-                    JsonFormatVisitorWrapper v3, JavaType hint3)
-                    throws JacksonException
-                {
-                    JsonArrayFormatVisitor v4 = v3.expectArrayFormat(arrayType);
-                    if (v4 != null) {
-                        v4.itemsFormat(valueSer2, vt);
-                    }
+            final JavaType arrayType = ctxt.getTypeFactory().constructArrayType(vt);
+            v2.valueFormat((v3, hint3) -> {
+                JsonArrayFormatVisitor v4 = v3.expectArrayFormat(arrayType);
+                if (v4 != null) {
+                    v4.itemsFormat(valueSer2, vt);
                 }
             }, vt);
         }
@@ -406,7 +399,7 @@ public class CacheSerializer
         throws JacksonException
     {
         try {
-            return new TreeMap<Object,Object>(value);
+            return new TreeMap<>(value);
         } catch (ClassCastException e) {
             // Either key or value type not Comparable?
             // 20-Mar-2023, tatu: Should we actually wrap & propagate failure or... ?
