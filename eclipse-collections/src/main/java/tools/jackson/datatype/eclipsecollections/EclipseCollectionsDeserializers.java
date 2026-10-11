@@ -17,6 +17,7 @@ import tools.jackson.datatype.eclipsecollections.deser.bag.ImmutableSortedBagDes
 import tools.jackson.datatype.eclipsecollections.deser.bag.MutableBagDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.bag.MutableSortedBagDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.list.FixedSizeListDeserializer;
+import tools.jackson.datatype.eclipsecollections.deser.set.FixedSizeSetDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.list.ImmutableListDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.list.MutableListDeserializer;
 import tools.jackson.datatype.eclipsecollections.deser.map.EclipseMapDeserializers;
@@ -87,6 +88,7 @@ import org.eclipse.collections.api.collection.primitive.MutableIntCollection;
 import org.eclipse.collections.api.collection.primitive.MutableLongCollection;
 import org.eclipse.collections.api.collection.primitive.MutableShortCollection;
 import org.eclipse.collections.api.list.FixedSizeList;
+import org.eclipse.collections.api.map.FixedSizeMap;
 import org.eclipse.collections.api.map.MutableMapIterable;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
@@ -116,6 +118,7 @@ import org.eclipse.collections.api.list.primitive.MutableShortList;
 import org.eclipse.collections.api.list.primitive.ShortList;
 import org.eclipse.collections.api.ordered.OrderedIterable;
 import org.eclipse.collections.api.ordered.ReversibleIterable;
+import org.eclipse.collections.api.set.FixedSizeSet;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.ImmutableSetIterable;
 import org.eclipse.collections.api.set.MutableSet;
@@ -287,7 +290,8 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
      * are already handled by standard databind deserializers: leave those as is.
      */
     private static boolean _handledByDefaultDeserializer(Class<?> rawClass) {
-        if (FixedSizeCollection.class.isAssignableFrom(rawClass)) {
+        if (FixedSizeCollection.class.isAssignableFrom(rawClass)
+                || FixedSizeMap.class.isAssignableFrom(rawClass)) {
             return false;
         }
         boolean mutableCollection = Collection.class.isAssignableFrom(rawClass)
@@ -374,6 +378,9 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             rawClass == SetIterable.class || rawClass == UnsortedSetIterable.class) {
             return new MutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
+        if (rawClass == FixedSizeSet.class) {
+            return new FixedSizeSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
+        }
         if (rawClass == ImmutableSet.class || rawClass == ImmutableSetIterable.class) {
             return new ImmutableSetDeserializer.Ref(elementType, elementTypeDeserializer, elementDeserializer);
         }
@@ -410,6 +417,7 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
         REFERENCE_TYPES.add(MutableSetIterable.class);
         REFERENCE_TYPES.add(SetIterable.class);
         REFERENCE_TYPES.add(UnsortedSetIterable.class);
+        REFERENCE_TYPES.add(FixedSizeSet.class);
         REFERENCE_TYPES.add(ImmutableSet.class);
         REFERENCE_TYPES.add(ImmutableSetIterable.class);
         REFERENCE_TYPES.add(MutableSortedSet.class);

@@ -17,12 +17,14 @@ import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.list.primitive.LongList;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
+import org.eclipse.collections.api.map.FixedSizeMap;
 import org.eclipse.collections.api.map.ImmutableMap;
 import org.eclipse.collections.api.map.primitive.ImmutableIntIntMap;
 import org.eclipse.collections.api.map.primitive.IntIntMap;
 import org.eclipse.collections.api.map.primitive.IntObjectMap;
 import org.eclipse.collections.api.map.primitive.LongDoubleMap;
 import org.eclipse.collections.api.map.primitive.ObjectIntMap;
+import org.eclipse.collections.api.set.FixedSizeSet;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableLongSet;
 import org.eclipse.collections.api.set.primitive.ShortSet;
@@ -157,6 +159,61 @@ public class ImplementationTypeDeserTest extends ModuleTestBase
     public void testFixedSizeListWithDefaultTyping() throws Exception
     {
         roundTrip(Lists.fixedSize.of("a", "b"), new TypeReference<FixedSizeList<String>>() { });
+    }
+
+    @Test
+    public void testFixedSizeSetWithDefaultTyping() throws Exception
+    {
+        // different sizes use different implementation classes
+        TypeReference<FixedSizeSet<String>> type = new TypeReference<FixedSizeSet<String>>() { };
+        roundTrip(Sets.fixedSize.of(), type);
+        roundTrip(Sets.fixedSize.of("a"), type);
+        roundTrip(Sets.fixedSize.of("a", "b"), type);
+        roundTrip(Sets.fixedSize.of("a", "b", "c"), type);
+        roundTrip(Sets.fixedSize.of("a", "b", "c", "d"), type);
+    }
+
+    @Test
+    public void testFixedSizeSetWithoutDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        FixedSizeSet<String> set = mapper.readValue("[\"a\",\"b\"]",
+                new TypeReference<FixedSizeSet<String>>() { });
+        assertEquals(Sets.fixedSize.of("a", "b"), set);
+        // fixed-size sets cannot have more than 4 elements
+        try {
+            mapper.readValue("[1,2,3,4,5]", FixedSizeSet.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than 4 elements");
+        }
+    }
+
+    @Test
+    public void testFixedSizeMapWithDefaultTyping() throws Exception
+    {
+        // different sizes use different implementation classes
+        TypeReference<FixedSizeMap<String, String>> type = new TypeReference<FixedSizeMap<String, String>>() { };
+        roundTrip(Maps.fixedSize.of(), type);
+        roundTrip(Maps.fixedSize.of("a", "x"), type);
+        roundTrip(Maps.fixedSize.of("a", "x", "b", "y"), type);
+        roundTrip(Maps.fixedSize.of("a", "x", "b", "y", "c", "z"), type);
+    }
+
+    @Test
+    public void testFixedSizeMapWithoutDefaultTyping() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        FixedSizeMap<String, String> map = mapper.readValue("{\"a\":\"x\",\"b\":\"y\"}",
+                new TypeReference<FixedSizeMap<String, String>>() { });
+        assertEquals(Maps.fixedSize.of("a", "x", "b", "y"), map);
+        // fixed-size maps cannot have more than 3 entries
+        try {
+            mapper.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}", FixedSizeMap.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "more than 3 entries");
+        }
     }
 
     @Test
