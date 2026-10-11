@@ -332,4 +332,23 @@ public class ImplementationTypeDeserTest extends ModuleTestBase
         // handled by databind's standard Collection deserializer
         assertFalse(deserializers.hasDeserializerFor(config, Lists.mutable.of(1).getClass()));
     }
+
+    // Maps must be deserialized from JSON Objects; error should name expected type
+    @Test
+    public void testMapFromWrongToken() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        try {
+            mapper.readValue("[1,2]", IntIntMap.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "IntIntMap");
+        }
+        try {
+            mapper.readValue("[1,2]", IntIntHashMap.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "IntIntMap");
+        }
+    }
 }

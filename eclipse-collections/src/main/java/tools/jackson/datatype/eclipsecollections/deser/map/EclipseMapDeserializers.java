@@ -103,7 +103,7 @@ public final class EclipseMapDeserializers
                 keyType = TypeFactory.unknownType();
                 valueType = TypeFactory.unknownType();
             }
-            return MapDeserializer.create(keyType, valueType, typeHandlerPair, finish);
+            return MapDeserializer.create(type.getRawClass(), keyType, valueType, typeHandlerPair, finish);
         }
     }
 

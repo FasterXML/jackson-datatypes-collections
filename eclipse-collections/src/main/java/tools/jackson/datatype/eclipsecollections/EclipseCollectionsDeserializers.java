@@ -1,6 +1,5 @@
 package tools.jackson.datatype.eclipsecollections;
 
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -327,7 +326,8 @@ public final class EclipseCollectionsDeserializers extends Deserializers.Base {
             return false;
         }
         try {
-            return Modifier.isPublic(rawClass.getConstructor().getModifiers());
+            rawClass.getConstructor(); // only finds public constructors
+            return true;
         } catch (NoSuchMethodException e) {
             return false;
         }

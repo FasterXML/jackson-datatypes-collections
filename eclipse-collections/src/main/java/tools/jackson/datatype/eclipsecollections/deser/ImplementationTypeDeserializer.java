@@ -5,13 +5,10 @@ import java.util.Set;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.deser.std.DelegatingDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.databind.type.LogicalType;
-import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -29,11 +26,9 @@ import tools.jackson.databind.util.ClassUtil;
  * interfaces the requested type implements: this way it can be assigned to any
  * property declared using API types.
  */
-public class ImplementationTypeDeserializer extends StdDeserializer<Object>
+public class ImplementationTypeDeserializer extends DelegatingDeserializer
 {
     protected final Class<?> _implType;
-
-    protected final ValueDeserializer<?> _delegatee;
 
     /**
      * Eclipse Collections API interfaces implemented by {@link #_implType}
@@ -46,36 +41,33 @@ public class ImplementationTypeDeserializer extends StdDeserializer<Object>
 
     protected ImplementationTypeDeserializer(Class<?> implType, ValueDeserializer<?> delegatee,
             Class<?>[] apiTypes) {
-        super(implType);
+        super(delegatee);
         _implType = implType;
-        _delegatee = delegatee;
         _apiTypes = apiTypes;
     }
 
     @Override
-    public void resolve(DeserializationContext ctxt) {
-        _delegatee.resolve(ctxt);
+    protected ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDelegatee) {
+        return new ImplementationTypeDeserializer(_implType, newDelegatee, _apiTypes);
     }
 
     @Override
-    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
-        ValueDeserializer<?> delegatee = _delegatee.createContextual(ctxt, property);
-        if (delegatee == _delegatee) {
-            return this;
-        }
-        return new ImplementationTypeDeserializer(_implType, delegatee, _apiTypes);
-    }
-
-    @Override
-    public ValueDeserializer<?> getDelegatee() {
-        return _delegatee;
+    public Class<?> handledType() {
+        return _implType;
     }
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        return _verify(ctxt, _delegatee.deserialize(p, ctxt));
+        return _verify(ctxt, super.deserialize(p, ctxt));
+    }
+
+    @Override
+    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
+        throws JacksonException
+    {
+        return _verify(ctxt, super.deserialize(p, ctxt, intoValue));
     }
 
     @Override
@@ -83,27 +75,7 @@ public class ImplementationTypeDeserializer extends StdDeserializer<Object>
             TypeDeserializer typeDeserializer)
         throws JacksonException
     {
-        return _verify(ctxt, _delegatee.deserializeWithType(p, ctxt, typeDeserializer));
-    }
-
-    @Override
-    public Object getNullValue(DeserializationContext ctxt) {
-        return _delegatee.getNullValue(ctxt);
-    }
-
-    @Override
-    public AccessPattern getNullAccessPattern() {
-        return _delegatee.getNullAccessPattern();
-    }
-
-    @Override
-    public LogicalType logicalType() {
-        return _delegatee.logicalType();
-    }
-
-    @Override
-    public boolean isCachable() {
-        return _delegatee.isCachable();
+        return _verify(ctxt, super.deserializeWithType(p, ctxt, typeDeserializer));
     }
 
     protected Object _verify(DeserializationContext ctxt, Object value)
