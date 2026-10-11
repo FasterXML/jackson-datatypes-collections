@@ -5,7 +5,6 @@ import tools.jackson.core.JacksonException;
 
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.datatype.primitive_collections_base.deser.map.*;
 
 import org.eclipse.collections.api.map.*;
@@ -19,11 +18,12 @@ public final class TypeHandlerPairs {
     private TypeHandlerPairs() {}
 
     // Fixed-size maps only exist for up to 3 entries
-    private static FixedSizeMap<Object, Object> toFixedSize(MutableMap<Object, Object> map) {
+    private static FixedSizeMap<Object, Object> toFixedSize(DeserializationContext ctxt,
+            MutableMap<Object, Object> map) {
         final int size = map.size();
         if (size > 3) {
-            throw MismatchedInputException.from(null, FixedSizeMap.class,
-                    "Cannot construct `FixedSizeMap` with more than 3 entries (got "+size+")");
+            return ctxt.reportInputMismatch(FixedSizeMap.class,
+                    "Cannot construct `FixedSizeMap` with more than 3 entries (got %d)", size);
         }
         Object[] kvs = new Object[6];
         int i = 0;
@@ -109,7 +109,7 @@ public final class TypeHandlerPairs {
                 true, true, ImmutableMap.class, OBJECT_OBJECT, MutableMap::toImmutable);
         EclipseMapDeserializers.add(
                 true, true, ImmutableMapIterable.class, OBJECT_OBJECT, MutableMap::toImmutable);
-        EclipseMapDeserializers.add(
+        EclipseMapDeserializers.addWithContext(
                 true, true, FixedSizeMap.class, OBJECT_OBJECT, TypeHandlerPairs::toFixedSize);
 
         /* with

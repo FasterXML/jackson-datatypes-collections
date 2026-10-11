@@ -48,13 +48,18 @@ import org.eclipse.collections.impl.factory.primitive.LongSets;
 import org.eclipse.collections.impl.factory.primitive.ObjectIntMaps;
 import org.eclipse.collections.impl.factory.primitive.ShortSets;
 import org.eclipse.collections.impl.list.mutable.primitive.IntArrayList;
+import org.eclipse.collections.impl.list.primitive.IntInterval;
 import org.eclipse.collections.impl.map.mutable.primitive.IntIntHashMap;
 import org.eclipse.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 import org.eclipse.collections.impl.stack.mutable.primitive.IntArrayStack;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -77,6 +82,20 @@ public class ImplementationTypeDeserTest extends ModuleTestBase
         public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
             return Validity.ALLOWED;
         }
+    }
+
+    // User-defined type implementing Eclipse Collections interfaces
+    public static class Histogram extends IntArrayList {
+        private static final long serialVersionUID = 1L;
+
+        @JsonCreator
+        public Histogram(@JsonProperty("bins") int[] bins) {
+            super(bins);
+        }
+    }
+
+    static class ApiTypesHolder {
+        public ImmutableIntList ints;
     }
 
     static class Holder {
@@ -186,6 +205,7 @@ public class ImplementationTypeDeserTest extends ModuleTestBase
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than 4 elements");
+            assertNotNull(e.getLocation());
         }
     }
 
@@ -213,6 +233,7 @@ public class ImplementationTypeDeserTest extends ModuleTestBase
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than 3 entries");
+            assertNotNull(e.getLocation());
         }
     }
 
@@ -267,5 +288,48 @@ public class ImplementationTypeDeserTest extends ModuleTestBase
         } catch (MismatchedInputException e) {
             verifyException(e, "IntArrayStack");
         }
+    }
+
+    // Implementation produced may differ from the one serialized, as long as it
+    // implements the same API types
+    @Test
+    public void testDifferentImplementationOfApiType() throws Exception
+    {
+        ApiTypesHolder input = new ApiTypesHolder();
+        // `IntInterval` comes back as `ImmutableIntArrayList`
+        input.ints = IntInterval.oneTo(5);
+        for (DefaultTyping typing : TYPINGS) {
+            ObjectMapper mapper = typingMapper(typing);
+            String json = mapper.writeValueAsString(input);
+            ApiTypesHolder result = mapper.readValue(json, ApiTypesHolder.class);
+            assertEquals(input.ints, result.ints, json);
+        }
+    }
+
+    // User-defined types are not taken over: regular bean handling applies
+    @Test
+    public void testUserDefinedImplementationType() throws Exception
+    {
+        Histogram h = mapperWithModule().readValue("{\"bins\":[1,2,3]}", Histogram.class);
+        assertEquals(IntLists.mutable.of(1, 2, 3), h);
+    }
+
+    @Test
+    public void testHasDeserializerFor() throws Exception
+    {
+        EclipseCollectionsDeserializers deserializers = new EclipseCollectionsDeserializers();
+        DeserializationConfig config = mapperWithModule().deserializationConfig();
+        assertTrue(deserializers.hasDeserializerFor(config, ImmutableList.class));
+        assertTrue(deserializers.hasDeserializerFor(config, IntIntMap.class));
+        assertTrue(deserializers.hasDeserializerFor(config, ImmutableMap.class));
+        assertTrue(deserializers.hasDeserializerFor(config, IntIntHashMap.class));
+        assertTrue(deserializers.hasDeserializerFor(config,
+                Lists.immutable.of(1, 2, 3).getClass()));
+        assertTrue(deserializers.hasDeserializerFor(config, Maps.fixedSize.of("a", "b").getClass()));
+
+        assertFalse(deserializers.hasDeserializerFor(config, String.class));
+        assertFalse(deserializers.hasDeserializerFor(config, Histogram.class));
+        // handled by databind's standard Collection deserializer
+        assertFalse(deserializers.hasDeserializerFor(config, Lists.mutable.of(1).getClass()));
     }
 }

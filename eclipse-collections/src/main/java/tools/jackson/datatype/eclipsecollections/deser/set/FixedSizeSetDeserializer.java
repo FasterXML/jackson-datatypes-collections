@@ -1,8 +1,9 @@
 package tools.jackson.datatype.eclipsecollections.deser.set;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseRefCollectionDeserializer;
 
@@ -27,14 +28,20 @@ public final class FixedSizeSetDeserializer {
 
         // Fixed-size sets only exist for up to 4 elements
         @Override
-        protected FixedSizeSet<?> finish(MutableSet<Object> objects) {
-            final int size = objects.size();
-            if (size > 4) {
-                throw MismatchedInputException.from(null, FixedSizeSet.class,
-                        "Cannot construct `FixedSizeSet` with more than 4 elements (got "+size+")");
+        protected FixedSizeSet<?> finish(DeserializationContext ctxt, MutableSet<Object> objects)
+            throws JacksonException
+        {
+            if (objects.size() > 4) {
+                return ctxt.reportInputMismatch(this,
+                        "Cannot construct `FixedSizeSet` with more than 4 elements (got %d)", objects.size());
             }
+            return finish(objects);
+        }
+
+        @Override
+        protected FixedSizeSet<?> finish(MutableSet<Object> objects) {
             Object[] elems = objects.toArray(new Object[4]);
-            switch (size) {
+            switch (objects.size()) {
             case 0:
                 return Sets.fixedSize.of();
             case 1:

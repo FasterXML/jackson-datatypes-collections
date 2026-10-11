@@ -1,5 +1,6 @@
 package tools.jackson.datatype.eclipsecollections.deser.map;
 
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.type.TypeBindings;
 import tools.jackson.databind.type.TypeFactory;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public final class EclipseMapDeserializers
@@ -42,6 +44,18 @@ public final class EclipseMapDeserializers
             boolean refKey, boolean refValue, Class<T> type,
             TypeHandlerPair<I, ?, ?> handlerPair, Function<I, T> finish
     ) {
+        addWithContext(refKey, refValue, type, handlerPair,
+                (finish == null) ? null : (ctxt, intermediate) -> finish.apply(intermediate));
+    }
+
+    /**
+     * Variant of {@link #add} for finishing functions that need access to the context,
+     * for reporting problems with content.
+     */
+    static <T, I> void addWithContext(
+            boolean refKey, boolean refValue, Class<T> type,
+            TypeHandlerPair<I, ?, ?> handlerPair, BiFunction<DeserializationContext, I, T> finish
+    ) {
         if (ENTRIES.putIfAbsent(type, new Entry<>(refKey, refValue, handlerPair, finish)) != null) {
             throw new IllegalStateException();
         }
@@ -52,10 +66,10 @@ public final class EclipseMapDeserializers
         private final boolean refValue;
         final TypeHandlerPair<I, K, V> typeHandlerPair;
         // null if this is the identity function
-        final Function<I, T> finish;
+        final BiFunction<DeserializationContext, I, T> finish;
 
         Entry(boolean refKey, boolean refValue,
-                TypeHandlerPair<I, K, V> typeHandlerPair, Function<I, T> finish) {
+                TypeHandlerPair<I, K, V> typeHandlerPair, BiFunction<DeserializationContext, I, T> finish) {
             this.refKey = refKey;
             this.refValue = refValue;
             this.typeHandlerPair = Objects.requireNonNull(typeHandlerPair);
