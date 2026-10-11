@@ -211,7 +211,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             POLY_MAPPER.readValue(_mixedTypes(1), SortedSetWrapper.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `ImmutableSortedSet`");
+            verifyException(e, "Failed to build `com.google.common.collect.ImmutableSortedSet<");
         }
     }
 
@@ -223,7 +223,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             POLY_MAPPER.readValue(_mixedTypes(100), SortedSetWrapper.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `ImmutableSortedSet`");
+            verifyException(e, "Failed to build `com.google.common.collect.ImmutableSortedSet<");
         }
     }
 
@@ -234,7 +234,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             POLY_MAPPER.readValue(_mixedTypes(1), SortedMultisetWrapper.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `ImmutableSortedMultiset`");
+            verifyException(e, "Failed to build `com.google.common.collect.ImmutableSortedMultiset<");
         }
     }
 
@@ -255,14 +255,14 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             MAPPER.readValue("[1,\"a\"]", ImmutableSortedSet.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `ImmutableSortedSet`");
+            verifyException(e, "Failed to build `com.google.common.collect.ImmutableSortedSet<");
         }
         try {
             // Untyped JSON Objects become `LinkedHashMap`s, which are not Comparable
             MAPPER.readValue("[{\"x\":1},{\"x\":2}]", ImmutableSortedMultiset.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `ImmutableSortedMultiset`");
+            verifyException(e, "Failed to build `com.google.common.collect.ImmutableSortedMultiset<");
         }
     }
 
@@ -284,14 +284,14 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
                         .readValue(json, type);
                     fail("Should have thrown an exception for non-Comparable element of "+typeName);
                 } catch (MismatchedInputException e) {
-                    verifyException(e, "Failed to build `"+typeName+"`");
+                    verifyException(e, "Failed to build `"+type.getName()+"<");
                 }
             }
             try {
                 wrappingMapper.readValue("{\"x\":1}", type);
                 fail("Should have thrown an exception for non-Comparable element of "+typeName);
             } catch (MismatchedInputException e) {
-                verifyException(e, "Failed to build `"+typeName+"`");
+                verifyException(e, "Failed to build `"+type.getName()+"<");
             }
         }
     }
@@ -333,13 +333,13 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             MAPPER.readValue("[1,\"a\"]", TreeMultiset.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `TreeMultiset`");
+            verifyException(e, "Failed to build `com.google.common.collect.TreeMultiset<");
         }
         try {
             POLY_MAPPER.readValue(_mixedTypes(1), TreeMultisetWrapper.class);
             fail("Should have thrown an exception for incomparable elements");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to build `TreeMultiset`");
+            verifyException(e, "Failed to build `com.google.common.collect.TreeMultiset<");
         }
     }
 

@@ -85,13 +85,12 @@ public class RangeHelper
             DeserializationContext context, KeyDeserializer fromStringDeserializer,
             JavaType rangeType, Class<?> targetClass)
     {
-        final String original = rangeInterval;
         if (_isValidBracketNotation(rangeInterval)) {
             BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
             BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
 
-            rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
-            String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
+            final String endpoints = rangeInterval.substring(1, rangeInterval.length() - 1);
+            String[] parts = PATTERN_DOUBLE_DOT.split(endpoints);
 
             if (parts.length == 2) {
                 boolean isLowerInfinite = parts[0].equals("-∞");
@@ -110,7 +109,7 @@ public class RangeHelper
                         return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
                     } catch (IllegalArgumentException iae) {
                         // e.g. lower endpoint greater than upper endpoint
-                        return (Range<?>) context.handleWeirdStringValue(targetClass, original,
+                        return (Range<?>) context.handleWeirdStringValue(targetClass, rangeInterval,
                                 "%s", iae.getMessage());
                     }
                 }

@@ -144,8 +144,8 @@ public class RangeDeserializer188Test extends ModuleTestBase
         testInvalidStringifiedDeserialization("(32..0)", RangeError.WRONG_ORDER);
     }
 
-    private void testInvalidStringifiedDeserialization(String json, RangeError error) throws Exception {
-        json = "{\"r\":\"" + json + "\"}";
+    private void testInvalidStringifiedDeserialization(String rangeStr, RangeError error) throws Exception {
+        String json = "{\"r\":\"" + rangeStr + "\"}";
 
         try {
             MAPPER.readValue(json,
@@ -153,6 +153,8 @@ public class RangeDeserializer188Test extends ModuleTestBase
             fail("Should fail due to deserializing invalid bracket-notation Range.");
         } catch (InvalidFormatException e) {
             verifyException(e, error.getErrorMessage());
+            // Problem value should be the full original String, for all failure types
+            assertEquals(rangeStr, e.getValue());
         }
     }
 

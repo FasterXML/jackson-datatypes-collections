@@ -209,8 +209,8 @@ public abstract class GuavaCollectionDeserializer<T>
         throws JacksonException
     {
         return ctxt.reportInputMismatch(this,
-                "Failed to build `%s` from deserialized elements: %s",
-                handledType().getSimpleName(), msg);
+                "Failed to build %s from deserialized elements: %s",
+                ClassUtil.getTypeDescription(_containerType), msg);
     }
 
     /**
