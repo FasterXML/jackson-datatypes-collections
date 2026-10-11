@@ -1,5 +1,7 @@
 package tools.jackson.datatype.guava.deser;
 
+import tools.jackson.core.JacksonException;
+
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
@@ -37,6 +39,9 @@ public class ImmutableSortedMultisetDeserializer extends GuavaImmutableMultisetD
     @Override
     protected Builder<Object> createBuilder() {
         /* This is suboptimal. See the considerations in ImmutableSortedSetDeserializer. */
+        if (_hasUntypedElements()) {
+            return ImmutableSortedMultiset.orderedBy(UntypedElementComparator.INSTANCE);
+        }
         @SuppressWarnings({ "rawtypes", "unchecked" })
         Builder<Object> builder =  (Builder) ImmutableSortedMultiset.naturalOrder();
         return builder;
@@ -49,9 +54,14 @@ public class ImmutableSortedMultisetDeserializer extends GuavaImmutableMultisetD
 
     @Override
     protected ImmutableSortedMultiset<Object> _createWithSingleElement(DeserializationContext ctxt,
-            Object value) {
-        return (ImmutableSortedMultiset<Object>) createBuilder()
-                .add(value)
-                .build();
+            Object value)
+        throws JacksonException
+    {
+        return _buildWithSingleElement(ctxt, value);
+    }
+
+    @Override
+    protected boolean _requiresComparableElements() {
+        return true;
     }
 }

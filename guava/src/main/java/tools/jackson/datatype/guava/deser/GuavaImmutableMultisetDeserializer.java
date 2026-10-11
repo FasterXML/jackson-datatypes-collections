@@ -36,8 +36,7 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
         _asEntries = asEntries;
         _maxSize = maxSize;
-        _entryReader = new MultisetEntryReader(this, deser, typeDeser,
-                nuller, _skipNullValues, maxSize);
+        _entryReader = new MultisetEntryReader(this, maxSize);
     }
 
     @Override

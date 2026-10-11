@@ -7,8 +7,6 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.deser.NullValueProvider;
-import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
@@ -21,20 +19,10 @@ final class MultisetEntryReader implements java.io.Serializable
     private static final long serialVersionUID = 1L;
 
     private final GuavaCollectionDeserializer<?> _owner;
-    private final ValueDeserializer<?> _valueDeserializer;
-    private final TypeDeserializer _valueTypeDeserializer;
-    private final NullValueProvider _nullProvider;
-    private final boolean _skipNullValues;
     private final int _maxSize;
 
-    MultisetEntryReader(GuavaCollectionDeserializer<?> owner,
-            ValueDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeserializer,
-            NullValueProvider nullProvider, boolean skipNullValues, int maxSize) {
+    MultisetEntryReader(GuavaCollectionDeserializer<?> owner, int maxSize) {
         _owner = owner;
-        _valueDeserializer = valueDeserializer;
-        _valueTypeDeserializer = valueTypeDeserializer;
-        _nullProvider = nullProvider;
-        _skipNullValues = skipNullValues;
         _maxSize = maxSize;
     }
 
@@ -75,6 +63,7 @@ final class MultisetEntryReader implements java.io.Serializable
                     p.currentToken());
         }
         Object element = null;
+        JsonToken elementToken = null;
         boolean hasElement = false;
         boolean skipEntry = false;
         int count = 0;
@@ -84,14 +73,9 @@ final class MultisetEntryReader implements java.io.Serializable
             final JsonToken t = p.nextToken();
             if ("element".equals(name)) {
                 hasElement = true;
-                if (t == JsonToken.VALUE_NULL) {
-                    skipEntry = _skipNullValues;
-                    element = skipEntry ? null : _nullProvider.getNullValue(ctxt);
-                } else if (_valueTypeDeserializer == null) {
-                    element = _valueDeserializer.deserialize(p, ctxt);
-                } else {
-                    element = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
-                }
+                elementToken = t;
+                element = _owner._deserializeElement(p, ctxt, t);
+                skipEntry = (element == GuavaCollectionDeserializer.SKIPPED_ELEMENT);
             } else if ("count".equals(name)) {
                 if (t != JsonToken.VALUE_NUMBER_INT) {
                     ctxt.reportInputMismatch(_owner,
@@ -124,15 +108,16 @@ final class MultisetEntryReader implements java.io.Serializable
                     (long) sizeSoFar + count, _maxSize);
         }
         try {
+            if (element == null) {
+                final int copies = count;
+                Integer added = _owner._addElement(p, ctxt, elementToken, null, value -> {
+                    adder.accept(value, copies);
+                    return copies;
+                });
+                return (added == null) ? 0 : added;
+            }
             adder.accept(element, count);
             return count;
-        } catch (NullPointerException e) {
-            if (element != null) {
-                throw e;
-            }
-            ctxt.handleUnexpectedToken(_owner.getValueType(ctxt), JsonToken.VALUE_NULL, p,
-                    "Guava `Collection` of type %s does not accept `null` values",
-                    ClassUtil.getTypeDescription(_owner.getValueType(ctxt)));
         } catch (ClassCastException | IllegalArgumentException e) {
             // elements of sorted Multiset not mutually comparable; or too many occurrences
             reportFailure(_owner, ctxt, e);

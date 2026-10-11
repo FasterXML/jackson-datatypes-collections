@@ -26,6 +26,9 @@ public class TreeMultisetDeserializer extends GuavaMultisetDeserializer<TreeMult
     @SuppressWarnings("unchecked")
     @Override
     protected TreeMultiset<Object> createMultiset() {
+        if (_hasUntypedElements()) {
+            return TreeMultiset.create(UntypedElementComparator.INSTANCE);
+        }
         @SuppressWarnings("rawtypes")
         TreeMultiset<?> naturalOrder = TreeMultiset.<Comparable> create();
         return (TreeMultiset<Object>) naturalOrder;

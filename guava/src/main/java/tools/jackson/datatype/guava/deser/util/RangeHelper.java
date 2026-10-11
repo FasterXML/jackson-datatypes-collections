@@ -89,8 +89,8 @@ public class RangeHelper
             BoundType lowerBoundType = rangeInterval.startsWith("[") ? BoundType.CLOSED : BoundType.OPEN;
             BoundType upperBoundType = rangeInterval.endsWith("]") ? BoundType.CLOSED : BoundType.OPEN;
 
-            rangeInterval = rangeInterval.substring(1, rangeInterval.length() - 1);
-            String[] parts = PATTERN_DOUBLE_DOT.split(rangeInterval);
+            final String endpoints = rangeInterval.substring(1, rangeInterval.length() - 1);
+            String[] parts = PATTERN_DOUBLE_DOT.split(endpoints);
 
             if (parts.length == 2) {
                 boolean isLowerInfinite = parts[0].equals("-∞");
@@ -103,10 +103,15 @@ public class RangeHelper
                 } else if (isUpperInfinite) {
                     return RangeFactory.downTo(deserializeStringified(context, parts[0], fromStringDeserializer, rangeType), lowerBoundType);
                 } else {
-                    return RangeFactory.range(deserializeStringified(context, parts[0], fromStringDeserializer, rangeType),
-                            lowerBoundType,
-                            deserializeStringified(context, parts[1], fromStringDeserializer, rangeType),
-                            upperBoundType);
+                    Comparable<?> lowerEndpoint = deserializeStringified(context, parts[0], fromStringDeserializer, rangeType);
+                    Comparable<?> upperEndpoint = deserializeStringified(context, parts[1], fromStringDeserializer, rangeType);
+                    try {
+                        return RangeFactory.range(lowerEndpoint, lowerBoundType, upperEndpoint, upperBoundType);
+                    } catch (IllegalArgumentException iae) {
+                        // e.g. lower endpoint greater than upper endpoint
+                        return (Range<?>) context.handleWeirdStringValue(targetClass, rangeInterval,
+                                "Failed to construct `Range` from '%s': %s", rangeInterval, iae.getMessage());
+                    }
                 }
             }
         } else {

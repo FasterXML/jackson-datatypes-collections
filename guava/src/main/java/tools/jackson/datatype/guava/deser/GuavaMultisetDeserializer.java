@@ -11,7 +11,6 @@ import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.datatype.guava.GuavaModule;
 import tools.jackson.databind.util.AccessPattern;
-import tools.jackson.databind.util.ClassUtil;
 
 import com.google.common.collect.Multiset;
 
@@ -47,8 +46,7 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
         _asEntries = asEntries;
         _maxSize = maxSize;
-        _entryReader = new MultisetEntryReader(this, deser, typeDeser,
-                nuller, _skipNullValues, maxSize);
+        _entryReader = new MultisetEntryReader(this, maxSize);
     }
 
     protected abstract T createMultiset();
@@ -73,29 +71,16 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
             _entryReader.readEntries(p, ctxt, set::add);
             return set;
         }
-        ValueDeserializer<?> valueDes = _valueDeserializer;
-        JsonToken t;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         T set = createMultiset();
-    
+        JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-            Object value;
-
-            if (t == JsonToken.VALUE_NULL) {
-                if (_skipNullValues) {
-                    continue;
-                }
-                value = _nullProvider.getNullValue(ctxt);
-                if (value == null) {
-                    _tryToAddNull(p, ctxt, set);
-                    continue;
-                }
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(p, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+            Object value = _deserializeElement(p, ctxt, t);
+            if (value == null) {
+                _addElement(p, ctxt, t, null, v -> _add(ctxt, set, v));
+            } else if (value != SKIPPED_ELEMENT) {
+                // Avoid lambda allocation for the common non-null case
+                _add(ctxt, set, value);
             }
-            _addToMultiset(ctxt, set, value);
         }
         return set;
     }
@@ -118,27 +103,22 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     }
 
     @Override
-    protected T _createWithSingleElement(DeserializationContext ctxt, Object value) {
-        final T result = createMultiset();
-        _addToMultiset(ctxt, result, value);
-        return result;
+    protected T _createWithSingleElement(DeserializationContext ctxt, Object value)
+        throws JacksonException
+    {
+        return _add(ctxt, createMultiset(), value);
     }
 
-    private void _addToMultiset(DeserializationContext ctxt, T set, Object value)
+    private T _add(DeserializationContext ctxt, T set, Object value)
         throws JacksonException
     {
         try {
             set.add(value);
-        } catch (NullPointerException e) {
-            if (value != null) {
-                throw e;
-            }
-            ctxt.reportInputMismatch(this,
-                    "Guava `Collection` of type %s does not accept `null` values",
-                    ClassUtil.getTypeDescription(getValueType(ctxt)));
         } catch (ClassCastException e) {
-            // elements of sorted Multiset not mutually comparable
-            MultisetEntryReader.reportFailure(this, ctxt, e);
+            // Sorted multisets (`TreeMultiset`) fail this way if elements are not
+            // mutually comparable (or, for the first element, not `Comparable` at all)
+            _reportBuildFailure(ctxt, e.getMessage());
         }
+        return set;
     }
 }

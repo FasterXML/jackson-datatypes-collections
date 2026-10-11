@@ -12,9 +12,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.google.common.collect.*;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
@@ -315,12 +318,12 @@ public class MultisetsTest extends ModuleTestBase
         MismatchedInputException e = assertThrows(MismatchedInputException.class,
                 () -> MAPPER_ELEMENTS.readValue("[1,\"a\"]",
                         new TypeReference<TreeMultiset<Object>>() { }));
-        verifyException(e, "Failed to build `TreeMultiset`");
+        verifyException(e, "Failed to build `com.google.common.collect.TreeMultiset<");
 
         e = assertThrows(MismatchedInputException.class,
                 () -> MAPPER_ELEMENTS.readValue(a2q("[{'name':'Ann','age':30}]"),
                         new TypeReference<SortedMultiset<Person>>() { }));
-        verifyException(e, "Failed to build `SortedMultiset`");
+        verifyException(e, "Failed to build `com.google.common.collect.SortedMultiset<");
 
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(new GuavaModule().configureMultisetsAsEntries(false))
@@ -329,7 +332,7 @@ public class MultisetsTest extends ModuleTestBase
         e = assertThrows(MismatchedInputException.class,
                 () -> mapper.readValue(a2q("{'name':'Ann','age':30}"),
                         new TypeReference<SortedMultiset<Person>>() { }));
-        verifyException(e, "Failed to build `SortedMultiset`");
+        verifyException(e, "Failed to build `com.google.common.collect.SortedMultiset<");
     }
 
     // empty String is coerced into `null` by element deserializer
@@ -357,6 +360,41 @@ public class MultisetsTest extends ModuleTestBase
         Multiset<Integer> set = MAPPER_ELEMENTS.readValue("[1,\"\"]",
                 new TypeReference<HashMultiset<Integer>>() { });
         assertEquals(1, set.count(null));
+    }
+
+    @Test
+    public void testNullEntryProblemHandler() throws Exception
+    {
+        final TypeReference<?>[] refs = new TypeReference<?>[] {
+                new TypeReference<TreeMultiset<Integer>>() { },
+                new TypeReference<ImmutableMultiset<Integer>>() { },
+                new TypeReference<ImmutableSortedMultiset<Integer>>() { } };
+        for (Integer replacement : new Integer[] { 7, null }) {
+            ObjectMapper mapper = builderWithModule()
+                    .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                    .addHandler(new DeserializationProblemHandler() {
+                        @Override
+                        public Object handleUnexpectedToken(DeserializationContext ctxt,
+                                JavaType targetType, JsonToken t,
+                                JsonParser p, String failureMsg) {
+                            assertEquals(Integer.class, targetType.getRawClass());
+                            assertEquals(JsonToken.VALUE_STRING, t);
+                            return replacement;
+                        }
+                    })
+                    .build();
+            for (TypeReference<?> ref : refs) {
+                for (String json : new String[] {
+                        "[{'element':'','count':3},{'element':1,'count':2}]",
+                        "{'element':'','count':3}" }) {
+                    Multiset<?> set = (Multiset<?>) mapper.readValue(a2q(json), ref);
+                    assertEquals(replacement == null ? 0 : 3, set.count(7));
+                    assertEquals(json.startsWith("[") ? 2 : 0, set.count(1));
+                    assertEquals((replacement == null ? 0 : 3)
+                            + (json.startsWith("[") ? 2 : 0), set.size());
+                }
+            }
+        }
     }
 
     private static String _mixedTypeEntries(int count) {
