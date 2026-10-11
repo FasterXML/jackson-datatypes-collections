@@ -39,29 +39,16 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        ValueDeserializer<?> valueDes = _valueDeserializer;
-        JsonToken t;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         T set = createMultiset();
-    
+        JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-            Object value;
-
-            if (t == JsonToken.VALUE_NULL) {
-                if (_skipNullValues) {
-                    continue;
-                }
-                value = _nullProvider.getNullValue(ctxt);
-                if (value == null) {
-                    _tryToAddNull(p, ctxt, set);
-                    continue;
-                }
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(p, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+            Object value = _deserializeElement(p, ctxt, t);
+            if (value == null) {
+                _addElement(p, ctxt, t, null, v -> _add(ctxt, set, v));
+            } else if (value != SKIPPED_ELEMENT) {
+                // Avoid lambda allocation for the common non-null case
+                _add(ctxt, set, value);
             }
-            _add(ctxt, set, value);
         }
         return set;
     }
@@ -75,12 +62,10 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     protected T _createWithSingleElement(DeserializationContext ctxt, Object value)
         throws JacksonException
     {
-        final T result = createMultiset();
-        _add(ctxt, result, value);
-        return result;
+        return _add(ctxt, createMultiset(), value);
     }
 
-    private void _add(DeserializationContext ctxt, T set, Object value)
+    private T _add(DeserializationContext ctxt, T set, Object value)
         throws JacksonException
     {
         try {
@@ -90,5 +75,6 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
             // mutually comparable (or, for the first element, not `Comparable` at all)
             _reportBuildFailure(ctxt, e.getMessage());
         }
+        return set;
     }
 }

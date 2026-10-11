@@ -1,6 +1,7 @@
 package tools.jackson.datatype.guava.deser;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -19,6 +20,12 @@ import tools.jackson.databind.util.ClassUtil;
 public abstract class GuavaCollectionDeserializer<T>
     extends ContainerDeserializerBase<T>
 {
+    /**
+     * Marker value returned by {@link #_deserializeElement} for elements
+     * to skip.
+     */
+    protected static final Object SKIPPED_ELEMENT = new Object();
+
     /**
      * Deserializer used for values contained in collection being deserialized;
      * either assigned on constructor, or during resolve().
@@ -167,24 +174,58 @@ public abstract class GuavaCollectionDeserializer<T>
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        final ValueDeserializer<?> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         final JsonToken t = p.currentToken();
+        Object value = _deserializeElement(p, ctxt, t);
+        if (value != SKIPPED_ELEMENT) {
+            T result = _addElement(p, ctxt, t, value, v -> _createWithSingleElement(ctxt, v));
+            // `null` if element dropped by problem handler
+            if (result != null) {
+                return result;
+            }
+        }
+        return _createEmpty(ctxt);
+    }
 
-        final Object value;
-
+    /**
+     * Helper method for deserializing a single element, given its first token.
+     * Only JSON {@code null} tokens are skipped (if so configured): {@code null}
+     * returned by value deserializer (or null provider) is returned as-is.
+     *
+     * @return Element deserialized (possibly {@code null}), or {@link #SKIPPED_ELEMENT}
+     *    if element is to be skipped
+     */
+    protected Object _deserializeElement(JsonParser p, DeserializationContext ctxt,
+            JsonToken t)
+        throws JacksonException
+    {
         if (t == JsonToken.VALUE_NULL) {
             if (_skipNullValues) {
-                return _createEmpty(ctxt);
+                return SKIPPED_ELEMENT;
             }
-            value = _nullProvider.getNullValue(ctxt);
-        } else if (typeDeser == null) {
-            value = valueDes.deserialize(p, ctxt);
-        } else {
-            value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+            return _nullProvider.getNullValue(ctxt);
         }
-        return _createWithSingleElement(ctxt, value);
+        if (_valueTypeDeserializer == null) {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+        return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+    }
 
+    /**
+     * Helper method for adding an element using given adder; {@code null}s that
+     * the container does not accept are reported as problems.
+     *
+     * @param t Token from which the value was deserialized
+     *
+     * @return Result of adder, or {@code null} if element was dropped by
+     *    a problem handler
+     */
+    protected <R> R _addElement(JsonParser p, DeserializationContext ctxt, JsonToken t,
+            Object value, Function<Object, R> adder)
+        throws JacksonException
+    {
+        return NullElementHelper.addElement(p, ctxt, t, _containerType.getContentType(),
+                "Guava `Collection` of type "+ClassUtil.getTypeDescription(_containerType),
+                value, adder);
     }
 
     protected abstract T _createEmpty(DeserializationContext ctxt);
@@ -221,14 +262,10 @@ public abstract class GuavaCollectionDeserializer<T>
      */
     protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
     {
-        // Ideally we'd have better idea of where nulls are accepted, but first
-        // let's just produce something better than NPE:
-        try {
-            set.add(null);
-        } catch (NullPointerException e) {
-            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
-                    "Guava `Collection` of type %s does not accept `null` values",
-                    ClassUtil.getTypeDescription(getValueType(ctxt)));
-        }
+        _addElement(p, ctxt, p.currentToken(), null, v -> {
+            @SuppressWarnings("unchecked")
+            Collection<Object> coll = (Collection<Object>) set;
+            return coll.add(v);
+        });
     }
 }
