@@ -7,10 +7,14 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -65,5 +69,38 @@ public class RangeSetTest extends ModuleTestBase {
         } catch (MismatchedInputException e) {
             verifyException(e, "`RangeSet` does not accept `null` values");
         }
+    }
+
+    @Test
+    public void testDeserializeNullWithProblemHandler() throws Exception
+    {
+        final String json = a2q("[ {'lowerEndpoint':1,'lowerBoundType':'CLOSED'}, null ]");
+        final TypeReference<ImmutableRangeSet<Integer>> typeRef = new TypeReference<>() {};
+        final JavaType[] targetType = new JavaType[1];
+        ObjectMapper mapper = builderWithModule()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleUnexpectedToken(DeserializationContext ctxt,
+                            JavaType t, JsonToken token, JsonParser p, String failureMsg) {
+                        targetType[0] = t;
+                        return Range.singleton(-5);
+                    }
+                })
+                .build();
+        assertEquals(ImmutableRangeSet.builder().add(Range.atLeast(1)).add(Range.singleton(-5)).build(),
+                mapper.readValue(json, typeRef));
+        assertEquals(Range.class, targetType[0].getRawClass());
+
+        // and `null` from handler drops the element
+        mapper = builderWithModule()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleUnexpectedToken(DeserializationContext ctxt,
+                            JavaType t, JsonToken token, JsonParser p, String failureMsg) {
+                        return null;
+                    }
+                })
+                .build();
+        assertEquals(ImmutableRangeSet.of(Range.atLeast(1)), mapper.readValue(json, typeRef));
     }
 }

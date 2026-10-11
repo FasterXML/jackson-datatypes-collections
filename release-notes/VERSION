@@ -15,8 +15,26 @@ Modules:
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
+#232: (guava) Invalid stringified `Range` and incomparable sorted elements throw
+  raw runtime exceptions
+ (fixed by @pjfanning)
+#233: (guava) `Nulls.SKIP` on immutable collection contents drops `null`s
+  returned by value deserializer (also: report such `null`s, instead of
+  throwing `NullPointerException`, for single-value, sorted, `Multiset` and
+  `ImmutableMap` content)
+ (fixed by @pjfanning)
+#245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
+  as `Object` with default typing
+ (fixed by @pjfanning)
+#240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
+  primitive maps silently lose data
+ (fixed by @pjfanning)
+#251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
+  and implementation classes (default typing); `Triplet` read as `TripleImpl`
+ (fixed by @pjfanning)
 #253: (guava) Avoid redundant copy when deserializing `ArrayListMultimap`,
   `HashMultimap`, `LinkedHashMultimap`
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 

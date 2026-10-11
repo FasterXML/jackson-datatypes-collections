@@ -1,5 +1,6 @@
 package tools.jackson.datatype.primitive_collections_base.deser.map;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import tools.jackson.core.JacksonException;
@@ -23,14 +24,41 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
         return new MapDeserializer<>(keyHandler, valueHandler, typeHandlerPair, finish);
     }
 
+    /**
+     * Variant of {@link #create(JavaType, JavaType, TypeHandlerPair, Function)} that
+     * specifies type of maps produced, and where finishing function has access
+     * to the context, for reporting problems with content.
+     *
+     * @since 3.3
+     */
+    public static <T, I, K extends KeyHandler<K>, V extends ValueHandler<V>> MapDeserializer<T, I, K, V> create(
+            Class<?> handledType, JavaType keyType, JavaType valueType, TypeHandlerPair<I, K, V> typeHandlerPair,
+            BiFunction<DeserializationContext, I, T> finish) {
+        K keyHandler = typeHandlerPair.keyHandler(keyType);
+        V valueHandler = typeHandlerPair.valueHandler(valueType);
+        return new MapDeserializer<>(handledType, keyHandler, valueHandler, typeHandlerPair, finish);
+    }
+
+    // null if not known
+    private final Class<?> handledType;
     private final K keyHandler;
     private final V valueHandler;
     private final TypeHandlerPair<I, K, V> typeHandlerPair;
     // null if this is the identity function
-    private final Function<I, T> finish;
+    private final BiFunction<DeserializationContext, I, T> finish;
 
     public MapDeserializer(K keyHandler, V valueHandler,
             TypeHandlerPair<I, K, V> typeHandlerPair, Function<I, T> finish) {
+        this(null, keyHandler, valueHandler, typeHandlerPair,
+                (finish == null) ? null : (ctxt, intermediate) -> finish.apply(intermediate));
+    }
+
+    /**
+     * @since 3.3
+     */
+    public MapDeserializer(Class<?> handledType, K keyHandler, V valueHandler,
+            TypeHandlerPair<I, K, V> typeHandlerPair, BiFunction<DeserializationContext, I, T> finish) {
+        this.handledType = handledType;
         this.keyHandler = keyHandler;
         this.valueHandler = valueHandler;
         this.typeHandlerPair = typeHandlerPair;
@@ -38,7 +66,12 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
     }
 
     protected MapDeserializer<T, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
-        return new MapDeserializer<>(keyHandler, valueHandler, typeHandlerPair, finish);
+        return new MapDeserializer<>(handledType, keyHandler, valueHandler, typeHandlerPair, finish);
+    }
+
+    @Override
+    public Class<?> handledType() {
+        return handledType;
     }
 
     protected I createIntermediate() {
@@ -55,9 +88,20 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
         typeHandlerPair.add(target, keyHandler, valueHandler, ctx, key, valueParser);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @deprecated Since 3.3 use {@link #finish(DeserializationContext, Object)}
+     */
+    @Deprecated
     protected T finish(I intermediate) {
-        return finish == null ? (T) intermediate : finish.apply(intermediate);
+        return finish(null, intermediate);
+    }
+
+    /**
+     * @since 3.3
+     */
+    @SuppressWarnings("unchecked")
+    protected T finish(DeserializationContext ctxt, I intermediate) {
+        return finish == null ? (T) intermediate : finish.apply(ctxt, intermediate);
     }
 
     @Override
@@ -107,7 +151,7 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
             p.nextToken();
             deserializeEntry(map, ctxt, fieldName, p);
         }
-        return finish(map);
+        return finish(ctxt, map);
     }
 }
 
