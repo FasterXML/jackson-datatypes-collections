@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import tools.jackson.databind.ObjectMapper;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -40,12 +39,7 @@ public class IterablesTest extends ModuleTestBase
     public void testIterablesWithTransform() throws Exception
     {
         Iterable<String> input = Iterables.transform(ImmutableList.of("mr", "bo", "jangles"),
-                new Function<String, String>() {
-                  @Override
-                  public String apply(String x) {
-                      return new StringBuffer(x).reverse().toString();
-                  }
-                });
+                x -> new StringBuffer(x).reverse().toString());
         String json = MAPPER.writeValueAsString(input);
         assertEquals(a2q("['rm','ob','selgnaj']"), json);
 
