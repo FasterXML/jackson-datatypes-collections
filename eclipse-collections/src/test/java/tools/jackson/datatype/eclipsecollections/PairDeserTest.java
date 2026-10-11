@@ -21,6 +21,7 @@ import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.datatype.eclipsecollections.util.ImplementationTypes;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -46,6 +47,7 @@ public class PairDeserTest extends ModuleTestBase
         public IntLongPair intLongPair;
         public ObjectIntPair<String> objectIntPair;
         public Triple<String, Integer, Boolean> triple;
+        public Triplet<String> triplet;
         public Object anything;
     }
 
@@ -78,10 +80,40 @@ public class PairDeserTest extends ModuleTestBase
     public void testConcreteType() throws Exception
     {
         // implementation classes are not public
-        Class<?> pairImpl = Class.forName("org.eclipse.collections.impl.tuple.PairImpl");
-        assertEquals(Tuples.pair("a", 1), MAPPER.readValue(a2q("{'one':'a','two':1}"), pairImpl));
-        Class<?> intLongPairImpl = Class.forName("org.eclipse.collections.impl.tuple.primitive.IntLongPairImpl");
-        assertEquals(PrimitiveTuples.pair(1, 2L), MAPPER.readValue(a2q("{'one':1,'two':2}"), intLongPairImpl));
+        _assertConcrete(Tuples.pair("a", 1), "{'one':'a','two':1}");
+        _assertConcrete(Tuples.twin("a", "b"), "{'one':'a','two':'b'}");
+        _assertConcrete(Tuples.triple("a", 1, true), "{'one':'a','two':1,'three':true}");
+        _assertConcrete(Tuples.triplet("a", "b", "c"), "{'one':'a','two':'b','three':'c'}");
+        _assertConcrete(PrimitiveTuples.pair(1, 2L), "{'one':1,'two':2}");
+        _assertConcrete(PrimitiveTuples.pair("a", 1), "{'one':'a','two':1}");
+    }
+
+    private void _assertConcrete(Object expected, String json) throws Exception {
+        Object result = MAPPER.readValue(a2q(json), expected.getClass());
+        assertEquals(expected, result);
+        // `TwinImpl` and `PairImpl` (etc) may be equal, so verify the class too
+        assertEquals(expected.getClass(), result.getClass());
+    }
+
+    interface A { }
+    interface B { }
+    interface C extends A, B { }
+    static class CImpl implements C { }
+    static class ABImpl implements A, B { }
+
+    @Test
+    public void testMostSpecificTypes() throws Exception
+    {
+        // result must not depend on ordering of supported types
+        assertEquals(Arrays.asList(C.class),
+                ImplementationTypes.mostSpecificTypes(CImpl.class, Arrays.asList(A.class, B.class, C.class)));
+        assertEquals(Arrays.asList(C.class),
+                ImplementationTypes.mostSpecificTypes(CImpl.class, Arrays.asList(C.class, A.class, B.class)));
+        // unrelated types: ambiguous
+        assertEquals(Arrays.asList(A.class, B.class),
+                ImplementationTypes.mostSpecificTypes(ABImpl.class, Arrays.asList(A.class, B.class, C.class)));
+        assertEquals(Arrays.asList(),
+                ImplementationTypes.mostSpecificTypes(String.class, Arrays.asList(A.class, B.class, C.class)));
     }
 
     private <T> void roundTrip(T value, TypeReference<T> type) throws Exception {
@@ -116,6 +148,7 @@ public class PairDeserTest extends ModuleTestBase
         input.intLongPair = PrimitiveTuples.pair(1, 2L);
         input.objectIntPair = PrimitiveTuples.pair("b", 3);
         input.triple = Tuples.triple("c", 4, false);
+        input.triplet = Tuples.triplet("e", "f", "g");
         input.anything = Tuples.pair("d", 5L);
 
         for (DefaultTyping typing : TYPINGS) {
@@ -129,6 +162,9 @@ public class PairDeserTest extends ModuleTestBase
             assertEquals(input.intLongPair, result.intLongPair, json);
             assertEquals(input.objectIntPair, result.objectIntPair, json);
             assertEquals(input.triple, result.triple, json);
+            assertEquals(input.triplet, result.triplet, json);
+            assertEquals(input.twin.getClass(), result.twin.getClass(), json);
+            assertEquals(input.triplet.getClass(), result.triplet.getClass(), json);
             assertEquals(input.anything, result.anything, json);
         }
     }

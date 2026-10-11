@@ -42,10 +42,8 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         ValueInstantiator inst = _findValueInstantiator(beanClass, beanType);
         if (inst == null) {
             // Implementation class (like `PairImpl`, as named by a type id with default typing)?
-            Class<?> pairType = implementedTupleType(beanClass, ALL_PAIR_CLASSES);
-            if (pairType != null) {
-                inst = _findValueInstantiator(pairType, beanType.findSuperType(pairType));
-            }
+            inst = TupleImplementations.findInstantiator(beanType, ALL_PAIR_CLASSES,
+                    this::_findValueInstantiator);
         }
         return inst;
     }
@@ -103,31 +101,6 @@ public final class PairInstantiators extends ValueInstantiators.Base {
         }
 
         return null;
-    }
-
-    /**
-     * For an Eclipse Collections tuple implementation class (like {@code PairImpl} or
-     * {@code IntLongPairImpl}), find the most specific supported tuple interface it implements.
-     *
-     * @return Most specific matching type from {@code tupleTypes}, if exactly one;
-     *    {@code null} otherwise (including for interfaces, and classes outside of Eclipse Collections)
-     */
-    static Class<?> implementedTupleType(Class<?> implClass, Collection<Class<?>> tupleTypes) {
-        if (implClass.isInterface() || !implClass.getName().startsWith("org.eclipse.collections.")) {
-            return null;
-        }
-        Class<?> match = null;
-        for (Class<?> candidate : tupleTypes) {
-            if (!candidate.isAssignableFrom(implClass)) {
-                continue;
-            }
-            if (match == null || match.isAssignableFrom(candidate)) {
-                match = candidate;
-            } else if (!candidate.isAssignableFrom(match)) { // unrelated: ambiguous
-                return null;
-            }
-        }
-        return match;
     }
 
     @SuppressWarnings("unused") // Used from PairInstantiatorsPopulator
