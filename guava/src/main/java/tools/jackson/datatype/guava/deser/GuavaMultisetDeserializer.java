@@ -43,8 +43,11 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value = _deserializeElement(p, ctxt, t);
-            if (value != SKIPPED_ELEMENT) {
-                _addElement(p, ctxt, t, value, v -> _add(ctxt, set, v));
+            if (value == null) {
+                _addElement(p, ctxt, t, null, v -> _add(ctxt, set, v));
+            } else if (value != SKIPPED_ELEMENT) {
+                // Avoid lambda allocation for the common non-null case
+                _add(ctxt, set, value);
             }
         }
         return set;

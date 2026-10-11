@@ -83,7 +83,12 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
             ImmutableCollection.Builder<Object> builder, Object value)
         throws JacksonException
     {
-        _addElement(p, ctxt, t, value, v -> _add(ctxt, builder, v));
+        // Avoid lambda allocation for the common non-null case
+        if (value == null) {
+            _addElement(p, ctxt, t, null, v -> _add(ctxt, builder, v));
+        } else {
+            _add(ctxt, builder, value);
+        }
     }
 
     private T _build(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder)

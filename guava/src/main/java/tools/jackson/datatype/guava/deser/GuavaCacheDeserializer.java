@@ -130,10 +130,10 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
                 key = p.currentName();
             }
             
-            p.nextToken();
+            final JsonToken t = p.nextToken();
             
             final Object value;
-            if (p.currentToken() == JsonToken.VALUE_NULL) {
+            if (t == JsonToken.VALUE_NULL) {
                 if (skipNullValues) {
                     continue;
                 }
@@ -143,7 +143,11 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
             } else {
                 value = elementDeserializer.deserialize(p, ctxt);
             }
-            _put(p, ctxt, cache, key, value);
+            if (value == null) {
+                _put(p, ctxt, t, cache, key, null);
+            } else {
+                cache.put(key, value);
+            }
         }
         return cache;
     }
@@ -165,13 +169,16 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
     protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
             T cache, Object key)
     {
-        _put(p, ctxt, cache, key, null);
+        _put(p, ctxt, p.currentToken(), cache, key, null);
     }
 
-    private void _put(JsonParser p, DeserializationContext ctxt,
+    /**
+     * @param t Token from which the value was deserialized
+     */
+    private void _put(JsonParser p, DeserializationContext ctxt, JsonToken t,
             T cache, Object key, Object value)
     {
-        NullElementHelper.addElement(p, ctxt, p.currentToken(), type.getContentType(),
+        NullElementHelper.addElement(p, ctxt, t, type.getContentType(),
                 "Guava `Cache` of type "+ClassUtil.classNameOf(cache),
                 value, v -> {
                     cache.put(key, v);
