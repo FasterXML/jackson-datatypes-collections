@@ -12,7 +12,7 @@ Jackson Datatypes Collections is a multi-module Maven project providing Jackson 
 - **pcollections**: Support for Persistent Java Collections
 - **primitive-collections-base**: Shared base code for primitive collection modules
 
-This is the **3.1 maintenance branch** (current: 3.1.8-SNAPSHOT). The main branch is `master`. Changes are typically merged forward from `2.x` into `3.1`, and from `3.1` into `master`. Development follows the Jackson ecosystem patterns.
+This is the **3.x development branch** for the next 3.x minor release (current: 3.3.0-SNAPSHOT). Maintenance branches `3.1` and `3.2` hold patch releases; fixes are merged forward from `2.x` into `3.1`, then `3.1` → `3.2` → `3.x`. Development follows the Jackson ecosystem patterns.
 
 ## Build Commands
 
@@ -133,7 +133,7 @@ ObjectMapper mapper = JsonMapper.builder()
 
 ## Dependencies
 
-- Parent: `tools.jackson:jackson-base:3.1.8-SNAPSHOT`
+- Parent: `tools.jackson:jackson-base:3.3.0-SNAPSHOT`
 - Core deps: `tools.jackson.core:jackson-core`, `tools.jackson.core:jackson-databind`
 - Each module depends on its respective collection library
 - Tests use JUnit 5 (Jupiter)
@@ -158,4 +158,4 @@ JPSG generates specialized primitive implementations from templates. Template fi
 
 ## Release Notes
 
-Release notes are in the `release-notes/` directory: `VERSION` covers 3.x releases (`VERSION-2.x` for 2.x), and `CREDITS` lists contributors. When making significant changes, add an entry in `VERSION` under the next 3.1 patch version (currently `3.1.8`), adding that section above the latest release if it does not exist yet. (The `3.2.0` section at the top is for the next minor release, not for 3.1 patches.)
+Release notes are in the `release-notes/` directory: `VERSION` covers 3.x releases (`VERSION-2.x` for 2.x), and `CREDITS` lists contributors. When making significant changes on this branch, add an entry in `VERSION` under the unreleased `3.3.0` section at the top. (Fixes meant for a patch release belong on the `3.1` or `3.2` branch, under that branch's next patch version.)
