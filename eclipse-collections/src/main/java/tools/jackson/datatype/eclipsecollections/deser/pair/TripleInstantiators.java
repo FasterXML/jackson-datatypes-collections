@@ -32,7 +32,7 @@ public class TripleInstantiators extends ValueInstantiators.Base {
             inst = TupleImplementations.findInstantiator(beanDescRef.getType(), TRIPLE_TYPES,
                     this::_findValueInstantiator);
         }
-        return (inst == null) ? super.findValueInstantiator(config, beanDescRef) : inst;
+        return inst;
     }
 
     private ValueInstantiator _findValueInstantiator(Class<?> beanClass, JavaType beanType) {

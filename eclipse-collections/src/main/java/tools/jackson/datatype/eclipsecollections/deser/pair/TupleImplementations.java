@@ -3,13 +3,14 @@ package tools.jackson.datatype.eclipsecollections.deser.pair;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.ValueInstantiator;
+import tools.jackson.databind.deser.bean.PropertyValueBuffer;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.datatype.eclipsecollections.util.ImplementationTypes;
 
@@ -40,15 +41,10 @@ final class TupleImplementations
             return null;
         }
         List<Class<?>> supportedTypes = ImplementationTypes.mostSpecificTypes(implClass, tupleTypes);
-        if (supportedTypes.isEmpty()) {
+        // none, or multiple unrelated ones (ambiguous; not the case for any current
+        // Eclipse Collections class): leave to standard handling
+        if (supportedTypes.size() != 1) {
             return null;
-        }
-        if (supportedTypes.size() > 1) {
-            return new Unsupported(implType, String.format(
-                    "Cannot deserialize value of type %s: implements multiple unrelated supported types (%s)",
-                    ClassUtil.nameOf(implClass), supportedTypes.stream()
-                        .map(ClassUtil::nameOf)
-                        .collect(Collectors.joining(", "))));
         }
         JavaType supportedType = implType.findSuperType(supportedTypes.get(0));
         if (supportedType == null) {
@@ -85,6 +81,25 @@ final class TupleImplementations
         }
 
         @Override
+        public Class<?> getValueClass() {
+            return _implClass;
+        }
+
+        @Override
+        public String getValueTypeDesc() {
+            return _implClass.getName();
+        }
+
+        @Override
+        public Object createFromObjectWith(DeserializationContext ctxt,
+                SettableBeanProperty[] props, PropertyValueBuffer buffer)
+            throws JacksonException
+        {
+            // NOTE: `Delegating` would call delegate directly, bypassing verification
+            return createFromObjectWith(ctxt, buffer.getParameters(ctxt, props));
+        }
+
+        @Override
         public Object createFromObjectWith(DeserializationContext ctxt, Object[] args)
             throws JacksonException
         {
@@ -95,32 +110,6 @@ final class TupleImplementations
             return ctxt.reportInputMismatch(_implClass,
                     "Cannot deserialize value of type %s: closest supported type produces values of type %s",
                     ClassUtil.nameOf(_implClass), ClassUtil.classNameOf(value));
-        }
-    }
-
-    /**
-     * Instantiator used for implementation classes that cannot be supported:
-     * fails with an explanation (instead of falling back to plain bean handling).
-     */
-    static class Unsupported extends ValueInstantiator.Base
-    {
-        private final JavaType _type;
-        private final String _message;
-
-        Unsupported(JavaType type, String message) {
-            super(type);
-            _type = type;
-            _message = message;
-        }
-
-        @Override
-        public boolean canCreateUsingDefault() {
-            return true;
-        }
-
-        @Override
-        public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
-            return ctxt.reportBadDefinition(_type, _message);
         }
     }
 }
