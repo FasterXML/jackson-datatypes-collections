@@ -31,6 +31,18 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
 
     protected abstract T finish(Intermediate intermediate);
 
+    /**
+     * Variant of {@link #finish(Object)} that has access to the context, for
+     * reporting problems with content: by default simply calls {@link #finish(Object)}.
+     *
+     * @since 3.3
+     */
+    protected T finish(DeserializationContext ctxt, Intermediate intermediate)
+        throws JacksonException
+    {
+        return finish(intermediate);
+    }
+
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
         throws JacksonException
@@ -62,7 +74,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
         while (p.nextToken() != JsonToken.END_ARRAY) {
             add(collection, p, ctxt);
         }
-        return finish(collection);
+        return finish(ctxt, collection);
     }
 
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
@@ -70,7 +82,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     {
         Intermediate intermediate = createIntermediate();
         add(intermediate, p, ctxt);
-        return finish(intermediate);
+        return finish(ctxt, intermediate);
     }
 
 }

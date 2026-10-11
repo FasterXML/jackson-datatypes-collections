@@ -11,6 +11,7 @@ import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -64,7 +65,14 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            builder.put(key, value);
+            if (value == null) {
+                // Value deserializer may return `null` for non-null token
+                NullElementHelper.addElement(p, ctxt, t, _containerType.getContentType(),
+                        "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType),
+                        null, v -> builder.put(key, v));
+            } else {
+                builder.put(key, value);
+            }
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
@@ -74,8 +82,8 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             return map;
         } catch (IllegalArgumentException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build `ImmutableMap` from deserialized entries: %s",
-                    e.getMessage());
+                    "Failed to build %s from deserialized entries: %s",
+                    ClassUtil.getTypeDescription(_containerType), e.getMessage());
         }
     }
 }

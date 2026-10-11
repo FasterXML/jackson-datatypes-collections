@@ -10,6 +10,7 @@ import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.ClassUtil;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
@@ -104,8 +105,8 @@ public class ImmutableTableDeserializer
             return table.build();
         } catch (IllegalArgumentException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build `ImmutableTable` from deserialized entries: %s",
-                    e.getMessage());
+                    "Failed to build %s from deserialized entries: %s",
+                    ClassUtil.getTypeDescription(_type), e.getMessage());
         }
     }
     

@@ -143,19 +143,13 @@ public class HppcContainerSerializers
         protected void serializeContents(final ShortContainer value, final JsonGenerator gen, SerializationContext ctxt)
                throws JacksonException
         {
-            if (value instanceof ShortIndexedContainer) {
-                ShortIndexedContainer list = (ShortIndexedContainer) value;
+            if (value instanceof ShortIndexedContainer list) {
                 for (int i = 0, len = list.size(); i < len; ++i) {
                     gen.writeNumber(list.get(i));
                 }
                 return;
             }
-            value.forEach(new ShortProcedure() {
-                @Override
-                public void apply(short v) {
-                    gen.writeNumber(v);
-                }
-            });
+            value.forEach((ShortProcedure) v -> gen.writeNumber(v));
         }
     }
 
@@ -209,12 +203,7 @@ public class HppcContainerSerializers
         protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
-            value.forEach(new IntProcedure() {
-                @Override
-                public void apply(int v) {
-                    gen.writeNumber(v);
-                }
-            });
+            value.forEach((IntProcedure) v -> gen.writeNumber(v));
         }
 
         // Specialized variant to support indexed int container with more efficient accessor
@@ -250,8 +239,8 @@ public class HppcContainerSerializers
                throws JacksonException
             {
                 int[] array;
-                if (value instanceof IntArrayList) {
-                    array = ((IntArrayList) value).buffer;
+                if (value instanceof IntArrayList arrayList) {
+                    array = arrayList.buffer;
                 } else {
                     array = value.toArray();
                 }
@@ -296,11 +285,10 @@ public class HppcContainerSerializers
         protected void serializeContents(final LongContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
-            if (value instanceof LongIndexedContainer) {
-                LongIndexedContainer list = (LongIndexedContainer) value;
+            if (value instanceof LongIndexedContainer list) {
                 long[] array;
-                if (value instanceof LongArrayList) {
-                    array = ((LongArrayList) value).buffer;
+                if (value instanceof LongArrayList arrayList) {
+                    array = arrayList.buffer;
                 } else {
                     array = list.toArray();
                 }
@@ -309,12 +297,7 @@ public class HppcContainerSerializers
                 }
                 return;
             }
-            value.forEach(new LongProcedure() {
-                @Override
-                public void apply(long v) {
-                    gen.writeNumber(v);
-                }
-            });
+            value.forEach((LongProcedure) v -> gen.writeNumber(v));
         }
     }
 
@@ -429,19 +412,13 @@ public class HppcContainerSerializers
                 final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
-            if (value instanceof FloatIndexedContainer) {
-                FloatIndexedContainer list = (FloatIndexedContainer) value;
+            if (value instanceof FloatIndexedContainer list) {
                 for (int i = 0, len = list.size(); i < len; ++i) {
                     gen.writeNumber(list.get(i));
                 }
                 return;
             }
-            value.forEach(new FloatProcedure() {
-                @Override
-                public void apply(float v) {
-                    gen.writeNumber(v);
-                }
-            });
+            value.forEach((FloatProcedure) v -> gen.writeNumber(v));
         }
     }
 
@@ -476,20 +453,13 @@ public class HppcContainerSerializers
         protected void serializeContents(final DoubleContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
-            if (value instanceof DoubleIndexedContainer) {
-                DoubleIndexedContainer list = (DoubleIndexedContainer) value;
+            if (value instanceof DoubleIndexedContainer list) {
                 for (int i = 0, len = list.size(); i < len; ++i) {
                     gen.writeNumber(list.get(i));
                 }
                 return;
             }
-            // doh. Can't throw checked exceptions through; hence need convoluted handling...
-            value.forEach(new DoubleProcedure() {
-                @Override
-                public void apply(double v) {
-                    gen.writeNumber(v);
-                }
-            });
+            value.forEach((DoubleProcedure) v -> gen.writeNumber(v));
         }
     }
 
