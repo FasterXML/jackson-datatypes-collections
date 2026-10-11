@@ -9,12 +9,39 @@ import tools.jackson.datatype.primitive_collections_base.deser.map.*;
 
 import org.eclipse.collections.api.map.*;
 import org.eclipse.collections.api.map.primitive.*;
+import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.factory.Maps;
 import org.eclipse.collections.impl.factory.primitive.*;
 
 public final class TypeHandlerPairs {
 
     private TypeHandlerPairs() {}
+
+    // Fixed-size maps only exist for up to 3 entries
+    private static FixedSizeMap<Object, Object> toFixedSize(DeserializationContext ctxt,
+            MutableMap<Object, Object> map) {
+        final int size = map.size();
+        if (size > 3) {
+            return ctxt.reportInputMismatch(FixedSizeMap.class,
+                    "Cannot construct `FixedSizeMap` with more than 3 entries (got %d)", size);
+        }
+        Object[] kvs = new Object[6];
+        int i = 0;
+        for (Pair<Object, Object> kv : map.keyValuesView()) {
+            kvs[i++] = kv.getOne();
+            kvs[i++] = kv.getTwo();
+        }
+        switch (size) {
+        case 0:
+            return Maps.fixedSize.of();
+        case 1:
+            return Maps.fixedSize.of(kvs[0], kvs[1]);
+        case 2:
+            return Maps.fixedSize.of(kvs[0], kvs[1], kvs[2], kvs[3]);
+        default:
+            return Maps.fixedSize.of(kvs[0], kvs[1], kvs[2], kvs[3], kvs[4], kvs[5]);
+        }
+    }
 
     /* with
         byte|char|short|int|long|float|double|object key
@@ -82,6 +109,8 @@ public final class TypeHandlerPairs {
                 true, true, ImmutableMap.class, OBJECT_OBJECT, MutableMap::toImmutable);
         EclipseMapDeserializers.add(
                 true, true, ImmutableMapIterable.class, OBJECT_OBJECT, MutableMap::toImmutable);
+        EclipseMapDeserializers.addWithContext(
+                true, true, FixedSizeMap.class, OBJECT_OBJECT, TypeHandlerPairs::toFixedSize);
 
         /* with
             byte|char|short|int|long|float|double|object key
