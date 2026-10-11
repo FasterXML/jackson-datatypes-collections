@@ -81,13 +81,7 @@ public class RangeSetDeserializer
         final Collection<?> ranges = (Collection<?>) _deserializer.deserialize(p, ctxt);
         ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
         for (Object ob : ranges) {
-            if (ob == null) {
-                _tryToAddNull(p, ctxt, builder);
-                continue;
-            }
-            @SuppressWarnings("unchecked")
-            Range<Comparable<?>> range = (Range<Comparable<?>>) ob;
-            builder.add(range);
+            _addRange(p, ctxt, builder, ob);
         }
         try {
             return builder.build();
@@ -106,13 +100,21 @@ public class RangeSetDeserializer
             ImmutableRangeSet.Builder<Comparable<?>> builder)
         throws JacksonException
     {
-        // Ideally we'd have better idea of where nulls are accepted, but first
-        // let's just produce something better than NPE:
-        try {
-            builder.add(null);
-        } catch (NullPointerException e) {
-            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
-                    "`RangeSet` does not accept `null` values");
-        }
+        _addRange(p, ctxt, builder, null);
+    }
+
+    private void _addRange(JsonParser p, DeserializationContext ctxt,
+            ImmutableRangeSet.Builder<Comparable<?>> builder, Object range)
+        throws JacksonException
+    {
+        // Ranges were already deserialized (and JSON nulls resolved) by the
+        // List deserializer, so actual token is not known: report as JSON null
+        NullElementHelper.addElement(p, ctxt, JsonToken.VALUE_NULL,
+                ctxt.constructType(Range.class), "`RangeSet`",
+                range, r -> {
+                    @SuppressWarnings("unchecked")
+                    Range<Comparable<?>> typed = (Range<Comparable<?>>) r;
+                    return builder.add(typed);
+                });
     }
 }

@@ -65,7 +65,10 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            builder.put(key, value);
+            // Value deserializer may return `null` for non-null token
+            NullElementHelper.addElement(p, ctxt, t, _containerType.getContentType(),
+                    "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType),
+                    value, v -> builder.put(key, v));
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.

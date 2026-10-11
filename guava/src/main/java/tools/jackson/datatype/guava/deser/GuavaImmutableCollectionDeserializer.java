@@ -47,68 +47,48 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        // Builder only constructed once there are 2 elements (or a `null` one)
         Object first = null;
-        boolean hasFirst = false;
+        ImmutableCollection.Builder<Object> builder = null;
 
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-            // Only JSON nulls are skipped; null from value deserializer is not
-            if (t == JsonToken.VALUE_NULL && _skipNullValues) {
+            Object value = _deserializeElement(p, ctxt, t);
+            if (value == SKIPPED_ELEMENT) {
                 continue;
             }
-            Object value = _deserializeSingleValue(p, ctxt);
-            if (value == null) {
-                // Null values need builder for proper error handling
-                ImmutableCollection.Builder<Object> builder = createBuilder();
-                if (hasFirst) {
+            if (builder == null) {
+                if ((first == null) && (value != null)) {
+                    first = value;
+                    continue;
+                }
+                builder = createBuilder();
+                if (first != null) {
                     _add(ctxt, builder, first);
                 }
-                _tryToAddNull(p, ctxt, builder);
-                return _finishWithBuilder(p, ctxt, builder);
             }
-            if (!hasFirst) {
-                first = value;
-                hasFirst = true;
-            } else {
-                ImmutableCollection.Builder<Object> builder = createBuilder();
-                _add(ctxt, builder, first);
-                _add(ctxt, builder, value);
-                return _finishWithBuilder(p, ctxt, builder);
-            }
+            _addToBuilder(p, ctxt, t, builder, value);
         }
 
-        if (!hasFirst) {
+        if (builder != null) {
+            return _build(ctxt, builder);
+        }
+        if (first == null) {
             return _createEmpty(ctxt);
         }
         return _createWithSingleElement(ctxt, first);
     }
 
-    private Object _deserializeSingleValue(JsonParser p, DeserializationContext ctxt)
+    private void _addToBuilder(JsonParser p, DeserializationContext ctxt, JsonToken t,
+            ImmutableCollection.Builder<Object> builder, Object value)
         throws JacksonException
     {
-        if (p.currentToken() == JsonToken.VALUE_NULL) {
-            return _resolveNullToValue(ctxt);
-        }
-        return _valueTypeDeserializer == null
-            ? _valueDeserializer.deserialize(p, ctxt)
-            : _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        _addElement(p, ctxt, t, value, v -> _add(ctxt, builder, v));
     }
 
-    private T _finishWithBuilder(JsonParser p, DeserializationContext ctxt,
-            ImmutableCollection.Builder<Object> builder) throws JacksonException
+    private T _build(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder)
+        throws JacksonException
     {
-        JsonToken t;
-        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
-            if (t == JsonToken.VALUE_NULL && _skipNullValues) {
-                continue;
-            }
-            Object value = _deserializeSingleValue(p, ctxt);
-            if (value == null) {
-                _tryToAddNull(p, ctxt, builder);
-            } else {
-                _add(ctxt, builder, value);
-            }
-        }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
         try {
@@ -121,8 +101,9 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         }
     }
 
-    private void _add(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder,
-            Object value) throws JacksonException
+    private ImmutableCollection.Builder<Object> _add(DeserializationContext ctxt,
+            ImmutableCollection.Builder<Object> builder, Object value)
+        throws JacksonException
     {
         _verifyComparable(ctxt, value);
         try {
@@ -131,6 +112,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
             // Sorted builders may sort (and fail) while elements are still being added
             _reportBuildFailure(ctxt, e.getMessage());
         }
+        return builder;
     }
 
     /**
@@ -141,16 +123,8 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     protected T _buildWithSingleElement(DeserializationContext ctxt, Object value)
         throws JacksonException
     {
-        _verifyComparable(ctxt, value);
-        ImmutableCollection.Builder<Object> builder = createBuilder();
-        try {
-            builder.add(value);
-            @SuppressWarnings("unchecked")
-            T collection = (T) builder.build();
-            return collection;
-        } catch (ClassCastException e) {
-            return _reportBuildFailure(ctxt, e.getMessage());
-        }
+        // NOTE: `null` value fails with NPE, handled by caller
+        return _build(ctxt, _add(ctxt, createBuilder(), value));
     }
 
     /**
@@ -169,41 +143,6 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 && (value != null) && !(value instanceof Comparable<?>)) {
             _reportBuildFailure(ctxt, String.format("element of type %s is not `Comparable`",
                     ClassUtil.classNameOf(value)));
-        }
-    }
-
-    protected Object _resolveNullToValue(DeserializationContext ctxt)
-        throws JacksonException
-    {
-        Object value = _nullProvider.getNullValue(ctxt);
-
-        // Since Guava (immutable) collections are not very happy with {@code null} values,
-        // we may eventually need to do additional mapping (see [databind#53]).
-        // But for now just use null provider:
-
-        /*
-        if (value == null) {
-            value = _valueDeserializer.getNullValue(ctxt);
-         }
-         */
-        return value;
-    }
-
-    /**
-     * Some/many Guava containers do not allow addition of {@code null} values,
-     * so isolate handling here.
-     */
-    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
-            ImmutableCollection.Builder<Object> builder)
-    {
-        // Ideally we'd have better idea of where nulls are accepted, but first
-        // let's just produce something better than NPE:
-        try {
-            builder.add((Object) null);
-        } catch (NullPointerException e) {
-            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
-                    "Guava `Collection` of type %s does not accept `null` values",
-                    ClassUtil.getTypeDescription(getValueType(ctxt)));
         }
     }
 }

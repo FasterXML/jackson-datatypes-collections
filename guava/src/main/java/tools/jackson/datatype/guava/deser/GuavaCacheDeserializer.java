@@ -143,12 +143,7 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
             } else {
                 value = elementDeserializer.deserialize(p, ctxt);
             }
-            if (value == null) {
-                _tryToAddNull(p, ctxt, cache, key);
-                continue;
-            }
-
-            cache.put(key, value);
+            _put(p, ctxt, cache, key, value);
         }
         return cache;
     }
@@ -170,14 +165,17 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
     protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
             T cache, Object key)
     {
-        // Ideally we'd have better idea of where nulls are accepted, but first
-        // let's just produce something better than NPE:
-        try {
-            cache.put(key, null);
-        } catch (NullPointerException e) {
-            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
-                    "Guava `Cache` of type %s does not accept `null` values",
-                    ClassUtil.classNameOf(cache));
-        }
+        _put(p, ctxt, cache, key, null);
+    }
+
+    private void _put(JsonParser p, DeserializationContext ctxt,
+            T cache, Object key, Object value)
+    {
+        NullElementHelper.addElement(p, ctxt, p.currentToken(), type.getContentType(),
+                "Guava `Cache` of type "+ClassUtil.classNameOf(cache),
+                value, v -> {
+                    cache.put(key, v);
+                    return cache;
+                });
     }
 }
