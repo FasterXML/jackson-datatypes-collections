@@ -26,6 +26,9 @@ Modules:
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
  (fixed by @pjfanning)
+#273: (guava) `null` values not accepted by `Multimap`s and `Table`s throw raw
+  `NullPointerException` (or `ValueInstantiationException`)
+ (fixed by @cowtowncoder)
 
 3.2.3 (21-Sep-2026)
 
