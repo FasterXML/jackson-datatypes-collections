@@ -14,6 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -62,6 +64,7 @@ public class TestPrimitives extends ModuleTestBase
      * Immutable types can actually be serialized as regular collections, without
      * problems.
      */
+    @Test
     public void testWithoutSerializers() throws Exception {
         assertEquals("[true,false,true]", MAPPER.writeValueAsString(Booleans.asList(true, false, true)));
         assertEquals("[1,2,3]", MAPPER.writeValueAsString(Bytes.asList((byte) 1, (byte) 2, (byte) 3)));
@@ -77,6 +80,7 @@ public class TestPrimitives extends ModuleTestBase
      * {@link ImmutableIntArray}, {@link ImmutableLongArray} and {@link ImmutableDoubleArray} cannot be serialized by
      * default.
      */
+    @Test
     public void testImmutableArraysWithoutSerializers() {
         ObjectMapper mapper = new ObjectMapper();
         ImmutableIntArray intArray = ImmutableIntArray.of(1, 2, 3);
@@ -94,6 +98,7 @@ public class TestPrimitives extends ModuleTestBase
      * {@link ImmutableIntArray}, {@link ImmutableLongArray} and {@link ImmutableDoubleArray} cannot be serialized by
      * default, however having {@link GuavaModule} registered, it will successfully serialize them as plain arrays.
      */
+    @Test
     public void testImmutableArraysWithSerializers() {
         assertEquals("[1,2,3]", MAPPER.writeValueAsString(ImmutableIntArray.of(1, 2, 3)));
         assertEquals("[1,2,3]", MAPPER.writeValueAsString(ImmutableLongArray.of(1, 2, 3)));
@@ -103,6 +108,7 @@ public class TestPrimitives extends ModuleTestBase
     /**
      * Deserialization will fail, however.
      */
+    @Test
     public void testWithoutDeserializers() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -132,6 +138,7 @@ public class TestPrimitives extends ModuleTestBase
      * Basic tests for actual registered module
      /***********************************************************************/
 
+    @Test
     public void testBooleans() throws Exception {
         List<Boolean> list = MAPPER.readValue("[true,false,true]", PrimitiveTypes.BooleansTypeReference);
         assertEquals(3, list.size());
@@ -141,6 +148,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.BooleansTypeName));
     }
 
+    @Test
     public void testBooleansFromSingle() throws Exception {
         List<Boolean> list = SINGLE_MAPPER.readValue("true", PrimitiveTypes.BooleansTypeReference);
         assertEquals(1, list.size());
@@ -148,6 +156,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.BooleansTypeName));
     }
 
+    @Test
     public void testBytes() throws Exception {
         List<Byte> list = MAPPER.readValue("[1,2,3]", PrimitiveTypes.BytesTypeReference);
         assertEquals(3, list.size());
@@ -157,6 +166,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.BytesTypeName));
     }
 
+    @Test
     public void testBytesFromSingle() throws Exception {
         List<Byte> list = SINGLE_MAPPER.readValue("1", PrimitiveTypes.BytesTypeReference);
         assertEquals(1, list.size());
@@ -164,6 +174,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.BytesTypeName));
     }
 
+    @Test
     public void testChars() throws Exception {
         List<Character> list = MAPPER.readValue("[\"\\u0001\",\"\\u0002\",\"\\u0003\",\"a\",\"b\",\"c\",\"D\",\"E\"]", PrimitiveTypes.CharsTypeReference);
         assertEquals(8, list.size());
@@ -178,6 +189,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.CharsTypeName));
     }
 
+    @Test
     public void testCharsFromSingle() throws Exception {
         List<Character> list = SINGLE_MAPPER.readValue("\"a\"", PrimitiveTypes.CharsType);
         assertEquals(1, list.size());
@@ -185,6 +197,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.CharsTypeName));
     }
 
+    @Test
     public void testFloats() throws Exception {
         List<Float> list = MAPPER.readValue("[1.5,2.5,3.5]", PrimitiveTypes.FloatsTypeReference);
         assertEquals(3, list.size());
@@ -194,6 +207,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.FloatsTypeName));
     }
 
+    @Test
     public void testFloatsFromSingle() throws Exception {
         List<Float> list = SINGLE_MAPPER.readValue("1", PrimitiveTypes.FloatsType);
         assertEquals(1, list.size());
@@ -201,6 +215,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.FloatsTypeName));
     }
 
+    @Test
     public void testDoubles() throws Exception {
         List<Double> list = MAPPER.readValue("[1.5,2.5,3.5]", PrimitiveTypes.DoublesTypeReference);
         assertEquals(3, list.size());
@@ -210,6 +225,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.DoublesTypeName));
     }
 
+    @Test
     public void testDoublesFromSingle() throws Exception {
         List<Double> list = SINGLE_MAPPER.readValue("1", PrimitiveTypes.DoublesType);
         assertEquals(1, list.size());
@@ -217,6 +233,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.DoublesTypeName));
     }
 
+    @Test
     public void testImmutableDoubleArray() throws Exception {
         ImmutableDoubleArray list = MAPPER.readValue("[1.5,2.5,3.5]", ImmutableDoubleArray.class);
         assertEquals(3, list.length());
@@ -225,12 +242,14 @@ public class TestPrimitives extends ModuleTestBase
         assertEquals(Double.valueOf(3.5), list.get(2));
     }
 
+    @Test
     public void testImmutableDoubleArrayFromSingle() throws Exception {
         ImmutableDoubleArray array = SINGLE_MAPPER.readValue("1", ImmutableDoubleArray.class);
         assertEquals(1, array.length());
         assertEquals(Double.valueOf(1d), array.get(0));
     }
 
+    @Test
     public void testInts() throws Exception {
         List<Integer> list = MAPPER.readValue("[1,2,3]", PrimitiveTypes.IntsTypeReference);
         assertEquals(3, list.size());
@@ -240,6 +259,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.IntsTypeName));
     }
 
+    @Test
     public void testIntsFromSingle() throws Exception {
         List<Integer> list = SINGLE_MAPPER.readValue("1", PrimitiveTypes.IntsTypeReference);
         assertEquals(1, list.size());
@@ -247,6 +267,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.IntsTypeName));
     }
 
+    @Test
     public void testImmutableIntArray() throws Exception {
         ImmutableIntArray array = MAPPER.readValue("[1,2,3]", ImmutableIntArray.class);
         assertEquals(3, array.length());
@@ -255,12 +276,14 @@ public class TestPrimitives extends ModuleTestBase
         assertEquals(3, array.get(2));
     }
 
+    @Test
     public void testImmutableIntArrayFromSingle() throws Exception {
         ImmutableIntArray array = SINGLE_MAPPER.readValue("1", ImmutableIntArray.class);
         assertEquals(1, array.length());
         assertEquals(1, array.get(0));
     }
 
+    @Test
     public void testLongs() throws Exception {
         List<Long> list = MAPPER.readValue("[1,2,3]", PrimitiveTypes.LongsTypeReference);
         assertEquals(3, list.size());
@@ -270,6 +293,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.LongsTypeName));
     }
 
+    @Test
     public void testLongsFromSingle() throws Exception {
         List<Long> list = SINGLE_MAPPER.readValue("1", PrimitiveTypes.LongsTypeReference);
         assertEquals(1, list.size());
@@ -277,6 +301,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.LongsTypeName));
     }
 
+    @Test
     public void testImmutableLongArray() throws Exception {
         ImmutableLongArray array = MAPPER.readValue("[1,2,3]", ImmutableLongArray.class);
         assertEquals(3, array.length());
@@ -285,12 +310,14 @@ public class TestPrimitives extends ModuleTestBase
         assertEquals(3L, array.get(2));
     }
 
+    @Test
     public void testImmutableLongArrayFromSingle() throws Exception {
         ImmutableLongArray array = SINGLE_MAPPER.readValue("1", ImmutableLongArray.class);
         assertEquals(1, array.length());
         assertEquals(1L, array.get(0));
     }
 
+    @Test
     public void testShorts() throws Exception {
         List<Short> list = MAPPER.readValue("[1,2,3]", PrimitiveTypes.ShortsTypeReference);
         assertEquals(3, list.size());
@@ -300,6 +327,7 @@ public class TestPrimitives extends ModuleTestBase
         assertTrue(list.getClass().getName().equals(PrimitiveTypes.ShortsTypeName));
     }
 
+    @Test
     public void testShortsFromSingle() throws Exception {
         List<Short> list = SINGLE_MAPPER.readValue("1", PrimitiveTypes.ShortsTypeReference);
         assertEquals(1, list.size());
@@ -313,6 +341,7 @@ public class TestPrimitives extends ModuleTestBase
     /**********************************************************************
      */
 
+    @Test
     public void testTypedInts() throws Exception {
         PolymorphicHolder h;
         String json;
@@ -343,6 +372,7 @@ public class TestPrimitives extends ModuleTestBase
         assertEquals(0, ((List<?>) result.value).size());
     }
 
+    @Test
     public void testTypedLongs() throws Exception {
         PolymorphicHolder h;
         String json;

@@ -192,6 +192,28 @@ public abstract class GuavaCollectionDeserializer<T>
     protected abstract T _createWithSingleElement(DeserializationContext ctxt, Object value);
 
     /**
+     * Helper method for checking whether element type is untyped ({@code Object}),
+     * in which case sorted containers need to use {@link UntypedElementComparator}
+     * instead of natural ordering.
+     */
+    protected boolean _hasUntypedElements() {
+        return _containerType.getContentType().hasRawClass(Object.class);
+    }
+
+    /**
+     * Helper method for reporting failure to build a container, typically a sorted
+     * one failing (with {@link ClassCastException}) due to elements that are not
+     * mutually comparable.
+     */
+    protected <R> R _reportBuildFailure(DeserializationContext ctxt, String msg)
+        throws JacksonException
+    {
+        return ctxt.reportInputMismatch(this,
+                "Failed to build %s from deserialized elements: %s",
+                ClassUtil.getTypeDescription(_containerType), msg);
+    }
+
+    /**
      * Some/many Guava containers do not allow addition of {@code null} values,
      * so isolate handling here.
      *
