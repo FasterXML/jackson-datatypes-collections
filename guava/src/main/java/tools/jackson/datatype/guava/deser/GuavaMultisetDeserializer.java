@@ -61,7 +61,7 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            set.add(value);
+            _add(ctxt, set, value);
         }
         return set;
     }
@@ -72,9 +72,23 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     }
 
     @Override
-    protected T _createWithSingleElement(DeserializationContext ctxt, Object value) {
+    protected T _createWithSingleElement(DeserializationContext ctxt, Object value)
+        throws JacksonException
+    {
         final T result = createMultiset();
-        result.add(value);
+        _add(ctxt, result, value);
         return result;
+    }
+
+    private void _add(DeserializationContext ctxt, T set, Object value)
+        throws JacksonException
+    {
+        try {
+            set.add(value);
+        } catch (ClassCastException e) {
+            // Sorted multisets (`TreeMultiset`) fail this way if elements are not
+            // mutually comparable (or, for the first element, not `Comparable` at all)
+            _reportBuildFailure(ctxt, e.getMessage());
+        }
     }
 }

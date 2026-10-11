@@ -1,11 +1,18 @@
 package tools.jackson.datatype.guava;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -257,6 +264,88 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         } catch (MismatchedInputException e) {
             verifyException(e, "Failed to build `ImmutableSortedMultiset`");
         }
+    }
+
+    // Single element is never compared by sorted builders, so needs explicit check
+    @Test
+    public void testUntypedSortedSingleNonComparableElementHandling()
+    {
+        final ObjectMapper wrappingMapper = builderWithModule()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        for (Class<?> type : new Class<?>[] { ImmutableSortedSet.class,
+                ImmutableSortedMultiset.class, TreeMultiset.class }) {
+            final String typeName = type.getSimpleName();
+            for (String json : new String[] { "[{\"x\":1}]", "[{\"x\":1},null]" }) {
+                try {
+                    builderWithModule()
+                        .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                        .build()
+                        .readValue(json, type);
+                    fail("Should have thrown an exception for non-Comparable element of "+typeName);
+                } catch (MismatchedInputException e) {
+                    verifyException(e, "Failed to build `"+typeName+"`");
+                }
+            }
+            try {
+                wrappingMapper.readValue("{\"x\":1}", type);
+                fail("Should have thrown an exception for non-Comparable element of "+typeName);
+            } catch (MismatchedInputException e) {
+                verifyException(e, "Failed to build `"+typeName+"`");
+            }
+        }
+    }
+
+    // Untyped numbers may be `Integer`, `Long`, `BigInteger` or `Double`:
+    // need to be sortable together
+    @Test
+    public void testUntypedSortedMixedNumbers() throws Exception
+    {
+        final String json = "[2.5, 10000000000, 1, 100000000000000000000, -0.5, 1.0, 1]";
+        ImmutableSortedSet<?> set = MAPPER.readValue(json, ImmutableSortedSet.class);
+        assertEquals(Arrays.asList(-0.5, 1.0, 1, 2.5, 10000000000L,
+                new BigInteger("100000000000000000000")),
+                new ArrayList<>(set));
+
+        ImmutableSortedMultiset<?> multiset = MAPPER.readValue(json, ImmutableSortedMultiset.class);
+        assertEquals(Arrays.asList(-0.5, 1.0, 1, 1, 2.5, 10000000000L,
+                new BigInteger("100000000000000000000")),
+                new ArrayList<>(multiset));
+
+        TreeMultiset<?> treeMultiset = MAPPER.readValue(json, TreeMultiset.class);
+        assertEquals(new ArrayList<>(multiset), new ArrayList<>(treeMultiset));
+
+        // and with default typing, mixed number types round-trip as-is
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
+                .build();
+        ImmutableSortedSet<?> input = MAPPER.readValue("[3000000000, 1, 2.5]", ImmutableSortedSet.class);
+        String typedJson = mapper.writerFor(Object.class).writeValueAsString(input);
+        assertEquals(new ArrayList<>(input),
+                new ArrayList<>((ImmutableSortedSet<?>) mapper.readValue(typedJson, Object.class)));
+    }
+
+    // `TreeMultiset` should report incomparable elements same as immutable sorted containers
+    @Test
+    public void testTreeMultisetIncomparableElementsHandling()
+    {
+        try {
+            MAPPER.readValue("[1,\"a\"]", TreeMultiset.class);
+            fail("Should have thrown an exception for incomparable elements");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Failed to build `TreeMultiset`");
+        }
+        try {
+            POLY_MAPPER.readValue(_mixedTypes(1), TreeMultisetWrapper.class);
+            fail("Should have thrown an exception for incomparable elements");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Failed to build `TreeMultiset`");
+        }
+    }
+
+    static class TreeMultisetWrapper {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public TreeMultiset<Comparable<?>> values;
     }
 
     static class NonComparable {
