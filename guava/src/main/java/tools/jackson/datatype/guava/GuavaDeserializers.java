@@ -146,7 +146,9 @@ public class GuavaDeserializers
 
     private void requireCollectionOfComparableElements(CollectionType actualType, String targetType) {
         Class<?> elemType = actualType.getContentType().getRawClass();
-        if (!Comparable.class.isAssignableFrom(elemType)) {
+        // `Object` (untyped, or polymorphic) elements may well be Comparable at runtime;
+        // if not, sorted builder fails with ClassCastException, reported as input mismatch
+        if ((elemType != Object.class) && !Comparable.class.isAssignableFrom(elemType)) {
             throw new IllegalArgumentException("Can not handle " + targetType
                     + " with elements that are not Comparable<?> (" + elemType.getName() + ")");
         }
