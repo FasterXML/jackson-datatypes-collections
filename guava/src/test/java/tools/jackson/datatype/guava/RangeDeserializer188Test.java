@@ -138,8 +138,14 @@ public class RangeDeserializer188Test extends ModuleTestBase
         testInvalidStringifiedDeserialization("[24, 15)", RangeError.GENERIC_INVALID);
     }
 
-    private void testInvalidStringifiedDeserialization(String json, RangeError error) throws Exception {
-        json = "{\"r\":\"" + json + "\"}";
+    @Test
+    public void testWrongOrderingFromBracketNotation() throws Exception {
+        testInvalidStringifiedDeserialization("[24..15)", RangeError.WRONG_ORDER);
+        testInvalidStringifiedDeserialization("(32..0)", RangeError.WRONG_ORDER);
+    }
+
+    private void testInvalidStringifiedDeserialization(String rangeStr, RangeError error) throws Exception {
+        String json = "{\"r\":\"" + rangeStr + "\"}";
 
         try {
             MAPPER.readValue(json,
@@ -147,6 +153,8 @@ public class RangeDeserializer188Test extends ModuleTestBase
             fail("Should fail due to deserializing invalid bracket-notation Range.");
         } catch (InvalidFormatException e) {
             verifyException(e, error.getErrorMessage());
+            // Problem value should be the full original String, for all failure types
+            assertEquals(rangeStr, e.getValue());
         }
     }
 
@@ -176,7 +184,8 @@ public class RangeDeserializer188Test extends ModuleTestBase
 
     public enum RangeError {
         INVALID_BRACKET("Invalid Range: should start with '[' or '(', end with ')' or ']"),
-        GENERIC_INVALID("Invalid bracket-notation representation");
+        GENERIC_INVALID("Invalid bracket-notation representation"),
+        WRONG_ORDER("Failed to construct `Range` from '");
 
         private final String errorMessage;
 
