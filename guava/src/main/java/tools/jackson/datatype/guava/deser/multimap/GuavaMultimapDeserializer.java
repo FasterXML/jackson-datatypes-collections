@@ -15,11 +15,15 @@ import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.deser.NullElementHelper;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.TreeMultimap;
 
 /**
  * @author mvolkhart
@@ -181,19 +185,9 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             p.nextToken();
             expect(ctxt, p, JsonToken.START_ARRAY);
 
-            while (p.nextToken() != JsonToken.END_ARRAY) {
-                final Object value;
-                if (p.currentToken() == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (_valueTypeDeserializer != null) {
-                    value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
-                } else {
-                    value = _valueDeserializer.deserialize(p, ctxt);
-                }
-                multimap.put(key, value);
+            JsonToken t;
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                _put(p, ctxt, t, multimap, key);
             }
         }
         if (creatorMethod == null) {
@@ -224,24 +218,17 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
                 key = p.currentName();
             }
 
-            p.nextToken();
+            JsonToken t = p.nextToken();
 
             // if there is an array, parse the array and add the elements
-            if (p.currentToken() == JsonToken.START_ARRAY) {
-
-                while (p.nextToken() != JsonToken.END_ARRAY) {
-                    // get the current token value
-                    final Object value = getCurrentTokenValue(p, ctxt);
-                    // add the token value to the map
-                    multimap.put(key, value);
+            if (t == JsonToken.START_ARRAY) {
+                while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                    _put(p, ctxt, t, multimap, key);
                 }
             }
             // if the element is a String, then add it as a List
             else {
-                // get the current token value
-                final Object value = getCurrentTokenValue(p, ctxt);
-                // add the single value
-                multimap.put(key, value);
+                _put(p, ctxt, t, multimap, key);
             }
         }
         if (creatorMethod == null) {
@@ -258,15 +245,46 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         }
     }
 
-    private Object getCurrentTokenValue(JsonParser p, DeserializationContext ctxt)
+    /**
+     * Helper method for deserializing a single value (starting with given token)
+     * and adding it to the multimap, unless skipped. Note that {@code null}s are
+     * accepted by all intermediate multimap types, but not by all final types
+     * (that are created as copies).
+     */
+    private void _put(JsonParser p, DeserializationContext ctxt, JsonToken t,
+            T multimap, Object key)
+        throws JacksonException
     {
-        if (p.currentToken() == JsonToken.VALUE_NULL) {
-            return null;
+        Object value;
+        if (t == JsonToken.VALUE_NULL) {
+            if (_skipNullValues) {
+                return;
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        } else if (_valueTypeDeserializer != null) {
+            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        } else {
+            value = _valueDeserializer.deserialize(p, ctxt);
         }
-        if (_valueTypeDeserializer != null) {
-            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        if ((value == null) && _rejectsNullValues()) {
+            value = NullElementHelper.handleNull(p, ctxt, t, _containerType.getContentType(),
+                    "Guava `Multimap` of type "+ClassUtil.getTypeDescription(_containerType));
+            // `null` if dropped by problem handler
+            if (value == null) {
+                return;
+            }
         }
-        return _valueDeserializer.deserialize(p, ctxt);
+        multimap.put(key, value);
+    }
+
+    /**
+     * Whether the final multimap type does not accept {@code null} values: if so,
+     * it would only fail when copied from the intermediate multimap.
+     */
+    private boolean _rejectsNullValues() {
+        final Class<?> raw = _containerType.getRawClass();
+        return ImmutableMultimap.class.isAssignableFrom(raw)
+                || TreeMultimap.class.isAssignableFrom(raw);
     }
 
     private void expect(DeserializationContext ctxt, JsonParser p, JsonToken token)

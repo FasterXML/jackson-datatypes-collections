@@ -1,6 +1,9 @@
 package tools.jackson.datatype.guava.deser.table;
 
+import java.util.function.Function;
+
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.*;
@@ -9,6 +12,8 @@ import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.MapLikeType;
+import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.deser.NullElementHelper;
 
 import com.google.common.collect.Table;
 
@@ -97,6 +102,22 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     protected abstract ValueDeserializer<?> _createContextual(MapLikeType t, KeyDeserializer rkd,
         KeyDeserializer ckd, TypeDeserializer vtd, ValueDeserializer<?> vd, NullValueProvider np);
     
+
+    /**
+     * Helper method for adding a {@code null} value using given adder: since Guava
+     * tables do not accept {@code null}s, problem is reported (unless a problem handler
+     * provides a replacement value, or drops the cell).
+     *
+     * @param t Token from which the value was deserialized
+     */
+    protected void _putNull(JsonParser p, DeserializationContext ctxt, JsonToken t,
+            Function<Object, ?> adder)
+        throws JacksonException
+    {
+        NullElementHelper.addElement(p, ctxt, t, _type.getContentType().getContentType(),
+                "Guava `Table` of type "+ClassUtil.getTypeDescription(_type),
+                null, adder);
+    }
 
     protected void expect(DeserializationContext context, JsonToken expected, JsonToken actual)
     {

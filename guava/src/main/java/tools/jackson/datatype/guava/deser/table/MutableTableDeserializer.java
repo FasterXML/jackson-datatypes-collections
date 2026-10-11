@@ -67,10 +67,10 @@ public abstract class MutableTableDeserializer<T extends Table<Object, Object, O
                     colKey = p.currentName();
                 }
                 
-                p.nextToken();
+                final JsonToken t = p.nextToken();
                 
                 final Object value;
-                if (p.currentToken() == JsonToken.VALUE_NULL) {
+                if (t == JsonToken.VALUE_NULL) {
                     if (_skipNullValues) {
                         continue;
                     }
@@ -80,7 +80,12 @@ public abstract class MutableTableDeserializer<T extends Table<Object, Object, O
                 } else {
                     value = _valueDeserializer.deserialize(p, ctxt);
                 }
-                table.put(rowKey, colKey, value);
+                if (value == null) {
+                    // Guava tables do not accept `null` values
+                    _putNull(p, ctxt, t, v -> table.put(rowKey, colKey, v));
+                } else {
+                    table.put(rowKey, colKey, value);
+                }
             }
             expect(ctxt, JsonToken.END_OBJECT, p.currentToken());
         }

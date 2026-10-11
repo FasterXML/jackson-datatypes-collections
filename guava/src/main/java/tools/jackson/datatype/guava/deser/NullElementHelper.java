@@ -12,8 +12,11 @@ import tools.jackson.databind.JavaType;
 /**
  * Shared helper for adding {@code null} elements (or values) into Guava containers,
  * many of which do not accept them.
+ *<p>
+ * NOTE: only public to be accessible from sub-packages; not considered part of
+ * the public API.
  */
-final class NullElementHelper
+public final class NullElementHelper
 {
     private NullElementHelper() { }
 
@@ -33,7 +36,7 @@ final class NullElementHelper
      *
      * @return Result of adder, or {@code null} if element was dropped
      */
-    static <R> R addElement(JsonParser p, DeserializationContext ctxt, JsonToken t,
+    public static <R> R addElement(JsonParser p, DeserializationContext ctxt, JsonToken t,
             JavaType elementType, String containerDesc,
             Object value, Function<Object, R> adder)
         throws JacksonException
@@ -42,13 +45,27 @@ final class NullElementHelper
             try {
                 return adder.apply(null);
             } catch (NullPointerException e) {
-                value = ctxt.handleUnexpectedToken(elementType, t, p,
-                        "%s does not accept `null` values", containerDesc);
+                value = handleNull(p, ctxt, t, elementType, containerDesc);
                 if (value == null) {
                     return null;
                 }
             }
         }
         return adder.apply(value);
+    }
+
+    /**
+     * Method for reporting a {@code null} element (or value) that the container
+     * does not accept, for cases where caller knows this without trying to add it.
+     *
+     * @return Replacement value given by a problem handler, or {@code null} if
+     *    element is to be dropped
+     */
+    public static Object handleNull(JsonParser p, DeserializationContext ctxt, JsonToken t,
+            JavaType elementType, String containerDesc)
+        throws JacksonException
+    {
+        return ctxt.handleUnexpectedToken(elementType, t, p,
+                "%s does not accept `null` values", containerDesc);
     }
 }
