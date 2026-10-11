@@ -56,7 +56,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 // Null values need builder for proper error handling
                 ImmutableCollection.Builder<Object> builder = createBuilder();
                 if (hasFirst) {
-                    builder.add(first);
+                    _add(ctxt, builder, first);
                 }
                 if (!_skipNullValues) {
                     _tryToAddNull(p, ctxt, builder);
@@ -68,8 +68,8 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                 hasFirst = true;
             } else {
                 ImmutableCollection.Builder<Object> builder = createBuilder();
-                builder.add(first);
-                builder.add(value);
+                _add(ctxt, builder, first);
+                _add(ctxt, builder, value);
                 return _finishWithBuilder(p, ctxt, builder);
             }
         }
@@ -101,14 +101,70 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                     _tryToAddNull(p, ctxt, builder);
                 }
             } else {
-                builder.add(value);
+                _add(ctxt, builder, value);
             }
         }
         // No class outside of the package will be able to subclass us,
         // and we provide the proper builder for the subclasses we implement.
-        @SuppressWarnings("unchecked")
-        T collection = (T) builder.build();
-        return collection;
+        try {
+            @SuppressWarnings("unchecked")
+            T collection = (T) builder.build();
+            return collection;
+        } catch (ClassCastException e) {
+            // Sorted builders fail this way if elements are not mutually comparable
+            return _reportBuildFailure(ctxt, e.getMessage());
+        }
+    }
+
+    private void _add(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder,
+            Object value) throws JacksonException
+    {
+        _verifyComparable(ctxt, value);
+        try {
+            builder.add(value);
+        } catch (ClassCastException e) {
+            // Sorted builders may sort (and fail) while elements are still being added
+            _reportBuildFailure(ctxt, e.getMessage());
+        }
+    }
+
+    /**
+     * Helper method sub-classes can use for implementing
+     * {@link #_createWithSingleElement}, to get the same error handling as
+     * for multi-element content.
+     */
+    protected T _buildWithSingleElement(DeserializationContext ctxt, Object value)
+        throws JacksonException
+    {
+        _verifyComparable(ctxt, value);
+        ImmutableCollection.Builder<Object> builder = createBuilder();
+        try {
+            builder.add(value);
+            @SuppressWarnings("unchecked")
+            T collection = (T) builder.build();
+            return collection;
+        } catch (ClassCastException e) {
+            return _reportBuildFailure(ctxt, e.getMessage());
+        }
+    }
+
+    /**
+     * Overridable method that sorted containers override to return {@code true}:
+     * if so, all (non-null) elements are verified to be {@link Comparable}.
+     * This is needed since sorted builders never compare a single element.
+     */
+    protected boolean _requiresComparableElements() {
+        return false;
+    }
+
+    private void _verifyComparable(DeserializationContext ctxt, Object value)
+        throws JacksonException
+    {
+        if (_requiresComparableElements()
+                && (value != null) && !(value instanceof Comparable<?>)) {
+            _reportBuildFailure(ctxt, String.format("element of type %s is not `Comparable`",
+                    ClassUtil.classNameOf(value)));
+        }
     }
 
     protected Object _resolveNullToValue(DeserializationContext ctxt)

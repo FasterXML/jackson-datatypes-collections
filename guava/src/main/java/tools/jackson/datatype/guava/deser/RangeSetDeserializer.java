@@ -11,6 +11,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.ClassUtil;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -92,8 +93,8 @@ public class RangeSetDeserializer
             return builder.build();
         } catch (IllegalArgumentException e) {
             return ctxt.reportInputMismatch(this,
-                    "Failed to build `RangeSet` from deserialized entries: %s",
-                    e.getMessage());
+                    "Failed to build %s from deserialized entries: %s",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)), e.getMessage());
         }
     }
 
