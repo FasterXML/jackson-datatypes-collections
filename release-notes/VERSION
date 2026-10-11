@@ -29,6 +29,9 @@ Modules:
 #240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
   primitive maps silently lose data
  (fixed by @pjfanning)
+#251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
+  and implementation classes (default typing); `Triplet` read as `TripleImpl`
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
