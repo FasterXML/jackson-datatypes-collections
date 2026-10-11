@@ -1,4 +1,4 @@
-package tools.jackson.datatype.guava.deser;
+package tools.jackson.datatype.guava.util;
 
 import java.util.function.Function;
 
@@ -13,7 +13,7 @@ import tools.jackson.databind.JavaType;
  * Shared helper for adding {@code null} elements (or values) into Guava containers,
  * many of which do not accept them.
  *<p>
- * NOTE: only public to be accessible from sub-packages; not considered part of
+ * NOTE: internal helper; package not exported by module, not part of
  * the public API.
  */
 public final class NullElementHelper

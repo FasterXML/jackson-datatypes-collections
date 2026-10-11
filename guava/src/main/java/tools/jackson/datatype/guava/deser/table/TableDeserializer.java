@@ -13,7 +13,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.datatype.guava.deser.NullElementHelper;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 import com.google.common.collect.Table;
 

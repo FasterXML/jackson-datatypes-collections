@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 import com.google.common.collect.ImmutableMap;
 
