@@ -10,13 +10,19 @@ import com.google.common.collect.TreeRangeSet;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -102,5 +108,81 @@ public class RangeSetTest extends ModuleTestBase {
                 })
                 .build();
         assertEquals(ImmutableRangeSet.of(Range.atLeast(1)), mapper.readValue(json, typeRef));
+    }
+
+    /*
+    /**********************************************************************
+    /* Handling also supported by databind `CollectionDeserializer`
+    /**********************************************************************
+     */
+
+    static class SimpleRangeConverter extends StdConverter<String, Range<Integer>> {
+        @Override
+        public Range<Integer> convert(String value) {
+            String[] parts = value.split("-");
+            return Range.closed(Integer.valueOf(parts[0]), Integer.valueOf(parts[1]));
+        }
+    }
+
+    static class ConvertedRangesBean {
+        @JsonDeserialize(contentConverter = SimpleRangeConverter.class)
+        public RangeSet<Integer> ranges;
+    }
+
+    @Test
+    public void testEmptyStringCoercion() throws Exception {
+        final TypeReference<RangeSet<Integer>> typeRef = new TypeReference<>() {};
+
+        // Not allowed by default
+        try {
+            MAPPER.readValue(q(""), typeRef);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize value of type");
+        }
+
+        ObjectMapper mapper = builderWithModule()
+                .withCoercionConfig(LogicalType.Collection,
+                        c -> c.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+                .build();
+        assertEquals(ImmutableRangeSet.of(), mapper.readValue(q(""), typeRef));
+
+        mapper = builderWithModule()
+                .withCoercionConfig(LogicalType.Collection,
+                        c -> c.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull))
+                .build();
+        assertNull(mapper.readValue(q(""), typeRef));
+    }
+
+    @Test
+    public void testBlankStringCoercion() throws Exception {
+        ObjectMapper mapper = builderWithModule()
+                .withCoercionConfig(LogicalType.Collection,
+                        c -> c.setAcceptBlankAsEmpty(true)
+                            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+                .build();
+        assertEquals(ImmutableRangeSet.of(),
+                mapper.readValue(q("  "), new TypeReference<RangeSet<Integer>>() {}));
+    }
+
+    @Test
+    public void testContentConverter() throws Exception {
+        ConvertedRangesBean bean = MAPPER.readValue(a2q("{'ranges':['1-3','5-7']}"),
+                ConvertedRangesBean.class);
+        assertEquals(ImmutableRangeSet.builder()
+                .add(Range.closed(1, 3)).add(Range.closed(5, 7)).build(),
+                bean.ranges);
+    }
+
+    @Test
+    public void testErrorPathIncludesIndex() throws Exception {
+        try {
+            MAPPER.readValue(a2q("[{'lowerEndpoint':1,'lowerBoundType':'CLOSED'},"
+                    +"{'lowerEndpoint':'x','lowerBoundType':'CLOSED'}]"),
+                    new TypeReference<RangeSet<Integer>>() {});
+            fail("Should not pass");
+        } catch (DatabindException e) {
+            assertEquals(1, e.getPath().get(0).getIndex(), "Path: "+e.getPath());
+        }
     }
 }

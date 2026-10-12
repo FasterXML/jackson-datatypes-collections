@@ -145,8 +145,6 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
                 value = elementDeserializer.deserialize(p, ctxt);
             }
             if (value == null) {
-                // Reports current token (not `t`): for structured values, parser has
-                // already advanced to the matching END_OBJECT/END_ARRAY
                 _tryToAddNull(p, ctxt, cache, key);
             } else {
                 cache.put(key, value);

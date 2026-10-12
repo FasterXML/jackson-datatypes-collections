@@ -29,6 +29,12 @@ public final class NullElementHelper
      * a replacement value (which is then added), or to drop the element by returning
      * {@code null}; without a handler, a
      * {@link tools.jackson.databind.exc.MismatchedInputException} is thrown.
+     *<p>
+     * Callers must pass the token parser is currently positioned at
+     * ({@code p.currentToken()}), not the token value started at: for structured
+     * values, value deserializer has already advanced parser to the matching
+     * {@code END_OBJECT} / {@code END_ARRAY}, and a problem handler may want to
+     * access the parser.
      *
      * @param t Token parser is currently positioned at (for structured values,
      *    the matching {@code END_OBJECT} / {@code END_ARRAY}, not the start token)
@@ -59,6 +65,8 @@ public final class NullElementHelper
      * Method for reporting a {@code null} element (or value) that the container
      * does not accept, for cases where caller knows this without trying to add it.
      *
+     * @param t Token parser is currently positioned at; see
+     *    {@link #addElement} for details
      * @return Replacement value given by a problem handler, or {@code null} if
      *    element is to be dropped
      */

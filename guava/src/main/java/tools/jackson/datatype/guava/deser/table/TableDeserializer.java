@@ -128,8 +128,6 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
         if (value != null) {
             return value;
         }
-        // Report current token (not `t`): for structured values, parser has
-        // already advanced to the matching END_OBJECT/END_ARRAY
         return NullElementHelper.handleNull(p, ctxt, p.currentToken(),
                 _type.getContentType().getContentType(),
                 "Guava `Table` of type "+ClassUtil.getTypeDescription(_type));

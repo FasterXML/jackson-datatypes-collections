@@ -74,9 +74,7 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
             if (value == null) {
-                // Value deserializer may return `null` for non-null token; report
-                // current token (not `t`): for structured values, parser has already
-                // advanced to the matching END_OBJECT/END_ARRAY
+                // Value deserializer may return `null` for non-null token
                 NullElementHelper.addElement(p, ctxt, p.currentToken(),
                         _containerType.getContentType(),
                         "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType),

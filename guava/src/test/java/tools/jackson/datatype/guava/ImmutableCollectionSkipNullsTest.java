@@ -88,6 +88,16 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
         }
     }
 
+    // Same as above, but for `Range`s
+    @SuppressWarnings("rawtypes")
+    static class RangeToNullDeserializer extends ValueDeserializer<Range> {
+        @Override
+        public Range deserialize(JsonParser p, DeserializationContext ctxt) {
+            p.skipChildren();
+            return null;
+        }
+    }
+
     // Records token and target type it is called with (as well as token parser
     // is positioned at), returns fixed replacement
     static class ReplacingHandler extends DeserializationProblemHandler {
@@ -361,6 +371,27 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 new TypeReference<Cache<String, Point>>() { });
         assertEquals(R, cache.getIfPresent("k"));
         _verifyStructuredToken(h, JsonToken.END_ARRAY, "Cache");
+    }
+
+    // RangeSet reads ranges one by one too, so it reports the same token
+    @Test
+    public void testProblemHandlerStructuredRangeSetValue() throws Exception
+    {
+        final Range<Integer> R = Range.closed(1, 3);
+        for (String json : new String[] { "[{'lowerEndpoint':1}]", "[[1,2]]", "{'lowerEndpoint':1}" }) {
+            ReplacingHandler h = new ReplacingHandler(R);
+            RangeSet<Integer> result = builderWithModule()
+                    .addModule(new SimpleModule().addDeserializer(Range.class, new RangeToNullDeserializer()))
+                    .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                    .addHandler(h)
+                    .build()
+                    .readValue(a2q(json), new TypeReference<RangeSet<Integer>>() { });
+            assertEquals(ImmutableRangeSet.of(R), result, json);
+            assertEquals(json.contains("[1") ? JsonToken.END_ARRAY : JsonToken.END_OBJECT,
+                    h.token, json);
+            assertEquals(h.token, h.parserToken, json);
+            assertEquals(Range.class, h.targetType.getRawClass(), json);
+        }
     }
 
     /*

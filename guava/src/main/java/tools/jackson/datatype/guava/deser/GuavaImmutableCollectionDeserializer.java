@@ -85,8 +85,6 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
     {
         // Avoid lambda allocation for the common non-null case
         if (value == null) {
-            // Report current token (not `t`): for structured values, parser has
-            // already advanced to the matching END_OBJECT/END_ARRAY
             _addElement(p, ctxt, p.currentToken(), null, v -> _add(ctxt, builder, v));
         } else {
             _add(ctxt, builder, value);

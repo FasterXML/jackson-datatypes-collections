@@ -267,8 +267,6 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
             value = _valueDeserializer.deserialize(p, ctxt);
         }
         if ((value == null) && _rejectsNullValues) {
-            // Report current token (not `t`): for structured values, parser has
-            // already advanced to the matching END_OBJECT/END_ARRAY
             value = NullElementHelper.handleNull(p, ctxt, p.currentToken(),
                     _containerType.getContentType(),
                     "Guava `Multimap` of type "+ClassUtil.getTypeDescription(_containerType));
