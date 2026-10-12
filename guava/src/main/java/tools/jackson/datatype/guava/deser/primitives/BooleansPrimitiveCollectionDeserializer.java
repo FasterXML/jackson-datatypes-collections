@@ -23,9 +23,15 @@ public class BooleansPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<boolean[]>) PrimitiveArrayDeserializers.forType(boolean.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Boolean asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getBooleanValue();
+    }
+
+    @Override
+    protected Boolean asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return _parseBooleanPrimitive(parser, context);
     }
 
     @Override

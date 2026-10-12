@@ -22,9 +22,15 @@ public class FloatsPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<float[]>) PrimitiveArrayDeserializers.forType(float.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Float asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getFloatValue();
+    }
+
+    @Override
+    protected Float asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return _parseFloatPrimitive(parser, context);
     }
 
     @Override

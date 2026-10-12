@@ -2,6 +2,7 @@ package tools.jackson.datatype.guava.deser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
@@ -22,9 +23,25 @@ public class CharsPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<char[]>) PrimitiveArrayDeserializers.forType(char.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Character asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getValueAsString().charAt(0);
+    }
+
+    @Override
+    protected Character asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        if (parser.hasToken(JsonToken.VALUE_NULL)) {
+            return (char) _verifyNullForPrimitive(context, parser, '\0');
+        }
+        final String str = parser.hasToken(JsonToken.VALUE_STRING)
+                ? parser.getString()
+                : ((CharSequence) context.handleUnexpectedToken(Character.TYPE, parser)).toString();
+        if (str.length() != 1) {
+            context.reportInputMismatch(this,
+                    "Cannot convert a JSON String of length %d into a `char`", str.length());
+        }
+        return str.charAt(0);
     }
 
     @Override

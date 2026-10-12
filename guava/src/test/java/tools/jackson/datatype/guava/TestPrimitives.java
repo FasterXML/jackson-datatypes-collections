@@ -402,6 +402,28 @@ public class TestPrimitives extends ModuleTestBase
                 "Expected message to contain '" + expectedMsg + "' for " + json + ", got: " + e.getMessage());
     }
 
+    // Single values should be handled same as elements of JSON Arrays
+    @Test
+    public void testSingleValueSameAsArrayElement() throws Exception {
+        assertEquals(Chars.asList('a'), SINGLE_MAPPER.readValue("\"a\"", PrimitiveTypes.CharsTypeReference));
+        assertEquals(Ints.asList(12), SINGLE_MAPPER.readValue("\"12\"", PrimitiveTypes.IntsTypeReference));
+        assertEquals(Ints.asList(12), SINGLE_MAPPER.readValue("[\"12\"]", PrimitiveTypes.IntsTypeReference));
+        assertEquals(Bytes.asList((byte) -1), SINGLE_MAPPER.readValue("255", PrimitiveTypes.BytesTypeReference));
+        assertEquals(Booleans.asList(true), SINGLE_MAPPER.readValue("true", PrimitiveTypes.BooleansTypeReference));
+
+        _verifySingleFails(PrimitiveTypes.CharsTypeReference, "\"\"", "String of length 0");
+        _verifySingleFails(PrimitiveTypes.CharsTypeReference, "\"ab\"", "String of length 2");
+        _verifySingleFails(PrimitiveTypes.CharsTypeReference, "65", "from Integer value");
+        _verifySingleFails(PrimitiveTypes.BytesTypeReference, "300", "out of range of `byte`");
+        _verifySingleFails(PrimitiveTypes.IntsTypeReference, "\"abc\"", "not a valid `int` value");
+    }
+
+    private <T> void _verifySingleFails(TypeReference<List<T>> type, String json, String expectedMsg) {
+        JacksonException e = assertThrows(JacksonException.class, () -> SINGLE_MAPPER.readValue(json, type));
+        assertTrue(e.getMessage().contains(expectedMsg),
+                "Expected message to contain '" + expectedMsg + "' for " + json + ", got: " + e.getMessage());
+    }
+
     @Test
     public void testImmutableLongArrayFromSingle() throws Exception {
         ImmutableLongArray array = SINGLE_MAPPER.readValue("1", ImmutableLongArray.class);

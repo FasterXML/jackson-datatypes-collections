@@ -22,9 +22,15 @@ public class LongsPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<long[]>) PrimitiveArrayDeserializers.forType(long.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Long asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getLongValue();
+    }
+
+    @Override
+    protected Long asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return _parseLongPrimitive(parser, context);
     }
 
     @Override

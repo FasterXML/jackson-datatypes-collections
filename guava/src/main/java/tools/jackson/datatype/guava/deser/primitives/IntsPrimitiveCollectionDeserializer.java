@@ -22,9 +22,15 @@ public class IntsPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<int[]>) PrimitiveArrayDeserializers.forType(int.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Integer asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getIntValue();
+    }
+
+    @Override
+    protected Integer asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return _parseIntPrimitive(parser, context);
     }
 
     @Override

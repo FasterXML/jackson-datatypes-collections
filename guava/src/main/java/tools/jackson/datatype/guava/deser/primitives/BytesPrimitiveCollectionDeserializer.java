@@ -2,6 +2,7 @@ package tools.jackson.datatype.guava.deser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
@@ -22,9 +23,19 @@ public class BytesPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<byte[]>) PrimitiveArrayDeserializers.forType(byte.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Byte asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getByteValue();
+    }
+
+    @Override
+    protected Byte asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        // same as databind's byte[] deserializer: allows unsigned values up to 255
+        if (parser.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            return parser.getByteValue();
+        }
+        return _parseBytePrimitive(parser, context);
     }
 
     @Override

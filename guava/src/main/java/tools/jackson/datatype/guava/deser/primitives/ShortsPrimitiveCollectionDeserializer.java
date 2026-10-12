@@ -22,9 +22,15 @@ public class ShortsPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<short[]>) PrimitiveArrayDeserializers.forType(short.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Short asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getShortValue();
+    }
+
+    @Override
+    protected Short asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return _parseShortPrimitive(parser, context);
     }
 
     @Override

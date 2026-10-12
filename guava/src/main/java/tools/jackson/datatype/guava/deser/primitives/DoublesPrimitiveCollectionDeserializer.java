@@ -22,9 +22,15 @@ public class DoublesPrimitiveCollectionDeserializer
         _arrayDeserializer = (ValueDeserializer<double[]>) PrimitiveArrayDeserializers.forType(double.class);
     }
 
+    @Deprecated // since 3.3
     @Override
     protected Double asPrimitive(JsonParser parser) throws JacksonException {
         return parser.getDoubleValue();
+    }
+
+    @Override
+    protected Double asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return _parseDoublePrimitive(parser, context);
     }
 
     @Override
