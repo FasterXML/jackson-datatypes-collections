@@ -14,8 +14,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -198,5 +205,72 @@ public class CacheDeserializationTest extends ModuleTestBase
             verifyException(e, "Guava `Cache` of type");
             verifyException(e, "does not accept `null` values");
         }
+    }
+
+    // Deserialized from JSON Object, but always as `null`
+    @JsonDeserialize(using = AlwaysNullDeserializer.class)
+    static class AlwaysNull { }
+
+    static class AlwaysNullDeserializer extends ValueDeserializer<AlwaysNull> {
+        @Override
+        public AlwaysNull deserialize(JsonParser p, DeserializationContext ctxt) {
+            p.skipChildren();
+            return null;
+        }
+    }
+
+    // Records token and target type it is called with, returns fixed replacement
+    static class ReplacingHandler extends DeserializationProblemHandler {
+        final Object replacement;
+        JsonToken token;
+        JavaType targetType;
+
+        ReplacingHandler(Object replacement) {
+            this.replacement = replacement;
+        }
+
+        @Override
+        public Object handleUnexpectedToken(DeserializationContext ctxt,
+                JavaType targetType, JsonToken t, JsonParser p, String failureMsg) {
+            this.targetType = targetType;
+            token = t;
+            return replacement;
+        }
+    }
+
+    @Test
+    public void testCacheNullsWithProblemHandler() throws Exception {
+        ReplacingHandler h = new ReplacingHandler(42);
+        ObjectMapper mapper = builderWithModule().addHandler(h).build();
+        Cache<String, Integer> cache = mapper.readValue("{ \"a\": 1, \"key\": null }",
+                new TypeReference<Cache<String, Integer>>() {});
+        assertEquals(Map.of("a", 1, "key", 42), cache.asMap());
+        assertEquals(JsonToken.VALUE_NULL, h.token);
+        assertEquals(Integer.class, h.targetType.getRawClass());
+
+        // and `null` from handler drops the entry
+        mapper = builderWithModule().addHandler(new ReplacingHandler(null)).build();
+        cache = mapper.readValue("{ \"a\": 1, \"key\": null }",
+                new TypeReference<Cache<String, Integer>>() {});
+        assertEquals(Map.of("a", 1), cache.asMap());
+    }
+
+    @Test
+    public void testCacheNullFromObjectValue() throws Exception {
+        // `null` from value deserializer: fails without handler...
+        try {
+            Cache<String, AlwaysNull> cache = MAPPER.readValue("{ \"key\": { } }",
+                    new TypeReference<Cache<String, AlwaysNull>>() {});
+            fail("Expected fail, deserialized as: "+cache);
+        } catch (MismatchedInputException e) {
+            verifyException(e, "does not accept `null` values");
+        }
+        // ... and handler is given the starting token of the value
+        ReplacingHandler h = new ReplacingHandler(null);
+        ObjectMapper mapper = builderWithModule().addHandler(h).build();
+        Cache<String, AlwaysNull> cache = mapper.readValue("{ \"key\": { \"x\": 1 } }",
+                new TypeReference<Cache<String, AlwaysNull>>() {});
+        assertEquals(0, cache.size());
+        assertEquals(JsonToken.START_OBJECT, h.token);
     }
 }
