@@ -6,11 +6,40 @@ import tools.jackson.datatype.hppc.ModuleTestBase;
 import org.junit.jupiter.api.Test;
 
 import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.procedures.IntProcedure;
+import com.carrotsearch.hppc.procedures.LongProcedure;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestContainerSerializers extends ModuleTestBase
 {
+    // Indexed containers that fail if accessed other than by index
+    @SuppressWarnings("serial")
+    static class IndexedOnlyIntList extends IntArrayList {
+        @Override
+        public <T extends IntProcedure> T forEach(T procedure) {
+            throw new UnsupportedOperationException("forEach");
+        }
+
+        @Override
+        public int[] toArray() {
+            throw new UnsupportedOperationException("toArray");
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class IndexedOnlyLongList extends LongArrayList {
+        @Override
+        public <T extends LongProcedure> T forEach(T procedure) {
+            throw new UnsupportedOperationException("forEach");
+        }
+
+        @Override
+        public long[] toArray() {
+            throw new UnsupportedOperationException("toArray");
+        }
+    }
+
     @Test
     public void testByteSerializer() throws Exception
     {
@@ -64,6 +93,11 @@ public class TestContainerSerializers extends ModuleTestBase
         IntArrayList array = new IntArrayList();
         array.add(-12, 0);
         assertEquals("[-12,0]", mapper.writeValueAsString(array));
+        // indexed containers must be serialized via indexed access
+        // (not forEach() or toArray())
+        IntArrayList indexed = new IndexedOnlyIntList();
+        indexed.add(3, -1, 7);
+        assertEquals("[3,-1,7]", mapper.writeValueAsString(indexed));
 
         IntHashSet set = new IntHashSet();
         set.addAll(1, 2);
@@ -81,6 +115,10 @@ public class TestContainerSerializers extends ModuleTestBase
         LongArrayList array = new LongArrayList();
         array.add(-12L, 0L);
         assertEquals("[-12,0]", mapper.writeValueAsString(array));
+
+        LongArrayList indexed = new IndexedOnlyLongList();
+        indexed.add(3L, -1L, 7L);
+        assertEquals("[3,-1,7]", mapper.writeValueAsString(indexed));
 
         LongHashSet set = new LongHashSet();
         set.addAll(1L, 2L);

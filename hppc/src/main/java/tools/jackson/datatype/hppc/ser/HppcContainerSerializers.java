@@ -153,29 +153,11 @@ public class HppcContainerSerializers
         }
     }
 
-    /**
-     * Handler for HPPC containers that store int values.
-     * Specific in that we actually implement separate optimal serializer
-     * for indexed type, given how common this type is.
-     */
-    static class IntContainerSerializer
+    final static class IntContainerSerializer
         extends ContainerSerializerBase<IntContainer>
     {
         IntContainerSerializer() {
             super(IntContainer.class, "integer");
-        }
-
-        // Overridden to allow use of more optimized serialized for indexed variant
-        @Override
-        public ValueSerializer<?> getSerializer(JavaType type)
-        {
-            ValueSerializer<?> ser = super.getSerializer(type);
-            if (ser != null) {
-                if (IntIndexedContainer.class.isAssignableFrom(type.getClass())) {
-                    return new Indexed();
-                }
-            }
-            return ser;
         }
 
         @Override
@@ -203,54 +185,14 @@ public class HppcContainerSerializers
         protected void serializeContents(final IntContainer value, final JsonGenerator gen, SerializationContext ctxt)
            throws JacksonException
         {
-            value.forEach((IntProcedure) v -> gen.writeNumber(v));
-        }
-
-        // Specialized variant to support indexed int container with more efficient accessor
-        static class Indexed extends ContainerSerializerBase<IntIndexedContainer>
-        {
-            Indexed() {
-                super(IntIndexedContainer.class, "integer");
-            }
-
-            @Override
-            public boolean isEmpty(SerializationContext ctxt, IntIndexedContainer value) {
-                return value.isEmpty();
-            }
-
-            @Override
-            public boolean hasSingleElement(IntIndexedContainer value) {
-                return value.size() == 1;
-            }
-
-            @Override
-            public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            {
-                if (visitor != null) {
-                    JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
-                    if (v2 != null) {
-                        v2.itemsFormat(JsonFormatTypes.INTEGER);
-                    }
-                }
-            }
-            
-            @Override
-            protected void serializeContents(final IntIndexedContainer value, final JsonGenerator gen, SerializationContext ctxt)
-               throws JacksonException
-            {
-                int[] array;
-                if (value instanceof IntArrayList arrayList) {
-                    array = arrayList.buffer;
-                } else {
-                    array = value.toArray();
-                }
-                for (int i = 0, len = value.size(); i < len; ++i) {
-                    gen.writeNumber(array[i]);
+            if (value instanceof IntIndexedContainer list) {
+                for (int i = 0, len = list.size(); i < len; ++i) {
+                    gen.writeNumber(list.get(i));
                 }
                 return;
             }
+            value.forEach((IntProcedure) v -> gen.writeNumber(v));
         }
-        
     }
 
     final static class LongContainerSerializer
@@ -286,14 +228,8 @@ public class HppcContainerSerializers
            throws JacksonException
         {
             if (value instanceof LongIndexedContainer list) {
-                long[] array;
-                if (value instanceof LongArrayList arrayList) {
-                    array = arrayList.buffer;
-                } else {
-                    array = list.toArray();
-                }
                 for (int i = 0, len = list.size(); i < len; ++i) {
-                    gen.writeNumber(array[i]);
+                    gen.writeNumber(list.get(i));
                 }
                 return;
             }
