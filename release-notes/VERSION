@@ -32,6 +32,9 @@ Modules:
 #251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
   and implementation classes (default typing); `Triplet` read as `TripleImpl`
  (fixed by @pjfanning)
+#253: (guava) Avoid redundant copy when deserializing `Multimap` already
+  of requested type (`ArrayListMultimap`, `HashMultimap`, `LinkedHashMultimap`)
+ (fixed by @pjfanning)
 #256: (guava) Avoid boxing every element when deserializing `Ints.asList` (etc)
   primitive lists
  (fixed by @pjfanning)
