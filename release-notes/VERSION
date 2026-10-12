@@ -32,6 +32,21 @@ Modules:
 #251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
   and implementation classes (default typing); `Triplet` read as `TripleImpl`
  (fixed by @pjfanning)
+#253: (guava) Avoid redundant copy when deserializing `Multimap` already
+  of requested type (`ArrayListMultimap`, `HashMultimap`, `LinkedHashMultimap`)
+ (fixed by @pjfanning)
+#256: (guava) Avoid boxing every element when deserializing `Ints.asList` (etc)
+  primitive lists
+ (fixed by @pjfanning)
+#258: (hppc) `BitSet` serialized up to allocated capacity (`size()`), not
+  highest set bit: output array length changes accordingly
+ (fixed by @pjfanning)
+#260: (hppc) Specialized `IntIndexedContainer` serializer never used (checks
+  `JavaType.getClass()` instead of raw class)
+ (fixed by @pjfanning)
+#262: (hppc) Avoid copying `ByteArrayList` / `CharArrayList` contents on
+  serialization
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 

@@ -17,8 +17,6 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 
 /**
@@ -34,9 +32,10 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     private final ValueDeserializer<Object> _valueDeserializer;
 
     /**
-     * Since we have to use a method to transform from a known multi-map type into actual one, we'll
-     * resolve method just once, use it. Note that if this is set to null, we can just construct a
-     * {@link com.google.common.collect.LinkedListMultimap} instance and be done with it.
+     * Since we may have to use a method to transform from the multi-map type built by
+     * {@link #createMultimap()} into actual one, we'll resolve method just once, use it.
+     * Method is only invoked if the built instance is not already of the requested type;
+     * if this is set to null, built instance is returned as-is.
      */
     private final Method creatorMethod;
 
@@ -60,12 +59,6 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
     }
 
     private static Method findTransformer(Class<?> rawType) {
-        // Very first thing: if it's a "standard multi-map type", can avoid copying
-        if (rawType == LinkedListMultimap.class || rawType == ListMultimap.class || rawType ==
-                Multimap.class) {
-            return null;
-        }
-
         // First, check type itself for matching methods
         for (String methodName : METHOD_NAMES) {
             try {
@@ -196,18 +189,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
                 multimap.put(key, value);
             }
         }
-        if (creatorMethod == null) {
-            return multimap;
-        }
-        try {
-            @SuppressWarnings("unchecked")
-            T map = (T) creatorMethod.invoke(null, multimap);
-            return map;
-        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
-            @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleInstantiationProblem(handledType(), multimap, e);
-            return result;
-        }
+        return _convertToTarget(ctxt, multimap);
     }
 
     private T deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
@@ -244,7 +226,17 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
                 multimap.put(key, value);
             }
         }
-        if (creatorMethod == null) {
+        return _convertToTarget(ctxt, multimap);
+    }
+
+    /**
+     * Helper method for converting multimap built by {@link #createMultimap()} into
+     * requested type, if (and only if) necessary.
+     */
+    private T _convertToTarget(DeserializationContext ctxt, T multimap)
+    {
+        // [datatypes-collections#253]: Avoid redundant copy if already of requested type
+        if ((creatorMethod == null) || handledType().isInstance(multimap)) {
             return multimap;
         }
         try {
