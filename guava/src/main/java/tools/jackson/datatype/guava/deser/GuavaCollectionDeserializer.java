@@ -177,7 +177,10 @@ public abstract class GuavaCollectionDeserializer<T>
         final JsonToken t = p.currentToken();
         Object value = _deserializeElement(p, ctxt, t);
         if (value != SKIPPED_ELEMENT) {
-            T result = _addElement(p, ctxt, t, value, v -> _createWithSingleElement(ctxt, v));
+            // Report current token (not `t`): for structured values, parser has
+            // already advanced to the matching END_OBJECT/END_ARRAY
+            T result = _addElement(p, ctxt, p.currentToken(), value,
+                    v -> _createWithSingleElement(ctxt, v));
             // `null` if element dropped by problem handler
             if (result != null) {
                 return result;

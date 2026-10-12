@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.*;
 
 import tools.jackson.core.JsonParser;
@@ -56,10 +57,39 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
         public ImmutableSortedSet<String> values;
     }
 
-    // Records token and target type it is called with, returns fixed replacement
+    static class Point {
+        public int x;
+
+        Point() { }
+        Point(int x) { this.x = x; }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof Point) && ((Point) o).x == x;
+        }
+
+        @Override
+        public int hashCode() { return x; }
+
+        @Override
+        public String toString() { return "Point("+x+")"; }
+    }
+
+    // Reads JSON Object fully but returns `null` (leaving parser at END_OBJECT)
+    static class ObjectToNullDeserializer extends ValueDeserializer<Point> {
+        @Override
+        public Point deserialize(JsonParser p, DeserializationContext ctxt) {
+            p.skipChildren();
+            return null;
+        }
+    }
+
+    // Records token and target type it is called with (as well as token parser
+    // is positioned at), returns fixed replacement
     static class ReplacingHandler extends DeserializationProblemHandler {
         final Object replacement;
         JsonToken token;
+        JsonToken parserToken;
         JavaType targetType;
 
         ReplacingHandler(Object replacement) {
@@ -71,6 +101,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 JavaType targetType, JsonToken t, JsonParser p, String failureMsg) {
             this.targetType = targetType;
             token = t;
+            parserToken = p.currentToken();
             return replacement;
         }
     }
@@ -241,6 +272,44 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 mapper.readValue(a2q("{'a':'b','k':'x'}"), new TypeReference<ImmutableMap<String, String>>() { }));
     }
 
+    // Handler must be called with parser positioned at reported token, even
+    // if `null` was deserialized from a structured value
+    @Test
+    public void testProblemHandlerStructuredValue() throws Exception
+    {
+        final Point R = new Point(42);
+
+        ReplacingHandler h = new ReplacingHandler(R);
+        assertEquals(ImmutableList.of(R, R),
+                _readWithObjectToNull(h, "[{'x':1},{'x':2}]",
+                        new TypeReference<ImmutableList<Point>>() { }));
+        _verifyStructuredToken(h, "ImmutableList");
+
+        h = new ReplacingHandler(R);
+        assertEquals(ImmutableList.of(R),
+                _readWithObjectToNull(h, "{'x':1}",
+                        new TypeReference<ImmutableList<Point>>() { }));
+        _verifyStructuredToken(h, "ImmutableList, single value");
+
+        h = new ReplacingHandler(R);
+        assertEquals(HashMultiset.create(Arrays.asList(R, R)),
+                HashMultiset.create(_readWithObjectToNull(h, "[{'x':1},{'x':2}]",
+                        new TypeReference<ImmutableMultiset<Point>>() { })));
+        _verifyStructuredToken(h, "ImmutableMultiset");
+
+        h = new ReplacingHandler(R);
+        assertEquals(ImmutableMap.of("k", R),
+                _readWithObjectToNull(h, "{'k':{'x':1}}",
+                        new TypeReference<ImmutableMap<String, Point>>() { }));
+        _verifyStructuredToken(h, "ImmutableMap");
+
+        h = new ReplacingHandler(R);
+        Cache<String, Point> cache = _readWithObjectToNull(h, "{'k':{'x':1}}",
+                new TypeReference<Cache<String, Point>>() { });
+        assertEquals(R, cache.getIfPresent("k"));
+        _verifyStructuredToken(h, "Cache");
+    }
+
     /*
     /**********************************************************************
     /* Helper methods
@@ -260,6 +329,24 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
             b = b.addHandler(h);
         }
         return b.build();
+    }
+
+    private <T> T _readWithObjectToNull(DeserializationProblemHandler h, String json,
+            TypeReference<T> typeRef) throws Exception
+    {
+        return builderWithModule()
+                .addModule(new SimpleModule().addDeserializer(Point.class, new ObjectToNullDeserializer()))
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .addHandler(h)
+                .build()
+                .readValue(a2q(json), typeRef);
+    }
+
+    private void _verifyStructuredToken(ReplacingHandler h, String desc)
+    {
+        assertEquals(JsonToken.END_OBJECT, h.token, desc);
+        assertEquals(h.token, h.parserToken, desc);
+        assertEquals(Point.class, h.targetType.getRawClass(), desc);
     }
 
     private void _verifySkip(String json, String... expected) throws Exception

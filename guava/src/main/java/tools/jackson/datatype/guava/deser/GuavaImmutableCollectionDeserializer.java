@@ -67,7 +67,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
                     _add(ctxt, builder, first);
                 }
             }
-            _addToBuilder(p, ctxt, t, builder, value);
+            _addToBuilder(p, ctxt, builder, value);
         }
 
         if (builder != null) {
@@ -79,13 +79,15 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         return _createWithSingleElement(ctxt, first);
     }
 
-    private void _addToBuilder(JsonParser p, DeserializationContext ctxt, JsonToken t,
+    private void _addToBuilder(JsonParser p, DeserializationContext ctxt,
             ImmutableCollection.Builder<Object> builder, Object value)
         throws JacksonException
     {
         // Avoid lambda allocation for the common non-null case
         if (value == null) {
-            _addElement(p, ctxt, t, null, v -> _add(ctxt, builder, v));
+            // Report current token (not `t`): for structured values, parser has
+            // already advanced to the matching END_OBJECT/END_ARRAY
+            _addElement(p, ctxt, p.currentToken(), null, v -> _add(ctxt, builder, v));
         } else {
             _add(ctxt, builder, value);
         }
