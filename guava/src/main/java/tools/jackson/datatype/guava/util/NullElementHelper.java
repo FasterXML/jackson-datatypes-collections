@@ -30,7 +30,8 @@ public final class NullElementHelper
      * {@code null}; without a handler, a
      * {@link tools.jackson.databind.exc.MismatchedInputException} is thrown.
      *
-     * @param t Token from which the {@code null} value was deserialized
+     * @param t Token parser is currently positioned at (for structured values,
+     *    the matching {@code END_OBJECT} / {@code END_ARRAY}, not the start token)
      * @param elementType Type of elements (or values) of container
      * @param containerDesc Description of the container for the error message
      *

@@ -145,9 +145,9 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
                 value = elementDeserializer.deserialize(p, ctxt);
             }
             if (value == null) {
-                // Report current token (not `t`): for structured values, parser has
+                // Reports current token (not `t`): for structured values, parser has
                 // already advanced to the matching END_OBJECT/END_ARRAY
-                _put(p, ctxt, p.currentToken(), cache, key, null);
+                _tryToAddNull(p, ctxt, cache, key);
             } else {
                 cache.put(key, value);
             }
@@ -176,7 +176,8 @@ public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>>
     }
 
     /**
-     * @param t Token from which the value was deserialized
+     * @param t Token parser is currently positioned at (for structured values,
+     *    the matching {@code END_OBJECT} / {@code END_ARRAY}, not the start token)
      */
     private void _put(JsonParser p, DeserializationContext ctxt, JsonToken t,
             T cache, Object key, Object value)

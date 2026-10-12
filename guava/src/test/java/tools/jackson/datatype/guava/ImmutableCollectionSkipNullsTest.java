@@ -57,7 +57,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
         public ImmutableSortedSet<String> values;
     }
 
-    static class Point {
+    static class Point implements Comparable<Point> {
         public int x;
 
         Point() { }
@@ -73,9 +73,13 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
 
         @Override
         public String toString() { return "Point("+x+")"; }
+
+        @Override
+        public int compareTo(Point o) { return Integer.compare(x, o.x); }
     }
 
-    // Reads JSON Object fully but returns `null` (leaving parser at END_OBJECT)
+    // Reads JSON Object (or Array) fully but returns `null` (leaving parser
+    // at END_OBJECT / END_ARRAY)
     static class ObjectToNullDeserializer extends ValueDeserializer<Point> {
         @Override
         public Point deserialize(JsonParser p, DeserializationContext ctxt) {
@@ -308,6 +312,13 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                         new TypeReference<ImmutableMultiset<Point>>() { })));
         _verifyStructuredToken(h, "ImmutableMultiset");
 
+        // TreeMultiset (unlike Hash/LinkedHashMultiset) rejects `null`s
+        h = new ReplacingHandler(R);
+        assertEquals(TreeMultiset.create(Arrays.asList(R, R)),
+                _readWithObjectToNull(h, "[{'x':1},{'x':2}]",
+                        new TypeReference<TreeMultiset<Point>>() { }));
+        _verifyStructuredToken(h, "TreeMultiset");
+
         h = new ReplacingHandler(R);
         assertEquals(ImmutableMap.of("k", R),
                 _readWithObjectToNull(h, "{'k':{'x':1}}",
@@ -319,6 +330,37 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 new TypeReference<Cache<String, Point>>() { });
         assertEquals(R, cache.getIfPresent("k"));
         _verifyStructuredToken(h, "Cache");
+    }
+
+    // Same as above, but for Array values (parser left at END_ARRAY)
+    @Test
+    public void testProblemHandlerStructuredArrayValue() throws Exception
+    {
+        final Point R = new Point(42);
+
+        ReplacingHandler h = new ReplacingHandler(R);
+        assertEquals(ImmutableList.of(R, R),
+                _readWithObjectToNull(h, "[[1],[2,3]]",
+                        new TypeReference<ImmutableList<Point>>() { }));
+        _verifyStructuredToken(h, JsonToken.END_ARRAY, "ImmutableList");
+
+        h = new ReplacingHandler(R);
+        assertEquals(TreeMultiset.create(Arrays.asList(R, R)),
+                _readWithObjectToNull(h, "[[1],[2,3]]",
+                        new TypeReference<TreeMultiset<Point>>() { }));
+        _verifyStructuredToken(h, JsonToken.END_ARRAY, "TreeMultiset");
+
+        h = new ReplacingHandler(R);
+        assertEquals(ImmutableMap.of("k", R),
+                _readWithObjectToNull(h, "{'k':[1,2]}",
+                        new TypeReference<ImmutableMap<String, Point>>() { }));
+        _verifyStructuredToken(h, JsonToken.END_ARRAY, "ImmutableMap");
+
+        h = new ReplacingHandler(R);
+        Cache<String, Point> cache = _readWithObjectToNull(h, "{'k':[1,2]}",
+                new TypeReference<Cache<String, Point>>() { });
+        assertEquals(R, cache.getIfPresent("k"));
+        _verifyStructuredToken(h, JsonToken.END_ARRAY, "Cache");
     }
 
     /*
@@ -355,7 +397,12 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
 
     private void _verifyStructuredToken(ReplacingHandler h, String desc)
     {
-        assertEquals(JsonToken.END_OBJECT, h.token, desc);
+        _verifyStructuredToken(h, JsonToken.END_OBJECT, desc);
+    }
+
+    private void _verifyStructuredToken(ReplacingHandler h, JsonToken expToken, String desc)
+    {
+        assertEquals(expToken, h.token, desc);
         assertEquals(h.token, h.parserToken, desc);
         assertEquals(Point.class, h.targetType.getRawClass(), desc);
     }

@@ -218,7 +218,8 @@ public abstract class GuavaCollectionDeserializer<T>
      * Helper method for adding an element using given adder; {@code null}s that
      * the container does not accept are reported as problems.
      *
-     * @param t Token from which the value was deserialized
+     * @param t Token parser is currently positioned at (for structured values,
+     *    the matching {@code END_OBJECT} / {@code END_ARRAY}, not the start token)
      *
      * @return Result of adder, or {@code null} if element was dropped by
      *    a problem handler
