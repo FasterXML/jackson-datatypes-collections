@@ -39,7 +39,7 @@ Modules:
   primitive lists
  (fixed by @pjfanning)
 #258: (hppc) `BitSet` serialized up to allocated capacity (`size()`), not
-  highest set bit (`length()`): output array length changes accordingly
+  highest set bit: output array length changes accordingly
  (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
