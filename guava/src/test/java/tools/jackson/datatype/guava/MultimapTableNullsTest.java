@@ -20,6 +20,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.cfg.MapperBuilder;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 
@@ -42,10 +43,39 @@ public class MultimapTableNullsTest extends ModuleTestBase
         }
     }
 
-    // Records token and target type it is called with, returns fixed replacement
+    static class Point {
+        public int x;
+
+        Point() { }
+        Point(int x) { this.x = x; }
+
+        @Override
+        public boolean equals(Object o) {
+            return (o instanceof Point) && ((Point) o).x == x;
+        }
+
+        @Override
+        public int hashCode() { return x; }
+
+        @Override
+        public String toString() { return "Point("+x+")"; }
+    }
+
+    // Reads JSON Object fully but returns `null` (leaving parser at END_OBJECT)
+    static class ObjectToNullDeserializer extends ValueDeserializer<Point> {
+        @Override
+        public Point deserialize(JsonParser p, DeserializationContext ctxt) {
+            p.skipChildren();
+            return null;
+        }
+    }
+
+    // Records token and target type it is called with (as well as token parser
+    // is positioned at), returns fixed replacement
     static class ReplacingHandler extends DeserializationProblemHandler {
         final Object replacement;
         JsonToken token;
+        JsonToken parserToken;
         JavaType targetType;
 
         ReplacingHandler(Object replacement) {
@@ -57,6 +87,7 @@ public class MultimapTableNullsTest extends ModuleTestBase
                 JavaType targetType, JsonToken t, JsonParser p, String failureMsg) {
             this.targetType = targetType;
             token = t;
+            parserToken = p.currentToken();
             return replacement;
         }
     }
@@ -134,9 +165,40 @@ public class MultimapTableNullsTest extends ModuleTestBase
         ObjectMapper mapper = SKIP_MAPPER.rebuild()
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
+        for (TypeReference<? extends Multimap<String, String>> typeRef : NULL_REJECTING_MULTIMAPS) {
+            Multimap<String, String> mm = mapper.readValue(a2q("{'a':'b','c':null}"), typeRef);
+            assertEquals(ImmutableListMultimap.of("a", "b"), ImmutableListMultimap.copyOf(mm),
+                    typeRef.getType().toString());
+        }
         assertEquals(ImmutableListMultimap.of("a", "b"),
                 mapper.readValue(a2q("{'a':'b','c':null}"),
                         new TypeReference<ArrayListMultimap<String, String>>() { }));
+    }
+
+    // Single values must also go through content null provider
+    @Test
+    public void testMultimapSingleValueNullProvider() throws Exception
+    {
+        final ObjectMapper failMapper = builderWithModule()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.FAIL))
+                .build();
+        final ObjectMapper emptyMapper = builderWithModule()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.AS_EMPTY))
+                .build();
+        for (TypeReference<? extends Multimap<String, String>> typeRef
+                : Arrays.asList(NULL_ACCEPTING_MULTIMAPS.get(0), NULL_REJECTING_MULTIMAPS.get(0))) {
+            final String desc = typeRef.getType().toString();
+            try {
+                Object result = failMapper.readValue(a2q("{'a':null}"), typeRef);
+                fail("Should not pass for " + desc + ", got: " + result);
+            } catch (InvalidNullException e) {
+                verifyException(e, "Invalid `null` value");
+            }
+            Multimap<String, String> mm = emptyMapper.readValue(a2q("{'a':null}"), typeRef);
+            assertEquals(ImmutableListMultimap.of("a", ""), ImmutableListMultimap.copyOf(mm), desc);
+        }
     }
 
     @Test
@@ -160,6 +222,20 @@ public class MultimapTableNullsTest extends ModuleTestBase
         mapper = builderWithModule().addHandler(new ReplacingHandler(null)).build();
         assertEquals(ImmutableListMultimap.of("a", "b"),
                 mapper.readValue(a2q("{'a':['b',null]}"), typeRef));
+    }
+
+    // Handler must be called with parser positioned at reported token, even
+    // if `null` was deserialized from a structured value
+    @Test
+    public void testMultimapProblemHandlerStructuredValue() throws Exception
+    {
+        ReplacingHandler h = new ReplacingHandler(new Point(42));
+        ImmutableListMultimap<String, Point> mm = _objectToNullMapper(h)
+                .readValue(a2q("{'a':[{'x':1},{'x':2}]}"),
+                        new TypeReference<ImmutableListMultimap<String, Point>>() { });
+        assertEquals(ImmutableListMultimap.of("a", new Point(42), "a", new Point(42)), mm);
+        assertEquals(JsonToken.END_OBJECT, h.token);
+        assertEquals(h.token, h.parserToken);
     }
 
     /*
@@ -213,6 +289,26 @@ public class MultimapTableNullsTest extends ModuleTestBase
         }
     }
 
+    // Handler must be called with parser positioned at reported token, even
+    // if `null` was deserialized from a structured value
+    @Test
+    public void testTableProblemHandlerStructuredValue() throws Exception
+    {
+        for (TypeReference<? extends Table<String, String, Point>> typeRef : Arrays.asList(
+                new TypeReference<HashBasedTable<String, String, Point>>() { },
+                new TypeReference<ImmutableTable<String, String, Point>>() { })) {
+            final String desc = typeRef.getType().toString();
+            ReplacingHandler h = new ReplacingHandler(new Point(42));
+            Table<String, String, Point> table = _objectToNullMapper(h)
+                    .readValue(a2q("{'r':{'c':{'x':1},'d':{'x':2}}}"), typeRef);
+            assertEquals(2, table.size(), desc);
+            assertEquals(new Point(42), table.get("r", "c"), desc);
+            assertEquals(new Point(42), table.get("r", "d"), desc);
+            assertEquals(JsonToken.END_OBJECT, h.token, desc);
+            assertEquals(h.token, h.parserToken, desc);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Helper methods
@@ -227,6 +323,14 @@ public class MultimapTableNullsTest extends ModuleTestBase
             b = b.addHandler(h);
         }
         return b.build();
+    }
+
+    private ObjectMapper _objectToNullMapper(DeserializationProblemHandler h)
+    {
+        return builderWithModule()
+                .addModule(new SimpleModule().addDeserializer(Point.class, new ObjectToNullDeserializer()))
+                .addHandler(h)
+                .build();
     }
 
     private void _verifyRejected(ObjectMapper mapper, String json, TypeReference<?> typeRef,

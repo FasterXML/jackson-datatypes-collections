@@ -43,6 +43,13 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
      */
     private final Method creatorMethod;
 
+    /**
+     * Whether the final multimap type does not accept {@code null} values: if so,
+     * they would only fail when copied from the intermediate multimap, so need
+     * to be reported before adding.
+     */
+    private final boolean _rejectsNullValues;
+
     public GuavaMultimapDeserializer(JavaType type, KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer) {
         this(type, keyDeserializer, elementTypeDeserializer, elementDeserializer,
@@ -60,6 +67,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         this._valueTypeDeserializer = elementTypeDeserializer;
         this._valueDeserializer = (ValueDeserializer<Object>) elementDeserializer;
         this.creatorMethod = creatorMethod;
+        _rejectsNullValues = _rejectsNullValues(type.getRawClass());
     }
 
     private static Method findTransformer(Class<?> rawType) {
@@ -258,8 +266,11 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         } else {
             value = _valueDeserializer.deserialize(p, ctxt);
         }
-        if ((value == null) && _rejectsNullValues()) {
-            value = NullElementHelper.handleNull(p, ctxt, t, _containerType.getContentType(),
+        if ((value == null) && _rejectsNullValues) {
+            // Report current token (not `t`): for structured values, parser has
+            // already advanced to the matching END_OBJECT/END_ARRAY
+            value = NullElementHelper.handleNull(p, ctxt, p.currentToken(),
+                    _containerType.getContentType(),
                     "Guava `Multimap` of type "+ClassUtil.getTypeDescription(_containerType));
             // `null` if dropped by problem handler
             if (value == null) {
@@ -269,12 +280,7 @@ public abstract class GuavaMultimapDeserializer<T extends Multimap<Object, Objec
         multimap.put(key, value);
     }
 
-    /**
-     * Whether the final multimap type does not accept {@code null} values: if so,
-     * it would only fail when copied from the intermediate multimap.
-     */
-    private boolean _rejectsNullValues() {
-        final Class<?> raw = _containerType.getRawClass();
+    private static boolean _rejectsNullValues(Class<?> raw) {
         return ImmutableMultimap.class.isAssignableFrom(raw)
                 || TreeMultimap.class.isAssignableFrom(raw);
     }

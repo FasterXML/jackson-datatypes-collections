@@ -1,7 +1,5 @@
 package tools.jackson.datatype.guava.deser.table;
 
-import java.util.function.Function;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -104,19 +102,37 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     
 
     /**
-     * Helper method for adding a {@code null} value using given adder: since Guava
-     * tables do not accept {@code null}s, problem is reported (unless a problem handler
-     * provides a replacement value, or drops the cell).
+     * Helper method for deserializing a cell value (starting with given token).
+     * Since Guava tables do not accept {@code null} values, {@code null}s are
+     * reported as problems (unless a problem handler provides a replacement value,
+     * or drops the cell).
      *
-     * @param t Token from which the value was deserialized
+     * @param t Token from which the value is to be deserialized
+     *
+     * @return Value to add, or {@code null} if cell is to be skipped
      */
-    protected void _putNull(JsonParser p, DeserializationContext ctxt, JsonToken t,
-            Function<Object, ?> adder)
+    protected Object _readCellValue(JsonParser p, DeserializationContext ctxt, JsonToken t)
         throws JacksonException
     {
-        NullElementHelper.addElement(p, ctxt, t, _type.getContentType().getContentType(),
-                "Guava `Table` of type "+ClassUtil.getTypeDescription(_type),
-                null, adder);
+        final Object value;
+        if (t == JsonToken.VALUE_NULL) {
+            if (_skipNullValues) {
+                return null;
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        } else if (_valueTypeDeserializer != null) {
+            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        } else {
+            value = _valueDeserializer.deserialize(p, ctxt);
+        }
+        if (value != null) {
+            return value;
+        }
+        // Report current token (not `t`): for structured values, parser has
+        // already advanced to the matching END_OBJECT/END_ARRAY
+        return NullElementHelper.handleNull(p, ctxt, p.currentToken(),
+                _type.getContentType().getContentType(),
+                "Guava `Table` of type "+ClassUtil.getTypeDescription(_type));
     }
 
     protected void expect(DeserializationContext context, JsonToken expected, JsonToken actual)
