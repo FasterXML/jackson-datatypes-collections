@@ -35,6 +35,9 @@ Modules:
 #253: (guava) Avoid redundant copy when deserializing `Multimap` already
   of requested type (`ArrayListMultimap`, `HashMultimap`, `LinkedHashMultimap`)
  (fixed by @pjfanning)
+#256: (guava) Avoid boxing every element when deserializing `Ints.asList` (etc)
+  primitive lists
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
