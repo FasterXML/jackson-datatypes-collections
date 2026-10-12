@@ -67,20 +67,10 @@ public abstract class MutableTableDeserializer<T extends Table<Object, Object, O
                     colKey = p.currentName();
                 }
                 
-                p.nextToken();
-                
-                final Object value;
-                if (p.currentToken() == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (_valueTypeDeserializer != null) {
-                    value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
-                } else {
-                    value = _valueDeserializer.deserialize(p, ctxt);
+                final Object value = _readCellValue(p, ctxt, p.nextToken());
+                if (value != null) {
+                    table.put(rowKey, colKey, value);
                 }
-                table.put(rowKey, colKey, value);
             }
             expect(ctxt, JsonToken.END_OBJECT, p.currentToken());
         }
