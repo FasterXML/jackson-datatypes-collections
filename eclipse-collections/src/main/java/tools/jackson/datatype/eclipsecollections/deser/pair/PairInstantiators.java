@@ -38,12 +38,21 @@ public final class PairInstantiators extends ValueInstantiators.Base {
             DeserializationConfig config, BeanDescription.Supplier beanDescRef
     ) {
         Class<?> beanClass = beanDescRef.getBeanClass();
+        JavaType beanType = beanDescRef.getType();
+        ValueInstantiator inst = _findValueInstantiator(beanClass, beanType);
+        if (inst == null) {
+            // Implementation class (like `PairImpl`, as named by a type id with default typing)?
+            inst = TupleImplementations.findInstantiator(beanType, ALL_PAIR_CLASSES,
+                    this::_findValueInstantiator);
+        }
+        return inst;
+    }
+
+    private ValueInstantiator _findValueInstantiator(Class<?> beanClass, JavaType beanType) {
         ValueInstantiator purePrimitive = PURE_PRIMITIVE_INSTANTIATORS.get(beanClass);
         if (purePrimitive != null) {
             return purePrimitive;
         }
-
-        JavaType beanType = beanDescRef.getType();
 
         Function<JavaType, ValueInstantiator> keyOrValueObjectLambda =
                 KEY_OR_VALUE_OBJECT_LAMBDAS.get(beanClass);
@@ -61,12 +70,12 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
                 @Override
                 JavaType oneType(DeserializationConfig config) {
-                    return beanType.containedType(0);
+                    return beanType.containedTypeOrUnknown(0);
                 }
 
                 @Override
                 JavaType twoType(DeserializationConfig config) {
-                    return beanType.containedType(1);
+                    return beanType.containedTypeOrUnknown(1);
                 }
             };
         }
@@ -81,12 +90,12 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
                 @Override
                 JavaType oneType(DeserializationConfig config) {
-                    return beanType.containedType(0);
+                    return beanType.containedTypeOrUnknown(0);
                 }
 
                 @Override
                 JavaType twoType(DeserializationConfig config) {
-                    return beanType.containedType(0);
+                    return beanType.containedTypeOrUnknown(0);
                 }
             };
         }
@@ -122,7 +131,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
             @Override
             JavaType twoType(DeserializationConfig config) {
-                return inputType.containedType(0);
+                return inputType.containedTypeOrUnknown(0);
             }
         };
     }
@@ -143,7 +152,7 @@ public final class PairInstantiators extends ValueInstantiators.Base {
 
             @Override
             JavaType oneType(DeserializationConfig config) {
-                return inputType.containedType(0);
+                return inputType.containedTypeOrUnknown(0);
             }
 
             @Override

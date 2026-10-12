@@ -19,6 +19,7 @@ module tools.jackson.datatype.eclipsecollections
     exports tools.jackson.datatype.eclipsecollections.deser.set;
     exports tools.jackson.datatype.eclipsecollections.ser;
     exports tools.jackson.datatype.eclipsecollections.ser.map;
+    // NOTE: `tools.jackson.datatype.eclipsecollections.util` is internal, not exported
 
     provides tools.jackson.databind.JacksonModule with
         tools.jackson.datatype.eclipsecollections.EclipseCollectionsModule;
