@@ -47,6 +47,9 @@ Modules:
 #262: (hppc) Avoid copying `ByteArrayList` / `CharArrayList` contents on
   serialization
  (fixed by @pjfanning)
+#264: (eclipse-collections) Avoid allocating a `char[]` per entry when serializing
+  `char`-valued primitive maps
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
