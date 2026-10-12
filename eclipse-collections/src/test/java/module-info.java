@@ -20,6 +20,7 @@ module tools.jackson.datatype.eclipsecollections
     // Further, need to open up test packages for JUnit et al
     
     opens tools.jackson.datatype.eclipsecollections;
+    opens tools.jackson.datatype.eclipsecollections.deser.pair;
     opens tools.jackson.datatype.eclipsecollections.testutil.failure;
 
     provides tools.jackson.databind.JacksonModule with
