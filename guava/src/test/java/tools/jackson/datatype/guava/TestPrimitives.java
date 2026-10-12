@@ -350,6 +350,59 @@ public class TestPrimitives extends ModuleTestBase
     }
 
     @Test
+    public void testEmptyArrays() throws Exception {
+        _verifyEmpty(PrimitiveTypes.BooleansTypeReference);
+        _verifyEmpty(PrimitiveTypes.BytesTypeReference);
+        _verifyEmpty(PrimitiveTypes.CharsTypeReference);
+        _verifyEmpty(PrimitiveTypes.ShortsTypeReference);
+        _verifyEmpty(PrimitiveTypes.IntsTypeReference);
+        _verifyEmpty(PrimitiveTypes.LongsTypeReference);
+        _verifyEmpty(PrimitiveTypes.FloatsTypeReference);
+        _verifyEmpty(PrimitiveTypes.DoublesTypeReference);
+    }
+
+    // Note: Guava's `asList()` returns `Collections.emptyList()` for empty arrays
+    private <T> void _verifyEmpty(TypeReference<List<T>> type) throws Exception {
+        assertEquals(Collections.emptyList(), MAPPER.readValue("[]", type));
+    }
+
+    @Test
+    public void testInvalidCharElements() throws Exception {
+        _verifyFails(PrimitiveTypes.CharsTypeReference, "[\"\"]", "String of length 0");
+        _verifyFails(PrimitiveTypes.CharsTypeReference, "[\"ab\"]", "String of length 2");
+        _verifyFails(PrimitiveTypes.CharsTypeReference, "[65]", "from Integer value");
+        _verifyFails(PrimitiveTypes.CharsTypeReference, "[null]", "Cannot coerce `null`");
+    }
+
+    @Test
+    public void testNullElements() throws Exception {
+        _verifyFails(PrimitiveTypes.BooleansTypeReference, "[true,null]", "Cannot coerce `null`");
+        _verifyFails(PrimitiveTypes.IntsTypeReference, "[1,null]", "Cannot coerce `null`");
+        _verifyFails(PrimitiveTypes.LongsTypeReference, "[1,null]", "Cannot coerce `null`");
+        _verifyFails(PrimitiveTypes.DoublesTypeReference, "[1.5,null]", "Cannot coerce `null`");
+
+        // but nulls become defaults if allowed, same as with primitive arrays
+        ObjectMapper mapper = builderWithModule()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertEquals(Ints.asList(1, 0), mapper.readValue("[1,null]", PrimitiveTypes.IntsTypeReference));
+        assertEquals(Booleans.asList(true, false), mapper.readValue("[true,null]", PrimitiveTypes.BooleansTypeReference));
+    }
+
+    @Test
+    public void testOutOfRangeElements() throws Exception {
+        _verifyFails(PrimitiveTypes.BytesTypeReference, "[300]", "out of range of `byte`");
+        _verifyFails(PrimitiveTypes.ShortsTypeReference, "[40000]", "out of range");
+        _verifyFails(PrimitiveTypes.IntsTypeReference, "[3000000000]", "out of range of `int`");
+    }
+
+    private <T> void _verifyFails(TypeReference<List<T>> type, String json, String expectedMsg) {
+        JacksonException e = assertThrows(JacksonException.class, () -> MAPPER.readValue(json, type));
+        assertTrue(e.getMessage().contains(expectedMsg),
+                "Expected message to contain '" + expectedMsg + "' for " + json + ", got: " + e.getMessage());
+    }
+
+    @Test
     public void testImmutableLongArrayFromSingle() throws Exception {
         ImmutableLongArray array = SINGLE_MAPPER.readValue("1", ImmutableLongArray.class);
         assertEquals(1, array.length());

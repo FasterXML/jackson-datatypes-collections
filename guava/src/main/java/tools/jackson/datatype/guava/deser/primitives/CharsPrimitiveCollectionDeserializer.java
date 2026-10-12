@@ -2,20 +2,24 @@ package tools.jackson.datatype.guava.deser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.primitives.Chars;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class CharsPrimitiveCollectionDeserializer
         extends BaseGuavaPrimitivesCollectionDeserializer<Character, List<Character>, Collection<Character>> {
+    private final ValueDeserializer<char[]> _arrayDeserializer;
+
+    @SuppressWarnings("unchecked")
     public CharsPrimitiveCollectionDeserializer() {
         super(PrimitiveTypes.CharsType, Character.class);
+        _arrayDeserializer = (ValueDeserializer<char[]>) PrimitiveArrayDeserializers.forType(char.class);
     }
 
     @Override
@@ -28,19 +32,14 @@ public class CharsPrimitiveCollectionDeserializer
         return Chars.asList(Chars.toArray(characters));
     }
 
-    // Overridden to collect into a primitive array, avoiding boxing every element
+    /**
+     * Delegates to databind's {@code char[]} deserializer to avoid boxing;
+     * note that {@link #add}, {@link #asPrimitive} and {@link #finish} are
+     * therefore only called for single-value input, not for JSON Arrays.
+     */
     @Override
     protected List<Character> _deserializeContents(JsonParser parser, DeserializationContext context)
             throws JacksonException {
-        char[] chars = new char[16];
-        int ix = 0;
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            char value = parser.getValueAsString().charAt(0);
-            if (ix >= chars.length) {
-                chars = Arrays.copyOf(chars, chars.length << 1);
-            }
-            chars[ix++] = value;
-        }
-        return Chars.asList(Arrays.copyOf(chars, ix));
+        return Chars.asList(_arrayDeserializer.deserialize(parser, context));
     }
 }

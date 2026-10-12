@@ -2,9 +2,9 @@ package tools.jackson.datatype.guava.deser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.util.ArrayBuilders;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.primitives.Doubles;
@@ -14,8 +14,12 @@ import java.util.List;
 
 public class DoublesPrimitiveCollectionDeserializer
         extends BaseGuavaPrimitivesCollectionDeserializer<Double, List<Double>, Collection<Double>> {
+    private final ValueDeserializer<double[]> _arrayDeserializer;
+
+    @SuppressWarnings("unchecked")
     public DoublesPrimitiveCollectionDeserializer() {
         super(PrimitiveTypes.DoublesType, Double.class);
+        _arrayDeserializer = (ValueDeserializer<double[]>) PrimitiveArrayDeserializers.forType(double.class);
     }
 
     @Override
@@ -28,21 +32,14 @@ public class DoublesPrimitiveCollectionDeserializer
         return Doubles.asList(Doubles.toArray(doubles));
     }
 
-    // Overridden to collect into a primitive array, avoiding boxing every element
+    /**
+     * Delegates to databind's {@code double[]} deserializer to avoid boxing;
+     * note that {@link #add}, {@link #asPrimitive} and {@link #finish} are
+     * therefore only called for single-value input, not for JSON Arrays.
+     */
     @Override
     protected List<Double> _deserializeContents(JsonParser parser, DeserializationContext context)
             throws JacksonException {
-        final ArrayBuilders.DoubleBuilder builder = context.getArrayBuilders().getDoubleBuilder();
-        double[] chunk = builder.resetAndStart();
-        int ix = 0;
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            double value = parser.getDoubleValue();
-            if (ix >= chunk.length) {
-                chunk = builder.appendCompletedChunk(chunk, ix);
-                ix = 0;
-            }
-            chunk[ix++] = value;
-        }
-        return Doubles.asList(builder.completeAndClearBuffer(chunk, ix));
+        return Doubles.asList(_arrayDeserializer.deserialize(parser, context));
     }
 }

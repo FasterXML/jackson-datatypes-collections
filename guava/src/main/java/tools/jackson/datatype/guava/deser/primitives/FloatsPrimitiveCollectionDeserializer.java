@@ -2,9 +2,9 @@ package tools.jackson.datatype.guava.deser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.util.ArrayBuilders;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.primitives.Floats;
@@ -14,8 +14,12 @@ import java.util.List;
 
 public class FloatsPrimitiveCollectionDeserializer
         extends BaseGuavaPrimitivesCollectionDeserializer<Float, List<Float>, Collection<Float>> {
+    private final ValueDeserializer<float[]> _arrayDeserializer;
+
+    @SuppressWarnings("unchecked")
     public FloatsPrimitiveCollectionDeserializer() {
         super(PrimitiveTypes.FloatsType, Float.class);
+        _arrayDeserializer = (ValueDeserializer<float[]>) PrimitiveArrayDeserializers.forType(float.class);
     }
 
     @Override
@@ -28,21 +32,14 @@ public class FloatsPrimitiveCollectionDeserializer
         return Floats.asList(Floats.toArray(floats));
     }
 
-    // Overridden to collect into a primitive array, avoiding boxing every element
+    /**
+     * Delegates to databind's {@code float[]} deserializer to avoid boxing;
+     * note that {@link #add}, {@link #asPrimitive} and {@link #finish} are
+     * therefore only called for single-value input, not for JSON Arrays.
+     */
     @Override
     protected List<Float> _deserializeContents(JsonParser parser, DeserializationContext context)
             throws JacksonException {
-        final ArrayBuilders.FloatBuilder builder = context.getArrayBuilders().getFloatBuilder();
-        float[] chunk = builder.resetAndStart();
-        int ix = 0;
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            float value = parser.getFloatValue();
-            if (ix >= chunk.length) {
-                chunk = builder.appendCompletedChunk(chunk, ix);
-                ix = 0;
-            }
-            chunk[ix++] = value;
-        }
-        return Floats.asList(builder.completeAndClearBuffer(chunk, ix));
+        return Floats.asList(_arrayDeserializer.deserialize(parser, context));
     }
 }

@@ -2,9 +2,9 @@ package tools.jackson.datatype.guava.deser.primitives;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.util.ArrayBuilders;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
 import tools.jackson.datatype.guava.util.PrimitiveTypes;
 
 import com.google.common.primitives.Longs;
@@ -14,8 +14,12 @@ import java.util.List;
 
 public class LongsPrimitiveCollectionDeserializer
         extends BaseGuavaPrimitivesCollectionDeserializer<Long, List<Long>, Collection<Long>> {
+    private final ValueDeserializer<long[]> _arrayDeserializer;
+
+    @SuppressWarnings("unchecked")
     public LongsPrimitiveCollectionDeserializer() {
         super(PrimitiveTypes.LongsType, Long.class);
+        _arrayDeserializer = (ValueDeserializer<long[]>) PrimitiveArrayDeserializers.forType(long.class);
     }
 
     @Override
@@ -28,21 +32,14 @@ public class LongsPrimitiveCollectionDeserializer
         return Longs.asList(Longs.toArray(longs));
     }
 
-    // Overridden to collect into a primitive array, avoiding boxing every element
+    /**
+     * Delegates to databind's {@code long[]} deserializer to avoid boxing;
+     * note that {@link #add}, {@link #asPrimitive} and {@link #finish} are
+     * therefore only called for single-value input, not for JSON Arrays.
+     */
     @Override
     protected List<Long> _deserializeContents(JsonParser parser, DeserializationContext context)
             throws JacksonException {
-        final ArrayBuilders.LongBuilder builder = context.getArrayBuilders().getLongBuilder();
-        long[] chunk = builder.resetAndStart();
-        int ix = 0;
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            long value = parser.getLongValue();
-            if (ix >= chunk.length) {
-                chunk = builder.appendCompletedChunk(chunk, ix);
-                ix = 0;
-            }
-            chunk[ix++] = value;
-        }
-        return Longs.asList(builder.completeAndClearBuffer(chunk, ix));
+        return Longs.asList(_arrayDeserializer.deserialize(parser, context));
     }
 }
