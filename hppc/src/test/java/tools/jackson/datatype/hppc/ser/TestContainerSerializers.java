@@ -177,8 +177,90 @@ public class TestContainerSerializers extends ModuleTestBase
         bitset.set(1);
         bitset.set(4);
 
-        // note: since storage is in units of 64 bits, we may get more than what we asked for, so:
-        String str = mapper.writeValueAsString(bitset);
-        assertTrue(str.startsWith("[false,true,false,false,true"));
+        // only up to the highest set bit, not the allocated capacity
+        assertEquals("[false,true,false,false,true]", mapper.writeValueAsString(bitset));
+
+        // pre-sized: capacity far beyond the highest set bit
+        BitSet large = new BitSet(1_000_000);
+        large.set(2);
+        assertEquals("[false,false,true]", mapper.writeValueAsString(large));
+
+        assertEquals("[]", mapper.writeValueAsString(new BitSet()));
+        assertEquals("[]", mapper.writeValueAsString(new BitSet(1_000)));
+
+        // only bit 0
+        BitSet first = new BitSet();
+        first.set(0);
+        assertEquals("[true]", mapper.writeValueAsString(first));
+    }
+
+    @Test
+    public void testBitSetSerializerWordBoundaries() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        for (int index : new int[] { 62, 63, 64, 65, 127, 128, 200 }) {
+            BitSet bitset = new BitSet(256);
+            bitset.set(index);
+            assertEquals(_bitsJson(index + 1, index), mapper.writeValueAsString(bitset),
+                    "bit #"+index);
+        }
+
+        // bits on both sides of a word boundary
+        BitSet bitset = new BitSet();
+        bitset.set(0);
+        bitset.set(63);
+        bitset.set(64);
+        assertEquals(_bitsJson(65, 0, 63, 64), mapper.writeValueAsString(bitset));
+    }
+
+    @Test
+    public void testBitSetSerializerTrailingZeroWords() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        // clearing the highest bit leaves trailing zero words in use
+        BitSet bitset = new BitSet();
+        bitset.set(70);
+        bitset.clear(70);
+        bitset.set(3);
+        assertEquals("[false,false,false,true]", mapper.writeValueAsString(bitset));
+    }
+
+    // Serialization must not modify the BitSet; and must include bits set via
+    // `getAndSet()`, which does not update `wlen`
+    @Test
+    public void testBitSetSerializerDoesNotModify() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        BitSet bitset = new BitSet(128);
+        bitset.set(1);
+        final int wlen = bitset.wlen;
+        assertEquals("[false,true]", mapper.writeValueAsString(bitset));
+        assertEquals(wlen, bitset.wlen);
+
+        bitset.getAndSet(100);
+        assertEquals(_bitsJson(101, 1, 100), mapper.writeValueAsString(bitset));
+
+        // also when `wlen` was trimmed before set via `getAndSet()`
+        BitSet other = new BitSet(128);
+        other.set(0);
+        other.clear();
+        other.set(0);
+        other.getAndSet(100);
+        assertEquals(_bitsJson(101, 0, 100), mapper.writeValueAsString(other));
+    }
+
+    private static String _bitsJson(int length, int... setBits) {
+        java.util.BitSet set = new java.util.BitSet();
+        for (int bit : setBits) {
+            set.set(bit);
+        }
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < length; ++i) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(set.get(i));
+        }
+        return sb.append(']').toString();
     }
 }
