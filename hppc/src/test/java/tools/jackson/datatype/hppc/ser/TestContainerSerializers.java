@@ -6,11 +6,40 @@ import tools.jackson.datatype.hppc.ModuleTestBase;
 import org.junit.jupiter.api.Test;
 
 import com.carrotsearch.hppc.*;
+import com.carrotsearch.hppc.procedures.IntProcedure;
+import com.carrotsearch.hppc.procedures.LongProcedure;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestContainerSerializers extends ModuleTestBase
 {
+    // Indexed containers that fail if accessed other than by index
+    @SuppressWarnings("serial")
+    static class IndexedOnlyIntList extends IntArrayList {
+        @Override
+        public <T extends IntProcedure> T forEach(T procedure) {
+            throw new UnsupportedOperationException("forEach");
+        }
+
+        @Override
+        public int[] toArray() {
+            throw new UnsupportedOperationException("toArray");
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class IndexedOnlyLongList extends LongArrayList {
+        @Override
+        public <T extends LongProcedure> T forEach(T procedure) {
+            throw new UnsupportedOperationException("forEach");
+        }
+
+        @Override
+        public long[] toArray() {
+            throw new UnsupportedOperationException("toArray");
+        }
+    }
+
     @Test
     public void testByteSerializer() throws Exception
     {
@@ -69,6 +98,11 @@ public class TestContainerSerializers extends ModuleTestBase
         IntArrayList array = new IntArrayList();
         array.add(-12, 0);
         assertEquals("[-12,0]", mapper.writeValueAsString(array));
+        // indexed containers must be serialized via indexed access
+        // (not forEach() or toArray())
+        IntArrayList indexed = new IndexedOnlyIntList();
+        indexed.add(3, -1, 7);
+        assertEquals("[3,-1,7]", mapper.writeValueAsString(indexed));
 
         IntHashSet set = new IntHashSet();
         set.addAll(1, 2);
@@ -86,6 +120,10 @@ public class TestContainerSerializers extends ModuleTestBase
         LongArrayList array = new LongArrayList();
         array.add(-12L, 0L);
         assertEquals("[-12,0]", mapper.writeValueAsString(array));
+
+        LongArrayList indexed = new IndexedOnlyLongList();
+        indexed.add(3L, -1L, 7L);
+        assertEquals("[3,-1,7]", mapper.writeValueAsString(indexed));
 
         LongHashSet set = new LongHashSet();
         set.addAll(1L, 2L);
@@ -183,8 +221,90 @@ public class TestContainerSerializers extends ModuleTestBase
         bitset.set(1);
         bitset.set(4);
 
-        // note: since storage is in units of 64 bits, we may get more than what we asked for, so:
-        String str = mapper.writeValueAsString(bitset);
-        assertTrue(str.startsWith("[false,true,false,false,true"));
+        // only up to the highest set bit, not the allocated capacity
+        assertEquals("[false,true,false,false,true]", mapper.writeValueAsString(bitset));
+
+        // pre-sized: capacity far beyond the highest set bit
+        BitSet large = new BitSet(1_000_000);
+        large.set(2);
+        assertEquals("[false,false,true]", mapper.writeValueAsString(large));
+
+        assertEquals("[]", mapper.writeValueAsString(new BitSet()));
+        assertEquals("[]", mapper.writeValueAsString(new BitSet(1_000)));
+
+        // only bit 0
+        BitSet first = new BitSet();
+        first.set(0);
+        assertEquals("[true]", mapper.writeValueAsString(first));
+    }
+
+    @Test
+    public void testBitSetSerializerWordBoundaries() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        for (int index : new int[] { 62, 63, 64, 65, 127, 128, 200 }) {
+            BitSet bitset = new BitSet(256);
+            bitset.set(index);
+            assertEquals(_bitsJson(index + 1, index), mapper.writeValueAsString(bitset),
+                    "bit #"+index);
+        }
+
+        // bits on both sides of a word boundary
+        BitSet bitset = new BitSet();
+        bitset.set(0);
+        bitset.set(63);
+        bitset.set(64);
+        assertEquals(_bitsJson(65, 0, 63, 64), mapper.writeValueAsString(bitset));
+    }
+
+    @Test
+    public void testBitSetSerializerTrailingZeroWords() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        // clearing the highest bit leaves trailing zero words in use
+        BitSet bitset = new BitSet();
+        bitset.set(70);
+        bitset.clear(70);
+        bitset.set(3);
+        assertEquals("[false,false,false,true]", mapper.writeValueAsString(bitset));
+    }
+
+    // Serialization must not modify the BitSet; and must include bits set via
+    // `getAndSet()`, which does not update `wlen`
+    @Test
+    public void testBitSetSerializerDoesNotModify() throws Exception
+    {
+        ObjectMapper mapper = mapperWithModule();
+        BitSet bitset = new BitSet(128);
+        bitset.set(1);
+        final int wlen = bitset.wlen;
+        assertEquals("[false,true]", mapper.writeValueAsString(bitset));
+        assertEquals(wlen, bitset.wlen);
+
+        bitset.getAndSet(100);
+        assertEquals(_bitsJson(101, 1, 100), mapper.writeValueAsString(bitset));
+
+        // also when `wlen` was trimmed before set via `getAndSet()`
+        BitSet other = new BitSet(128);
+        other.set(0);
+        other.clear();
+        other.set(0);
+        other.getAndSet(100);
+        assertEquals(_bitsJson(101, 0, 100), mapper.writeValueAsString(other));
+    }
+
+    private static String _bitsJson(int length, int... setBits) {
+        java.util.BitSet set = new java.util.BitSet();
+        for (int bit : setBits) {
+            set.set(bit);
+        }
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < length; ++i) {
+            if (i > 0) {
+                sb.append(',');
+            }
+            sb.append(set.get(i));
+        }
+        return sb.append(']').toString();
     }
 }

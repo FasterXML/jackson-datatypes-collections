@@ -24,8 +24,21 @@ public abstract class BaseGuavaPrimitivesCollectionDeserializer<ObjectType, Prim
 
     @Override
     protected void add(IntermediateCollection intermediateCollection, JsonParser parser, DeserializationContext context) throws JacksonException {
-        intermediateCollection.add(asPrimitive(parser));
+        intermediateCollection.add(asPrimitive(parser, context));
     }
 
+    /**
+     * @deprecated Since 3.3 override {@link #asPrimitive(JsonParser, DeserializationContext)} instead
+     */
+    @Deprecated // since 3.3
     protected abstract ObjectType asPrimitive(JsonParser parser) throws JacksonException;
+
+    /**
+     * Reads a single element; by default calls {@link #asPrimitive(JsonParser)}.
+     *
+     * @since 3.3
+     */
+    protected ObjectType asPrimitive(JsonParser parser, DeserializationContext context) throws JacksonException {
+        return asPrimitive(parser);
+    }
 }
