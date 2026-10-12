@@ -45,8 +45,7 @@ public class DefaultTypingTest extends ModuleTestBase
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof IntContainers)) return false;
-            IntContainers other = (IntContainers) o;
+            if (!(o instanceof IntContainers other)) return false;
             return Objects.equals(container, other.container)
                     && Objects.equals(indexed, other.indexed)
                     && Objects.equals(set, other.set)

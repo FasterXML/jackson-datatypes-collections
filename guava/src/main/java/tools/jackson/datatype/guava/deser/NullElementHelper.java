@@ -1,0 +1,54 @@
+package tools.jackson.datatype.guava.deser;
+
+import java.util.function.Function;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
+
+/**
+ * Shared helper for adding {@code null} elements (or values) into Guava containers,
+ * many of which do not accept them.
+ */
+final class NullElementHelper
+{
+    private NullElementHelper() { }
+
+    /**
+     * Method that applies given "adder" to given value. If value is {@code null}
+     * and adder fails with {@link NullPointerException} (container does not accept
+     * {@code null}s), problem is reported via
+     * {@link DeserializationContext#handleUnexpectedToken}: this allows a
+     * {@link tools.jackson.databind.deser.DeserializationProblemHandler} to provide
+     * a replacement value (which is then added), or to drop the element by returning
+     * {@code null}; without a handler, a
+     * {@link tools.jackson.databind.exc.MismatchedInputException} is thrown.
+     *
+     * @param t Token from which the {@code null} value was deserialized
+     * @param elementType Type of elements (or values) of container
+     * @param containerDesc Description of the container for the error message
+     *
+     * @return Result of adder, or {@code null} if element was dropped
+     */
+    static <R> R addElement(JsonParser p, DeserializationContext ctxt, JsonToken t,
+            JavaType elementType, String containerDesc,
+            Object value, Function<Object, R> adder)
+        throws JacksonException
+    {
+        if (value == null) {
+            try {
+                return adder.apply(null);
+            } catch (NullPointerException e) {
+                value = ctxt.handleUnexpectedToken(elementType, t, p,
+                        "%s does not accept `null` values", containerDesc);
+                if (value == null) {
+                    return null;
+                }
+            }
+        }
+        return adder.apply(value);
+    }
+}
