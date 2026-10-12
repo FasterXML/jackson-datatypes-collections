@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -52,8 +53,15 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             if (t == JsonToken.VALUE_NULL) {
                 if (!_skipNullValues) {
                     value = _nullProvider.getNullValue(ctxt);
-                    // 14-Sep-2015, tatu: As per [datatype-guava#52], avoid exception due to null
-                    // TODO: allow reporting problem via a feature, in future?
+                    // [datatypes-collections#273]: Guava immutable maps do not accept `null`
+                    // values: report (instead of silently dropping, as per [datatype-guava#52]),
+                    // consistent with `ImmutableTable`; use `Nulls.SKIP` to drop
+                    if (value == null) {
+                        value = NullElementHelper.handleNull(p, ctxt, p.currentToken(),
+                                _containerType.getContentType(),
+                                "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType));
+                    }
+                    // `null` if dropped by problem handler
                     if (value != null) {
                         builder.put(key, value);
                     }
@@ -67,7 +75,8 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             }
             if (value == null) {
                 // Value deserializer may return `null` for non-null token
-                NullElementHelper.addElement(p, ctxt, t, _containerType.getContentType(),
+                NullElementHelper.addElement(p, ctxt, p.currentToken(),
+                        _containerType.getContentType(),
                         "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType),
                         null, v -> builder.put(key, v));
             } else {
