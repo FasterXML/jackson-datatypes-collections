@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;

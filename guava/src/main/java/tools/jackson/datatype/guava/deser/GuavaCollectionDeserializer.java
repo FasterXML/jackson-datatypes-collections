@@ -13,6 +13,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 /**
  * Base class for Guava-specific collection deserializers.

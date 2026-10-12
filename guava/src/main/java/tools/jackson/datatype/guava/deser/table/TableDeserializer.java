@@ -1,6 +1,7 @@
 package tools.jackson.datatype.guava.deser.table;
 
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.*;
@@ -9,6 +10,8 @@ import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.MapLikeType;
+import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 import com.google.common.collect.Table;
 
@@ -97,6 +100,40 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
     protected abstract ValueDeserializer<?> _createContextual(MapLikeType t, KeyDeserializer rkd,
         KeyDeserializer ckd, TypeDeserializer vtd, ValueDeserializer<?> vd, NullValueProvider np);
     
+
+    /**
+     * Helper method for deserializing a cell value (starting with given token).
+     * Since Guava tables do not accept {@code null} values, {@code null}s are
+     * reported as problems (unless a problem handler provides a replacement value,
+     * or drops the cell).
+     *
+     * @param t Token from which the value is to be deserialized
+     *
+     * @return Value to add, or {@code null} if cell is to be skipped
+     */
+    protected Object _readCellValue(JsonParser p, DeserializationContext ctxt, JsonToken t)
+        throws JacksonException
+    {
+        final Object value;
+        if (t == JsonToken.VALUE_NULL) {
+            if (_skipNullValues) {
+                return null;
+            }
+            value = _nullProvider.getNullValue(ctxt);
+        } else if (_valueTypeDeserializer != null) {
+            value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+        } else {
+            value = _valueDeserializer.deserialize(p, ctxt);
+        }
+        if (value != null) {
+            return value;
+        }
+        // Report current token (not `t`): for structured values, parser has
+        // already advanced to the matching END_OBJECT/END_ARRAY
+        return NullElementHelper.handleNull(p, ctxt, p.currentToken(),
+                _type.getContentType().getContentType(),
+                "Guava `Table` of type "+ClassUtil.getTypeDescription(_type));
+    }
 
     protected void expect(DeserializationContext context, JsonToken expected, JsonToken actual)
     {

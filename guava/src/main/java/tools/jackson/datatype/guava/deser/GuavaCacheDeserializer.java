@@ -13,6 +13,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.guava.util.NullElementHelper;
 
 public abstract class GuavaCacheDeserializer<T extends Cache<Object, Object>> 
     extends StdDeserializer<T>

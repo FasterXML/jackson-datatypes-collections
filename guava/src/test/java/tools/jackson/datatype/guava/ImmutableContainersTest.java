@@ -4,7 +4,9 @@ import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.type.TypeReference;
 
@@ -12,6 +14,7 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import com.google.common.collect.*;
@@ -194,9 +197,21 @@ public class ImmutableContainersTest extends ModuleTestBase
         assertNotNull(map);
         assertEquals(0, map.size());
 
-        // and for [datatype-guava#52], verify allowance of JSON nulls
-        map = MAPPER.readValue("{\"12\":true,\"4\":null}", type);
-        assertEquals(1, map.size());
+        // [datatypes-collections#273]: JSON nulls not accepted (no longer dropped
+        // as per [datatype-guava#52])...
+        try {
+            map = MAPPER.readValue("{\"12\":true,\"4\":null}", type);
+            fail("Should not accept `null` value, got: "+map);
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Guava `Map` of type ");
+            verifyException(e, "does not accept `null` values");
+        }
+        // ... unless skipped
+        map = MAPPER.rebuild()
+                .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                .build()
+                .readValue("{\"12\":true,\"4\":null}", type);
+        assertEquals(ImmutableMap.of(12, true), map);
     }
 
     @Test

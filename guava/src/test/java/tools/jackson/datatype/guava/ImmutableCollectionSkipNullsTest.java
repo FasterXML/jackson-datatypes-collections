@@ -213,6 +213,9 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
         for (String json : new String[] {
                 "{'k':'x'}",
                 "{'a':'b','k':'x'}",
+                // [datatypes-collections#273]: as are JSON `null`s (no longer dropped)
+                "{'k':null}",
+                "{'a':'b','k':null}",
         }) {
             try {
                 X_TO_NULL_MAPPER.readValue(a2q(json), typeRef);
@@ -222,9 +225,12 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 verifyException(e, "does not accept `null` values");
             }
         }
-        // whereas JSON `null`s are (still) dropped, see [datatype-guava#52]
+        // unless skipped
         assertEquals(ImmutableMap.of("a", "b"),
-                X_TO_NULL_MAPPER.readValue(a2q("{'a':'b','k':null}"), typeRef));
+                X_TO_NULL_MAPPER.rebuild()
+                        .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                        .build()
+                        .readValue(a2q("{'a':'b','k':null}"), typeRef));
     }
 
     /*
@@ -255,6 +261,9 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 mapper.readValue(a2q("['x','a']"), new TypeReference<TreeMultiset<String>>() { }));
         assertEquals(ImmutableMap.of("k", "R"),
                 mapper.readValue(a2q("{'k':'x'}"), new TypeReference<ImmutableMap<String, String>>() { }));
+        assertEquals(ImmutableMap.of("k", "R"),
+                mapper.readValue(a2q("{'k':null}"), new TypeReference<ImmutableMap<String, String>>() { }));
+        assertEquals(JsonToken.VALUE_NULL, h.token);
     }
 
     @Test
@@ -270,6 +279,8 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
                 mapper.readValue(a2q("'x'"), new TypeReference<ImmutableSortedSet<String>>() { }));
         assertEquals(ImmutableMap.of("a", "b"),
                 mapper.readValue(a2q("{'a':'b','k':'x'}"), new TypeReference<ImmutableMap<String, String>>() { }));
+        assertEquals(ImmutableMap.of("a", "b"),
+                mapper.readValue(a2q("{'a':'b','k':null}"), new TypeReference<ImmutableMap<String, String>>() { }));
     }
 
     // Handler must be called with parser positioned at reported token, even
