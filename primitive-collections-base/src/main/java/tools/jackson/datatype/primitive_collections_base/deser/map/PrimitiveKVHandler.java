@@ -27,56 +27,81 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
 
     /*
     /**********************************************************************
-    /* Helper methods for numeric keys: parse and report problems the same
+    /* Helper methods for keys: parse and report problems the same
     /* way as `jackson-databind` does for `java.util.Map` keys
     /* (see `JDKKeyDeserializer`)
     /**********************************************************************
      */
 
+    /**
+     * @since 3.3
+     */
     protected static int _parseIntKey(DeserializationContext ctxt, Class<?> keyClass, String key)
         throws JacksonException
     {
         // `NumberInput.parseInt()` does not check for empty String
         if (key.isEmpty()) {
-            return _weirdKey(ctxt, keyClass, key, "not a valid representation (empty String)").intValue();
+            return _weirdNumberKey(ctxt, keyClass, key, "not a valid representation (empty String)").intValue();
         }
         try {
             return NumberInput.parseInt(key);
         } catch (NumberFormatException e) {
-            return _weirdKey(ctxt, keyClass, key, e).intValue();
+            return _invalidNumberKey(ctxt, keyClass, key, e).intValue();
         }
     }
 
+    /**
+     * @since 3.3
+     */
     protected static long _parseLongKey(DeserializationContext ctxt, Class<?> keyClass, String key)
         throws JacksonException
     {
         // `NumberInput.parseLong()` does not check for empty String
         if (key.isEmpty()) {
-            return _weirdKey(ctxt, keyClass, key, "not a valid representation (empty String)").longValue();
+            return _weirdNumberKey(ctxt, keyClass, key, "not a valid representation (empty String)").longValue();
         }
         try {
             return NumberInput.parseLong(key);
         } catch (NumberFormatException e) {
-            return _weirdKey(ctxt, keyClass, key, e).longValue();
+            return _invalidNumberKey(ctxt, keyClass, key, e).longValue();
         }
     }
 
+    /**
+     * @since 3.3
+     */
+    protected static float _parseFloatKey(DeserializationContext ctxt, Class<?> keyClass, String key)
+        throws JacksonException
+    {
+        try {
+            return NumberInput.parseFloat(key, false);
+        } catch (NumberFormatException e) {
+            return _invalidNumberKey(ctxt, keyClass, key, e).floatValue();
+        }
+    }
+
+    /**
+     * @since 3.3
+     */
     protected static double _parseDoubleKey(DeserializationContext ctxt, Class<?> keyClass, String key)
         throws JacksonException
     {
         try {
             return NumberInput.parseDouble(key, false);
         } catch (NumberFormatException e) {
-            return _weirdKey(ctxt, keyClass, key, e).doubleValue();
+            return _invalidNumberKey(ctxt, keyClass, key, e).doubleValue();
         }
     }
 
-    protected static Number _weirdKey(DeserializationContext ctxt, Class<?> keyClass, String key,
+    /**
+     * @since 3.3
+     */
+    protected static Number _invalidNumberKey(DeserializationContext ctxt, Class<?> keyClass, String key,
             NumberFormatException e)
         throws JacksonException
     {
-        return _weirdKey(ctxt, keyClass, key, "not a valid representation, problem: %s",
-                ClassUtil.exceptionMessage(e));
+        return _weirdNumberKey(ctxt, keyClass, key, "not a valid representation, problem: (%s) %s",
+                e.getClass().getName(), ClassUtil.exceptionMessage(e));
     }
 
     /**
@@ -86,8 +111,12 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
      *
      * @param keyClass Wrapper type of the primitive key ({@code Integer.class} for {@code int}
      *    and so on), so that handlers may return boxed values
+     *
+     * @return Replacement key (never {@code null}), of type {@code keyClass}
+     *
+     * @since 3.3
      */
-    protected static Number _weirdKey(DeserializationContext ctxt, Class<?> keyClass, String key,
+    protected static Object _weirdKey(DeserializationContext ctxt, Class<?> keyClass, String key,
             String msg, Object... msgArgs)
         throws JacksonException
     {
@@ -98,7 +127,17 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
                     "Cannot use `null` as %s map key (replacement for String \"%s\")",
                     ClassUtil.nameOf(ClassUtil.primitiveType(keyClass)), key);
         }
-        return (Number) result;
+        return result;
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected static Number _weirdNumberKey(DeserializationContext ctxt, Class<?> keyClass, String key,
+            String msg, Object... msgArgs)
+        throws JacksonException
+    {
+        return (Number) _weirdKey(ctxt, keyClass, key, msg, msgArgs);
     }
 
     public static final class Boolean extends PrimitiveKVHandler<Boolean>
@@ -117,7 +156,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
             int value = _parseIntKey(ctx, java.lang.Byte.class, key);
             // allow range up to 255, inclusive (to support "unsigned" byte), as databind does
             if (value < java.lang.Byte.MIN_VALUE || value > 255) {
-                return _weirdKey(ctx, java.lang.Byte.class, key,
+                return _weirdNumberKey(ctx, java.lang.Byte.class, key,
                         "overflow, value cannot be represented as 8-bit value").byteValue();
             }
             return (byte) value;
@@ -134,7 +173,7 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
         public short key(DeserializationContext ctx, String key) throws JacksonException {
             int value = _parseIntKey(ctx, java.lang.Short.class, key);
             if (value < java.lang.Short.MIN_VALUE || value > java.lang.Short.MAX_VALUE) {
-                return _weirdKey(ctx, java.lang.Short.class, key,
+                return _weirdNumberKey(ctx, java.lang.Short.class, key,
                         "overflow, value cannot be represented as 16-bit value").shortValue();
             }
             return (short) value;
@@ -149,12 +188,11 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     {
         public static final Char INSTANCE = new Char();
 
-        public char key(DeserializationContext ctx, String key)
+        public char key(DeserializationContext ctx, String key) throws JacksonException
         {
             if (key.length() != 1) {
-                ctx.reportInputMismatch(char.class,
-                                        "Cannot convert a JSON String of length %d into a char key of map",
-                                        key.length());
+                return (java.lang.Character) _weirdKey(ctx, java.lang.Character.class, key,
+                        "can only convert 1-character Strings");
             }
             return key.charAt(0);
         }
@@ -191,8 +229,9 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
         public static final Float INSTANCE = new Float();
 
         public float key(DeserializationContext ctx, String key) throws JacksonException {
-            // parsed as `double` and narrowed, as databind does
-            return (float) _parseDoubleKey(ctx, java.lang.Float.class, key);
+            // NOTE: databind parses `float` keys as `double` and narrows, but that
+            // double rounding may produce wrong results; so parse directly
+            return _parseFloatKey(ctx, java.lang.Float.class, key);
         }
 
         public float value(DeserializationContext ctx, JsonParser parser) throws JacksonException {
