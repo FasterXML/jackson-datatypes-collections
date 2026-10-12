@@ -57,7 +57,7 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
                     // values: report (instead of silently dropping, as per [datatype-guava#52]),
                     // consistent with `ImmutableTable`; use `Nulls.SKIP` to drop
                     if (value == null) {
-                        value = NullElementHelper.handleNull(p, ctxt, t,
+                        value = NullElementHelper.handleNull(p, ctxt, p.currentToken(),
                                 _containerType.getContentType(),
                                 "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType));
                     }
@@ -75,7 +75,8 @@ abstract class GuavaImmutableMapDeserializer<T extends ImmutableMap<Object, Obje
             }
             if (value == null) {
                 // Value deserializer may return `null` for non-null token
-                NullElementHelper.addElement(p, ctxt, t, _containerType.getContentType(),
+                NullElementHelper.addElement(p, ctxt, p.currentToken(),
+                        _containerType.getContentType(),
                         "Guava `Map` of type "+ClassUtil.getTypeDescription(_containerType),
                         null, v -> builder.put(key, v));
             } else {

@@ -178,7 +178,12 @@ public abstract class GuavaCollectionDeserializer<T>
         final JsonToken t = p.currentToken();
         Object value = _deserializeElement(p, ctxt, t);
         if (value != SKIPPED_ELEMENT) {
-            T result = _addElement(p, ctxt, t, value, v -> _createWithSingleElement(ctxt, v));
+            // Avoid lambda allocation for the common non-null case
+            if (value != null) {
+                return _createWithSingleElement(ctxt, value);
+            }
+            T result = _addElement(p, ctxt, p.currentToken(), null,
+                    v -> _createWithSingleElement(ctxt, v));
             // `null` if element dropped by problem handler
             if (result != null) {
                 return result;
@@ -215,7 +220,8 @@ public abstract class GuavaCollectionDeserializer<T>
      * Helper method for adding an element using given adder; {@code null}s that
      * the container does not accept are reported as problems.
      *
-     * @param t Token from which the value was deserialized
+     * @param t Token parser is currently positioned at (for structured values,
+     *    the matching {@code END_OBJECT} / {@code END_ARRAY}, not the start token)
      *
      * @return Result of adder, or {@code null} if element was dropped by
      *    a problem handler

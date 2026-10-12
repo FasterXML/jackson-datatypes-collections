@@ -265,12 +265,13 @@ public class CacheDeserializationTest extends ModuleTestBase
         } catch (MismatchedInputException e) {
             verifyException(e, "does not accept `null` values");
         }
-        // ... and handler is given the starting token of the value
+        // ... and handler is given the token parser is positioned at (end
+        // of the value, as value deserializer has consumed it)
         ReplacingHandler h = new ReplacingHandler(null);
         ObjectMapper mapper = builderWithModule().addHandler(h).build();
         Cache<String, AlwaysNull> cache = mapper.readValue("{ \"key\": { \"x\": 1 } }",
                 new TypeReference<Cache<String, AlwaysNull>>() {});
         assertEquals(0, cache.size());
-        assertEquals(JsonToken.START_OBJECT, h.token);
+        assertEquals(JsonToken.END_OBJECT, h.token);
     }
 }
