@@ -27,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Also verifies that primitive map keys are parsed, and problems reported
  * (via {@code DeserializationContext.handleWeirdKey()}), the same way
  * {@code jackson-databind} does for {@code java.util.Map} keys
- * (see [datatypes-collections#270]).
+ * (see [datatypes-collections#270]); except that {@code float} keys are
+ * parsed directly, not as {@code double} narrowed to {@code float}.
  */
 public class NumberParsingErrorHandlingTest extends ModuleTestBase {
 

@@ -29,7 +29,8 @@ public class PrimitiveKVHandler<H extends KeyHandler<H> & ValueHandler<H>> imple
     /**********************************************************************
     /* Helper methods for keys: parse and report problems the same
     /* way as `jackson-databind` does for `java.util.Map` keys
-    /* (see `JDKKeyDeserializer`)
+    /* (see `JDKKeyDeserializer`), except that `float` keys are parsed
+    /* directly (not as `double` narrowed to `float`)
     /**********************************************************************
      */
 
