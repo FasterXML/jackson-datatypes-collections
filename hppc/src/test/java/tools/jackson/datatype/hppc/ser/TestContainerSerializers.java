@@ -1,6 +1,10 @@
 package tools.jackson.datatype.hppc.ser;
 
+import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.datatype.hppc.HppcModule;
 import tools.jackson.datatype.hppc.ModuleTestBase;
 
 import org.junit.jupiter.api.Test;
@@ -58,6 +62,16 @@ public class TestContainerSerializers extends ModuleTestBase
         array.removeAt(3);
         assertEquals(mapper.writeValueAsString(new byte[] { (byte)-12, (byte)0, (byte) -1 }),
                 mapper.writeValueAsString(array));
+
+        // empty list
+        assertEquals("\"\"", mapper.writeValueAsString(new ByteArrayList()));
+
+        // stack is-a ByteArrayList: popped element may remain in the backing buffer
+        ByteStack stack = new ByteStack();
+        stack.push(input);
+        stack.pop();
+        assertEquals(mapper.writeValueAsString(new byte[] { (byte)-12, (byte)0, (byte) -1 }),
+                mapper.writeValueAsString(stack));
 
         // 07-May-2015, tatu: HPPC-0.7 dropped byte/float/double key associate sets/maps:
 /*        
@@ -147,12 +161,44 @@ public class TestContainerSerializers extends ModuleTestBase
         array.removeAt(3);
         assertEquals(a2q("'abc'"), mapper.writeValueAsString(array));
 
+        // empty list
+        assertEquals("\"\"", mapper.writeValueAsString(new CharArrayList()));
+
+        // stack is-a CharArrayList: popped element may remain in the backing buffer
+        CharStack stack = new CharStack();
+        stack.push('x', 'y', 'z');
+        stack.pop();
+        assertEquals(a2q("'xy'"), mapper.writeValueAsString(stack));
+
         CharHashSet set = new CharHashSet();
         set.addAll('d','e');
         String str = mapper.writeValueAsString(set);
         if (!a2q("'de'").equals(str) && !a2q("'ed'").equals(str)) {
             fail("Incorrect serialization: "+str);
         }
+    }
+
+    // Byte/char array lists must be written from backing buffer with type id too
+    @Test
+    public void testByteAndCharSerializersWithTyping() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new HppcModule())
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(Object.class).build(),
+                        DefaultTyping.NON_FINAL)
+                .build();
+
+        ByteArrayList bytes = ByteArrayList.from((byte) 1, (byte) 2, (byte) 3);
+        bytes.removeAt(2);
+        assertEquals(a2q("['com.carrotsearch.hppc.ByteArrayList',"
+                +mapper.writeValueAsString(new byte[] { 1, 2 })+"]"),
+                mapper.writeValueAsString(bytes));
+
+        CharArrayList chars = CharArrayList.from('a', 'b', 'c');
+        chars.removeAt(2);
+        assertEquals(a2q("['com.carrotsearch.hppc.CharArrayList','ab']"),
+                mapper.writeValueAsString(chars));
     }
 
     @Test
