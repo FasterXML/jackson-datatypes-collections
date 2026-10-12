@@ -485,12 +485,12 @@ public class HppcContainerSerializers
 
         @Override
         public boolean isEmpty(SerializationContext ctxt, BitSet value) {
-            return value.isEmpty();
+            return _lastNonZeroWord(value.bits) < 0;
         }
 
         @Override
         public boolean hasSingleElement(BitSet value) {
-            return value.length() == 1;
+            return _lastNonZeroWord(value.bits) == 0 && value.bits[0] == 1L;
         }
 
         @Override
@@ -509,10 +509,26 @@ public class HppcContainerSerializers
            throws JacksonException
         {
             // Write up to the highest set bit: `size()` is the allocated capacity
-            // (a multiple of 64), which may be far beyond it
-            for (long i = 0, len = value.length(); i < len; ++i) {
-                gen.writeBoolean(value.get(i));
+            // (a multiple of 64), which may be far beyond it. Scan `bits` directly
+            // instead of calling `length()`: it only considers words below `wlen`
+            // (which `getAndSet()` etc do not update) and may also modify `wlen`
+            final long[] bits = value.bits;
+            final int lastWord = _lastNonZeroWord(bits);
+            for (int wi = 0; wi <= lastWord; ++wi) {
+                final long word = bits[wi];
+                final int bitCount = (wi == lastWord)
+                        ? (64 - Long.numberOfLeadingZeros(word)) : 64;
+                for (int b = 0; b < bitCount; ++b) {
+                    gen.writeBoolean(((word >>> b) & 1L) != 0L);
+                }
             }
+        }
+
+        // Index of the last non-zero word, or -1 if none
+        private static int _lastNonZeroWord(long[] bits) {
+            int i = bits.length;
+            while (--i >= 0 && bits[i] == 0L) { }
+            return i;
         }
     }
 }
