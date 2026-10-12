@@ -57,6 +57,9 @@ Modules:
   apply content null handling to single-value `Multimap`s (also: JSON `null` values
   for `ImmutableMap`s now reported, not silently dropped; use `Nulls.SKIP` to drop)
  (fixed by @cowtowncoder)
+#274: (guava) Report current token (not start token) to `DeserializationProblemHandler`
+  when value deserializer returns `null` for a structured (Object/Array) value
+ (fixed by @cowtowncoder)
 
 3.2.3 (21-Sep-2026)
 
