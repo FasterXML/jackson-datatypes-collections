@@ -50,6 +50,9 @@ Modules:
 #264: (eclipse-collections) Avoid allocating a `char[]` per entry when serializing
   `char`-valued primitive maps
  (fixed by @pjfanning)
+#270: (eclipse-collections) Parse numeric primitive map keys the same way as
+  `jackson-databind` does (using `NumberInput` etc)
+ (fixed by @pjfanning)
 
 3.2.3 (21-Sep-2026)
 
