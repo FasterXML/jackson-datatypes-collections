@@ -36,12 +36,17 @@ public final class RefPrimitiveMapSerializers
         @Override
         protected void serializeEntries(Object2CharMap<K> value, JsonGenerator g, SerializationContext ctxt)
         {
+            /* if char value //
+            // reused for each entry, rather than allocating per value
+            final char[] buf = new char[1];
+            // endif */
             Object2CharMaps.fastForEach(value, e -> {
                 _serializeKey(e.getKey(), g, ctxt);
                 /* if !(char|boolean value) //
                 g.writeNumber(e.getCharValue());
                 /* elif char value */
-                g.writeString(new char[]{e.getCharValue()}, 0, 1);
+                buf[0] = e.getCharValue();
+                g.writeString(buf, 0, 1);
                 /* elif boolean value //
                 g.writeBoolean(e.getCharValue());
                 // endif */

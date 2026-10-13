@@ -48,6 +48,10 @@ public final class PrimitivePrimitiveMapSerializers {
                     @Override
                     protected void serializeEntries(Byte2ShortMap value, JsonGenerator g, SerializationContext ctxt)
                     {
+                        /* if char value //
+                        // reused for each entry, rather than allocating per value
+                        final char[] buf = new char[1];
+                        // endif */
                         Byte2ShortMaps.fastForEach(value, e -> {
                             /* if !(int|long key) */
                             g.writeName(String.valueOf(e.getByteKey()));
@@ -58,7 +62,8 @@ public final class PrimitivePrimitiveMapSerializers {
                             /* if !(char|boolean value) */
                             g.writeNumber(e.getShortValue());
                             /* elif char value //
-                            g.writeString(new char[]{e.getShortValue()}, 0, 1);
+                            buf[0] = e.getShortValue();
+                            g.writeString(buf, 0, 1);
                             /* elif boolean value //
                             g.writeBoolean(e.getShortValue());
                             // endif */
