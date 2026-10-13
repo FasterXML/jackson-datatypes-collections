@@ -31,7 +31,7 @@ import com.google.common.collect.TreeMultimap;
  * is a wrapper or value gets complicated and unreliable).
  */
 public class MultimapSerializer
-    extends StdContainerSerializer<Multimap<?, ?>>
+    extends ContainerSerializerBase<Multimap<?, ?>>
 {
     private final MapLikeType _type;
     private final ValueSerializer<Object> _keySerializer;
@@ -144,10 +144,8 @@ public class MultimapSerializer
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
-            JavaType valueType = _type.getContentType();
-            if (valueType.useStaticType() && !valueType.isJavaLangObject()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
+            valueSer = _findStaticContentSerializer(ctxt,
+                    _type.getContentType(), property);
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }

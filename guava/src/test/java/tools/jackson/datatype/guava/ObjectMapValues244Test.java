@@ -2,6 +2,8 @@ package tools.jackson.datatype.guava;
 
 import org.junit.jupiter.api.Test;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.*;
 
 import tools.jackson.core.type.TypeReference;
@@ -31,6 +33,17 @@ public class ObjectMapValues244Test extends ModuleTestBase
         input.put(Range.open(10, 20), 42);
         TypeReference<RangeMap<Integer, Object>> type = new TypeReference<>() { };
         assertEquals(a2q("{'[1..5]':'a','(10..20)':42}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void cacheWithExplicitRootType() {
+        ObjectMapper mapper = mapperWithModule();
+        Cache<String, Object> input = CacheBuilder.newBuilder().build();
+        input.put("a", 1);
+        input.put("b", "x");
+        TypeReference<Cache<String, Object>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':1,'b':'x'}"),
                 mapper.writerFor(type).writeValueAsString(input));
     }
 
