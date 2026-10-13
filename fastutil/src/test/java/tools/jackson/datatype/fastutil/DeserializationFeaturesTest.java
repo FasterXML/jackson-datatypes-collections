@@ -138,10 +138,10 @@ public class DeserializationFeaturesTest extends ModuleTestBase
         verifyException(e, "Int2IntMap");
         e = assertThrows(MismatchedInputException.class,
                 () -> MAPPER.readValue("{\"x\":1}", Int2IntMap.class));
-        verifyException(e, "Cannot parse 'x'");
+        verifyException(e, "not a valid representation");
         e = assertThrows(MismatchedInputException.class,
                 () -> MAPPER.readValue("{\"ab\":1}", Char2IntMap.class));
-        verifyException(e, "length 2");
+        verifyException(e, "can only convert 1-character Strings");
     }
 
     @Test
