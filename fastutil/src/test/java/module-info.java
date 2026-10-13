@@ -19,6 +19,7 @@ module tools.jackson.datatype.fastutil
 
     // Further, need to open up test packages for JUnit et al
     opens tools.jackson.datatype.fastutil;
+    opens tools.jackson.datatype.fastutil.util;
 
     provides tools.jackson.databind.JacksonModule with
         tools.jackson.datatype.fastutil.FastutilModule;
