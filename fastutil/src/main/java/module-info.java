@@ -7,7 +7,7 @@ module tools.jackson.datatype.fastutil
 
     requires tools.jackson.datatype.primitive_collections_base;
 
-    requires it.unimi.dsi.fastutil;
+    requires static it.unimi.dsi.fastutil;
 
     exports tools.jackson.datatype.fastutil;
     exports tools.jackson.datatype.fastutil.deser;
