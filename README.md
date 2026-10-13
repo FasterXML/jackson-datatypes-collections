@@ -6,6 +6,7 @@ Datatype modules to support 3rd party Collection libraries.
 Currently included are:
 
 * [Eclipse Collections](eclipse-collections/) datatype (for [Eclipse Collections](https://www.eclipse.org/collections/)): `jackson-datatype-eclipse-collections` (since 2.10)
+* [fastutil](fastutil/) datatype (for [fastutil](https://fastutil.di.unimi.it/)): `jackson-datatype-fastutil` (since 3.3)
 * [Guava](guava/) datatype (for [Guava library](https://github.com/google/guava)): `jackson-datatype-guava`
 * [HPPC](hppc/) datatype (for [High-Performance Primitive Collections](https://labs.carrotsearch.com/hppc.html)): `jackson-datatype-hppc`
 * [PCollections](pcollections/) datatype (for [Persistent Java Collections](https://pcollections.org/)): `jackson-datatype-pcollections`
@@ -32,7 +33,7 @@ To use these format backends Maven-based projects, use following dependency:
 </dependency>
 ```
 
-where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, or `eclipse-collections`
+where `COLLECTION` would be one of `guava`, `hppc`, `pcollections`, `eclipse-collections`, or `fastutil`
 (replace version with the latest available).
 
 You may also use [jackson-bom](https://github.com/FasterXML/jackson-bom) for defining
@@ -67,6 +68,7 @@ See READMEs of individual modules for datatype-specific configuration, options
 and so on:
 
 * [jackson-datatype-eclipse-collections](eclipse-collections/)
+* [jackson-datatype-fastutil](fastutil/)
 * [jackson-datatype-guava](guava/)
 * [jackson-datatype-hpcc](hppc/)
 * [jackson-datatype-pcollections](pcollections/)
