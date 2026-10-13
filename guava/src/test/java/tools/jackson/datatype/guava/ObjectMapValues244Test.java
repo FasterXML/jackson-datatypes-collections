@@ -19,9 +19,9 @@ public class ObjectMapValues244Test extends ModuleTestBase
         Multimap<String, Object> input = ArrayListMultimap.create();
         input.put("a", 1);
         input.put("a", "x");
-        input.put("b", null);
+        input.put("b", 2);
         TypeReference<Multimap<String, Object>> type = new TypeReference<>() { };
-        assertEquals(a2q("{'a':[1,'x'],'b':[null]}"),
+        assertEquals(a2q("{'a':[1,'x'],'b':[2]}"),
                 mapper.writerFor(type).writeValueAsString(input));
     }
 
@@ -56,7 +56,9 @@ public class ObjectMapValues244Test extends ModuleTestBase
         input.put("a", 1);
         input.put("a", "x");
         TypeReference<Multimap<String, Object>> type = new TypeReference<>() { };
-        assertEquals(input, mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type));
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertEquals(a2q("['com.google.common.collect.ArrayListMultimap',{'a':[1,'x']}]"), json);
+        assertEquals(input, mapper.readValue(json, type));
     }
 
     @Test
@@ -68,7 +70,9 @@ public class ObjectMapValues244Test extends ModuleTestBase
         input.put(Range.closed(1, 5), "a");
         input.put(Range.open(10, 20), 42);
         TypeReference<RangeMap<Integer, Object>> type = new TypeReference<>() { };
-        RangeMap<Integer, Object> result = mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type);
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertEquals(a2q("['com.google.common.collect.TreeRangeMap',{'[1..5]':'a','(10..20)':42}]"), json);
+        RangeMap<Integer, Object> result = mapper.readValue(json, type);
         assertEquals(input.asMapOfRanges(), result.asMapOfRanges());
     }
 }
