@@ -44,3 +44,9 @@ Vanya (@vanyamanko)
 * Contributed #229: (pcollections) Add deserializers for PCollection `TreePSet`,
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
+
+PHJ2000 (@PHJ2000)
+
+* Contributed #242: (guava) Support type ids for `ImmutableIntArray`,
+  `ImmutableLongArray` and `ImmutableDoubleArray` (default typing)
+ [3.3.0]
