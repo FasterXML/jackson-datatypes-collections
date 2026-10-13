@@ -44,3 +44,9 @@ Vanya (@vanyamanko)
 * Contributed #229: (pcollections) Add deserializers for PCollection `TreePSet`,
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
+
+@PHJ2000
+
+* Fixed #244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize
+  each value as `{}` when root type is given
+ [3.3.0]

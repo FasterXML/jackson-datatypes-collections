@@ -35,7 +35,7 @@ import tools.jackson.databind.type.MapLikeType;
  * @author mcvayc
  */
 public class RangeMapSerializer
-    extends StdContainerSerializer<RangeMap<Comparable<?>, ?>>
+    extends ContainerSerializerBase<RangeMap<Comparable<?>, ?>>
 {
     private final MapLikeType _type;
     private final BeanProperty _property;
@@ -157,10 +157,8 @@ public class RangeMapSerializer
         if (valueSer == null) {
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
-            JavaType valueType = _type.getContentType();
-            if (valueType.useStaticType()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
+            valueSer = _findStaticContentSerializer(ctxt,
+                    _type.getContentType(), property);
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }

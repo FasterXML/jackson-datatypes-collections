@@ -62,6 +62,9 @@ Modules:
   (note: handlers now see `END_OBJECT` / `END_ARRAY`, not `START_OBJECT` / `START_ARRAY`;
   for `RangeSet`, actual token instead of `VALUE_NULL`)
  (fixed by @cowtowncoder)
+#244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize each
+  value as `{}` when root type is given
+ (fixed by @PHJ2000)
 
 3.2.3 (21-Sep-2026)
 

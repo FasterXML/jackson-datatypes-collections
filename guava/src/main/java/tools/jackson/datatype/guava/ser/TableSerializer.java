@@ -20,7 +20,7 @@ import com.google.common.collect.Table;
  * @author tatu - Some refactoring to streamline code
  */
 public class TableSerializer
-    extends StdContainerSerializer<Table<?, ?, ?>>
+    extends ContainerSerializerBase<Table<?, ?, ?>>
 {
     /**
      * Type declaration that defines parameters; may be a supertype of actual
