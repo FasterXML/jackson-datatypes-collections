@@ -47,6 +47,6 @@ Vanya (@vanyamanko)
 
 @PHJ2000
 
-* Fixed #244: (guava) `Object` values lost when serializing explicitly typed
-  `Multimap`s and `RangeMap`s
+* Fixed #244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize
+  each value as `{}` when root type is given
  [3.3.0]
