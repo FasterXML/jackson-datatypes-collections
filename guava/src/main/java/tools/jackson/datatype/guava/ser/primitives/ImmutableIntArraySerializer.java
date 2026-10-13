@@ -1,8 +1,11 @@
 package tools.jackson.datatype.guava.ser.primitives;
 
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import com.google.common.primitives.ImmutableIntArray;
 
@@ -31,5 +34,17 @@ public final class ImmutableIntArraySerializer extends StdSerializer<ImmutableIn
             }
             generator.writeEndArray();
         }
+    }
+
+    @Override
+    public void serializeWithType(ImmutableIntArray value, JsonGenerator generator,
+            SerializationContext ctxt, TypeSerializer typeSer)
+    {
+        WritableTypeId typeId = typeSer.writeTypePrefix(generator, ctxt,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
+        for (int i = 0, len = value.length(); i < len; i++) {
+            generator.writeNumber(value.get(i));
+        }
+        typeSer.writeTypeSuffix(generator, ctxt, typeId);
     }
 }
