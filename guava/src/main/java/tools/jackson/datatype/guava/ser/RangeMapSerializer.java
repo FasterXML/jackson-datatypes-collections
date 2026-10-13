@@ -158,7 +158,7 @@ public class RangeMapSerializer
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             JavaType valueType = _type.getContentType();
-            if (valueType.useStaticType()) {
+            if (valueType.useStaticType() && !valueType.isJavaLangObject()) {
                 valueSer = ctxt.findContentValueSerializer(valueType, property);
             }
         } else {
