@@ -1,5 +1,6 @@
 package tools.jackson.datatype.guava;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
@@ -41,6 +42,19 @@ public class HashCodeDefaultTyping243Test extends ModuleTestBase
             Wrapper input = new Wrapper();
             input.value = value;
             assertEquals(value, mapper.readValue(mapper.writeValueAsString(input), Wrapper.class).value);
+        }
+    }
+
+    // Implementation classes are package-private; request one directly as the target type.
+    // Only value equality is expected: deserializer always builds a plain (bytes-backed) HashCode.
+    @Test
+    public void readAsImplementationSubtype() {
+        ObjectMapper mapper = builderWithModule().build();
+        for (HashCode value : _values) {
+            Class<?> impl = value.getClass();
+            String json = mapper.writeValueAsString(value);
+            Object result = mapper.readValue(json, impl);
+            assertEquals(value, result);
         }
     }
 }
