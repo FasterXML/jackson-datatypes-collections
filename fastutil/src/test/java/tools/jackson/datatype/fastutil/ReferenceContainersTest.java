@@ -39,6 +39,7 @@ public class ReferenceContainersTest extends ModuleTestBase
         _verify(ObjectRBTreeSet.class, "['b','a']", new TypeReference<ObjectSortedSet<String>>() { });
         _verify(ReferenceArrayList.class, "['a','b']", new TypeReference<ReferenceList<String>>() { });
         _verify(ReferenceOpenHashSet.class, "['a','b']", new TypeReference<ReferenceSet<String>>() { });
+        _verify(ReferenceLinkedOpenHashSet.class, "['a','b']", new TypeReference<ReferenceSortedSet<String>>() { });
         _verify(Object2ObjectOpenHashMap.class, "{'a':'b'}", new TypeReference<Object2ObjectMap<String, String>>() { });
         _verify(Object2ObjectRBTreeMap.class, "{'a':'b'}", new TypeReference<Object2ObjectSortedMap<String, String>>() { });
         _verify(Reference2ReferenceOpenHashMap.class, "{'a':'b'}", new TypeReference<Reference2ReferenceMap<String, String>>() { });

@@ -116,8 +116,9 @@ public class FastutilSerializers extends Serializers.Base
     {
         final Class<?> raw = type.getRawClass();
         // Property-level `@JsonTypeInfo` for values is only attached to the content type
-        if (elementTypeSerializer == null) {
-            elementTypeSerializer = (TypeSerializer) type.getContentType().getTypeHandler();
+        if (elementTypeSerializer == null
+                && type.getContentType().getTypeHandler() instanceof TypeSerializer ts) {
+            elementTypeSerializer = ts;
         }
 
         for (MapEntry entry : MAP_ENTRIES) {

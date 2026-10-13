@@ -36,6 +36,7 @@ public class FastutilAbstractTypeResolver extends SimpleAbstractTypeResolver
         _addMappingIfPresent(() -> addMapping(ReferenceList.class, ReferenceArrayList.class));
         _addMappingIfPresent(() -> addMapping(ReferenceBigList.class, ReferenceBigArrayBigList.class));
         _addMappingIfPresent(() -> addMapping(ReferenceSet.class, ReferenceOpenHashSet.class));
+        _addMappingIfPresent(() -> addMapping(ReferenceSortedSet.class, ReferenceLinkedOpenHashSet.class));
 
         // Maps with reference keys and values
         _addMappingIfPresent(() -> addMapping(Object2ObjectMap.class, Object2ObjectOpenHashMap.class));
