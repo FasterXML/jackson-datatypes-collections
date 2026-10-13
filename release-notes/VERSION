@@ -23,6 +23,10 @@ Modules:
   throwing `NullPointerException`, for single-value, sorted, `Multiset` and
   `ImmutableMap` content)
  (fixed by @pjfanning)
+#243: (guava) `HashCode` cannot be deserialized as `Object` / base type with default
+  typing (implementation subtypes not matched)
+ (reported by @pjfanning)
+ (contributed by @PHJ2000)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
  (fixed by @pjfanning)
