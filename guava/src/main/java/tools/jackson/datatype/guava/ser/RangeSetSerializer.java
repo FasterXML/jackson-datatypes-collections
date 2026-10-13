@@ -2,22 +2,19 @@ package tools.jackson.datatype.guava.ser;
 
 import java.util.List;
 
-import com.google.common.collect.Range;
-import com.google.common.collect.RangeSet;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.jsontype.TypeIdResolver;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
+import com.google.common.collect.Range;
+import com.google.common.collect.RangeSet;
 
 public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
 {
@@ -52,8 +49,15 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         if (_serializer == null) {
             ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
         }
-        _serializer.serializeWithType(value.asRanges(), g, ctxt,
-                new RangeSetTypeSerializer(typeSer, value));
+        // Write the array directly (instead of delegating to the `Set` serializer) so that
+        // both the type id and the current value refer to the `RangeSet`, not its `asRanges()` view
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                typeSer.typeId(value, JsonToken.START_ARRAY));
+        g.assignCurrentValue(value);
+        for (Range<?> range : value.asRanges()) {
+            ctxt.writeValue(g, range);
+        }
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override
@@ -87,49 +91,5 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         ser.serialize(value.asRanges(), gen, serializers);
         
         */
-    }
-
-    private static class RangeSetTypeSerializer extends TypeSerializer {
-        private final TypeSerializer _delegate;
-        private final RangeSet<?> _value;
-
-        RangeSetTypeSerializer(TypeSerializer delegate, RangeSet<?> value) {
-            _delegate = delegate;
-            _value = value;
-        }
-
-        @Override
-        public TypeSerializer forProperty(SerializationContext ctxt, BeanProperty property) {
-            return new RangeSetTypeSerializer(_delegate.forProperty(ctxt, property), _value);
-        }
-
-        @Override
-        public JsonTypeInfo.As getTypeInclusion() {
-            return _delegate.getTypeInclusion();
-        }
-
-        @Override
-        public String getPropertyName() {
-            return _delegate.getPropertyName();
-        }
-
-        @Override
-        public TypeIdResolver getTypeIdResolver() {
-            return _delegate.getTypeIdResolver();
-        }
-
-        @Override
-        public WritableTypeId writeTypePrefix(JsonGenerator g, SerializationContext ctxt,
-                WritableTypeId typeId) {
-            // The ranges are the JSON contents; the type id belongs to the RangeSet.
-            typeId.forValue = _value;
-            return _delegate.writeTypePrefix(g, ctxt, typeId);
-        }
-
-        @Override
-        public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializationContext ctxt,
-                WritableTypeId typeId) {
-            return _delegate.writeTypeSuffix(g, ctxt, typeId);
-        }
     }
 }
