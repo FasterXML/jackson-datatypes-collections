@@ -91,7 +91,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         }
     }
 
-    private T _build(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder)
+    protected T _build(DeserializationContext ctxt, ImmutableCollection.Builder<Object> builder)
         throws JacksonException
     {
         // No class outside of the package will be able to subclass us,
@@ -141,7 +141,7 @@ abstract class GuavaImmutableCollectionDeserializer<T extends ImmutableCollectio
         return false;
     }
 
-    private void _verifyComparable(DeserializationContext ctxt, Object value)
+    protected void _verifyComparable(DeserializationContext ctxt, Object value)
         throws JacksonException
     {
         if (_requiresComparableElements()
