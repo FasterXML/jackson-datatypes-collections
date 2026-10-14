@@ -95,15 +95,24 @@ public class MultisetSerializer
     {
         final Set<? extends Multiset.Entry<?>> entries = value.entrySet();
         final int len = entries.size();
+        final boolean filtered = _needToCheckFiltering(ctxt);
         if (len == 1) {
             if (((_unwrapSingle == null) &&
                     ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
                     || (_unwrapSingle == Boolean.TRUE)) {
-                serializeContents(value, g, ctxt);
-                return;
+                // Cannot unwrap if the only entry is filtered out: nothing would be written
+                if (!filtered || !_allElementsSuppressed(ctxt, value.elementSet().iterator())) {
+                    serializeContents(value, g, ctxt);
+                    return;
+                }
             }
         }
-        g.writeStartArray(value, len);
+        // Entries may be filtered out, in which case size is not known up front
+        if (filtered) {
+            g.writeStartArray(value);
+        } else {
+            g.writeStartArray(value, len);
+        }
         serializeContents(value, g, ctxt);
         g.writeEndArray();
     }

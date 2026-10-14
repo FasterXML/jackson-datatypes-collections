@@ -1,7 +1,10 @@
 package tools.jackson.datatype.guava;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,9 +15,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.google.common.collect.*;
 
+import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.core.util.JsonGeneratorDelegate;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
@@ -520,6 +525,65 @@ public class MultisetsTest extends ModuleTestBase
 
         w.values.add("a", 3);
         assertEquals(a2q("{'values':[{'element':'a','count':3}]}"), mapper.writeValueAsString(w));
+    }
+
+    static class ContentOnlyInclusionWrapper {
+        @JsonInclude(content = JsonInclude.Include.NON_EMPTY)
+        public Multiset<String> values = HashMultiset.create();
+    }
+
+    // Single entry must not be unwrapped if filtered out (nothing would be written)
+    @Test
+    public void testContentInclusionUnwrapSingle() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .build();
+        ContentOnlyInclusionWrapper w = new ContentOnlyInclusionWrapper();
+        w.values.add("", 2);
+        assertEquals(a2q("{'values':[]}"), mapper.writeValueAsString(w));
+
+        w.values.clear();
+        w.values.add("a", 3);
+        assertEquals(a2q("{'values':{'element':'a','count':3}}"), mapper.writeValueAsString(w));
+    }
+
+    // Array size passed to generator must not count entries that are filtered out
+    @Test
+    public void testContentInclusionArraySize() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .enable(SerializationFeature.APPLY_JSON_INCLUDE_FOR_CONTAINERS)
+                .build();
+        ContentOnlyInclusionWrapper w = new ContentOnlyInclusionWrapper();
+        w.values.add("", 2);
+        w.values.add("a", 3);
+        assertEquals(Arrays.asList(-1), _arraySizes(mapper, w));
+        // but without filtering, size is known
+        assertEquals(Arrays.asList(2), _arraySizes(MAPPER, w.values));
+    }
+
+    private List<Integer> _arraySizes(ObjectMapper mapper, Object value) throws Exception
+    {
+        final List<Integer> sizes = new ArrayList<>();
+        StringWriter sw = new StringWriter();
+        try (JsonGenerator g = new JsonGeneratorDelegate(mapper.createGenerator(sw)) {
+            @Override
+            public JsonGenerator writeStartArray(Object currValue) {
+                sizes.add(-1);
+                return super.writeStartArray(currValue);
+            }
+
+            @Override
+            public JsonGenerator writeStartArray(Object currValue, int size) {
+                sizes.add(size);
+                return super.writeStartArray(currValue, size);
+            }
+        }) {
+            mapper.writeValue(g, value);
+        }
+        return sizes;
     }
 
     private void _verifyInvalid(String json, String expectedMessage) throws Exception
