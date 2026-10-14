@@ -44,3 +44,5 @@ Vanya (@vanyamanko)
 * Contributed #229: (pcollections) Add deserializers for PCollection `TreePSet`,
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
+* Contributed #2: (guava) Serialize `Multiset` as list of element/count entries
+ [3.3.0]

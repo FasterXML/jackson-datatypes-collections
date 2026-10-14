@@ -425,6 +425,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
             TypeReference<T> typeRef) throws Exception
     {
         return builderWithModule()
+                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .addModule(new SimpleModule().addDeserializer(Point.class, new ObjectToNullDeserializer()))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .addHandler(h)

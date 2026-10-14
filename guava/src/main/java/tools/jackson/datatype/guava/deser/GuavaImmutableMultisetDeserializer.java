@@ -28,15 +28,12 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
      */
     protected final int _maxSize;
 
-    private final MultisetEntryReader _entryReader;
-
     GuavaImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
         _asEntries = asEntries;
         _maxSize = maxSize;
-        _entryReader = new MultisetEntryReader(this, maxSize);
     }
 
     @Override
@@ -47,7 +44,10 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
             return super._deserializeContents(p, ctxt);
         }
         ImmutableMultiset.Builder<Object> builder = (ImmutableMultiset.Builder<Object>) createBuilder();
-        _entryReader.readEntries(p, ctxt, builder::addCopies);
+        MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+        while (r.nextEntry(p, ctxt)) {
+            _addEntry(p, ctxt, builder, r.element(), r.count());
+        }
         return _build(ctxt, builder);
     }
 
@@ -59,19 +59,39 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
             return super._deserializeFromSingleValue(p, ctxt);
         }
         ImmutableMultiset.Builder<Object> builder = (ImmutableMultiset.Builder<Object>) createBuilder();
-        _entryReader.readEntry(p, ctxt, builder::addCopies, 0);
+        MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+        if (r.readEntry(p, ctxt)) {
+            _addEntry(p, ctxt, builder, r.element(), r.count());
+        }
         return _build(ctxt, builder);
     }
 
-    @SuppressWarnings("unchecked")
-    private T _build(DeserializationContext ctxt, ImmutableMultiset.Builder<Object> builder)
+    private void _addEntry(JsonParser p, DeserializationContext ctxt,
+            ImmutableMultiset.Builder<Object> builder, Object value, int count)
         throws JacksonException
     {
-        try {
-            return (T) builder.build();
-        } catch (ClassCastException | IllegalArgumentException e) {
-            // sorted builder fails this way if elements are not mutually comparable
-            return MultisetEntryReader.reportFailure(this, ctxt, e);
+        // Avoid lambda allocation for the common non-null case
+        if (value == null) {
+            // NOTE: parser is at END_OBJECT of the entry, as "count" may follow "element"
+            _addElement(p, ctxt, p.currentToken(), null,
+                    v -> _addCopies(ctxt, builder, v, count));
+        } else {
+            _addCopies(ctxt, builder, value, count);
         }
+    }
+
+    private ImmutableMultiset.Builder<Object> _addCopies(DeserializationContext ctxt,
+            ImmutableMultiset.Builder<Object> builder, Object value, int count)
+        throws JacksonException
+    {
+        // sorted builders never compare a single element, so need explicit check
+        _verifyComparable(ctxt, value);
+        try {
+            builder.addCopies(value, count);
+        } catch (ClassCastException e) {
+            // Sorted builders may sort (and fail) while elements are still being added
+            _reportBuildFailure(ctxt, e.getMessage());
+        }
+        return builder;
     }
 }

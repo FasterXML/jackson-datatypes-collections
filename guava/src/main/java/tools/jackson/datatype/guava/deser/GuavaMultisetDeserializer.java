@@ -32,8 +32,6 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
      */
     protected final int _maxSize;
 
-    private final MultisetEntryReader _entryReader;
-
     GuavaMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
@@ -46,7 +44,6 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
         _asEntries = asEntries;
         _maxSize = maxSize;
-        _entryReader = new MultisetEntryReader(this, maxSize);
     }
 
     protected abstract T createMultiset();
@@ -66,20 +63,22 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
+        T set = createMultiset();
         if (_asEntries) {
-            T set = createMultiset();
-            _entryReader.readEntries(p, ctxt, set::add);
+            MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+            while (r.nextEntry(p, ctxt)) {
+                _addEntry(p, ctxt, set, r.element(), r.count());
+            }
             return set;
         }
-        T set = createMultiset();
         JsonToken t;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             Object value = _deserializeElement(p, ctxt, t);
             if (value == null) {
-                _addElement(p, ctxt, p.currentToken(), null, v -> _add(ctxt, set, v));
+                _addElement(p, ctxt, p.currentToken(), null, v -> _add(ctxt, set, v, 1));
             } else if (value != SKIPPED_ELEMENT) {
                 // Avoid lambda allocation for the common non-null case
-                _add(ctxt, set, value);
+                _add(ctxt, set, value, 1);
             }
         }
         return set;
@@ -91,7 +90,10 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     {
         if (_asEntries) {
             T set = createMultiset();
-            _entryReader.readEntry(p, ctxt, set::add, 0);
+            MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+            if (r.readEntry(p, ctxt)) {
+                _addEntry(p, ctxt, set, r.element(), r.count());
+            }
             return set;
         }
         return super._deserializeFromSingleValue(p, ctxt);
@@ -106,14 +108,27 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     protected T _createWithSingleElement(DeserializationContext ctxt, Object value)
         throws JacksonException
     {
-        return _add(ctxt, createMultiset(), value);
+        return _add(ctxt, createMultiset(), value, 1);
     }
 
-    private T _add(DeserializationContext ctxt, T set, Object value)
+    private void _addEntry(JsonParser p, DeserializationContext ctxt, T set,
+            Object value, int count)
+        throws JacksonException
+    {
+        // Avoid lambda allocation for the common non-null case
+        if (value == null) {
+            // NOTE: parser is at END_OBJECT of the entry, as "count" may follow "element"
+            _addElement(p, ctxt, p.currentToken(), null, v -> _add(ctxt, set, v, count));
+        } else {
+            _add(ctxt, set, value, count);
+        }
+    }
+
+    private T _add(DeserializationContext ctxt, T set, Object value, int count)
         throws JacksonException
     {
         try {
-            set.add(value);
+            set.add(value, count);
         } catch (ClassCastException e) {
             // Sorted multisets (`TreeMultiset`) fail this way if elements are not
             // mutually comparable (or, for the first element, not `Comparable` at all)

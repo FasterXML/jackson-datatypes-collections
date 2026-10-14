@@ -1,25 +1,32 @@
 package tools.jackson.datatype.guava.deser;
 
-import java.util.function.ObjIntConsumer;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.util.ClassUtil;
 
 /**
- * Shared entry reader for mutable and immutable Guava Multisets.
+ * Shared entry reader for mutable and immutable Guava Multisets: reads entries
+ * serialized as {@code {"element":...,"count":...}} one at a time, leaving
+ * adding of elements to the caller.
+ *<p>
+ * A new instance is to be created for each Multiset being read, as it keeps
+ * track of number of elements (sum of counts) read so far.
  *
  * @since 3.3
  */
-final class MultisetEntryReader implements java.io.Serializable
+final class MultisetEntryReader
 {
-    private static final long serialVersionUID = 1L;
-
     private final GuavaCollectionDeserializer<?> _owner;
     private final int _maxSize;
+
+    /**
+     * Number of elements (sum of counts) read so far
+     */
+    private int _size;
+
+    private Object _element;
+    private int _count;
 
     MultisetEntryReader(GuavaCollectionDeserializer<?> owner, int maxSize) {
         _owner = owner;
@@ -27,34 +34,30 @@ final class MultisetEntryReader implements java.io.Serializable
     }
 
     /**
-     * Helper method for reading {@link com.google.common.collect.Multiset} entries,
-     * serialized as {@code {"element":...,"count":...}}, until the end of
-     * enclosing JSON Array.
+     * Method for advancing to the next (non-skipped) entry within enclosing JSON Array.
      *
-     * @since 3.3
+     * @return {@code true} if an entry was read (accessible with {@link #element()}
+     *    and {@link #count()}); {@code false} if end of Array was reached
      */
-    void readEntries(JsonParser p, DeserializationContext ctxt,
-            ObjIntConsumer<Object> adder)
+    public boolean nextEntry(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        int size = 0;
         while (p.nextToken() != JsonToken.END_ARRAY) {
-            size += readEntry(p, ctxt, adder, size);
+            if (readEntry(p, ctxt)) {
+                return true;
+            }
         }
+        return false;
     }
 
     /**
-     * Helper method for reading a single {@link com.google.common.collect.Multiset}
-     * entry: parser is expected to point to {@code START_OBJECT} of the entry.
+     * Method for reading a single entry: parser is expected to point to
+     * {@code START_OBJECT} of the entry, and is left at its {@code END_OBJECT}.
      *
-     * @param sizeSoFar Number of elements (sum of counts) already read
-     *
-     * @return Number of elements added (count of the entry, or 0 if skipped)
-     *
-     * @since 3.3
+     * @return {@code true} if an entry was read (accessible with {@link #element()}
+     *    and {@link #count()}); {@code false} if entry is to be skipped
      */
-    int readEntry(JsonParser p, DeserializationContext ctxt,
-            ObjIntConsumer<Object> adder, int sizeSoFar)
+    public boolean readEntry(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         if (!p.hasToken(JsonToken.START_OBJECT)) {
@@ -63,7 +66,6 @@ final class MultisetEntryReader implements java.io.Serializable
                     p.currentToken());
         }
         Object element = null;
-        JsonToken elementToken = null;
         boolean hasElement = false;
         boolean skipEntry = false;
         int count = 0;
@@ -73,7 +75,6 @@ final class MultisetEntryReader implements java.io.Serializable
             final JsonToken t = p.nextToken();
             if ("element".equals(name)) {
                 hasElement = true;
-                elementToken = t;
                 element = _owner._deserializeElement(p, ctxt, t);
                 skipEntry = (element == GuavaCollectionDeserializer.SKIPPED_ELEMENT);
             } else if ("count".equals(name)) {
@@ -100,42 +101,32 @@ final class MultisetEntryReader implements java.io.Serializable
             ctxt.reportInputMismatch(_owner, "Invalid `Multiset` entry: missing \"count\" property");
         }
         if (skipEntry) {
-            return 0;
+            return false;
         }
-        if ((long) sizeSoFar + count > _maxSize) {
+        // NOTE: counted even if `null` element is later dropped by a problem handler
+        final long newSize = (long) _size + count;
+        if (newSize > _maxSize) {
             ctxt.reportInputMismatch(_owner,
                     "`Multiset` size (%d) exceeds the maximum allowed (%d, from `GuavaModule.configureMaxMultisetSize()`)",
-                    (long) sizeSoFar + count, _maxSize);
+                    newSize, _maxSize);
         }
-        try {
-            if (element == null) {
-                final int copies = count;
-                Integer added = _owner._addElement(p, ctxt, elementToken, null, value -> {
-                    adder.accept(value, copies);
-                    return copies;
-                });
-                return (added == null) ? 0 : added;
-            }
-            adder.accept(element, count);
-            return count;
-        } catch (ClassCastException | IllegalArgumentException e) {
-            // elements of sorted Multiset not mutually comparable; or too many occurrences
-            reportFailure(_owner, ctxt, e);
-        }
-        return 0;
+        _size = (int) newSize;
+        _element = element;
+        _count = count;
+        return true;
     }
 
     /**
-     * @since 3.3
+     * @return Element of the entry last read (may be {@code null})
      */
-    static <R> R reportFailure(ValueDeserializer<?> owner,
-            DeserializationContext ctxt, RuntimeException e)
-        throws JacksonException
-    {
-        String msg = e.getMessage();
-        return ctxt.reportInputMismatch(owner,
-                "Failed to build `%s` from deserialized elements: %s",
-                owner.handledType().getSimpleName(),
-                (msg == null) ? ClassUtil.nameOf(e.getClass()) : msg);
+    public Object element() {
+        return _element;
+    }
+
+    /**
+     * @return Count of the entry last read (always positive)
+     */
+    public int count() {
+        return _count;
     }
 }

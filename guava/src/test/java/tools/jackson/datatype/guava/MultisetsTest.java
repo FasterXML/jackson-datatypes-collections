@@ -294,12 +294,12 @@ public class MultisetsTest extends ModuleTestBase
         MismatchedInputException e = assertThrows(MismatchedInputException.class,
                 () -> MAPPER.readValue(a2q("[{'element':1,'count':1},{'element':'a','count':1}]"),
                         new TypeReference<TreeMultiset<Object>>() { }));
-        verifyException(e, "Failed to build `TreeMultiset`");
+        verifyException(e, "Failed to build `com.google.common.collect.TreeMultiset<");
 
         e = assertThrows(MismatchedInputException.class,
                 () -> MAPPER.readValue(a2q("[{'element':{'name':'Ann','age':30},'count':1}]"),
                         new TypeReference<SortedMultiset<Person>>() { }));
-        verifyException(e, "Failed to build `SortedMultiset`");
+        verifyException(e, "Failed to build `com.google.common.collect.SortedMultiset<");
 
         ObjectMapper polyMapper = builderWithModule()
                 .polymorphicTypeValidator(new NoCheckSubTypeValidator())
@@ -308,7 +308,25 @@ public class MultisetsTest extends ModuleTestBase
         for (int count : new int[] { 1, 100 }) {
             e = assertThrows(MismatchedInputException.class,
                     () -> polyMapper.readValue(_mixedTypeEntries(count), SortedMultisetWrapper.class));
-            verifyException(e, "Failed to build `ImmutableSortedMultiset`");
+            verifyException(e, "Failed to build `com.google.common.collect.ImmutableSortedMultiset<");
+        }
+    }
+
+    // Single element is never compared by sorted builders, so needs explicit check
+    @Test
+    public void testSingleNonComparableEntry() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        for (Class<?> type : new Class<?>[] { ImmutableSortedMultiset.class, TreeMultiset.class }) {
+            for (String json : new String[] {
+                    "[{'element':{'x':1},'count':2}]",
+                    "{'element':{'x':1},'count':2}" }) {
+                MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                        () -> mapper.readValue(a2q(json), type));
+                verifyException(e, "Failed to build `"+type.getName()+"<");
+            }
         }
     }
 
@@ -378,7 +396,10 @@ public class MultisetsTest extends ModuleTestBase
                                 JavaType targetType, JsonToken t,
                                 JsonParser p, String failureMsg) {
                             assertEquals(Integer.class, targetType.getRawClass());
-                            assertEquals(JsonToken.VALUE_STRING, t);
+                            // element can only be added once "count" is known: so
+                            // parser (and reported token) is at the end of the entry
+                            assertEquals(JsonToken.END_OBJECT, t);
+                            assertEquals(t, p.currentToken());
                             return replacement;
                         }
                     })
