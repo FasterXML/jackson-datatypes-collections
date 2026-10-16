@@ -8,9 +8,11 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
 import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 import com.google.common.collect.Range;
@@ -20,14 +22,24 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
 {
     private final ValueSerializer<Object> _serializer;
 
+    private final ValueSerializer<Object> _rangeSerializer;
+
     public RangeSetSerializer() {
         super(RangeSet.class);
         _serializer = null;
+        _rangeSerializer = null;
     }
 
     protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<Object> ser) {
+        this(base, ser, base._rangeSerializer);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<Object> ser,
+            ValueSerializer<?> rangeSer) {
         super(base);
         _serializer = ser;
+        _rangeSerializer = (ValueSerializer<Object>) rangeSer;
     }
 
     @Override
@@ -46,7 +58,7 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
             SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
-        if (_serializer == null) {
+        if (_rangeSerializer == null) {
             ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
         }
         // Write the array directly (instead of delegating to the `Set` serializer) so that
@@ -55,7 +67,7 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
                 typeSer.typeId(value, JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
         for (Range<?> range : value.asRanges()) {
-            ctxt.writeValue(g, range);
+            _rangeSerializer.serialize(range, g, ctxt);
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
@@ -69,7 +81,22 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         
         ValueSerializer<Object> ser = ctxt.findContentValueSerializer(
                 ctxt.getTypeFactory().constructCollectionType(List.class, Range.class), property);
-        return new RangeSetSerializer(this, ser);
+        if (property == null) {
+            return new RangeSetSerializer(this, ser, ctxt.findTypedValueSerializer(Range.class, true));
+        }
+        JavaType rangeType = ctxt.constructType(Range.class);
+        ValueSerializer<?> rangeSer = findAnnotatedContentSerializer(ctxt, property);
+        rangeSer = findContextualConvertingSerializer(ctxt, property, rangeSer);
+        if (rangeSer == null) {
+            rangeSer = ctxt.findContentValueSerializer(rangeType, property);
+        } else {
+            rangeSer = ctxt.handleSecondaryContextualization(rangeSer, property);
+        }
+        TypeSerializer typeSer = ctxt.findTypeSerializer(rangeType);
+        if (typeSer != null) {
+            rangeSer = new TypeWrappedSerializer(typeSer.forProperty(ctxt, property), rangeSer);
+        }
+        return new RangeSetSerializer(this, ser, rangeSer);
 
         // Old (Jackson 2.x) implementation was along lines of
         /*
