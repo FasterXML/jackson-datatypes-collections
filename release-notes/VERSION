@@ -62,6 +62,10 @@ Modules:
   (note: handlers now see `END_OBJECT` / `END_ARRAY`, not `START_OBJECT` / `START_ARRAY`;
   for `RangeSet`, actual token instead of `VALUE_NULL`)
  (fixed by @cowtowncoder)
+#241: (guava) `RangeSet` values lose type information with default typing
+  (support polymorphic typing for `RangeSet` serialization and deserialization)
+ (reported by @pjfanning)
+ (fixed by @PHJ2000)
 
 3.2.3 (21-Sep-2026)
 

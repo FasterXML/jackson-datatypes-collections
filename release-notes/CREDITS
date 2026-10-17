@@ -38,9 +38,17 @@ PJ Fanning (@pjfanning)
  [3.1.0]
 * Fixed #221: (guava) Add try catch for guava deserializers
  [3.1.0]
+* Reported #241: (guava) `RangeSet` values lose type information with default typing
+ [3.3.0]
 
 Vanya (@vanyamanko)
 
 * Contributed #229: (pcollections) Add deserializers for PCollection `TreePSet`,
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
+ [3.3.0]
+
+@PHJ2000
+
+* Fixed #241: (guava) `RangeSet` values lose type information with default typing
+  (support polymorphic typing for `RangeSet` serialization and deserialization)
  [3.3.0]

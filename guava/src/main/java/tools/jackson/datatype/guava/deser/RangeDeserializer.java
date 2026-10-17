@@ -9,12 +9,19 @@ import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
 import tools.jackson.core.*;
+import tools.jackson.core.util.JsonParserSequence;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.TypeResolverBuilder;
+import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.TokenBuffer;
 import tools.jackson.datatype.guava.deser.util.RangeFactory;
 import tools.jackson.datatype.guava.deser.util.RangeHelper;
 
@@ -37,6 +44,8 @@ public class RangeDeserializer
      * Deserializer used when getting JSON Object representation
      */
     protected final ValueDeserializer<Object> _endpointDeserializer;
+
+    protected final TypeDeserializer _endpointTypeDeserializer;
 
     /**
      * Deserializer used when getting JSON String (inline) representation.
@@ -65,14 +74,24 @@ public class RangeDeserializer
                 JsonFormat.Shape.ANY, null);
     }
 
-    @SuppressWarnings("unchecked")
     protected RangeDeserializer(JavaType rangeType, ValueDeserializer<?> endpointDeser,
             BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames,
             JsonFormat.Shape shape, KeyDeserializer fromStringDeserializer)
     {
+        this(rangeType, endpointDeser, defaultBoundType, fieldNames, shape,
+                fromStringDeserializer, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected RangeDeserializer(JavaType rangeType, ValueDeserializer<?> endpointDeser,
+            BoundType defaultBoundType, RangeHelper.RangeProperties fieldNames,
+            JsonFormat.Shape shape, KeyDeserializer fromStringDeserializer,
+            TypeDeserializer endpointTypeDeser)
+    {
         super(rangeType);
         _rangeType = rangeType;
         _endpointDeserializer = (ValueDeserializer<Object>) endpointDeser;
+        _endpointTypeDeserializer = endpointTypeDeser;
         _fromStringDeserializer = fromStringDeserializer;
         _defaultBoundType = defaultBoundType;
         _fieldNames = fieldNames;
@@ -96,16 +115,55 @@ public class RangeDeserializer
             // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
             deser = deser.createContextual(ctxt, property);
         }
+        TypeDeserializer typeDeser = null;
+        if (shape != JsonFormat.Shape.STRING && deser instanceof StdScalarDeserializer<?>
+                && ClassUtil.isJacksonStdImpl(deser)) {
+            TypeResolverBuilder<?> typer = ctxt.getConfig().getDefaultTyper(endpointType);
+            // A denied polymorphic base must not prevent reading an untyped scalar.
+            if (typer != null && !isDeniedBaseType(ctxt, endpointType, typer)) {
+                typeDeser = typer.buildTypeDeserializer(ctxt, endpointType, null);
+                if (typeDeser != null) {
+                    typeDeser = typeDeser.forProperty(property);
+                }
+            }
+        }
         KeyDeserializer kd = _fromStringDeserializer;
         if (shape == JsonFormat.Shape.STRING) {
             kd = ctxt.findKeyDeserializer(endpointType, property);
         }
         if ((deser != _endpointDeserializer) || (fieldNames != _fieldNames)
-                || (shape != _shape) || (kd != _fromStringDeserializer)) {
+                || (shape != _shape) || (kd != _fromStringDeserializer)
+                || (typeDeser != _endpointTypeDeserializer)) {
             return new RangeDeserializer(_rangeType, deser, _defaultBoundType, fieldNames,
-                    shape, kd);
+                    shape, kd, typeDeser);
         }
         return this;
+    }
+
+    RangeDeserializer withTypedEndpoints(DeserializationContext ctxt, BeanProperty property)
+    {
+        if (_shape == JsonFormat.Shape.STRING || !(_endpointDeserializer instanceof BeanDeserializerBase)) {
+            return this;
+        }
+        JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
+        // No endpoint type resolution is needed for an empty set or an untyped value.
+        if (isDeniedBaseType(ctxt, endpointType, ctxt.getConfig().getDefaultTyper(endpointType))) {
+            return this;
+        }
+        TypeDeserializer typeDeser = ctxt.findTypeDeserializer(endpointType);
+        if (typeDeser == null) {
+            return this;
+        }
+        return new RangeDeserializer(_rangeType, _endpointDeserializer, _defaultBoundType,
+                _fieldNames, _shape, _fromStringDeserializer, typeDeser.forProperty(property));
+    }
+
+    private boolean isDeniedBaseType(DeserializationContext ctxt, JavaType endpointType,
+            TypeResolverBuilder<?> typer)
+    {
+        return typer instanceof DefaultTypeResolverBuilder
+                && ((DefaultTypeResolverBuilder) typer).subTypeValidator(ctxt)
+                        .validateBaseType(ctxt, endpointType) == PolymorphicTypeValidator.Validity.DENIED;
     }
 
     /*
@@ -273,7 +331,16 @@ public class RangeDeserializer
     private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
         throws JacksonException
     {
-        Object obj = _endpointDeserializer.deserialize(p, context);
+        Object obj;
+        if (_endpointTypeDeserializer != null && _endpointDeserializer instanceof BeanDeserializerBase) {
+            obj = _endpointDeserializer.deserializeWithType(p, context, _endpointTypeDeserializer);
+        } else if (_endpointTypeDeserializer != null && p.isExpectedStartArrayToken()) {
+            obj = deserializeScalarEndpointArray(context, p);
+        } else if (_endpointTypeDeserializer != null && p.isExpectedStartObjectToken()) {
+            obj = _endpointDeserializer.deserializeWithType(p, context, _endpointTypeDeserializer);
+        } else {
+            obj = _endpointDeserializer.deserialize(p, context);
+        }
         if (!(obj instanceof Comparable)) {
             // 01-Oct-2015, tatu: Not sure if it's data or definition problem... for now,
             //    assume definition, but may need to reconsider
@@ -284,6 +351,42 @@ public class RangeDeserializer
                             ClassUtil.classNameOf(obj)));
         }
         return (Comparable<?>) obj;
+    }
+
+    private Object deserializeScalarEndpointArray(DeserializationContext context, JsonParser p)
+        throws JacksonException
+    {
+        JsonToken first = p.nextToken();
+        String typeId = null;
+        if (first == JsonToken.VALUE_STRING) {
+            typeId = p.getString();
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                Object value = _endpointTypeDeserializer.deserializeTypedWithKnownTypeId(p, context, typeId);
+                expect(context, JsonToken.END_ARRAY, p.nextToken());
+                return value;
+            }
+        } else if (first != null && first.isNumeric()
+                && context.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            Object value = _endpointDeserializer.deserialize(p, context);
+            expect(context, JsonToken.END_ARRAY, p.nextToken());
+            return value;
+        }
+
+        // Replay ordinary scalar arrays so their coercion settings still apply.
+        TokenBuffer prefix = context.bufferForInputBuffering(p);
+        prefix.writeStartArray();
+        if (first == JsonToken.VALUE_STRING) {
+            prefix.writeString(typeId);
+        }
+        JsonParser replay;
+        if (p.currentToken() == JsonToken.END_ARRAY) {
+            prefix.writeEndArray();
+            replay = prefix.asParser(context, p);
+        } else {
+            replay = JsonParserSequence.createFlattened(true, prefix.asParser(context, p), p);
+        }
+        replay.nextToken();
+        return context.withParser(replay, () -> _endpointDeserializer.deserialize(replay, context));
     }
 
     private void expect(DeserializationContext context, JsonToken expected, JsonToken actual)
