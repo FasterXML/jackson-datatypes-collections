@@ -82,6 +82,7 @@ public class RangeSetDeserializer
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
         JavaType rangeType = _findRangeType(ctxt, ctxt.getContextualType());
@@ -95,11 +96,14 @@ public class RangeSetDeserializer
             }
         }
         // Content converter (`@JsonDeserialize(contentConverter=...)`), if any
-        @SuppressWarnings("unchecked")
-        ValueDeserializer<Object> deser = (ValueDeserializer<Object>)
-                findConvertingContentDeserializer(ctxt, property, null);
+        ValueDeserializer<?> deser = findConvertingContentDeserializer(ctxt, property, null);
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(rangeType, property);
+        }
+        // RangeSet writes Range entries without declared endpoint types, so object
+        // endpoints may carry type ids even when the reader knows their concrete type.
+        if (deser.getClass() == RangeDeserializer.class) {
+            deser = ((RangeDeserializer) deser).withTypedEndpoints(ctxt, property);
         }
         TypeDeserializer typeDeser = ctxt.findTypeDeserializer(rangeType);
         if (typeDeser != null) {
@@ -111,7 +115,8 @@ public class RangeSetDeserializer
         }
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        return new RangeSetDeserializer(this, deser, typeDeser, nuller, unwrapSingle);
+        return new RangeSetDeserializer(this, (ValueDeserializer<Object>) deser,
+                typeDeser, nuller, unwrapSingle);
     }
 
     private JavaType _findRangeType(DeserializationContext ctxt, JavaType base)

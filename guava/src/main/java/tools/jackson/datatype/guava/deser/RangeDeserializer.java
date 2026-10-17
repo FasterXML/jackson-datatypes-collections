@@ -12,6 +12,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.util.JsonParserSequence;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.deser.bean.BeanDeserializerBase;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -119,9 +120,7 @@ public class RangeDeserializer
                 && ClassUtil.isJacksonStdImpl(deser)) {
             TypeResolverBuilder<?> typer = ctxt.getConfig().getDefaultTyper(endpointType);
             // A denied polymorphic base must not prevent reading an untyped scalar.
-            if (typer != null && !(typer instanceof DefaultTypeResolverBuilder
-                    && ((DefaultTypeResolverBuilder) typer).subTypeValidator(ctxt)
-                            .validateBaseType(ctxt, endpointType) == PolymorphicTypeValidator.Validity.DENIED)) {
+            if (typer != null && !isDeniedBaseType(ctxt, endpointType, typer)) {
                 typeDeser = typer.buildTypeDeserializer(ctxt, endpointType, null);
                 if (typeDeser != null) {
                     typeDeser = typeDeser.forProperty(property);
@@ -139,6 +138,32 @@ public class RangeDeserializer
                     shape, kd, typeDeser);
         }
         return this;
+    }
+
+    RangeDeserializer withTypedEndpoints(DeserializationContext ctxt, BeanProperty property)
+    {
+        if (_shape == JsonFormat.Shape.STRING || !(_endpointDeserializer instanceof BeanDeserializerBase)) {
+            return this;
+        }
+        JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
+        // No endpoint type resolution is needed for an empty set or an untyped value.
+        if (isDeniedBaseType(ctxt, endpointType, ctxt.getConfig().getDefaultTyper(endpointType))) {
+            return this;
+        }
+        TypeDeserializer typeDeser = ctxt.findTypeDeserializer(endpointType);
+        if (typeDeser == null) {
+            return this;
+        }
+        return new RangeDeserializer(_rangeType, _endpointDeserializer, _defaultBoundType,
+                _fieldNames, _shape, _fromStringDeserializer, typeDeser.forProperty(property));
+    }
+
+    private boolean isDeniedBaseType(DeserializationContext ctxt, JavaType endpointType,
+            TypeResolverBuilder<?> typer)
+    {
+        return typer instanceof DefaultTypeResolverBuilder
+                && ((DefaultTypeResolverBuilder) typer).subTypeValidator(ctxt)
+                        .validateBaseType(ctxt, endpointType) == PolymorphicTypeValidator.Validity.DENIED;
     }
 
     /*
@@ -307,7 +332,9 @@ public class RangeDeserializer
         throws JacksonException
     {
         Object obj;
-        if (_endpointTypeDeserializer != null && p.isExpectedStartArrayToken()) {
+        if (_endpointTypeDeserializer != null && _endpointDeserializer instanceof BeanDeserializerBase) {
+            obj = _endpointDeserializer.deserializeWithType(p, context, _endpointTypeDeserializer);
+        } else if (_endpointTypeDeserializer != null && p.isExpectedStartArrayToken()) {
             obj = deserializeScalarEndpointArray(context, p);
         } else if (_endpointTypeDeserializer != null && p.isExpectedStartObjectToken()) {
             obj = _endpointDeserializer.deserializeWithType(p, context, _endpointTypeDeserializer);

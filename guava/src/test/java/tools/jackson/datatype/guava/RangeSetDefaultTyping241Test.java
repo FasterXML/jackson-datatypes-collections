@@ -3,6 +3,7 @@ package tools.jackson.datatype.guava;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.google.common.collect.ImmutableRangeSet;
@@ -45,6 +47,44 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
 
     static class ScalarWrapper<T extends Comparable<?>> {
         public RangeSet<T> value;
+    }
+
+    static class BeanEndpoint implements Comparable<BeanEndpoint> {
+        public String name;
+        public int value;
+
+        public BeanEndpoint() { }
+
+        BeanEndpoint(String name, int value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @Override
+        public int compareTo(BeanEndpoint other) {
+            return Integer.compare(value, other.value);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof BeanEndpoint && value == ((BeanEndpoint) other).value
+                    && Objects.equals(name, ((BeanEndpoint) other).name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, value);
+        }
+    }
+
+    @JsonFormat(shape = JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder({ "name", "value" })
+    static class ArrayEndpoint extends BeanEndpoint {
+        public ArrayEndpoint() { }
+
+        ArrayEndpoint(String name, int value) {
+            super(name, value);
+        }
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
@@ -142,6 +182,78 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
         ScalarWrapper<Date> input = new ScalarWrapper<>();
         input.value = ImmutableRangeSet.of(Range.closed(new Date(1), new Date(5)));
         assertEquals(input.value, mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type).value);
+    }
+
+    static Stream<Arguments> objectEndpoints() {
+        return scalarTyping().flatMap(args -> Stream.of(BeanEndpoint.class, ArrayEndpoint.class)
+                .map(type -> Arguments.of(args.get()[0], args.get()[1], type)));
+    }
+
+    private BeanEndpoint endpoint(Class<? extends BeanEndpoint> type, String name, int value) {
+        return type == ArrayEndpoint.class ? new ArrayEndpoint(name, value) : new BeanEndpoint(name, value);
+    }
+
+    @ParameterizedTest
+    @MethodSource("objectEndpoints")
+    public void roundTripObjectEndpointRoot(DefaultTyping typing, JsonTypeInfo.As inclusion,
+            Class<? extends BeanEndpoint> endpointType) {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), typing, inclusion).build();
+        JavaType type = mapper.getTypeFactory().constructParametricType(RangeSet.class, endpointType);
+        RangeSet<BeanEndpoint> input = ImmutableRangeSet.of(Range.closed(
+                endpoint(endpointType, "a", 1), endpoint(endpointType, "b", 5)));
+        assertEquals(input, mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type));
+    }
+
+    @ParameterizedTest
+    @MethodSource("objectEndpoints")
+    public void roundTripObjectEndpointProperty(DefaultTyping typing, JsonTypeInfo.As inclusion,
+            Class<? extends BeanEndpoint> endpointType) {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), typing, inclusion).build();
+        JavaType type = mapper.getTypeFactory().constructParametricType(ScalarWrapper.class, endpointType);
+        ScalarWrapper<BeanEndpoint> input = new ScalarWrapper<>();
+        input.value = ImmutableRangeSet.of(Range.closed(
+                endpoint(endpointType, "a", 1), endpoint(endpointType, "b", 5)));
+        ScalarWrapper<?> output = mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type);
+        assertEquals(input.value, output.value);
+    }
+
+    @ParameterizedTest
+    @MethodSource("objectEndpoints")
+    public void plainRangeWithObjectEndpointsKeepsItsFormat(DefaultTyping typing, JsonTypeInfo.As inclusion,
+            Class<? extends BeanEndpoint> endpointType) {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), typing, inclusion).build();
+        JavaType type = mapper.getTypeFactory().constructParametricType(Range.class, endpointType);
+        Range<BeanEndpoint> input = Range.closed(
+                endpoint(endpointType, "a", 1), endpoint(endpointType, "b", 5));
+        assertEquals(input, mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = JsonTypeInfo.As.class, names = { "WRAPPER_ARRAY", "WRAPPER_OBJECT", "PROPERTY" })
+    public void typedObjectEndpointStillValidatesSubtype(JsonTypeInfo.As inclusion) {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType("com.google.common.collect.").build(),
+                        DefaultTyping.NON_FINAL, inclusion).build();
+        TypeReference<RangeSet<BeanEndpoint>> type = new TypeReference<>() { };
+        RangeSet<BeanEndpoint> input = ImmutableRangeSet.of(Range.closed(
+                new BeanEndpoint("a", 1), new BeanEndpoint("b", 5)));
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertThrows(InvalidTypeIdException.class, () -> mapper.readValue(json, type));
+    }
+
+    @Test
+    public void emptySetDoesNotRequireEndpointSubtypePermission() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                        .denyForExactBaseType(BeanEndpoint.class)
+                        .allowIfSubType("com.google.common.collect.").build(), DefaultTyping.NON_FINAL).build();
+        TypeReference<RangeSet<BeanEndpoint>> type = new TypeReference<>() { };
+        RangeSet<BeanEndpoint> input = ImmutableRangeSet.of();
+        assertEquals(input, mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type));
     }
 
     @Test
