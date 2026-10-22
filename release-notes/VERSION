@@ -12,10 +12,6 @@ Modules:
 
 3.3.0 (not yet released)
 
-#237: (pcollections) Preserve JSON element order when deserializing `PStack`
-  and `ConsPStack` (previously the order was reversed)
- (fixed by Jaehong Park)
-
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
@@ -27,6 +23,10 @@ Modules:
   throwing `NullPointerException`, for single-value, sorted, `Multiset` and
   `ImmutableMap` content)
  (fixed by @pjfanning)
+#237: (pcollections) Preserve JSON element order when deserializing `PStack`
+  and `ConsPStack` (previously the order was reversed:
+  behavior change, code compensating for the old order needs removing)
+ (contributed by Jaehong Park)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
  (fixed by @pjfanning)

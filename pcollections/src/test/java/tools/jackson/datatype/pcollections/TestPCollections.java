@@ -9,6 +9,7 @@ import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -189,6 +190,19 @@ public class TestPCollections extends ModuleTestBase
             assertEquals(values, MAPPER.readValue(json,
                     new TypeReference<ConsPStack<Integer>>() { }));
         }
+    }
+
+    @Test
+    public void stackSingleValueAndNested() throws Exception
+    {
+        ObjectMapper lenient = JsonMapper.builder()
+                .addModule(new PCollectionsModule())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        assertEquals(List.of(7), lenient.readValue("7",
+                new TypeReference<ConsPStack<Integer>>() { }));
+        assertEquals(List.of(List.of(1, 2), List.of(3)), MAPPER.readValue("[[1,2],[3]]",
+                new TypeReference<ConsPStack<ConsPStack<Integer>>>() { }));
     }
 
     @Test

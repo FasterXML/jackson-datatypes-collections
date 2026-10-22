@@ -1,7 +1,5 @@
 package tools.jackson.datatype.pcollections.deser;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.CollectionType;
@@ -29,11 +27,8 @@ public class ConsPStackDeserializer extends
      */
 
     @Override
-    protected ConsPStack<Object> _deserializeContents(JsonParser p,
-            DeserializationContext ctxt) {
-        // Adding to a stack prepends each element; reverse the accumulated
-        // contents once more to retain their order in the JSON array.
-        return ConsPStack.empty().plusAll(super._deserializeContents(p, ctxt));
+    protected boolean _plusPrepends() {
+        return true;
     }
 
     @Override
