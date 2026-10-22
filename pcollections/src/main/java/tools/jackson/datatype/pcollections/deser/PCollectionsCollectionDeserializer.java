@@ -1,5 +1,8 @@
 package tools.jackson.datatype.pcollections.deser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -10,9 +13,6 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.ClassUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.pcollections.PCollection;
 
