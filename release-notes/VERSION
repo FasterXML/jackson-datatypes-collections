@@ -12,6 +12,10 @@ Modules:
 
 3.3.0 (not yet released)
 
+#237: (pcollections) Preserve JSON element order when deserializing `PStack`
+  and `ConsPStack` (previously the order was reversed)
+ (fixed by Jaehong Park)
+
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)

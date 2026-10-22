@@ -161,9 +161,9 @@ public class TestPCollections extends ModuleTestBase
         PStack<Integer> list = MAPPER.readValue("[1,2,3]", new TypeReference<PStack<Integer>>() { });
         assertEquals(3, list.size());
         Iterator<Integer> elements = list.iterator();
-        assertEquals(Integer.valueOf(3), elements.next());
-        assertEquals(Integer.valueOf(2), elements.next());
         assertEquals(Integer.valueOf(1), elements.next());
+        assertEquals(Integer.valueOf(2), elements.next());
+        assertEquals(Integer.valueOf(3), elements.next());
     }
 
     @Test
@@ -172,9 +172,23 @@ public class TestPCollections extends ModuleTestBase
         ConsPStack<Integer> list = MAPPER.readValue("[1,2,3]", new TypeReference<ConsPStack<Integer>>() { });
         assertEquals(3, list.size());
         Iterator<Integer> elements = list.iterator();
-        assertEquals(Integer.valueOf(3), elements.next());
-        assertEquals(Integer.valueOf(2), elements.next());
         assertEquals(Integer.valueOf(1), elements.next());
+        assertEquals(Integer.valueOf(2), elements.next());
+        assertEquals(Integer.valueOf(3), elements.next());
+    }
+
+    @Test
+    public void stackRoundTrip() throws Exception
+    {
+        for (List<Integer> values : Arrays.<List<Integer>>asList(
+                List.of(), List.of(1), Arrays.asList(1, null, 2, 1))) {
+            ConsPStack<Integer> stack = ConsPStack.from(values);
+            String json = MAPPER.writeValueAsString(stack);
+            assertEquals(values, MAPPER.readValue(json,
+                    new TypeReference<PStack<Integer>>() { }));
+            assertEquals(values, MAPPER.readValue(json,
+                    new TypeReference<ConsPStack<Integer>>() { }));
+        }
     }
 
     @Test
