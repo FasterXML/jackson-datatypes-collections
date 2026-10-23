@@ -7,9 +7,14 @@ import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
@@ -296,6 +301,54 @@ public class MergeAndNullsTest extends ModuleTestBase
     }
 
     @Test
+    void testEmptyStringWithSingleValueAsArray() throws Exception
+    {
+        // Like `int[]`: empty (and blank) Strings are not single elements, even
+        // if nulls of primitives are accepted
+        ObjectMapper mapper = mapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        for (String json : new String[] { "\"\"", "\" \"" }) {
+            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                    () -> mapper.readValue(json, IntList.class));
+            verifyException(e, "Cannot coerce");
+            assertThrows(MismatchedInputException.class, () -> mapper.readValue(json, int[].class));
+        }
+        // other Strings are single elements
+        assertEquals(IntList.of(3), mapper.readValue("\"3\"", IntList.class));
+
+        // and coercion applies if enabled
+        assertNull(mapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .build()
+                .readValue("\"\"", IntList.class));
+
+        // Maps: same as for `java.util` maps
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("\"\"", Int2IntMap.class));
+        verifyException(e, "Cannot coerce empty String");
+    }
+
+    @Test
+    void testCharProblemHandlerReturningNull() throws Exception
+    {
+        ObjectMapper mapper = mapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleUnexpectedToken(DeserializationContext ctxt, JavaType targetType,
+                            JsonToken t, JsonParser p, String failureMsg) {
+                        return null;
+                    }
+                })
+                .build();
+        assertEquals(CharList.of('a', '\0'), mapper.readValue("[\"a\",1]", CharList.class));
+        assertEquals('\0', mapper.readValue("{\"1\":2}", Int2CharMap.class).get(1));
+    }
+
+    @Test
     void testSingleValueAsArrayPerProperty() throws Exception
     {
         SingleValueBean bean = MAPPER.readValue("{\"ints\":3}", SingleValueBean.class);
@@ -314,6 +367,7 @@ public class MergeAndNullsTest extends ModuleTestBase
         DatabindException e = assertThrows(DatabindException.class,
                 () -> MAPPER.readerForUpdating(list).readValue("[2]"));
         assertTrue(e.getMessage().contains("Cannot merge into value"), e.getMessage());
+        assertFalse(e.getMessage().contains(": null"), e.getMessage());
 
         Int2IntMap map = Int2IntMaps.unmodifiable(new Int2IntOpenHashMap());
         assertThrows(DatabindException.class,

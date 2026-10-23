@@ -17,6 +17,7 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.deser.ContextualKeyDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 import it.unimi.dsi.fastutil.chars.CharArrayList;
@@ -92,6 +93,11 @@ public class CustomHandlersTest extends ModuleTestBase
     static class MapBean {
         @JsonDeserialize(keyUsing = HexKeyDeserializer.class, contentUsing = HexIntDeserializer.class)
         public Int2IntMap map;
+    }
+
+    static class KeyRefMapBean {
+        @JsonDeserialize(keyUsing = HexKeyDeserializer.class)
+        public Int2ObjectMap<String> map;
     }
 
     static class KeyMapBean {
@@ -203,6 +209,26 @@ public class CustomHandlersTest extends ModuleTestBase
         MAPPER.readerForUpdating(mergeBean).readValue(a2q("{'list':['0x2']}"));
         assertSame(original, mergeBean.list);
         assertEquals(IntList.of(1, 2), mergeBean.list);
+    }
+
+    @Test
+    void testNullsWithCustomDeserializers() throws Exception
+    {
+        // reference values may be null, also with custom key deserializer
+        KeyRefMapBean refBean = MAPPER.readValue(a2q("{'map':{'0x1':null}}"), KeyRefMapBean.class);
+        assertTrue(refBean.map.containsKey(1));
+        assertNull(refBean.map.get(1));
+
+        // primitive elements: handled as specified by `FAIL_ON_NULL_FOR_PRIMITIVES`,
+        // same as without custom deserializer
+        assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue(a2q("{'list':['0x1',null]}"), ListBean.class));
+        ObjectMapper lenient = mapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertEquals(IntList.of(1, 0),
+                lenient.readValue(a2q("{'list':['0x1',null]}"), ListBean.class).list);
+        assertEquals(0, lenient.readValue(a2q("{'map':{'0x1':null}}"), MapBean.class).map.get(1));
     }
 
     @Test

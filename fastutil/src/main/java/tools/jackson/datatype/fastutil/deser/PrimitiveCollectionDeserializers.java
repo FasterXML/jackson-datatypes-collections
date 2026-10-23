@@ -19,12 +19,10 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.datatype.fastutil.util.ContentNulls;
-import tools.jackson.datatype.fastutil.util.EmptyStrings;
 import tools.jackson.datatype.fastutil.util.Merging;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
@@ -161,7 +159,7 @@ public final class PrimitiveCollectionDeserializers
                 // (handler needs to be set explicitly: resolved types are cached without one)
                 return new BoxedDelegatingDeserializer<>(type, config.getTypeFactory()
                         .constructCollectionType(ArrayList.class, type.getContentType())
-                        .withContentValueHandler(elementDeserializer), creator);
+                        .withContentValueHandler(elementDeserializer), creator, false, true);
             }
             return deserializerFactory.apply(type, creator);
         }
@@ -224,14 +222,17 @@ public final class PrimitiveCollectionDeserializers
             if (p.isExpectedStartArrayToken()) {
                 return _deserializeContents(p, ctxt);
             }
-            // Empty String may be coerced (checked before single-value handling,
-            // like for `java.util` collections)
-            CoercionAction act = EmptyStrings.findCoercion(p, ctxt, this);
-            if (act != null) {
-                return (C) EmptyStrings.coercedValue(ctxt, this, act);
+            // Same as for primitive arrays by `jackson-databind`: Strings are handled
+            // as such (empty and blank ones may be coerced, as configured) unless
+            // single values are accepted; blank Strings even then
+            final boolean canWrap = (_unwrapSingle == Boolean.TRUE) || ((_unwrapSingle == null)
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                if (!canWrap || _isBlank(p.getString())) {
+                    return _deserializeFromStringForContainer(p, ctxt);
+                }
             }
-            if ((_unwrapSingle == Boolean.TRUE) || ((_unwrapSingle == null)
-                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY))) {
+            if (canWrap) {
                 return _deserializeFromSingleValue(p, ctxt);
             }
             return (C) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
@@ -563,7 +564,13 @@ public final class PrimitiveCollectionDeserializers
                     continue;
                 }
                 if (t != JsonToken.VALUE_STRING) {
-                    collection.add((Character) ctxt.handleUnexpectedToken(Character.TYPE, p));
+                    // problem handler may also return `null`
+                    Character c = (Character) ctxt.handleUnexpectedToken(Character.TYPE, p);
+                    if (c == null) {
+                        _verifyNullForPrimitive(ctxt);
+                        c = '\0';
+                    }
+                    collection.add(c.charValue());
                     continue;
                 }
                 String str = p.getString();

@@ -103,15 +103,24 @@ final class PrimitiveValueHandlers
                 return '\0';
             }
             if (!p.hasToken(JsonToken.VALUE_STRING)) {
-                return (java.lang.Character) ctxt.handleUnexpectedToken(java.lang.Character.TYPE, p);
+                return _handled(ctxt, ctxt.handleUnexpectedToken(java.lang.Character.TYPE, p));
             }
             String str = p.getString();
             if (str.length() != 1) {
-                return (java.lang.Character) ctxt.handleWeirdStringValue(java.lang.Character.TYPE, str,
+                return _handled(ctxt, ctxt.handleWeirdStringValue(java.lang.Character.TYPE, str,
                         "Cannot convert a JSON String of length %d into a `char` map value",
-                        str.length());
+                        str.length()));
             }
             return str.charAt(0);
+        }
+
+        // Value from a `DeserializationProblemHandler`, which may be `null`
+        private char _handled(DeserializationContext ctxt, Object value) throws JacksonException {
+            if (value == null) {
+                _verifyNullForPrimitive(ctxt);
+                return '\0';
+            }
+            return (java.lang.Character) value;
         }
 
         @Override

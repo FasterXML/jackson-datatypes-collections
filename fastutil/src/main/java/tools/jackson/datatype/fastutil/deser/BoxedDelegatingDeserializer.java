@@ -33,19 +33,36 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
 {
     private final JavaType _delegateType;
     private final ContainerFamily.Creator<C> _creator;
+
+    // Primitive types of map keys, and of map values or collection elements, if
+    // primitive; null for reference types (which may be null)
+    private final Class<?> _primitiveKeyType, _primitiveValueType;
+
     // null until contextualized
     private final ValueDeserializer<Object> _delegate;
 
+    /**
+     * @param delegateType Type to read content as: {@code ArrayList} or
+     *    {@code LinkedHashMap} with boxed element (or key and value) types
+     * @param primitiveKeys Whether map keys are primitive (cannot be null)
+     * @param primitiveValues Whether map values or collection elements are primitive
+     */
     public BoxedDelegatingDeserializer(JavaType type, JavaType delegateType,
-            ContainerFamily.Creator<C> creator) {
-        this(type, delegateType, creator, null);
+            ContainerFamily.Creator<C> creator, boolean primitiveKeys, boolean primitiveValues) {
+        this(type, delegateType, creator,
+                primitiveKeys ? ClassUtil.primitiveType(delegateType.getKeyType().getRawClass()) : null,
+                primitiveValues ? ClassUtil.primitiveType(delegateType.getContentType().getRawClass()) : null,
+                null);
     }
 
     private BoxedDelegatingDeserializer(JavaType type, JavaType delegateType,
-            ContainerFamily.Creator<C> creator, ValueDeserializer<Object> delegate) {
+            ContainerFamily.Creator<C> creator, Class<?> primitiveKeyType, Class<?> primitiveValueType,
+            ValueDeserializer<Object> delegate) {
         super(type);
         _delegateType = delegateType;
         _creator = creator;
+        _primitiveKeyType = primitiveKeyType;
+        _primitiveValueType = primitiveValueType;
         _delegate = delegate;
     }
 
@@ -56,7 +73,8 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
         if (delegate == _delegate) {
             return this;
         }
-        return new BoxedDelegatingDeserializer<>(getValueType(), _delegateType, _creator, delegate);
+        return new BoxedDelegatingDeserializer<>(getValueType(), _delegateType, _creator,
+                _primitiveKeyType, _primitiveValueType, delegate);
     }
 
     @Override
@@ -117,26 +135,30 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
     @SuppressWarnings("unchecked")
     private void _copy(DeserializationContext ctxt, Object source, C target) throws JacksonException
     {
-        // Primitive containers cannot contain nulls, which custom deserializers may produce
+        // Primitive sides cannot contain nulls, which (custom) deserializers may produce
         if (target instanceof Map<?, ?> map) {
             for (Map.Entry<?, ?> entry : ((Map<?, ?>) source).entrySet()) {
-                if (entry.getKey() == null || entry.getValue() == null) {
-                    _reportNull(ctxt);
+                Object key = entry.getKey();
+                if (key == null && _primitiveKeyType != null) {
+                    ctxt.reportInputMismatch(this, "Cannot add `null` key (as produced by deserializer) to %s",
+                            ClassUtil.getTypeDescription(getValueType()));
                 }
-                ((Map<Object, Object>) map).put(entry.getKey(), entry.getValue());
+                ((Map<Object, Object>) map).put(key, _value(ctxt, entry.getValue()));
             }
         } else {
             for (Object value : (Collection<?>) source) {
-                if (value == null) {
-                    _reportNull(ctxt);
-                }
-                ((Collection<Object>) target).add(value);
+                ((Collection<Object>) target).add(_value(ctxt, value));
             }
         }
     }
 
-    private void _reportNull(DeserializationContext ctxt) throws JacksonException {
-        ctxt.reportInputMismatch(this, "Cannot add `null` (as produced by deserializer) to %s",
-                ClassUtil.getTypeDescription(getValueType()));
+    // Nulls for primitive values handled the same way as without custom deserializers:
+    // as specified by `FAIL_ON_NULL_FOR_PRIMITIVES` (default value if not failing)
+    private Object _value(DeserializationContext ctxt, Object value) throws JacksonException {
+        if (value == null && _primitiveValueType != null) {
+            _verifyNullForPrimitive(ctxt);
+            return ClassUtil.defaultValue(_primitiveValueType);
+        }
+        return value;
     }
 }

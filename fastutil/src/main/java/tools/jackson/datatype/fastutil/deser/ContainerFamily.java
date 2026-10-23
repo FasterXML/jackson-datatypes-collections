@@ -123,7 +123,9 @@ public final class ContainerFamily<C>
             return null;
         }
         for (Kind<C> kind : _kinds) {
-            if (kind.iface() == rawType) {
+            // Registered default implementations (like `IntArrayList`), commonly used
+            // as declared types, too, are created without reflection
+            if (kind.iface() == rawType || kind.defaultImplType() == rawType) {
                 return new Creator<>(rawType, kind.defaultImpl()::get, null);
             }
         }

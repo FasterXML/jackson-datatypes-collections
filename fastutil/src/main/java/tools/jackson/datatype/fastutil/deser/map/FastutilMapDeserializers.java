@@ -16,7 +16,6 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ValueDeserializer;
-import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -134,7 +133,8 @@ public final class FastutilMapDeserializers
                 }
                 if (valueDeserializer != null) { // custom deserializer for primitive values
                     return new BoxedDelegatingDeserializer<>(type,
-                            _boxedMapType(config, type, keyDeserializer, valueDeserializer), creator);
+                            _boxedMapType(config, type, keyDeserializer, valueDeserializer), creator,
+                            false, true);
                 }
                 Entry<?, ?, ?> intermediateEntry = _findEntry(refEntry.intermediateType());
                 if (intermediateEntry == null) { // never happens: registered together
@@ -219,7 +219,8 @@ public final class FastutilMapDeserializers
             // let standard Jackson handling use them
             if ((!refKey && keyDeserializer != null) || (!refValue && valueDeserializer != null)) {
                 return new BoxedDelegatingDeserializer<>(type,
-                        _boxedMapType(config, type, keyDeserializer, valueDeserializer), creator);
+                        _boxedMapType(config, type, keyDeserializer, valueDeserializer), creator,
+                        !refKey, !refValue);
             }
             return createDeserializer(type, keyDeserializer, valueTypeDeserializer, valueDeserializer,
                     new DirectConstruction<>(creator));
@@ -381,9 +382,8 @@ public final class FastutilMapDeserializers
             throws JacksonException
         {
             // Empty String may be coerced (like for `java.util` maps)
-            CoercionAction act = EmptyStrings.findCoercion(p, ctxt, this);
-            if (act != null) {
-                return (T) EmptyStrings.coercedValue(ctxt, this, act);
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                return (T) EmptyStrings.deserializeFromString(p, ctxt, this);
             }
             return super.deserialize(p, ctxt);
         }

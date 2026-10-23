@@ -59,8 +59,10 @@ public final class Merging
     public static DatabindException failure(DeserializationContext ctxt, Object intoValue,
             UnsupportedOperationException e)
     {
+        // fastutil's exceptions usually have no message
+        final String detail = ClassUtil.exceptionMessage(e);
         return DatabindException.from(ctxt, String.format(
-                "Cannot merge into value of type %s (unmodifiable?): %s",
-                ClassUtil.classNameOf(intoValue), ClassUtil.exceptionMessage(e)), e);
+                "Cannot merge into value of type %s (unmodifiable?)%s",
+                ClassUtil.classNameOf(intoValue), (detail == null) ? "" : ": " + detail), e);
     }
 }
