@@ -36,4 +36,19 @@ public class HashCodeTest extends ModuleTestBase
             verifyException(e, "Illegal hexadecimal character");
         }
     }
+
+    // [datatypes-collections#243]: implementation classes are package-private;
+    // request one directly as the target type. Only value equality is expected:
+    // deserializer always builds a plain (bytes-backed) HashCode.
+    @Test
+    public void testDeserializeAsImplementationSubtype() throws Exception
+    {
+        for (HashCode value : new HashCode[] {
+                HashCode.fromInt(42), HashCode.fromLong(123456789L),
+                HashCode.fromString("cafebabe12345678") }) {
+            String json = MAPPER.writeValueAsString(value);
+            Object result = MAPPER.readValue(json, value.getClass());
+            assertEquals(value, result);
+        }
+    }
 }

@@ -88,7 +88,7 @@ public class GuavaSerializers extends Serializers.Base
             return ToStringSerializer.instance;
         }
         if (type.isTypeOrSubTypeOf(HashCode.class)) {
-            return ToStringSerializer.instance;
+            return HashCodeSerializer.instance;
         }
         if (type.isTypeOrSubTypeOf(FluentIterable.class)) {
             JavaType iterableType = _findDeclared(type, Iterable.class);
