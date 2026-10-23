@@ -1,8 +1,5 @@
 package tools.jackson.datatype.pcollections.deser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -127,9 +124,6 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
         ValueDeserializer<?> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _typeDeserializerForValue;
-        // Only buffer elements if they must be added in reverse order
-        final boolean reverse = _plusPrepends();
-        final List<Object> buffered = reverse ? new ArrayList<>() : null;
         // No way to pass actual type parameter; but does not matter, just
         // compiler-time fluff:
         T collection = createEmptyCollection();
@@ -144,30 +138,9 @@ public abstract class PCollectionsCollectionDeserializer<T extends PCollection<O
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
-            if (reverse) {
-                buffered.add(value);
-            } else {
-                collection = _plus(ctxt, collection, value);
-            }
-        }
-        if (reverse) {
-            for (int i = buffered.size(); --i >= 0; ) {
-                collection = _plus(ctxt, collection, buffered.get(i));
-            }
+            collection = _plus(ctxt, collection, value);
         }
         return collection;
-    }
-
-    /**
-     * Method that indicates whether {@code plus()} of the collection type
-     * prepends elements (like stacks) instead of appending them: if so,
-     * elements are added in reverse order to retain the order of the JSON
-     * array. Default implementation returns {@code false}.
-     *
-     * @since 3.3
-     */
-    protected boolean _plusPrepends() {
-        return false;
     }
 
     /**

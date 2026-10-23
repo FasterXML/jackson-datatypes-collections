@@ -37,6 +37,11 @@ public class TestPCollections extends ModuleTestBase
         }
     }
 
+    static class TypedStackHolder {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public PStack<Object> values;
+    }
+
     /*
     /**********************************************************************
     /* Unit tests for verifying handling in absence of module registration
@@ -189,6 +194,23 @@ public class TestPCollections extends ModuleTestBase
                     new TypeReference<PStack<Integer>>() { }));
             assertEquals(values, MAPPER.readValue(json,
                     new TypeReference<ConsPStack<Integer>>() { }));
+        }
+    }
+
+    @Test
+    public void stackWithTypedElements() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
+        for (List<Object> values : Arrays.<List<Object>>asList(
+                List.of(), Arrays.asList(1L, "a", null, 2.5f))) {
+            TypedStackHolder input = new TypedStackHolder();
+            input.values = ConsPStack.from(values);
+            String json = mapper.writeValueAsString(input);
+            TypedStackHolder result = mapper.readValue(json, TypedStackHolder.class);
+            assertEquals(ConsPStack.class, result.values.getClass());
+            assertEquals(values, result.values);
         }
     }
 
