@@ -1,6 +1,10 @@
 package tools.jackson.datatype.guava.deser;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -135,13 +139,13 @@ public class RangeSetDeserializer
             ctxt.reportBadDefinition(handledType(),
 "Not contextualized to have value deserializer or value type of `RangeSet` was not available via type parameters");
         }
-        ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
+        List<Range<Comparable<?>>> ranges = new ArrayList<>();
         if (p.isExpectedStartArrayToken()) {
             JsonToken t;
             int index = 0;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 try {
-                    _readRange(p, ctxt, t, builder);
+                    _readRange(p, ctxt, t, ranges);
                 } catch (Exception e) {
                     // As with databind `CollectionDeserializer`: add index to path
                     boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
@@ -149,7 +153,7 @@ public class RangeSetDeserializer
                         ClassUtil.throwIfRTE(e);
                     }
                     throw DatabindException.wrapWithPath(ctxt, e,
-                            new JacksonException.Reference(builder, index));
+                            new JacksonException.Reference(ranges, index));
                 }
                 ++index;
             }
@@ -180,10 +184,17 @@ public class RangeSetDeserializer
             if (!canWrap) {
                 return (RangeSet<?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
-            _readRange(p, ctxt, p.currentToken(), builder);
+            _readRange(p, ctxt, p.currentToken(), ranges);
+        }
+        // Endpoints of unknown type are read as "natural" types, so numbers
+        // may differ between ranges (like `Integer` and `Long`): if so, widen
+        final Object rangeDeser = _deserializer;
+        if ((rangeDeser instanceof RangeDeserializer)
+                && ((RangeDeserializer) rangeDeser).hasUnknownEndpointType()) {
+            ranges = RangeDeserializer.widenNumericRanges(ranges);
         }
         try {
-            return builder.build();
+            return ImmutableRangeSet.<Comparable<?>>builder().addAll(ranges).build();
         // `ClassCastException` if ranges have incompatible endpoint types (like
         // `Integer` and `Long` when endpoint type is not known)
         } catch (IllegalArgumentException | ClassCastException e) {
@@ -194,7 +205,7 @@ public class RangeSetDeserializer
     }
 
     private void _readRange(JsonParser p, DeserializationContext ctxt, JsonToken t,
-            ImmutableRangeSet.Builder<Comparable<?>> builder)
+            List<Range<Comparable<?>>> ranges)
         throws JacksonException
     {
         final Object range;
@@ -208,7 +219,8 @@ public class RangeSetDeserializer
         } else {
             range = _deserializer.deserializeWithType(p, ctxt, _typeDeserializer);
         }
-        _addRange(p, ctxt, builder, range);
+        // Like `ImmutableRangeSet.Builder`, must reject `null` (see `NullElementHelper`)
+        _addRange(p, ctxt, range, r -> ranges.add(Objects.requireNonNull(r)));
     }
 
     /**
@@ -219,11 +231,11 @@ public class RangeSetDeserializer
             ImmutableRangeSet.Builder<Comparable<?>> builder)
         throws JacksonException
     {
-        _addRange(p, ctxt, builder, null);
+        _addRange(p, ctxt, null, builder::add);
     }
 
-    private void _addRange(JsonParser p, DeserializationContext ctxt,
-            ImmutableRangeSet.Builder<Comparable<?>> builder, Object range)
+    private void _addRange(JsonParser p, DeserializationContext ctxt, Object range,
+            Function<Range<Comparable<?>>, ?> adder)
         throws JacksonException
     {
         NullElementHelper.addElement(p, ctxt, p.currentToken(),
@@ -231,7 +243,7 @@ public class RangeSetDeserializer
                 range, r -> {
                     @SuppressWarnings("unchecked")
                     Range<Comparable<?>> typed = (Range<Comparable<?>>) r;
-                    return builder.add(typed);
+                    return adder.apply(typed);
                 });
     }
 }

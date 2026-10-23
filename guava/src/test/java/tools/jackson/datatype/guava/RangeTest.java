@@ -46,6 +46,10 @@ public class RangeTest extends ModuleTestBase
         public Range<?> r;
     }
 
+    static class NumberWrapper {
+        public Range<? extends Number> r;
+    }
+
     static class StringRangeWrapper {
         @JsonFormat(shape = JsonFormat.Shape.STRING)
         public Range<Integer> r;
@@ -420,25 +424,30 @@ public class RangeTest extends ModuleTestBase
                 + "'upperEndpoint':2.5,'upperBoundType':'CLOSED'}}"), json);
         assertEquals(RangeFactory.closed(1.5, 2.5), MAPPER.readValue(json, WildcardWrapper.class).r);
 
-        input.r = RangeFactory.atLeast("abc");
-        assertEquals(input.r, MAPPER.readValue(MAPPER.writeValueAsString(input), WildcardWrapper.class).r);
-
-        // Same with default typing: no endpoint type ids
+        // Same with default typing: no endpoint type ids (`BigDecimal` is not final)
         ObjectMapper typed = builderWithModule()
                 .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
         json = typed.writeValueAsString(input);
-        assertFalse(json.contains("java.lang.String"), json);
-        assertEquals(input.r, typed.readValue(json, WildcardWrapper.class).r);
+        assertFalse(json.contains("java.math.BigDecimal"), json);
+        assertEquals(RangeFactory.closed(1.5, 2.5), typed.readValue(json, WildcardWrapper.class).r);
+
+        input.r = RangeFactory.atLeast("abc");
+        assertEquals(input.r, MAPPER.readValue(MAPPER.writeValueAsString(input), WildcardWrapper.class).r);
     }
 
     // Numeric endpoints read as different "natural" types are widened to a common type
     @Test
     public void testWildcardRangeMixedNumbers() throws Exception
     {
-        assertEquals(RangeFactory.closed(1.0, 2.5), _readWildcard("1", "2.5"));
+        // Mix of integral and floating-point: `BigDecimal`, so no precision is lost
+        assertEquals(RangeFactory.closed(BigDecimal.ONE, new BigDecimal("2.5")), _readWildcard("1", "2.5"));
         assertEquals(RangeFactory.closed(1L, 5_000_000_000L), _readWildcard("1", "5000000000"));
         assertEquals(RangeFactory.closed(BigInteger.ONE, new BigInteger("99999999999999999999")),
                 _readWildcard("1", "99999999999999999999"));
+        assertEquals(RangeFactory.closed(new BigDecimal("0.5"), new BigDecimal("9007199254740993")),
+                _readWildcard("0.5", "9007199254740993"));
+        assertEquals(RangeFactory.closed(new BigDecimal("1.5"), new BigDecimal("1e400")),
+                _readWildcard("1.5", "1" + "0".repeat(400)));
         ObjectMapper mapper = builderWithModule()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
         assertEquals(RangeFactory.closed(BigDecimal.ONE, new BigDecimal("2.5")),
@@ -473,6 +482,15 @@ public class RangeTest extends ModuleTestBase
         String json = mapper.writeValueAsString(input);
         assertEquals(a2q("{'r':['com.google.common.collect.Range','[1..5]']}"), json);
         assertEquals(input.r, mapper.readValue(json, StringRangeWrapper.class).r);
+    }
+
+    // `Range<? extends Number>` endpoints are also read as "natural" types
+    @Test
+    public void testNumberRangeMixedNumbers() throws Exception
+    {
+        NumberWrapper result = MAPPER.readValue(a2q("{'r':{'lowerEndpoint':1,'lowerBoundType':'CLOSED',"
+                + "'upperEndpoint':2.5,'upperBoundType':'CLOSED'}}"), NumberWrapper.class);
+        assertEquals(RangeFactory.closed(BigDecimal.ONE, new BigDecimal("2.5")), result.r);
     }
 
     private Range<?> _readWildcard(String lower, String upper) throws Exception

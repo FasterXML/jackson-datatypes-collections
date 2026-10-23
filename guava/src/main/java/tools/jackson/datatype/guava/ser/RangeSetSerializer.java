@@ -1,6 +1,6 @@
 package tools.jackson.datatype.guava.ser;
 
-import java.util.List;
+import java.util.Set;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -10,6 +10,7 @@ import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
@@ -21,25 +22,24 @@ import com.google.common.collect.RangeSet;
 
 public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
 {
-    private final ValueSerializer<Object> _serializer;
-
+    /**
+     * Serializer for individual {@link Range} elements (wrapped with
+     * type serializer, if {@code Range}s have type ids).
+     */
     private final ValueSerializer<Object> _rangeSerializer;
 
     public RangeSetSerializer() {
         super(RangeSet.class);
-        _serializer = null;
         _rangeSerializer = null;
     }
 
-    protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<Object> ser) {
-        this(base, ser, base._rangeSerializer);
-    }
-
+    /**
+     * @param rangeSer Serializer for individual {@link Range} elements
+     *    (since 3.3; was serializer for {@code List} of ranges before)
+     */
     @SuppressWarnings("unchecked")
-    protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<Object> ser,
-            ValueSerializer<?> rangeSer) {
+    protected RangeSetSerializer(RangeSetSerializer base, ValueSerializer<?> rangeSer) {
         super(base);
-        _serializer = ser;
         _rangeSerializer = (ValueSerializer<Object>) rangeSer;
     }
 
@@ -48,10 +48,15 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
             SerializationContext ctxt)
         throws JacksonException
     {
-        if (_serializer == null) {
-            ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
+        Set<Range<Comparable<?>>> ranges = value.asRanges();
+        // Same as databind `CollectionSerializer`
+        if ((ranges.size() == 1) && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            _writeRanges(value, g, ctxt);
+            return;
         }
-        _serializer.serialize(value.asRanges(), g, ctxt);
+        g.writeStartArray(value, ranges.size());
+        _writeRanges(value, g, ctxt);
+        g.writeEndArray();
     }
 
     @Override
@@ -59,18 +64,23 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
             SerializationContext ctxt, TypeSerializer typeSer)
         throws JacksonException
     {
-        if (_rangeSerializer == null) {
-            ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
-        }
-        // Write the array directly (instead of delegating to the `Set` serializer) so that
-        // both the type id and the current value refer to the `RangeSet`, not its `asRanges()` view
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, _typeIdClass(value), JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
+        _writeRanges(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    private void _writeRanges(RangeSet<Comparable<?>> value, JsonGenerator g,
+            SerializationContext ctxt)
+        throws JacksonException
+    {
+        if (_rangeSerializer == null) {
+            ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
+        }
         for (Range<?> range : value.asRanges()) {
             _rangeSerializer.serialize(range, g, ctxt);
         }
-        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     // Deserializer always builds an `ImmutableRangeSet`, so other implementations
@@ -82,11 +92,6 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
     @Override
     public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
-        ValueSerializer<Object> ser = ctxt.findContentValueSerializer(
-                ctxt.getTypeFactory().constructCollectionType(List.class, Range.class), property);
-        if (property == null) {
-            return new RangeSetSerializer(this, ser, ctxt.findTypedValueSerializer(Range.class, true));
-        }
         JavaType rangeType = ctxt.constructType(Range.class);
         ValueSerializer<?> rangeSer = findAnnotatedContentSerializer(ctxt, property);
         rangeSer = findContextualConvertingSerializer(ctxt, property, rangeSer);
@@ -99,6 +104,6 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         if (typeSer != null) {
             rangeSer = new TypeWrappedSerializer(typeSer.forProperty(ctxt, property), rangeSer);
         }
-        return new RangeSetSerializer(this, ser, rangeSer);
+        return new RangeSetSerializer(this, rangeSer);
     }
 }

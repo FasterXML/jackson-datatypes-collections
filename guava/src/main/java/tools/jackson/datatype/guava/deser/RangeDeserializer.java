@@ -2,7 +2,11 @@ package tools.jackson.datatype.guava.deser;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -187,13 +191,11 @@ public class RangeDeserializer
         if ((lowerEndpoint != null) && (upperEndpoint != null)) {
             // Endpoints of unknown type are read as "natural" types, so numbers
             // may differ (like `1` and `2.5`): if so, widen to a common type
-            if ((lowerEndpoint.getClass() != upperEndpoint.getClass())
-                    && (lowerEndpoint instanceof Number) && (upperEndpoint instanceof Number)
-                    && _hasUnknownEndpointType()) {
-                Class<?> common = _commonNumberType((Number) lowerEndpoint, (Number) upperEndpoint);
+            if (hasUnknownEndpointType()) {
+                Class<?> common = _commonNumberType(Arrays.asList(lowerEndpoint, upperEndpoint));
                 if (common != null) {
-                    lowerEndpoint = _widenNumber((Number) lowerEndpoint, common);
-                    upperEndpoint = _widenNumber((Number) upperEndpoint, common);
+                    lowerEndpoint = _widenNumber(lowerEndpoint, common);
+                    upperEndpoint = _widenNumber(upperEndpoint, common);
                 }
             }
             if (lowerEndpoint.getClass() != upperEndpoint.getClass()) {
@@ -286,41 +288,88 @@ public class RangeDeserializer
                 Arrays.asList(BoundType.values()));
     }
 
-    private boolean _hasUnknownEndpointType() {
+    /**
+     * Whether endpoint type is not specific enough to determine endpoint value types,
+     * in which case endpoints are read as "natural" types (and numbers may need widening).
+     */
+    boolean hasUnknownEndpointType() {
         JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
-        return endpointType.hasRawClass(Object.class) || endpointType.hasRawClass(Comparable.class);
+        return endpointType.hasRawClass(Object.class) || endpointType.hasRawClass(Comparable.class)
+                || endpointType.hasRawClass(Number.class);
     }
 
-    // Returns `null` if there is no common type (non-finite `Double` with `BigDecimal`)
-    private static Class<?> _commonNumberType(Number n1, Number n2) {
-        if ((n1 instanceof BigDecimal) || (n2 instanceof BigDecimal)) {
-            return (_isNonFinite(n1) || _isNonFinite(n2)) ? null : BigDecimal.class;
+    /**
+     * Widens numeric endpoints of given ranges to a common type, if they have
+     * different types (like {@code Integer} and {@code Long}): otherwise
+     * returns ranges as-is.
+     */
+    static List<Range<Comparable<?>>> widenNumericRanges(List<Range<Comparable<?>>> ranges)
+    {
+        List<Object> endpoints = new ArrayList<>();
+        for (Range<?> range : ranges) {
+            endpoints.add(range.hasLowerBound() ? range.lowerEndpoint() : null);
+            endpoints.add(range.hasUpperBound() ? range.upperEndpoint() : null);
         }
-        if ((n1 instanceof Double) || (n2 instanceof Double)
-                || (n1 instanceof Float) || (n2 instanceof Float)) {
-            return Double.class;
+        Class<?> common = _commonNumberType(endpoints);
+        if (common == null) {
+            return ranges;
         }
-        if ((n1 instanceof BigInteger) || (n2 instanceof BigInteger)) {
-            return BigInteger.class;
+        List<Range<Comparable<?>>> result = new ArrayList<>(ranges.size());
+        for (Range<Comparable<?>> r : ranges) {
+            if (r.hasLowerBound() && r.hasUpperBound()) {
+                r = RangeFactory.range(_widenNumber(r.lowerEndpoint(), common), r.lowerBoundType(),
+                        _widenNumber(r.upperEndpoint(), common), r.upperBoundType());
+            } else if (r.hasLowerBound()) {
+                r = RangeFactory.downTo(_widenNumber(r.lowerEndpoint(), common), r.lowerBoundType());
+            } else if (r.hasUpperBound()) {
+                r = RangeFactory.upTo(_widenNumber(r.upperEndpoint(), common), r.upperBoundType());
+            }
+            result.add(r);
         }
-        return Long.class;
+        return result;
     }
 
-    private static boolean _isNonFinite(Number n) {
-        return ((n instanceof Double) || (n instanceof Float)) && !Double.isFinite(n.doubleValue());
+    /**
+     * Returns the type to widen given values ({@code null}s ignored) to, or {@code null}
+     * if no widening is needed (all of same type) or possible (not all numbers).
+     * Integral numbers are widened to {@code Long} or {@code BigInteger}, mixes
+     * with floating-point numbers to {@code BigDecimal} (to retain exact values;
+     * not possible for NaN and infinity).
+     */
+    private static Class<?> _commonNumberType(List<?> values)
+    {
+        Set<Class<?>> types = new HashSet<>();
+        for (Object value : values) {
+            if (value != null) {
+                if (!(value instanceof Number)) {
+                    return null;
+                }
+                types.add(value.getClass());
+            }
+        }
+        if (types.size() < 2) {
+            return null;
+        }
+        if (INTEGRAL_TYPES.containsAll(types)) {
+            return types.contains(BigInteger.class) ? BigInteger.class : Long.class;
+        }
+        for (Object value : values) {
+            if (((value instanceof Double) || (value instanceof Float))
+                    && !Double.isFinite(((Number) value).doubleValue())) {
+                return null;
+            }
+        }
+        return BigDecimal.class;
     }
 
-    private static Comparable<?> _widenNumber(Number n, Class<?> type) {
-        if (type == BigDecimal.class) {
-            return (n instanceof BigDecimal) ? (BigDecimal) n : new BigDecimal(n.toString());
+    private final static Set<Class<?>> INTEGRAL_TYPES = new HashSet<>(Arrays.asList(
+            Byte.class, Short.class, Integer.class, Long.class, BigInteger.class));
+
+    private static Comparable<?> _widenNumber(Object n, Class<?> type) {
+        if (type == Long.class) {
+            return ((Number) n).longValue();
         }
-        if (type == Double.class) {
-            return n.doubleValue();
-        }
-        if (type == BigInteger.class) {
-            return (n instanceof BigInteger) ? (BigInteger) n : BigInteger.valueOf(n.longValue());
-        }
-        return n.longValue();
+        return (type == BigInteger.class) ? new BigInteger(n.toString()) : new BigDecimal(n.toString());
     }
 
     private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)

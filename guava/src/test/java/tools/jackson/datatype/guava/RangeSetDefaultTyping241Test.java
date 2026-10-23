@@ -266,19 +266,28 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
         assertEquals(Range.closed(1.5, 2.5), output.value);
     }
 
-    // Ranges whose endpoints read back as different types must fail cleanly
+    // Numeric endpoints that read back as different types are widened across ranges
     @Test
-    public void mixedEndpointTypesAcrossRanges() {
+    public void mixedNumberTypesAcrossRanges() {
         ObjectMapper mapper = builderWithModule()
                 .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
         TreeRangeSet<Long> set = TreeRangeSet.create();
         set.add(Range.closed(1L, 2L));
-        set.add(Range.closed(3L, 5_000_000_000L));
+        set.add(Range.atLeast(5_000_000_000L));
         ObjectWrapper input = new ObjectWrapper();
         input.value = set;
-        String json = mapper.writeValueAsString(input);
+        ObjectWrapper output = mapper.readValue(mapper.writeValueAsString(input), ObjectWrapper.class);
+        assertEquals(set, output.value);
+    }
+
+    // Ranges with incompatible (non-numeric) endpoint types must fail cleanly
+    @Test
+    public void mixedEndpointTypesAcrossRanges() {
         MismatchedInputException e = assertThrows(MismatchedInputException.class,
-                () -> mapper.readValue(json, ObjectWrapper.class));
+                () -> mapperWithModule().readValue(
+                        a2q("[{'lowerEndpoint':1,'lowerBoundType':'CLOSED'},"
+                                + "{'lowerEndpoint':'a','lowerBoundType':'CLOSED'}]"),
+                        new TypeReference<RangeSet<?>>() { }));
         verifyException(e, "Failed to build");
     }
 
