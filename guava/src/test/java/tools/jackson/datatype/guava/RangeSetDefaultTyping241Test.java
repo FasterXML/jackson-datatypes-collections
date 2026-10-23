@@ -291,6 +291,28 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
         verifyException(e, "Failed to build");
     }
 
+    // Invalid (empty) range must be reported with its index
+    @Test
+    public void emptyRangeReportedWithIndex() {
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> mapperWithModule().readValue(
+                        a2q("[{'lowerEndpoint':1,'lowerBoundType':'CLOSED','upperEndpoint':2,'upperBoundType':'CLOSED'},"
+                                + "{'lowerEndpoint':1,'lowerBoundType':'OPEN','upperEndpoint':1,'upperBoundType':'CLOSED'}]"),
+                        new TypeReference<RangeSet<Integer>>() { }));
+        verifyException(e, "range must not be empty");
+        assertEquals(1, e.getPath().get(0).getIndex());
+    }
+
+    // Unwrapped single range must also see `RangeSet` as current value
+    @Test
+    public void customSerializerSeesRangeSetAsCurrentValueUnwrapped() {
+        ObjectMapper mapper = builderWithModule()
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED).build();
+        CustomSerializerWrapper input = new CustomSerializerWrapper();
+        input.value = ImmutableRangeSet.of(Range.closed(1, 5));
+        assertEquals(a2q("{'value':'1:5'}"), mapper.writeValueAsString(input));
+    }
+
     // Deserializer always builds `ImmutableRangeSet`, so other implementations use `RangeSet` id
     @Test
     public void treeRangeSetUsesRangeSetTypeId() {

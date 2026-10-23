@@ -51,11 +51,12 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         Set<Range<Comparable<?>>> ranges = value.asRanges();
         // Same as databind `CollectionSerializer`
         if ((ranges.size() == 1) && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            _writeRanges(value, g, ctxt);
+            g.assignCurrentValue(value);
+            _writeRanges(ranges, g, ctxt);
             return;
         }
         g.writeStartArray(value, ranges.size());
-        _writeRanges(value, g, ctxt);
+        _writeRanges(ranges, g, ctxt);
         g.writeEndArray();
     }
 
@@ -67,18 +68,18 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, _typeIdClass(value), JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
-        _writeRanges(value, g, ctxt);
+        _writeRanges(value.asRanges(), g, ctxt);
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    private void _writeRanges(RangeSet<Comparable<?>> value, JsonGenerator g,
+    private void _writeRanges(Set<Range<Comparable<?>>> ranges, JsonGenerator g,
             SerializationContext ctxt)
         throws JacksonException
     {
         if (_rangeSerializer == null) {
             ctxt.reportBadDefinition(handledType(), "Not contextualized to have value serializer");
         }
-        for (Range<?> range : value.asRanges()) {
+        for (Range<?> range : ranges) {
             _rangeSerializer.serialize(range, g, ctxt);
         }
     }
