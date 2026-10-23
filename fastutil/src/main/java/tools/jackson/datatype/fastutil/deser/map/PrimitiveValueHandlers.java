@@ -2,12 +2,12 @@ package tools.jackson.datatype.fastutil.deser.map;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.type.LogicalType;
-import tools.jackson.datatype.primitive_collections_base.deser.map.PrimitiveKVHandler;
 import tools.jackson.datatype.primitive_collections_base.deser.map.ValueHandler;
 
 /**
@@ -96,8 +96,22 @@ final class PrimitiveValueHandlers
         private Char() { super(java.lang.Character.TYPE, LogicalType.Textual); }
 
         char value(DeserializationContext ctxt, JsonParser p) throws JacksonException {
-            // no coercion helpers for `char` in `StdDeserializer`
-            return PrimitiveKVHandler.Char.INSTANCE.value(ctxt, p);
+            // no parsing helper for `char` in `StdDeserializer`: handle the same way as
+            // `jackson-databind` does for `char` (except for no coercion from numbers)
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                _verifyNullForPrimitive(ctxt);
+                return '\0';
+            }
+            if (!p.hasToken(JsonToken.VALUE_STRING)) {
+                return (java.lang.Character) ctxt.handleUnexpectedToken(java.lang.Character.TYPE, p);
+            }
+            String str = p.getString();
+            if (str.length() != 1) {
+                return (java.lang.Character) ctxt.handleWeirdStringValue(java.lang.Character.TYPE, str,
+                        "Cannot convert a JSON String of length %d into a `char` map value",
+                        str.length());
+            }
+            return str.charAt(0);
         }
 
         @Override

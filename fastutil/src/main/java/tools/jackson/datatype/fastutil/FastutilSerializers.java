@@ -31,6 +31,10 @@ public class FastutilSerializers extends Serializers.Base
             JsonFormat.Value formatOverrides,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
+        // Custom element serializers take boxed values: leave to standard serializer
+        if (elementValueSerializer != null) {
+            return null;
+        }
         return PrimitiveCollectionSerializers.findSerializer(type.getRawClass());
     }
 
@@ -41,6 +45,10 @@ public class FastutilSerializers extends Serializers.Base
             ValueSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
+        // Custom key or value serializers take boxed values: leave to standard serializer
+        if (keySerializer != null || elementValueSerializer != null) {
+            return null;
+        }
         // Primitive keys, primitive values
         final Class<?> raw = type.getRawClass();
         for (Map.Entry<Class<?>, PrimitiveMapSerializer<?>> entry

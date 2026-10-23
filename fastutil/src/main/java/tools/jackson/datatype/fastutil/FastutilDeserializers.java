@@ -23,7 +23,7 @@ public class FastutilDeserializers extends Deserializers.Base
             DeserializationConfig config, BeanDescription.Supplier beanDescRef,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
-        return PrimitiveCollectionDeserializers.findDeserializer(type);
+        return PrimitiveCollectionDeserializers.findDeserializer(config, type, elementDeserializer);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class FastutilDeserializers extends Deserializers.Base
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
-        return FastutilMapDeserializers.findDeserializer(type, keyDeserializer,
+        return FastutilMapDeserializers.findDeserializer(config, type, keyDeserializer,
                 elementTypeDeserializer, elementDeserializer);
     }
 

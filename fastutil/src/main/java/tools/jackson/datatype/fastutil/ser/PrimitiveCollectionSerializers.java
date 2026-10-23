@@ -13,13 +13,18 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
+import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.ser.PrimitiveIterableSerializer;
 
@@ -87,6 +92,31 @@ public final class PrimitiveCollectionSerializers
         return null;
     }
 
+    /**
+     * Custom content serializers ({@code @JsonSerialize(contentUsing = ...)} or
+     * {@code contentConverter}) take boxed values: if the property specifies one,
+     * the standard Jackson {@code Collection} serializer is used instead.
+     *
+     * @return Contextualized standard serializer, if needed; {@code null} otherwise
+     */
+    static ValueSerializer<?> _standardSerializerIfNeeded(SerializationContext ctxt,
+            BeanProperty property, Class<?> primitiveType)
+    {
+        final AnnotatedMember member = (property == null) ? null : property.getMember();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (member == null || intr == null) {
+            return null;
+        }
+        final SerializationConfig config = ctxt.getConfig();
+        if ((intr.findContentSerializer(config, member) == null)
+                && (intr.findSerializationContentConverter(config, member) == null)) {
+            return null;
+        }
+        return new CollectionSerializer(ctxt.constructType(ClassUtil.wrapperType(primitiveType)),
+                false, null, null)
+            .createContextual(ctxt, property);
+    }
+
     public abstract static class Base<C extends Collection<?>>
         extends PrimitiveIterableSerializer<C>
     {
@@ -104,6 +134,11 @@ public final class PrimitiveCollectionSerializers
         @Override
         public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
         {
+            ValueSerializer<?> std = _standardSerializerIfNeeded(ctxt, property,
+                    _elementType.getRawClass());
+            if (std != null) {
+                return std;
+            }
             Boolean unwrapSingle = findFormatFeature(ctxt, property, handledType(),
                     JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
             if (Objects.equals(unwrapSingle, _unwrapSingle)) {
@@ -295,6 +330,13 @@ public final class PrimitiveCollectionSerializers
 
         private CharSerializer() {
             super(CharCollection.class);
+        }
+
+        @Override
+        public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
+        {
+            ValueSerializer<?> std = _standardSerializerIfNeeded(ctxt, property, char.class);
+            return (std == null) ? this : std;
         }
 
         @Override

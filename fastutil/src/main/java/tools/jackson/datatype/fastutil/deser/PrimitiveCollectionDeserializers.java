@@ -10,9 +10,11 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
+import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCollectionDeserializer;
@@ -115,14 +117,18 @@ public final class PrimitiveCollectionDeserializers
     }
 
     /**
+     * @param elementDeserializer Custom deserializer for elements, if any (like one
+     *    specified with {@code @JsonDeserialize(contentUsing = ...)})
+     *
      * @return Deserializer for given type if it is a fastutil collection of primitive
      *    values that can be constructed; {@code null} otherwise
      */
-    public static ValueDeserializer<?> findDeserializer(JavaType type)
+    public static ValueDeserializer<?> findDeserializer(DeserializationConfig config,
+            JavaType type, ValueDeserializer<?> elementDeserializer)
     {
         for (Support<?> support : SUPPORTS) {
             if (support.family().handles(type.getRawClass())) {
-                return support.findDeserializer(type);
+                return support.findDeserializer(config, type, elementDeserializer);
             }
         }
         return null;
@@ -131,9 +137,22 @@ public final class PrimitiveCollectionDeserializers
     private record Support<C>(ContainerFamily<C> family,
             BiFunction<JavaType, ContainerFamily.Creator<C>, ValueDeserializer<?>> deserializerFactory)
     {
-        ValueDeserializer<?> findDeserializer(JavaType type) {
+        ValueDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type,
+                ValueDeserializer<?> elementDeserializer)
+        {
             ContainerFamily.Creator<C> creator = family.findCreator(type.getRawClass());
-            return (creator == null) ? null : deserializerFactory.apply(type, creator);
+            if (creator == null) {
+                return null;
+            }
+            if (elementDeserializer != null) {
+                // Let standard Jackson handling use the custom deserializer (which
+                // produces boxed values)
+                // (handler needs to be set explicitly: resolved types are cached without one)
+                return new BoxedDelegatingDeserializer<>(type, config.getTypeFactory()
+                        .constructCollectionType(ArrayList.class, type.getContentType())
+                        .withContentValueHandler(elementDeserializer), creator);
+            }
+            return deserializerFactory.apply(type, creator);
         }
     }
 
@@ -159,6 +178,31 @@ public final class PrimitiveCollectionDeserializers
         @Override
         protected C finish(C intermediate) {
             return _creator.finish(intermediate);
+        }
+
+        // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds elements
+        @SuppressWarnings("unchecked")
+        @Override
+        public C deserialize(JsonParser p, DeserializationContext ctxt, C intoValue)
+            throws JacksonException
+        {
+            ((Collection<Object>) intoValue).addAll(deserialize(p, ctxt));
+            return intoValue;
+        }
+
+        @Override
+        public Boolean supportsUpdate(DeserializationConfig config) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return _creator.finish(_creator.create());
+        }
+
+        @Override
+        public AccessPattern getEmptyAccessPattern() {
+            return AccessPattern.DYNAMIC;
         }
     }
 
@@ -297,6 +341,30 @@ public final class PrimitiveCollectionDeserializers
         @Override
         protected CharCollection finish(CharCollection intermediate) {
             return _creator.finish(intermediate);
+        }
+
+        @Override
+        public CharCollection deserialize(JsonParser p, DeserializationContext ctxt,
+                CharCollection intoValue)
+            throws JacksonException
+        {
+            intoValue.addAll(deserialize(p, ctxt));
+            return intoValue;
+        }
+
+        @Override
+        public Boolean supportsUpdate(DeserializationConfig config) {
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return _creator.finish(_creator.create());
+        }
+
+        @Override
+        public AccessPattern getEmptyAccessPattern() {
+            return AccessPattern.DYNAMIC;
         }
 
         @Override

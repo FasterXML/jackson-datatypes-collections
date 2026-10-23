@@ -53,9 +53,9 @@ one of them, since they contain the same classes.
 </dependency>
 ```
 
-Note that `fastutil-core` is only supported on the class path: its Java module name
-(`it.unimi.dsi.fastutil.core`) differs from that of `fastutil` (`it.unimi.dsi.fastutil`), which
-the module descriptor of this module requires. When using the module path, use `fastutil`.
+Either jar may also be used on the module path: although the Java module name of `fastutil-core`
+(`it.unimi.dsi.fastutil.core`) differs from that of `fastutil` (`it.unimi.dsi.fastutil`, which the
+module descriptor of this module refers to), the module adds the needed "reads" edge at runtime.
 
 ### Registering module
 
@@ -83,8 +83,14 @@ abstract types like `IntList` at all. This module adds:
 * Maps with primitive keys and/or values: `X2YMap`, `X2YSortedMap` and their implementations
   (`X2YOpenHashMap`, `X2YLinkedOpenHashMap`, `X2YArrayMap`, `X2YRBTreeMap`, `X2YAVLTreeMap`),
   for every primitive or `Object` key `X` and value `Y` (for example `Int2LongMap`,
-  `Object2IntMap<K>`, `Long2ObjectMap<V>`), (de)serialized without boxing.
-* Containers of references (`ObjectList`, `ObjectSet`, `Object2ObjectMap`, `Reference2IntMap`,
+  `Object2IntMap<K>`, `Long2ObjectMap<V>`), deserialized without boxing. Maps with primitive
+  keys and values (like `Int2LongMap`) are also serialized without boxing; maps with `Object`
+  keys or values are serialized by the standard Jackson `Map` serializer, so that all its
+  features (like `@JsonInclude(content = ...)`) are supported.
+* Maps with identity-based (`Reference`) keys and primitive values (`Reference2IntMap`...):
+  deserialized like the matching `Object2YMap` (so values are handled the same way), and
+  copied into a `Reference2YOpenHashMap` (`Reference2YLinkedOpenHashMap` for `Reference2YSortedMap`).
+* Other containers of references (`ObjectList`, `ObjectSet`, `Object2ObjectMap`,
   `Int2ReferenceMap`...): abstract types are mapped to default implementations
   (`ObjectArrayList`, `ObjectOpenHashSet`, `Object2ObjectOpenHashMap`...) and handled by the
   standard Jackson `Collection` and `Map` (de)serializers.
@@ -92,16 +98,30 @@ abstract types like `IntList` at all. This module adds:
 When deserializing into an interface, the default implementation is `XArrayList`
 (`XCollection`, `XList`), `XBigArrayBigList` (`XBigList`), `XOpenHashSet` (`XSet`),
 `XRBTreeSet` (`XSortedSet`), `X2YOpenHashMap` (`X2YMap`) or `X2YRBTreeMap` (`X2YSortedMap`).
-Concrete types with a no-arguments constructor are used as-is.
+Abstract classes (like `AbstractIntSet`) use the default implementation of the most specific of
+these interfaces they implement. Concrete types with a no-arguments constructor are used as-is.
+
+Other Jackson features work as for the equivalent `java.util` types, including merging
+(`@JsonMerge`, `ObjectMapper.readerForUpdating()`: elements are added, map entries replaced),
+`@JsonSetter(nulls = Nulls.AS_EMPTY)` and `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS`.
+Custom serializers or deserializers for primitive elements, keys or values (like
+`@JsonDeserialize(contentUsing = ...)`) are also supported, but take boxed values: containers
+that use them are (de)serialized by the standard Jackson handlers, and copied into the fastutil
+container when deserializing.
 
 ### Polymorphic typing
 
 With polymorphic type handling (for example `activateDefaultTyping()`), type ids name the
 runtime class, which may be one of the wrappers created by fastutil helper classes, like
 `IntLists.unmodifiable(...)`, `Int2LongMaps.synchronize(...)`, `IntSets.singleton(...)` or
-`IntLists.emptyList()`. These are deserialized into an order-preserving implementation that is
-then wrapped using the same helper method; singleton and empty instances become unmodifiable
-wrappers. `XImmutableList` is built from an `XArrayList`.
+`IntLists.emptyList()`. For collections of primitives and maps with primitive keys and/or values,
+these are deserialized into an order-preserving implementation that is then wrapped using the
+same helper method; singleton and empty instances become unmodifiable wrappers. `XImmutableList`
+is built from an `XArrayList`.
+
+Wrappers of containers of references (like `ObjectLists.unmodifiable(...)` or
+`ObjectSets.synchronize(...)`) are generally not supported: these are handled by standard
+Jackson deserializers, which cannot create them.
 
 Note that a `PolymorphicTypeValidator` has to allow the fastutil types, for example:
 
@@ -165,8 +185,6 @@ files are not checked in: to change them, edit the templates. The templates are:
 |---|---|
 | `deser/map/TypeHandlerPairs.java` | Key/value handlers and the registration of all 71 map families for deserialization |
 | `ser/map/PrimitivePrimitiveMapSerializers.java` | Serializers for maps with primitive keys and values (like `Int2LongMap`) |
-| `ser/map/PrimitiveRefMapSerializers.java` | Serializers for maps with primitive keys and reference values (like `Int2ObjectMap`) |
-| `ser/map/RefPrimitiveMapSerializers.java` | Serializers for maps with reference keys and primitive values (like `Object2IntMap`) |
 
 Collection (de)serializers only need one class per primitive type, so they are regular,
 hand-written sources under `src/main/java/`.
