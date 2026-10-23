@@ -132,17 +132,16 @@ public final class FastutilMapDeserializers
                 if (creator == null) {
                     return null;
                 }
-                JavaType delegateType;
-                if (valueDeserializer == null) {
-                    delegateType = config.getTypeFactory()
-                            .constructParametricType(refEntry.delegateType(), type.getKeyType());
-                    if (keyDeserializer != null) {
-                        delegateType = ((MapLikeType) delegateType).withKeyValueHandler(keyDeserializer);
-                    }
-                } else { // custom deserializer for primitive values
-                    delegateType = _boxedMapType(config, type, keyDeserializer, valueDeserializer);
+                if (valueDeserializer != null) { // custom deserializer for primitive values
+                    return new BoxedDelegatingDeserializer<>(type,
+                            _boxedMapType(config, type, keyDeserializer, valueDeserializer), creator);
                 }
-                return new BoxedDelegatingDeserializer<>(type, delegateType, creator);
+                Entry<?, ?, ?> intermediateEntry = _findEntry(refEntry.intermediateType());
+                if (intermediateEntry == null) { // never happens: registered together
+                    return null;
+                }
+                return _createReferenceDeserializer(intermediateEntry, creator,
+                        refEntry.intermediateType(), type, keyDeserializer);
             }
         }
         return null;
@@ -189,13 +188,25 @@ public final class FastutilMapDeserializers
         return null;
     }
 
-    private record ReferenceEntry(ContainerFamily<Map<?, ?>> family, Class<?> delegateType) { }
+    /**
+     * Maps with identity-based reference keys and primitive values: populated as
+     * an (insertion-ordered) {@code Object2XMap} of given type, then copied.
+     */
+    private record ReferenceEntry(ContainerFamily<Map<?, ?>> family, Class<?> intermediateType) { }
+
+    private static <M> ValueDeserializer<?> _createReferenceDeserializer(Entry<M, ?, ?> entry,
+            ContainerFamily.Creator<Map<?, ?>> creator, Class<?> intermediateType,
+            MapType type, KeyDeserializer keyDeserializer)
+    {
+        ContainerFamily.Creator<M> intermediate = entry.family().findCreator(intermediateType);
+        return entry.createDeserializer(type, keyDeserializer, null, null,
+                new CopyingConstruction<>(intermediate, creator));
+    }
 
     private record Entry<M, K extends KeyHandler<K>, V extends ValueHandler<V>>(
             boolean refKey, boolean refValue,
             ContainerFamily<M> family, TypeHandlerPair<M, K, V> typeHandlerPair)
     {
-        @SuppressWarnings("unchecked")
         ValueDeserializer<?> createDeserializer(DeserializationConfig config, MapType type,
                 KeyDeserializer keyDeserializer,
                 TypeDeserializer valueTypeDeserializer, ValueDeserializer<?> valueDeserializer)
@@ -210,6 +221,15 @@ public final class FastutilMapDeserializers
                 return new BoxedDelegatingDeserializer<>(type,
                         _boxedMapType(config, type, keyDeserializer, valueDeserializer), creator);
             }
+            return createDeserializer(type, keyDeserializer, valueTypeDeserializer, valueDeserializer,
+                    new DirectConstruction<>(creator));
+        }
+
+        @SuppressWarnings("unchecked")
+        <T> ValueDeserializer<?> createDeserializer(MapType type, KeyDeserializer keyDeserializer,
+                TypeDeserializer valueTypeDeserializer, ValueDeserializer<?> valueDeserializer,
+                Construction<T, M> construction)
+        {
             K keyHandler = refKey
                     ? (K) new RefKeyHandler(type.getKeyType(), keyDeserializer)
                     : typeHandlerPair.keyHandler(type.getKeyType());
@@ -217,67 +237,134 @@ public final class FastutilMapDeserializers
                     ? (V) new RefValueHandler(type.getContentType(), valueDeserializer, valueTypeDeserializer)
                     : typeHandlerPair.valueHandler(type.getContentType());
             return new FastutilMapDeserializer<>(type, keyHandler, valueHandler,
-                    typeHandlerPair, creator, null);
+                    typeHandlerPair, construction, null);
         }
     }
 
     /**
-     * Creates maps using {@link ContainerFamily.Creator} (instead of
-     * {@link TypeHandlerPair#createEmpty}) since the map type to create depends on
-     * the requested type, not just on key and value types.
-     *<p>
-     * Also handles {@code @JsonSetter(contentNulls = SKIP / FAIL)} for values.
+     * How maps are constructed: an intermediate map is populated, then converted into
+     * the result. Maps to create depend on the requested type (not just on key and value
+     * types), so {@link TypeHandlerPair#createEmpty} is not used.
+     *
+     * @param <T> Type of maps returned
+     * @param <I> Type of intermediate maps populated
      */
-    static final class FastutilMapDeserializer<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
-        extends MapDeserializer<M, M, K, V>
+    interface Construction<T, I>
+    {
+        /**
+         * @param ctxt Context for reporting failures; may be {@code null}
+         */
+        I createIntermediate(DeserializationContext ctxt) throws JacksonException;
+
+        T finish(DeserializationContext ctxt, I intermediate) throws JacksonException;
+
+        /**
+         * @return Whether existing maps (when merging) can be populated directly,
+         *    that is, whether intermediate and result types are the same
+         */
+        boolean canPopulateExisting();
+    }
+
+    // Intermediate map is the result (possibly wrapped, or copied by `Creator`)
+    private record DirectConstruction<M>(ContainerFamily.Creator<M> creator)
+        implements Construction<M, M>
+    {
+        @Override
+        public M createIntermediate(DeserializationContext ctxt) throws JacksonException {
+            return creator.create(ctxt);
+        }
+
+        @Override
+        public M finish(DeserializationContext ctxt, M intermediate) throws JacksonException {
+            return creator.finish(ctxt, intermediate);
+        }
+
+        @Override
+        public boolean canPopulateExisting() {
+            return true;
+        }
+    }
+
+    // Intermediate map (of a different type) is copied into the result
+    private record CopyingConstruction<I>(ContainerFamily.Creator<I> intermediate,
+            ContainerFamily.Creator<Map<?, ?>> result)
+        implements Construction<Map<?, ?>, I>
+    {
+        @Override
+        public I createIntermediate(DeserializationContext ctxt) throws JacksonException {
+            return intermediate.create(ctxt);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Map<?, ?> finish(DeserializationContext ctxt, I populated) throws JacksonException {
+            Map<?, ?> map = result.create(ctxt);
+            ((Map<Object, Object>) map).putAll((Map<?, ?>) populated);
+            return result.finish(ctxt, map);
+        }
+
+        @Override
+        public boolean canPopulateExisting() {
+            return false;
+        }
+    }
+
+    /**
+     * Deserializer that creates maps using given {@link Construction}.
+     *<p>
+     * Also handles {@code @JsonSetter(contentNulls = SKIP / FAIL)} for values,
+     * coercion of empty Strings and merging.
+     */
+    static final class FastutilMapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandler<V>>
+        extends MapDeserializer<T, I, K, V>
     {
         private final JavaType _mapType;
-        private final K _keyHandler;
-        private final V _valueHandler;
-        private final TypeHandlerPair<M, K, V> _typeHandlerPair;
-        private final ContainerFamily.Creator<M> _creator;
+        private final Construction<T, I> _construction;
 
         // Handler for JSON nulls as values, if not the default one
         private final NullValueProvider _nuller;
 
         FastutilMapDeserializer(JavaType mapType, K keyHandler, V valueHandler,
-                TypeHandlerPair<M, K, V> typeHandlerPair, ContainerFamily.Creator<M> creator,
+                TypeHandlerPair<I, K, V> typeHandlerPair, Construction<T, I> construction,
                 NullValueProvider nuller) {
             super(mapType.getRawClass(), keyHandler, valueHandler, typeHandlerPair,
-                    (ctxt, intermediate) -> creator.finish(ctxt, intermediate));
+                    construction::finish);
             _mapType = mapType;
-            _keyHandler = keyHandler;
-            _valueHandler = valueHandler;
-            _typeHandlerPair = typeHandlerPair;
-            _creator = creator;
+            _construction = construction;
             _nuller = nuller;
         }
 
         @Override
         public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         {
-            FastutilMapDeserializer<M, K, V> deser = (FastutilMapDeserializer<M, K, V>)
+            FastutilMapDeserializer<T, I, K, V> deser = (FastutilMapDeserializer<T, I, K, V>)
                     super.createContextual(ctxt, property);
             NullValueProvider nuller = ContentNulls.findNuller(ctxt, property, _mapType);
             if (nuller == deser._nuller) {
                 return deser;
             }
-            return new FastutilMapDeserializer<>(_mapType, deser._keyHandler, deser._valueHandler,
-                    _typeHandlerPair, _creator, nuller);
+            return new FastutilMapDeserializer<>(_mapType, deser.keyHandler, deser.valueHandler,
+                    typeHandlerPair, _construction, nuller);
         }
 
         @Override
-        protected M createIntermediate() {
-            return _creator.create(null);
+        protected MapDeserializer<T, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
+            return new FastutilMapDeserializer<>(_mapType, keyHandler, valueHandler,
+                    typeHandlerPair, _construction, _nuller);
         }
 
         @Override
-        protected M createIntermediate(DeserializationContext ctxt) throws JacksonException {
-            return _creator.create(ctxt);
+        protected I createIntermediate() {
+            return _construction.createIntermediate(null);
         }
 
         @Override
-        protected void deserializeEntry(M target, DeserializationContext ctxt, String key,
+        protected I createIntermediate(DeserializationContext ctxt) throws JacksonException {
+            return _construction.createIntermediate(ctxt);
+        }
+
+        @Override
+        protected void deserializeEntry(I target, DeserializationContext ctxt, String key,
                 JsonParser valueParser)
             throws JacksonException
         {
@@ -290,28 +377,38 @@ public final class FastutilMapDeserializers
 
         @SuppressWarnings("unchecked")
         @Override
-        public M deserialize(JsonParser p, DeserializationContext ctxt)
+        public T deserialize(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
             // Empty String may be coerced (like for `java.util` maps)
             CoercionAction act = EmptyStrings.findCoercion(p, ctxt, this);
             if (act != null) {
-                return (M) EmptyStrings.coercedValue(ctxt, this, act);
+                return (T) EmptyStrings.coercedValue(ctxt, this, act);
             }
             return super.deserialize(p, ctxt);
         }
 
-        @Override
-        public LogicalType logicalType() {
-            return LogicalType.Map;
-        }
-
         // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds entries,
         // replacing (not merging) existing values
+        @SuppressWarnings("unchecked")
         @Override
-        public M deserialize(JsonParser p, DeserializationContext ctxt, M intoValue)
+        public T deserialize(JsonParser p, DeserializationContext ctxt, T intoValue)
             throws JacksonException
         {
+            if (_construction.canPopulateExisting()) {
+                JsonToken t = p.currentToken();
+                if (t == JsonToken.START_OBJECT) {
+                    t = p.nextToken();
+                }
+                if (t == JsonToken.PROPERTY_NAME || t == JsonToken.END_OBJECT) {
+                    try {
+                        deserializeEntries(p, ctxt, (I) intoValue);
+                    } catch (UnsupportedOperationException e) {
+                        throw Merging.failure(ctxt, intoValue, e);
+                    }
+                    return intoValue;
+                }
+            }
             return Merging.putAll(ctxt, intoValue, (Map<?, ?>) deserialize(p, ctxt));
         }
 
@@ -322,7 +419,7 @@ public final class FastutilMapDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.createEmpty(ctxt);
+            return _construction.finish(ctxt, _construction.createIntermediate(ctxt));
         }
 
         @Override
@@ -331,9 +428,8 @@ public final class FastutilMapDeserializers
         }
 
         @Override
-        protected MapDeserializer<M, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
-            return new FastutilMapDeserializer<>(_mapType, keyHandler, valueHandler,
-                    _typeHandlerPair, _creator, _nuller);
+        public LogicalType logicalType() {
+            return LogicalType.Map;
         }
     }
 }

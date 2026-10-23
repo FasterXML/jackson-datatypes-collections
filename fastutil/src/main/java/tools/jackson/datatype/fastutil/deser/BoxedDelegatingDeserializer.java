@@ -22,15 +22,10 @@ import tools.jackson.datatype.fastutil.util.Merging;
  * Deserializer that reads content as another container type (with boxed keys and
  * values), using the deserializer Jackson finds for that type, and then copies it
  * into the fastutil container to return. Used where handling of individual primitive
- * values is not enough:
- *<ul>
- * <li>Custom deserializers for primitive elements, keys or values (like
- *   {@code @JsonDeserialize(contentUsing = ...)} for an {@code IntList}): content
- *   is read as an {@code ArrayList} or {@code LinkedHashMap} by standard Jackson
- *   deserializers, which use them</li>
- * <li>Maps with identity-based reference keys and primitive values (like
- *   {@code Reference2IntMap}), read as the matching {@code Object2IntMap}</li>
- *</ul>
+ * values is not enough: custom deserializers for primitive elements, keys or values
+ * (like {@code @JsonDeserialize(contentUsing = ...)} for an {@code IntList}), which
+ * produce boxed values. Content is read as an {@code ArrayList} or {@code LinkedHashMap}
+ * by standard Jackson deserializers, which use them.
  *
  * @param <C> Type of container returned
  */
@@ -78,10 +73,16 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
 
     @Override
     public C deserialize(JsonParser p, DeserializationContext ctxt, C intoValue) throws JacksonException {
-        C values = deserialize(p, ctxt);
-        return (intoValue instanceof Map<?, ?>)
-                ? Merging.putAll(ctxt, intoValue, (Map<?, ?>) values)
-                : Merging.addAll(ctxt, intoValue, (Collection<?>) values);
+        Object values = _delegate.deserialize(p, ctxt);
+        if (values != null) {
+            // copy directly into existing value (no need to create a new one)
+            try {
+                _copy(ctxt, values, intoValue);
+            } catch (UnsupportedOperationException e) {
+                throw Merging.failure(ctxt, intoValue, e);
+            }
+        }
+        return intoValue;
     }
 
     @Override

@@ -49,6 +49,13 @@ final class TypeHandlerPairs {
         // endif //
         // enddefine */
 
+        /* define ImplType //
+        // if object key //Object2ShortOpenHashMap<Object>
+        // elif object value //Byte2ObjectOpenHashMap<Object>
+        // elif !(object key) && !(object value) //Byte2ShortOpenHashMap
+        // endif //
+        // enddefine */
+
         OptionalTypes.registerIfPresent(() -> FastutilMapDeserializers.add(
                 /* if !(object key) */false/* elif object key //true// endif */,
                 /* if !(object value) */false/* elif object value //true// endif */,
@@ -72,9 +79,9 @@ final class TypeHandlerPairs {
 
                     @Override
                     public /*MapType*/Byte2ShortMap/**/ createEmpty() {
-                        // Instances are created by `ContainerFamily` instead (see
-                        // `FastutilMapDeserializers.FastutilMapDeserializer`)
-                        throw new UnsupportedOperationException();
+                        // Not used by `FastutilMapDeserializers` (type of map to create
+                        // depends on the requested type), but is the default implementation
+                        return new /*ImplType*/Byte2ShortOpenHashMap/**/();
                     }
 
                     @Override

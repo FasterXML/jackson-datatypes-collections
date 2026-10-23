@@ -242,15 +242,22 @@ public final class PrimitiveCollectionDeserializers
             throws JacksonException
         {
             C collection = createIntermediate(ctxt);
+            _readContents(p, ctxt, collection);
+            return finish(ctxt, collection);
+        }
+
+        // Reads elements of a JSON Array (parser pointing to START_ARRAY) into given collection
+        private void _readContents(JsonParser p, DeserializationContext ctxt, C target)
+            throws JacksonException
+        {
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 if ((t == JsonToken.VALUE_NULL) && (_nuller != null)) {
                     _nuller.getNullValue(ctxt); // fails, or skips
                     continue;
                 }
-                add(collection, p, ctxt);
+                add(target, p, ctxt);
             }
-            return finish(ctxt, collection);
         }
 
         @Override
@@ -286,11 +293,20 @@ public final class PrimitiveCollectionDeserializers
             return _creator.finish(ctxt, intermediate);
         }
 
-        // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds elements
+        // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds elements:
+        // directly for JSON Arrays; other input (single values, coercions) via a new collection
         @Override
         public C deserialize(JsonParser p, DeserializationContext ctxt, C intoValue)
             throws JacksonException
         {
+            if (p.isExpectedStartArrayToken()) {
+                try {
+                    _readContents(p, ctxt, intoValue);
+                } catch (UnsupportedOperationException e) {
+                    throw Merging.failure(ctxt, intoValue, e);
+                }
+                return intoValue;
+            }
             return Merging.addAll(ctxt, intoValue, deserialize(p, ctxt));
         }
 
@@ -520,7 +536,9 @@ public final class PrimitiveCollectionDeserializers
             throws JacksonException
         {
             if (p.isExpectedStartArrayToken()) {
-                return _deserializeArray(p, ctxt);
+                CharCollection collection = createIntermediate(ctxt);
+                _readArray(p, ctxt, collection);
+                return finish(ctxt, collection);
             }
             if (!p.hasToken(JsonToken.VALUE_STRING)) {
                 return (CharCollection) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
@@ -530,10 +548,9 @@ public final class PrimitiveCollectionDeserializers
 
         // Handled here (not by base class) to support `contentNulls`, and to handle
         // other nulls as specified by `FAIL_ON_NULL_FOR_PRIMITIVES` (like for `char[]`)
-        private CharCollection _deserializeArray(JsonParser p, DeserializationContext ctxt)
+        private void _readArray(JsonParser p, DeserializationContext ctxt, CharCollection collection)
             throws JacksonException
         {
-            CharCollection collection = createIntermediate(ctxt);
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 if (t == JsonToken.VALUE_NULL) {
@@ -557,7 +574,6 @@ public final class PrimitiveCollectionDeserializers
                 }
                 collection.add(str.charAt(0));
             }
-            return finish(ctxt, collection);
         }
 
         @Override
@@ -587,6 +603,19 @@ public final class PrimitiveCollectionDeserializers
                 CharCollection intoValue)
             throws JacksonException
         {
+            // Merging adds elements directly (from a JSON Array or String)
+            try {
+                if (p.isExpectedStartArrayToken()) {
+                    _readArray(p, ctxt, intoValue);
+                    return intoValue;
+                }
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    addAll(intoValue, p.getStringCharacters(), p.getStringOffset(), p.getStringLength());
+                    return intoValue;
+                }
+            } catch (UnsupportedOperationException e) {
+                throw Merging.failure(ctxt, intoValue, e);
+            }
             return Merging.addAll(ctxt, intoValue, deserialize(p, ctxt));
         }
 

@@ -32,7 +32,7 @@ public final class Merging
         try {
             ((Collection<Object>) intoValue).addAll(elements);
         } catch (UnsupportedOperationException e) {
-            throw _mergeFailure(ctxt, intoValue, e);
+            throw failure(ctxt, intoValue, e);
         }
         return intoValue;
     }
@@ -47,13 +47,16 @@ public final class Merging
         try {
             ((Map<Object, Object>) intoValue).putAll(entries);
         } catch (UnsupportedOperationException e) {
-            throw _mergeFailure(ctxt, intoValue, e);
+            throw failure(ctxt, intoValue, e);
         }
         return intoValue;
     }
 
-    // Existing value may be unmodifiable (like one from `IntLists.unmodifiable()`)
-    private static DatabindException _mergeFailure(DeserializationContext ctxt, Object intoValue,
+    /**
+     * @return Exception to throw when adding to the existing value fails, since it
+     *    may be unmodifiable (like one from {@code IntLists.unmodifiable()})
+     */
+    public static DatabindException failure(DeserializationContext ctxt, Object intoValue,
             UnsupportedOperationException e)
     {
         return DatabindException.from(ctxt, String.format(

@@ -2,6 +2,8 @@ package tools.jackson.datatype.fastutil;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonMerge;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.BeanProperty;
@@ -69,6 +71,12 @@ public class CustomHandlersTest extends ModuleTestBase
         @JsonDeserialize(contentUsing = HexIntDeserializer.class)
         @JsonSerialize(contentUsing = HexIntSerializer.class)
         public IntList list;
+    }
+
+    static class MergeListBean {
+        @JsonMerge
+        @JsonDeserialize(contentUsing = HexIntDeserializer.class)
+        public IntList list = new IntArrayList(new int[] { 1 });
     }
 
     static class SetBean {
@@ -184,6 +192,17 @@ public class CustomHandlersTest extends ModuleTestBase
                 RefMapBean.class);
         assertEquals("x/values", bean.values.get(1));
         assertEquals(2, bean.keys.getInt("k/keys"));
+    }
+
+    @Test
+    void testMergeWithCustomDeserializers() throws Exception
+    {
+        // elements read with custom deserializer, added to the existing list
+        MergeListBean mergeBean = new MergeListBean();
+        IntList original = mergeBean.list;
+        MAPPER.readerForUpdating(mergeBean).readValue(a2q("{'list':['0x2']}"));
+        assertSame(original, mergeBean.list);
+        assertEquals(IntList.of(1, 2), mergeBean.list);
     }
 
     @Test

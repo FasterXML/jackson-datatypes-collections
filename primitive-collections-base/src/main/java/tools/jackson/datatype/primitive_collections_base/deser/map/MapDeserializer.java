@@ -41,9 +41,12 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
 
     // null if not known
     private final Class<?> handledType;
-    private final K keyHandler;
-    private final V valueHandler;
-    private final TypeHandlerPair<I, K, V> typeHandlerPair;
+    // @since 3.3 (private before)
+    protected final K keyHandler;
+    // @since 3.3 (private before)
+    protected final V valueHandler;
+    // @since 3.3 (private before)
+    protected final TypeHandlerPair<I, K, V> typeHandlerPair;
     // null if this is the identity function
     private final BiFunction<DeserializationContext, I, T> finish;
 
@@ -159,13 +162,26 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
         }
 
         I map = createIntermediate(ctxt);
+        deserializeEntries(p, ctxt, map);
+        return finish(ctxt, map);
+    }
+
+    /**
+     * Reads entries of a JSON Object into given map, starting from the first
+     * {@code PROPERTY_NAME} (or {@code END_OBJECT} for empty Objects): may also be
+     * used to populate an existing map (like when merging).
+     *
+     * @since 3.3
+     */
+    protected void deserializeEntries(JsonParser p, DeserializationContext ctxt, I target)
+        throws JacksonException
+    {
         for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();
             p.nextToken();
-            deserializeEntry(map, ctxt, fieldName, p);
+            deserializeEntry(target, ctxt, fieldName, p);
         }
-        return finish(ctxt, map);
     }
 }
 

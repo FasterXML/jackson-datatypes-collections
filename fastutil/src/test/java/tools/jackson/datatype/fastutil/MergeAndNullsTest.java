@@ -176,6 +176,44 @@ public class MergeAndNullsTest extends ModuleTestBase
         Reference2DoubleMap<String> result = MAPPER.readValue(json,
                 new TypeReference<Reference2DoubleMap<String>>() { });
         assertEquals(0.5, result.getDouble(_key(result, "x")));
+
+        // errors refer to the requested type (not to the type used internally)
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[1]", refType));
+        verifyException(e, "Reference2IntMap");
+        assertFalse(e.getMessage().contains("Object2Int"), e.getMessage());
+
+        // merging (copies entries into existing map)
+        Reference2IntMap<String> existing = new Reference2IntOpenHashMap<>();
+        existing.put("a", 1);
+        assertSame(existing, MAPPER.readerForUpdating(existing).readValue(a2q("{'b':2}")));
+        assertEquals(2, existing.size());
+        assertEquals(2, existing.getInt(_key(existing, "b")));
+    }
+
+    @Test
+    void testMergeVariants() throws Exception
+    {
+        // entries added directly into existing map, replacing values
+        Int2ObjectMap<String> objMap = new Int2ObjectOpenHashMap<>();
+        objMap.put(1, "a");
+        objMap.put(2, "b");
+        assertSame(objMap, MAPPER.readerFor(new TypeReference<Int2ObjectMap<String>>() { })
+                .withValueToUpdate(objMap).readValue(a2q("{'2':'x','3':'c'}")));
+        assertEquals(3, objMap.size());
+        assertEquals("x", objMap.get(2));
+
+        // single values (not JSON Arrays) merged too
+        IntList list = new IntArrayList(new int[] { 1 });
+        MAPPER.readerForUpdating(list)
+                .with(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .readValue("2");
+        assertEquals(IntList.of(1, 2), list);
+
+        // as well as `char` arrays
+        CharList chars = new CharArrayList(new char[] { 'a' });
+        MAPPER.readerForUpdating(chars).readValue("[\"b\",\"c\"]");
+        assertEquals(CharList.of('a', 'b', 'c'), chars);
     }
 
     // Identity-based maps need the same key instance
