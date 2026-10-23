@@ -9,6 +9,7 @@ import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -34,6 +35,11 @@ public class TestPCollections extends ModuleTestBase
         public Holder(Object v) {
             value = v;
         }
+    }
+
+    static class TypedStackHolder {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public PStack<Object> values;
     }
 
     /*
@@ -161,9 +167,9 @@ public class TestPCollections extends ModuleTestBase
         PStack<Integer> list = MAPPER.readValue("[1,2,3]", new TypeReference<PStack<Integer>>() { });
         assertEquals(3, list.size());
         Iterator<Integer> elements = list.iterator();
-        assertEquals(Integer.valueOf(3), elements.next());
-        assertEquals(Integer.valueOf(2), elements.next());
         assertEquals(Integer.valueOf(1), elements.next());
+        assertEquals(Integer.valueOf(2), elements.next());
+        assertEquals(Integer.valueOf(3), elements.next());
     }
 
     @Test
@@ -172,9 +178,53 @@ public class TestPCollections extends ModuleTestBase
         ConsPStack<Integer> list = MAPPER.readValue("[1,2,3]", new TypeReference<ConsPStack<Integer>>() { });
         assertEquals(3, list.size());
         Iterator<Integer> elements = list.iterator();
-        assertEquals(Integer.valueOf(3), elements.next());
-        assertEquals(Integer.valueOf(2), elements.next());
         assertEquals(Integer.valueOf(1), elements.next());
+        assertEquals(Integer.valueOf(2), elements.next());
+        assertEquals(Integer.valueOf(3), elements.next());
+    }
+
+    @Test
+    public void stackRoundTrip() throws Exception
+    {
+        for (List<Integer> values : Arrays.<List<Integer>>asList(
+                List.of(), List.of(1), Arrays.asList(1, null, 2, 1))) {
+            ConsPStack<Integer> stack = ConsPStack.from(values);
+            String json = MAPPER.writeValueAsString(stack);
+            assertEquals(values, MAPPER.readValue(json,
+                    new TypeReference<PStack<Integer>>() { }));
+            assertEquals(values, MAPPER.readValue(json,
+                    new TypeReference<ConsPStack<Integer>>() { }));
+        }
+    }
+
+    @Test
+    public void stackWithTypedElements() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
+        for (List<Object> values : Arrays.<List<Object>>asList(
+                List.of(), Arrays.asList(1L, "a", null, 2.5f))) {
+            TypedStackHolder input = new TypedStackHolder();
+            input.values = ConsPStack.from(values);
+            String json = mapper.writeValueAsString(input);
+            TypedStackHolder result = mapper.readValue(json, TypedStackHolder.class);
+            assertEquals(ConsPStack.class, result.values.getClass());
+            assertEquals(values, result.values);
+        }
+    }
+
+    @Test
+    public void stackSingleValueAndNested() throws Exception
+    {
+        ObjectMapper lenient = JsonMapper.builder()
+                .addModule(new PCollectionsModule())
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
+        assertEquals(List.of(7), lenient.readValue("7",
+                new TypeReference<ConsPStack<Integer>>() { }));
+        assertEquals(List.of(List.of(1, 2), List.of(3)), MAPPER.readValue("[[1,2],[3]]",
+                new TypeReference<ConsPStack<ConsPStack<Integer>>>() { }));
     }
 
     @Test

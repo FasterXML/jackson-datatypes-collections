@@ -26,6 +26,19 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
         return createIntermediate();
     }
 
+    /**
+     * Variant of {@link #createIntermediate()} that has access to the context, for
+     * reporting problems with creating the value: by default simply calls
+     * {@link #createIntermediate()}.
+     *
+     * @since 3.3
+     */
+    protected Intermediate createIntermediate(DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return createIntermediate();
+    }
+
     protected abstract void add(Intermediate intermediate, JsonParser parser, DeserializationContext ctx)
         throws JacksonException;
 
@@ -69,7 +82,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        Intermediate collection = createIntermediate();
+        Intermediate collection = createIntermediate(ctxt);
 
         while (p.nextToken() != JsonToken.END_ARRAY) {
             add(collection, p, ctxt);
@@ -80,7 +93,7 @@ public abstract class BaseCollectionDeserializer<T, Intermediate> extends StdDes
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        Intermediate intermediate = createIntermediate();
+        Intermediate intermediate = createIntermediate(ctxt);
         add(intermediate, p, ctxt);
         return finish(ctxt, intermediate);
     }

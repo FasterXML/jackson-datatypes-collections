@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.*;
+import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
 import com.google.common.primitives.ImmutableDoubleArray;
@@ -18,6 +19,7 @@ import com.google.common.primitives.ImmutableLongArray;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -192,19 +194,23 @@ public class DefaultTypingTest extends ModuleTestBase
         }
     }
 
-    // NOTE: only declared with concrete (final) types: as `Object` these fail
-    //   since serializers do not implement `serializeWithType()`
     static class PrimitiveArrays {
         public ImmutableIntArray ints;
         public ImmutableLongArray longs;
         public ImmutableDoubleArray doubles;
+        public Object untypedInts;
+        public Object untypedLongs;
+        public Object untypedDoubles;
 
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof PrimitiveArrays other)) return false;
             return Objects.equals(ints, other.ints)
                     && Objects.equals(longs, other.longs)
-                    && Objects.equals(doubles, other.doubles);
+                    && Objects.equals(doubles, other.doubles)
+                    && Objects.equals(untypedInts, other.untypedInts)
+                    && Objects.equals(untypedLongs, other.untypedLongs)
+                    && Objects.equals(untypedDoubles, other.untypedDoubles);
         }
 
         @Override
@@ -212,7 +218,9 @@ public class DefaultTypingTest extends ModuleTestBase
 
         @Override
         public String toString() {
-            return "PrimitiveArrays{ints=" + ints + ", longs=" + longs + ", doubles=" + doubles + "}";
+            return "PrimitiveArrays{ints=" + ints + ", longs=" + longs + ", doubles=" + doubles
+                    + ", untypedInts=" + untypedInts + ", untypedLongs=" + untypedLongs
+                    + ", untypedDoubles=" + untypedDoubles + "}";
         }
     }
 
@@ -221,6 +229,8 @@ public class DefaultTypingTest extends ModuleTestBase
         public InternetDomainName domainName;
         public Object untypedHostAndPort;
         public Object untypedDomainName;
+        public HashCode hash;
+        public Object untypedHash;
 
         @Override
         public boolean equals(Object o) {
@@ -228,7 +238,9 @@ public class DefaultTypingTest extends ModuleTestBase
             return Objects.equals(hostAndPort, other.hostAndPort)
                     && Objects.equals(domainName, other.domainName)
                     && Objects.equals(untypedHostAndPort, other.untypedHostAndPort)
-                    && Objects.equals(untypedDomainName, other.untypedDomainName);
+                    && Objects.equals(untypedDomainName, other.untypedDomainName)
+                    && Objects.equals(hash, other.hash)
+                    && Objects.equals(untypedHash, other.untypedHash);
         }
 
         @Override
@@ -238,7 +250,8 @@ public class DefaultTypingTest extends ModuleTestBase
         public String toString() {
             return "Scalars{hostAndPort=" + hostAndPort + ", domainName=" + domainName
                     + ", untypedHostAndPort=" + untypedHostAndPort
-                    + ", untypedDomainName=" + untypedDomainName + "}";
+                    + ", untypedDomainName=" + untypedDomainName
+                    + ", hash=" + hash + ", untypedHash=" + untypedHash + "}";
         }
     }
 
@@ -632,16 +645,46 @@ public class DefaultTypingTest extends ModuleTestBase
         input.ints = ImmutableIntArray.of(1, 2, 3);
         input.longs = ImmutableLongArray.of(1L, Long.MAX_VALUE);
         input.doubles = ImmutableDoubleArray.of(0.5, -1.25);
+        input.untypedInts = ImmutableIntArray.of(1, 2, 3);
+        input.untypedLongs = ImmutableLongArray.of(1L, Long.MAX_VALUE);
+        input.untypedDoubles = ImmutableDoubleArray.of(0.5, -1.25);
 
         roundTrip(mapper, input, PrimitiveArrays.class);
     }
 
+    // [datatypes-collections#242]: empty and single-element arrays, as `Object`
+    @ParameterizedTest
+    @EnumSource(value = DefaultTyping.class, names = { "NON_FINAL", "OBJECT_AND_NON_CONCRETE" })
+    public void testPrimitiveArraysAsObject(DefaultTyping typing) throws Exception
+    {
+        ObjectMapper mapper = mapper(typing);
+        Object[] values = {
+            ImmutableIntArray.of(), ImmutableIntArray.of(1), ImmutableIntArray.of(1, 2),
+            ImmutableLongArray.of(), ImmutableLongArray.of(1L), ImmutableLongArray.of(1L, Long.MAX_VALUE),
+            ImmutableDoubleArray.of(), ImmutableDoubleArray.of(0.5), ImmutableDoubleArray.of(0.5, -2.5)
+        };
+        for (Object value : values) {
+            roundTrip(mapper, value, Object.class);
+        }
+    }
+
+    // Single-element arrays must keep array form (with type id) even when unwrapping enabled
+    @ParameterizedTest
+    @EnumSource(value = DefaultTyping.class, names = { "NON_FINAL", "OBJECT_AND_NON_CONCRETE" })
+    public void testPrimitiveArraysAsObjectWithUnwrapping(DefaultTyping typing) throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), typing)
+                .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                .build();
+        roundTrip(mapper, ImmutableIntArray.of(1), Object.class);
+        roundTrip(mapper, ImmutableLongArray.of(1L), Object.class);
+        roundTrip(mapper, ImmutableDoubleArray.of(0.5), Object.class);
+    }
+
     /*
     /**********************************************************************
-    /* Tests: HostAndPort, InternetDomainName
-    /*
-    /* NOTE: HashCode not covered: type id is that of a non-public subtype
-    /*   (like `HashCode$BytesHashCode`) for which no deserializer is found
+    /* Tests: HostAndPort, InternetDomainName, HashCode
     /**********************************************************************
      */
 
@@ -656,6 +699,24 @@ public class DefaultTypingTest extends ModuleTestBase
 
         roundTripAsObject(mapper, HostAndPort.fromParts("example.com", 8080));
         roundTripAsObject(mapper, InternetDomainName.from("www.example.com"));
+
+        // [datatypes-collections#243]: type id is that of a non-public subtype
+        // (like `HashCode$BytesHashCode`), different for each factory method
+        for (HashCode hash : new HashCode[] {
+                HashCode.fromInt(42), HashCode.fromLong(123456789L),
+                HashCode.fromString("cafebabe12345678") }) {
+            roundTrip(mapper, hash, HashCode.class);
+            roundTripAsObject(mapper, hash);
+            // ... so type id written must be that of public `HashCode` type
+            String json = mapper.writerFor(Object.class).writeValueAsString(hash);
+            assertEquals(a2q("['com.google.common.hash.HashCode','"+hash+"']"), json);
+        }
+
+        // but JSON written with subtype ids (by earlier versions) must still be readable
+        assertEquals(HashCode.fromString("cafebabe"), mapper.readValue(
+                a2q("['com.google.common.hash.HashCode$BytesHashCode','cafebabe']"), Object.class));
+        assertEquals(HashCode.fromInt(42), mapper.readValue(
+                a2q("['com.google.common.hash.HashCode$IntHashCode','2a000000']"), HashCode.class));
     }
 
     @ParameterizedTest
@@ -668,6 +729,8 @@ public class DefaultTypingTest extends ModuleTestBase
         input.domainName = InternetDomainName.from("www.example.com");
         input.untypedHostAndPort = HostAndPort.fromString("localhost:1234");
         input.untypedDomainName = InternetDomainName.from("example.org");
+        input.hash = HashCode.fromInt(42);
+        input.untypedHash = HashCode.fromString("cafebabe12345678");
 
         roundTrip(mapper, input, Scalars.class);
     }
