@@ -33,8 +33,9 @@ import tools.jackson.datatype.fastutil.util.OptionalTypes;
  * <li>Concrete types with a public constructor that takes a member of the family
  *   (for example {@code IntImmutableList(IntList)}) are built from an
  *   order-preserving implementation</li>
- * <li>Other abstract types are mapped to the first registered default implementation
- *   that is assignable to them</li>
+ * <li>Other abstract types (like {@code AbstractIntSet}) are mapped to the default
+ *   implementation of the most specific registered interface they implement
+ *   (here {@code IntOpenHashSet} for {@code IntSet}), if it is assignable to them</li>
  *</ol>
  *
  * @param <C> Base type of all containers in the family
@@ -64,7 +65,9 @@ public final class ContainerFamily<C>
      */
     public ContainerFamily<C> add(Class<?> iface,
             Supplier<? extends C> defaultImpl, Supplier<? extends C> orderedImpl) {
-        _kinds.add(new Kind<>(iface, defaultImpl, orderedImpl));
+        // Instantiated once to find out the implementation type, so that resolving
+        // abstract types need not create instances
+        _kinds.add(new Kind<>(iface, defaultImpl.get().getClass(), defaultImpl, orderedImpl));
         return this;
     }
 
@@ -101,8 +104,12 @@ public final class ContainerFamily<C>
             }
         }
         if (rawType.isInterface() || Modifier.isAbstract(rawType.getModifiers())) {
+            // Only consider interfaces that the type implements: otherwise, for example,
+            // `AbstractIntCollection` would be mapped to the first registered default
+            // implementation, `IntRBTreeSet`, and so lose duplicates and ordering
             for (Kind<C> kind : _kinds) {
-                if (rawType.isInstance(kind.defaultImpl().get())) {
+                if (kind.iface().isAssignableFrom(rawType)
+                        && rawType.isAssignableFrom(kind.defaultImplType())) {
                     return new Creator<>(kind.defaultImpl(), null);
                 }
             }
@@ -215,7 +222,7 @@ public final class ContainerFamily<C>
                 + rawType.getName() + ": " + t, t);
     }
 
-    private record Kind<C>(Class<?> iface,
+    private record Kind<C>(Class<?> iface, Class<?> defaultImplType,
             Supplier<? extends C> defaultImpl, Supplier<? extends C> orderedImpl)
     {
     }

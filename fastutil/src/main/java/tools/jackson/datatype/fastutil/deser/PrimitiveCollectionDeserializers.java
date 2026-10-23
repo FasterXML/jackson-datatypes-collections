@@ -103,11 +103,12 @@ public final class PrimitiveCollectionDeserializers
 
     /**
      * @return Whether given type is a fastutil collection of primitive values
+     *    that can be constructed
      */
     public static boolean handles(Class<?> rawType) {
         for (Support<?> support : SUPPORTS) {
             if (support.family().handles(rawType)) {
-                return true;
+                return support.family().findCreator(rawType) != null;
             }
         }
         return false;

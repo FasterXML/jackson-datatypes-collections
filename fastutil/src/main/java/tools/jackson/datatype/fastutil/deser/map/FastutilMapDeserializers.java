@@ -3,11 +3,6 @@ package tools.jackson.datatype.fastutil.deser.map;
 import java.util.ArrayList;
 import java.util.List;
 
-import tools.jackson.core.JacksonException;
-import tools.jackson.core.JsonParser;
-
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JavaType;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.jsontype.TypeDeserializer;
@@ -45,9 +40,11 @@ public final class FastutilMapDeserializers
 
     /**
      * @return Whether given type is a fastutil map with primitive keys and/or values
+     *    that can be constructed
      */
     public static boolean handles(Class<?> rawType) {
-        return _findEntry(rawType) != null;
+        Entry<?, ?, ?> entry = _findEntry(rawType);
+        return (entry != null) && (entry.family().findCreator(rawType) != null);
     }
 
     /**
@@ -93,62 +90,39 @@ public final class FastutilMapDeserializers
             V valueHandler = refValue
                     ? (V) new RefValueHandler(type.getContentType(), valueDeserializer, valueTypeDeserializer)
                     : typeHandlerPair.valueHandler(type.getContentType());
-            TypeHandlerPair<M, K, V> pair = new TypeHandlerPair<>() {
-                @Override
-                public K keyHandler(JavaType t) {
-                    return typeHandlerPair.keyHandler(t);
-                }
-
-                @Override
-                public V valueHandler(JavaType t) {
-                    return typeHandlerPair.valueHandler(t);
-                }
-
-                @Override
-                public M createEmpty() {
-                    return creator.create();
-                }
-
-                @Override
-                public void add(M target, K kh, V vh, DeserializationContext ctx, String k, JsonParser v)
-                    throws JacksonException
-                {
-                    typeHandlerPair.add(target, kh, vh, ctx, k, v);
-                }
-            };
             return new FastutilMapDeserializer<>(type.getRawClass(), keyHandler, valueHandler,
-                    pair, creator);
+                    typeHandlerPair, creator);
         }
     }
 
     /**
-     * Adds reporting of the handled type (used for error messages) to the base
-     * {@link MapDeserializer}.
+     * Creates maps using {@link ContainerFamily.Creator} (instead of
+     * {@link TypeHandlerPair#createEmpty}) since the map type to create depends on
+     * the requested type, not just on key and value types.
      */
     static final class FastutilMapDeserializer<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
         extends MapDeserializer<M, M, K, V>
     {
-        private final Class<?> _mapType;
         private final TypeHandlerPair<M, K, V> _typeHandlerPair;
         private final ContainerFamily.Creator<M> _creator;
 
         FastutilMapDeserializer(Class<?> mapType, K keyHandler, V valueHandler,
                 TypeHandlerPair<M, K, V> typeHandlerPair, ContainerFamily.Creator<M> creator) {
-            super(keyHandler, valueHandler, typeHandlerPair, creator::finish);
-            _mapType = mapType;
+            super(mapType, keyHandler, valueHandler, typeHandlerPair,
+                    (ctxt, intermediate) -> creator.finish(intermediate));
             _typeHandlerPair = typeHandlerPair;
             _creator = creator;
         }
 
         @Override
-        protected MapDeserializer<M, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
-            return new FastutilMapDeserializer<>(_mapType, keyHandler, valueHandler,
-                    _typeHandlerPair, _creator);
+        protected M createIntermediate() {
+            return _creator.create();
         }
 
         @Override
-        public Class<?> handledType() {
-            return _mapType;
+        protected MapDeserializer<M, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
+            return new FastutilMapDeserializer<>(handledType(), keyHandler, valueHandler,
+                    _typeHandlerPair, _creator);
         }
     }
 }

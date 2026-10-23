@@ -6,6 +6,7 @@ import java.util.Map;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.SerializationFeature;
 
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
@@ -44,10 +45,16 @@ public final class PrimitivePrimitiveMapSerializers {
             short|byte|char|int|long|float|double|boolean value
         */
         OptionalTypes.registerIfPresent(() -> instances.put(Byte2ShortMap.class,
-                new PrimitiveMapSerializer<Byte2ShortMap>(Byte2ShortMap.class) {
+                new FastutilPrimitiveMapSerializer<Byte2ShortMap>(Byte2ShortMap.class) {
                     @Override
                     protected void serializeEntries(Byte2ShortMap value, JsonGenerator g, SerializationContext ctxt)
                     {
+                        // Sort the same way as Jackson `MapSerializer` does for maps with boxed
+                        // keys: including leaving `SortedMap`s as they are
+                        if (ctxt.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                                && !(value instanceof Byte2ShortSortedMap)) {
+                            value = new Byte2ShortRBTreeMap(value);
+                        }
                         /* if char value //
                         // reused for each entry, rather than allocating per value
                         final char[] buf = new char[1];

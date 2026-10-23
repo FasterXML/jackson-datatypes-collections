@@ -13,8 +13,10 @@ import it.unimi.dsi.fastutil.chars.*;
 import it.unimi.dsi.fastutil.doubles.DoubleList;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.longs.*;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.shorts.ShortList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,6 +67,54 @@ public class DeserializationFeaturesTest extends ModuleTestBase
         assertEquals(LongList.of(5L), MAPPER.readValue("[5.0]", LongList.class));
         assertEquals(DoubleList.of(1.0, 2.5), MAPPER.readValue("[1,\"2.5\"]", DoubleList.class));
         assertEquals(BooleanList.of(true), MAPPER.readValue("[\"true\"]", BooleanList.class));
+    }
+
+    @Test
+    void testMapValueNullsAndCoercions() throws Exception
+    {
+        // Map values handled the same way as collection elements
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue(a2q("{'1':null}"), Int2IntMap.class));
+        verifyException(e, "FAIL_ON_NULL_FOR_PRIMITIVES");
+        ObjectMapper lenient = mapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build();
+        assertEquals(0, lenient.readValue(a2q("{'1':null}"), Int2IntMap.class).get(1));
+        assertEquals(0L, lenient.readValue(a2q("{'a':null}"),
+                new TypeReference<Object2LongMap<String>>() { }).getLong("a"));
+
+        assertEquals(2, MAPPER.readValue(a2q("{'1':'2'}"), Int2IntMap.class).get(1));
+        assertEquals(5L, MAPPER.readValue(a2q("{'1':5.0}"), Int2LongMap.class).get(1));
+        assertEquals(2.5, MAPPER.readValue(a2q("{'a':'2.5'}"),
+                new TypeReference<Object2DoubleMap<String>>() { }).getDouble("a"));
+        assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue(a2q("{'1':'abc'}"), Int2IntMap.class));
+    }
+
+    @Test
+    void testAbstractTypes() throws Exception
+    {
+        // Abstract types are mapped to the default implementation of the most specific
+        // interface they implement
+        assertEquals(IntArrayList.of(3, 1, 1), assertInstanceOf(IntArrayList.class,
+                MAPPER.readValue("[3,1,1]", AbstractIntCollection.class)));
+        assertInstanceOf(IntOpenHashSet.class, MAPPER.readValue("[3,1]", AbstractIntSet.class));
+        assertInstanceOf(IntRBTreeSet.class, MAPPER.readValue("[3,1]", AbstractIntSortedSet.class));
+        assertInstanceOf(IntArrayList.class, MAPPER.readValue("[3,1]", AbstractIntList.class));
+        assertInstanceOf(Int2IntOpenHashMap.class, MAPPER.readValue(a2q("{'1':2}"), AbstractInt2IntMap.class));
+        assertInstanceOf(Int2IntRBTreeMap.class,
+                MAPPER.readValue(a2q("{'1':2}"), AbstractInt2IntSortedMap.class));
+    }
+
+    @Test
+    void testHasDeserializerFor()
+    {
+        FastutilDeserializers deserializers = new FastutilDeserializers();
+        assertTrue(deserializers.hasDeserializerFor(MAPPER.deserializationConfig(), IntList.class));
+        assertTrue(deserializers.hasDeserializerFor(MAPPER.deserializationConfig(), Int2IntMap.class));
+        // Abstract type that no default implementation is assignable to
+        assertFalse(deserializers.hasDeserializerFor(MAPPER.deserializationConfig(),
+                IntCollections.EmptyCollection.class));
     }
 
     @Test

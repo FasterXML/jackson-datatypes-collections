@@ -3,7 +3,10 @@ package tools.jackson.datatype.fastutil.ser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
@@ -54,21 +57,21 @@ public final class PrimitiveCollectionSerializers
     private static final List<Entry> ENTRIES = new ArrayList<>();
 
     static {
-        _register(() -> new Entry(BooleanCollection.class, () -> new BooleanSerializer(null, null)));
-        _register(() -> new Entry(ByteCollection.class, () -> new ByteSerializer(null, null)));
-        _register(() -> new Entry(ShortCollection.class, () -> new ShortSerializer(null, null)));
-        _register(() -> new Entry(CharCollection.class, () -> CharSerializer.INSTANCE));
-        _register(() -> new Entry(IntCollection.class, () -> new IntSerializer(null, null)));
-        _register(() -> new Entry(LongCollection.class, () -> new LongSerializer(null, null)));
-        _register(() -> new Entry(FloatCollection.class, () -> new FloatSerializer(null, null)));
-        _register(() -> new Entry(DoubleCollection.class, () -> new DoubleSerializer(null, null)));
+        _register(() -> new Entry(BooleanCollection.class, BooleanSerializer.INSTANCE));
+        _register(() -> new Entry(ByteCollection.class, ByteSerializer.INSTANCE));
+        _register(() -> new Entry(ShortCollection.class, ShortSerializer.INSTANCE));
+        _register(() -> new Entry(CharCollection.class, CharSerializer.INSTANCE));
+        _register(() -> new Entry(IntCollection.class, IntSerializer.INSTANCE));
+        _register(() -> new Entry(LongCollection.class, LongSerializer.INSTANCE));
+        _register(() -> new Entry(FloatCollection.class, FloatSerializer.INSTANCE));
+        _register(() -> new Entry(DoubleCollection.class, DoubleSerializer.INSTANCE));
     }
 
     private static void _register(Supplier<Entry> entry) {
         OptionalTypes.registerIfPresent(() -> ENTRIES.add(entry.get()));
     }
 
-    private record Entry(Class<?> collectionType, Supplier<ValueSerializer<?>> serializer) { }
+    private record Entry(Class<?> collectionType, ValueSerializer<?> serializer) { }
 
     /**
      * @return Serializer for given type if it is a fastutil collection of primitive
@@ -78,7 +81,7 @@ public final class PrimitiveCollectionSerializers
     {
         for (Entry entry : ENTRIES) {
             if (entry.collectionType().isAssignableFrom(rawType)) {
-                return entry.serializer().get();
+                return entry.serializer();
             }
         }
         return null;
@@ -90,6 +93,23 @@ public final class PrimitiveCollectionSerializers
         protected Base(Class<C> type, Class<?> rawElementType,
                 BeanProperty property, Boolean unwrapSingle) {
             super(type, TYPE_F.constructType(rawElementType), property, unwrapSingle);
+        }
+
+        /**
+         * @return Serializer that uses given settings (from per-property
+         *    {@code @JsonFormat} overrides)
+         */
+        protected abstract Base<C> withResolved(BeanProperty property, Boolean unwrapSingle);
+
+        @Override
+        public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
+        {
+            Boolean unwrapSingle = findFormatFeature(ctxt, property, handledType(),
+                    JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+            if (Objects.equals(unwrapSingle, _unwrapSingle)) {
+                return this;
+            }
+            return withResolved(property, unwrapSingle);
         }
 
         @Override
@@ -105,8 +125,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class BooleanSerializer extends Base<BooleanCollection>
     {
+        public static final BooleanSerializer INSTANCE = new BooleanSerializer(null, null);
+
         public BooleanSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(BooleanCollection.class, boolean.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected BooleanSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new BooleanSerializer(property, unwrapSingle);
         }
 
         @Override
@@ -121,8 +148,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class ByteSerializer extends Base<ByteCollection>
     {
+        public static final ByteSerializer INSTANCE = new ByteSerializer(null, null);
+
         public ByteSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(ByteCollection.class, byte.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected ByteSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new ByteSerializer(property, unwrapSingle);
         }
 
         @Override
@@ -137,8 +171,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class ShortSerializer extends Base<ShortCollection>
     {
+        public static final ShortSerializer INSTANCE = new ShortSerializer(null, null);
+
         public ShortSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(ShortCollection.class, short.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected ShortSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new ShortSerializer(property, unwrapSingle);
         }
 
         @Override
@@ -153,8 +194,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class IntSerializer extends Base<IntCollection>
     {
+        public static final IntSerializer INSTANCE = new IntSerializer(null, null);
+
         public IntSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(IntCollection.class, int.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected IntSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new IntSerializer(property, unwrapSingle);
         }
 
         @Override
@@ -169,8 +217,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class LongSerializer extends Base<LongCollection>
     {
+        public static final LongSerializer INSTANCE = new LongSerializer(null, null);
+
         public LongSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(LongCollection.class, long.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected LongSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new LongSerializer(property, unwrapSingle);
         }
 
         @Override
@@ -185,8 +240,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class FloatSerializer extends Base<FloatCollection>
     {
+        public static final FloatSerializer INSTANCE = new FloatSerializer(null, null);
+
         public FloatSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(FloatCollection.class, float.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected FloatSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new FloatSerializer(property, unwrapSingle);
         }
 
         @Override
@@ -201,8 +263,15 @@ public final class PrimitiveCollectionSerializers
 
     public static final class DoubleSerializer extends Base<DoubleCollection>
     {
+        public static final DoubleSerializer INSTANCE = new DoubleSerializer(null, null);
+
         public DoubleSerializer(BeanProperty property, Boolean unwrapSingle) {
             super(DoubleCollection.class, double.class, property, unwrapSingle);
+        }
+
+        @Override
+        protected DoubleSerializer withResolved(BeanProperty property, Boolean unwrapSingle) {
+            return new DoubleSerializer(property, unwrapSingle);
         }
 
         @Override

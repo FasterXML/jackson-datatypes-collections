@@ -86,7 +86,12 @@ public class RoundTripMatrixTest extends ModuleTestBase
     @MethodSource("mapTypes")
     void testMapHandlersRegistered(String key, String value, Class<?> type)
     {
-        assertThat(findModuleSerializer(MAPPER, type)).isNotNull();
+        // Maps with reference keys or values are serialized by the standard `MapSerializer`
+        if ("Object".equals(key) || "Object".equals(value)) {
+            assertThat(findModuleSerializer(MAPPER, type)).isNull();
+        } else {
+            assertThat(findModuleSerializer(MAPPER, type)).isNotNull();
+        }
         assertThat(findModuleDeserializer(MAPPER, type)).isNotNull();
     }
 

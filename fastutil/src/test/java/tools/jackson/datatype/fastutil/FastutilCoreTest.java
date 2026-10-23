@@ -58,8 +58,12 @@ public class FastutilCoreTest extends ModuleTestBase
                 IntSortedSet.class, IntBigList.class, LongSet.class, DoubleSortedSet.class,
                 ShortList.class, CharList.class, FloatList.class,
                 Int2IntMap.class, Int2LongSortedMap.class, Long2DoubleMap.class,
-                Double2DoubleMap.class, Int2ObjectMap.class, Object2LongMap.class)) {
+                Double2DoubleMap.class)) {
             assertThat(findModuleSerializer(MAPPER, type)).as(type.getName()).isNotNull();
+            assertThat(findModuleDeserializer(MAPPER, type)).as(type.getName()).isNotNull();
+        }
+        // Serialized by the standard `MapSerializer`
+        for (Class<?> type : List.of(Int2ObjectMap.class, Object2LongMap.class)) {
             assertThat(findModuleDeserializer(MAPPER, type)).as(type.getName()).isNotNull();
         }
     }

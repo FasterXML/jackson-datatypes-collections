@@ -39,7 +39,7 @@ final class TypeHandlerPairs {
         // enddefine */
 
         /* define ValueHandlerType //
-        // if object value //RefValueHandler// elif !(object value) //PrimitiveKVHandler.Short// endif //
+        // if object value //RefValueHandler// elif !(object value) //PrimitiveValueHandlers.Short// endif //
         // enddefine */
 
         /* define MapType //
@@ -57,7 +57,7 @@ final class TypeHandlerPairs {
                         .add(Byte2ShortMap.class, Byte2ShortOpenHashMap::new, Byte2ShortLinkedOpenHashMap::new),
                 new TypeHandlerPair</*MapType*/Byte2ShortMap/**/,
                         /*KeyHandlerType*/PrimitiveKVHandler.Byte/**/,
-                        /*ValueHandlerType*/PrimitiveKVHandler.Short/**/>() {
+                        /*ValueHandlerType*/PrimitiveValueHandlers.Short/**/>() {
                     @Override
                     public /*KeyHandlerType*/PrimitiveKVHandler.Byte/**/ keyHandler(JavaType type) {
                         return /* if !(object key) */PrimitiveKVHandler.Byte.INSTANCE
@@ -65,14 +65,15 @@ final class TypeHandlerPairs {
                     }
 
                     @Override
-                    public /*ValueHandlerType*/PrimitiveKVHandler.Short/**/ valueHandler(JavaType type) {
-                        return /* if !(object value) */PrimitiveKVHandler.Short.INSTANCE
+                    public /*ValueHandlerType*/PrimitiveValueHandlers.Short/**/ valueHandler(JavaType type) {
+                        return /* if !(object value) */PrimitiveValueHandlers.Short.INSTANCE
                                 /* elif object value //new RefValueHandler(type, null, null)// endif */;
                     }
 
                     @Override
                     public /*MapType*/Byte2ShortMap/**/ createEmpty() {
-                        // Instances are created by `ContainerFamily` instead
+                        // Instances are created by `ContainerFamily` instead (see
+                        // `FastutilMapDeserializers.FastutilMapDeserializer`)
                         throw new UnsupportedOperationException();
                     }
 
@@ -80,7 +81,7 @@ final class TypeHandlerPairs {
                     public void add(
                             /*MapType*/Byte2ShortMap/**/ target,
                             /*KeyHandlerType*/PrimitiveKVHandler.Byte/**/ kh,
-                            /*ValueHandlerType*/PrimitiveKVHandler.Short/**/ vh,
+                            /*ValueHandlerType*/PrimitiveValueHandlers.Short/**/ vh,
                             DeserializationContext ctx, String k, JsonParser v
                     ) throws JacksonException {
                         target.put(kh.key(ctx, k), vh.value(ctx, v));
