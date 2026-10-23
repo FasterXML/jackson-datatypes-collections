@@ -44,3 +44,8 @@ Vanya (@vanyamanko)
 * Contributed #229: (pcollections) Add deserializers for PCollection `TreePSet`,
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
+
+Jaehong Park (@PHJ2000)
+
+* Fixed #237: (pcollections) Preserve element order when deserializing `PStack` / `ConsPStack`
+ [3.3.0]
