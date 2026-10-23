@@ -21,6 +21,32 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
 
     protected abstract T finish(Intermediate intermediate);
 
+    /**
+     * Variant of {@link #createIntermediate()} that has access to the context, for
+     * reporting problems with creating the value: by default simply calls
+     * {@link #createIntermediate()}.
+     *
+     * @since 3.3
+     */
+    protected Intermediate createIntermediate(DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return createIntermediate();
+    }
+
+    /**
+     * Variant of {@link #finish(Object)} that has access to the context, for
+     * reporting problems with creating the value: by default simply calls
+     * {@link #finish(Object)}.
+     *
+     * @since 3.3
+     */
+    protected T finish(DeserializationContext ctxt, Intermediate intermediate)
+        throws JacksonException
+    {
+        return finish(intermediate);
+    }
+
     protected abstract void add(Intermediate intermediate, char c);
 
     protected abstract void addAll(Intermediate intermediate, char[] chars, int off, int len);
@@ -36,7 +62,7 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
     public T deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        Intermediate intermediate = createIntermediate();
+        Intermediate intermediate = createIntermediate(ctxt);
 
         if (p.isExpectedStartArrayToken()) {
             JsonToken t;
@@ -57,11 +83,11 @@ public abstract class BaseCharCollectionDeserializer<T, Intermediate> extends St
                 }
                 add(intermediate, str.charAt(0));
             }
-            return finish(intermediate);
+            return finish(ctxt, intermediate);
         }
 
         char[] chars = p.getStringCharacters();
         addAll(intermediate, chars, p.getStringOffset(), p.getStringLength());
-        return finish(intermediate);
+        return finish(ctxt, intermediate);
     }
 }

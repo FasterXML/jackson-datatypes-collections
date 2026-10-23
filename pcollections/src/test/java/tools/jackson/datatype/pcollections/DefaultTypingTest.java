@@ -335,14 +335,6 @@ public class DefaultTypingTest extends ModuleTestBase
     {
         assertNotNull(actual, "null result from JSON: " + json);
         assertEquals(expectedClass, actual.getClass(), "Wrong type from JSON: " + json);
-        // ConsPStack is built by pushing elements in JSON order, so contents come
-        // back reversed (same as without default typing; see TestPCollections.consPStack())
-        if (expected instanceof PStack<?> stack) {
-            List<?> reversed = new ArrayList<>(stack);
-            Collections.reverse(reversed);
-            assertEquals(reversed, actual, "JSON: " + json);
-            return;
-        }
         // AmortizedPQueue does not implement equals(); compare contents in order
         if (expected instanceof Queue<?> queue) {
             assertEquals(new ArrayList<>(queue),
