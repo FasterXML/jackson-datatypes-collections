@@ -32,6 +32,8 @@ Oliver Gillespie (@olivergillespie)
 
 PJ Fanning (@pjfanning)
 
+* Contributed #38: Add new `jackson-datatype-fastutil` module for fastutil collection types
+ [3.3.0]
 * Fixed #218: (guava) Fix input mismatch error message in `RangeDeserializer`
  [3.1.0]
 * Fixed #219: (eclipse-collections) Improve error handling for number parsing

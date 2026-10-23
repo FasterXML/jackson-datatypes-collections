@@ -40,12 +40,25 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
     }
 
     // null if not known
-    private final Class<?> handledType;
-    private final K keyHandler;
-    private final V valueHandler;
-    private final TypeHandlerPair<I, K, V> typeHandlerPair;
+    private final Class<?> _handledType;
+
+    /**
+     * @since 3.3 (private before)
+     */
+    protected final K _keyHandler;
+
+    /**
+     * @since 3.3 (private before)
+     */
+    protected final V _valueHandler;
+
+    /**
+     * @since 3.3 (private before)
+     */
+    protected final TypeHandlerPair<I, K, V> _typeHandlerPair;
+
     // null if this is the identity function
-    private final BiFunction<DeserializationContext, I, T> finish;
+    private final BiFunction<DeserializationContext, I, T> _finish;
 
     public MapDeserializer(K keyHandler, V valueHandler,
             TypeHandlerPair<I, K, V> typeHandlerPair, Function<I, T> finish) {
@@ -58,34 +71,48 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
      */
     public MapDeserializer(Class<?> handledType, K keyHandler, V valueHandler,
             TypeHandlerPair<I, K, V> typeHandlerPair, BiFunction<DeserializationContext, I, T> finish) {
-        this.handledType = handledType;
-        this.keyHandler = keyHandler;
-        this.valueHandler = valueHandler;
-        this.typeHandlerPair = typeHandlerPair;
-        this.finish = finish;
+        _handledType = handledType;
+        _keyHandler = keyHandler;
+        _valueHandler = valueHandler;
+        _typeHandlerPair = typeHandlerPair;
+        _finish = finish;
     }
 
     protected MapDeserializer<T, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
-        return new MapDeserializer<>(handledType, keyHandler, valueHandler, typeHandlerPair, finish);
+        return new MapDeserializer<>(_handledType, keyHandler, valueHandler, _typeHandlerPair, _finish);
     }
 
     @Override
     public Class<?> handledType() {
-        return handledType;
+        return _handledType;
     }
 
     protected I createIntermediate() {
-        return typeHandlerPair.createEmpty();
+        return _typeHandlerPair.createEmpty();
     }
 
-    private void deserializeEntry(
+    /**
+     * Variant of {@link #createIntermediate()} that has access to the context, for
+     * reporting problems with creating the map: by default simply calls
+     * {@link #createIntermediate()}.
+     *
+     * @since 3.3
+     */
+    protected I createIntermediate(DeserializationContext ctxt) throws JacksonException {
+        return createIntermediate();
+    }
+
+    /**
+     * @since 3.3 (private before)
+     */
+    protected void deserializeEntry(
             I target,
             DeserializationContext ctx,
             String key,
             JsonParser valueParser)
         throws JacksonException
     {
-        typeHandlerPair.add(target, keyHandler, valueHandler, ctx, key, valueParser);
+        _typeHandlerPair.add(target, _keyHandler, _valueHandler, ctx, key, valueParser);
     }
 
     /**
@@ -101,16 +128,16 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
      */
     @SuppressWarnings("unchecked")
     protected T finish(DeserializationContext ctxt, I intermediate) {
-        return finish == null ? (T) intermediate : finish.apply(ctxt, intermediate);
+        return _finish == null ? (T) intermediate : _finish.apply(ctxt, intermediate);
     }
 
     @Override
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
-        K kc = keyHandler.createContextualKey(ctxt, property);
-        V vc = valueHandler.createContextualValue(ctxt, property);
+        K kc = _keyHandler.createContextualKey(ctxt, property);
+        V vc = _valueHandler.createContextualValue(ctxt, property);
         //noinspection ObjectEquality
-        if (kc == keyHandler && vc == valueHandler) {
+        if (kc == _keyHandler && vc == _valueHandler) {
             return this;
         } else {
             return withResolved(kc, vc);
@@ -144,14 +171,27 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
             return (T) ctxt.handleUnexpectedToken(ctxt.constructType(handledType()), p);
         }
 
-        I map = createIntermediate();
+        I map = createIntermediate(ctxt);
+        deserializeEntries(p, ctxt, map);
+        return finish(ctxt, map);
+    }
+
+    /**
+     * Reads entries of a JSON Object into given map, starting from the first
+     * {@code PROPERTY_NAME} (or {@code END_OBJECT} for empty Objects): may also be
+     * used to populate an existing map (like when merging).
+     *
+     * @since 3.3
+     */
+    protected void deserializeEntries(JsonParser p, DeserializationContext ctxt, I target)
+        throws JacksonException
+    {
         for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();
             p.nextToken();
-            deserializeEntry(map, ctxt, fieldName, p);
+            deserializeEntry(target, ctxt, fieldName, p);
         }
-        return finish(ctxt, map);
     }
 }
 
