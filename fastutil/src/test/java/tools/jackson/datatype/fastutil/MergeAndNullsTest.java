@@ -2,13 +2,16 @@ package tools.jackson.datatype.fastutil;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 import it.unimi.dsi.fastutil.chars.CharArrayList;
@@ -41,6 +44,31 @@ public class MergeAndNullsTest extends ModuleTestBase
 
         @JsonSetter(nulls = Nulls.AS_EMPTY)
         public CharList chars;
+    }
+
+    static class ContentNullsBean {
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        public IntList skipList;
+
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        public CharList skipChars;
+
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        public Int2IntMap skipMap;
+
+        @JsonSetter(contentNulls = Nulls.SKIP)
+        public Int2ObjectMap<String> skipRefMap;
+
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public Int2ObjectMap<String> failRefMap;
+
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public it.unimi.dsi.fastutil.longs.LongList failList;
+    }
+
+    static class SingleValueBean {
+        @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+        public IntList ints;
     }
 
     private final ObjectMapper MAPPER = mapperWithModule();
@@ -147,5 +175,61 @@ public class MergeAndNullsTest extends ModuleTestBase
     // Identity-based maps need the same key instance
     private static <K> K _key(java.util.Map<K, ?> map, String key) {
         return map.keySet().stream().filter(key::equals).findFirst().orElseThrow();
+    }
+
+    @Test
+    void testContentNulls() throws Exception
+    {
+        ContentNullsBean bean = MAPPER.readValue("""
+                {"skipList":[1,null,2], "skipChars":["a",null,"b"],
+                 "skipMap":{"1":null,"2":20}, "skipRefMap":{"1":null,"2":"x"}}
+                """, ContentNullsBean.class);
+        assertEquals(IntList.of(1, 2), bean.skipList);
+        assertEquals(CharList.of('a', 'b'), bean.skipChars);
+        assertEquals(new Int2IntOpenHashMap(new int[] { 2 }, new int[] { 20 }), bean.skipMap);
+        assertEquals(1, bean.skipRefMap.size());
+        assertEquals("x", bean.skipRefMap.get(2));
+
+        // without nulls, regular handling (String form for chars too)
+        bean = MAPPER.readValue("{\"skipChars\":\"ab\"}", ContentNullsBean.class);
+        assertEquals(CharList.of('a', 'b'), bean.skipChars);
+
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("{\"failRefMap\":{\"1\":null}}", ContentNullsBean.class));
+        assertThrows(InvalidNullException.class,
+                () -> LENIENT_MAPPER.readValue("{\"failList\":[1,null]}", ContentNullsBean.class));
+        // but without `contentNulls`, null values of reference maps are fine
+        Int2ObjectMap<String> refMap = MAPPER.readValue("{\"1\":null}",
+                new TypeReference<Int2ObjectMap<String>>() { });
+        assertTrue(refMap.containsKey(1));
+    }
+
+    @Test
+    void testSingleValueAsArrayPerProperty() throws Exception
+    {
+        SingleValueBean bean = MAPPER.readValue("{\"ints\":3}", SingleValueBean.class);
+        assertEquals(IntList.of(3), bean.ints);
+        bean = MAPPER.readValue("{\"ints\":[3,4]}", SingleValueBean.class);
+        assertEquals(IntList.of(3, 4), bean.ints);
+
+        // not enabled for root values (or other properties) by default
+        assertThrows(MismatchedInputException.class, () -> MAPPER.readValue("3", IntList.class));
+    }
+
+    @Test
+    void testMergeIntoUnmodifiable() throws Exception
+    {
+        IntList list = IntLists.unmodifiable(IntArrayList.of(1));
+        DatabindException e = assertThrows(DatabindException.class,
+                () -> MAPPER.readerForUpdating(list).readValue("[2]"));
+        assertTrue(e.getMessage().contains("Cannot merge into value"), e.getMessage());
+
+        Int2IntMap map = Int2IntMaps.unmodifiable(new Int2IntOpenHashMap());
+        assertThrows(DatabindException.class,
+                () -> MAPPER.readerForUpdating(map).readValue("{\"1\":2}"));
+
+        CharList chars = it.unimi.dsi.fastutil.chars.CharLists.unmodifiable(CharList.of('a'));
+        assertThrows(DatabindException.class,
+                () -> MAPPER.readerForUpdating(chars).readValue("\"b\""));
     }
 }

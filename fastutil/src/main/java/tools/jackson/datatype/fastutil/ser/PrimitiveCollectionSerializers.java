@@ -13,18 +13,16 @@ import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
-import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanProperty;
-import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
-import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.fastutil.util.ContentSerializers;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.ser.PrimitiveIterableSerializer;
 
@@ -53,8 +51,6 @@ import it.unimi.dsi.fastutil.shorts.ShortIterator;
  */
 public final class PrimitiveCollectionSerializers
 {
-    private final static TypeFactory TYPE_F = TypeFactory.createDefaultInstance();
-
     private PrimitiveCollectionSerializers() { }
 
     // Collection types missing from `fastutil-core` (a subset of `fastutil`, without
@@ -102,14 +98,7 @@ public final class PrimitiveCollectionSerializers
     static ValueSerializer<?> _standardSerializerIfNeeded(SerializationContext ctxt,
             BeanProperty property, Class<?> primitiveType)
     {
-        final AnnotatedMember member = (property == null) ? null : property.getMember();
-        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        if (member == null || intr == null) {
-            return null;
-        }
-        final SerializationConfig config = ctxt.getConfig();
-        if ((intr.findContentSerializer(config, member) == null)
-                && (intr.findSerializationContentConverter(config, member) == null)) {
+        if (!ContentSerializers.hasCustomContentSerialization(ctxt, property)) {
             return null;
         }
         return new CollectionSerializer(ctxt.constructType(ClassUtil.wrapperType(primitiveType)),
@@ -122,7 +111,7 @@ public final class PrimitiveCollectionSerializers
     {
         protected Base(Class<C> type, Class<?> rawElementType,
                 BeanProperty property, Boolean unwrapSingle) {
-            super(type, TYPE_F.constructType(rawElementType), property, unwrapSingle);
+            super(type, TypeFactory.unsafeSimpleType(rawElementType), property, unwrapSingle);
         }
 
         /**

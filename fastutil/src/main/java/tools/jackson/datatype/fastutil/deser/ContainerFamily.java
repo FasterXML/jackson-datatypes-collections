@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -49,13 +50,24 @@ public final class ContainerFamily<C>
     // Most specific interfaces first
     private final List<Kind<C>> _kinds = new ArrayList<>();
 
+    // Lookups use reflection (with exceptions for missing constructors and methods), so
+    // results are cached, including negative ones; `ClassValue` does not prevent unloading
+    // of classes (unlike a `Map` keyed by class would)
+    private final ClassValue<Optional<Creator<C>>> _creators = new ClassValue<>() {
+        @Override
+        protected Optional<Creator<C>> computeValue(Class<?> rawType) {
+            return Optional.ofNullable(_findCreator(rawType));
+        }
+    };
+
     public ContainerFamily(Class<?> baseType) {
         _baseType = baseType;
     }
 
     /**
      * Registers an interface of this family; interfaces need to be registered from
-     * the most specific to the least specific one.
+     * the most specific to the least specific one, and all of them before the
+     * first call to {@link #findCreator} (whose results are cached).
      *
      * @param iface Interface type
      * @param defaultImpl Factory for the implementation to use when deserializing
@@ -94,6 +106,11 @@ public final class ContainerFamily<C>
      *   constructed; {@code null} otherwise
      */
     public Creator<C> findCreator(Class<?> rawType)
+    {
+        return _creators.get(rawType).orElse(null);
+    }
+
+    private Creator<C> _findCreator(Class<?> rawType)
     {
         if (!handles(rawType)) {
             return null;
@@ -248,6 +265,14 @@ public final class ContainerFamily<C>
 
         public C finish(C intermediate) {
             return (_finish == null) ? intermediate : _finish.apply(intermediate);
+        }
+
+        /**
+         * @return New empty container (as used for "empty" values, like with
+         *    {@code Nulls.AS_EMPTY})
+         */
+        public C createEmpty() {
+            return finish(create());
         }
     }
 }

@@ -103,7 +103,9 @@ these interfaces they implement. Concrete types with a no-arguments constructor 
 
 Other Jackson features work as for the equivalent `java.util` types, including merging
 (`@JsonMerge`, `ObjectMapper.readerForUpdating()`: elements are added, map entries replaced),
-`@JsonSetter(nulls = Nulls.AS_EMPTY)` and `SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS`.
+`@JsonSetter(nulls = Nulls.AS_EMPTY)`, `@JsonSetter(contentNulls = Nulls.SKIP)` (or `FAIL`),
+per-property `@JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)` and
+`SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS`.
 Custom serializers or deserializers for primitive elements, keys or values (like
 `@JsonDeserialize(contentUsing = ...)`) are also supported, but take boxed values: containers
 that use them are (de)serialized by the standard Jackson handlers, and copied into the fastutil

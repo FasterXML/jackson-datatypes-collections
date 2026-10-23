@@ -3,6 +3,7 @@ package tools.jackson.datatype.fastutil.deser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -10,11 +11,18 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.datatype.fastutil.util.ContentNulls;
+import tools.jackson.datatype.fastutil.util.Merging;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCollectionDeserializer;
@@ -159,15 +167,94 @@ public final class PrimitiveCollectionDeserializers
     /**
      * Base class for deserializers of primitive collections: elements are added
      * to an intermediate collection which is then converted to the result type.
+     *<p>
+     * Handles per-property settings the same way as {@code jackson-databind} does
+     * for primitive arrays: {@code @JsonSetter(contentNulls = ...)} ({@code SKIP} and
+     * {@code FAIL}; others handle {@code null}s as specified by
+     * {@link tools.jackson.databind.DeserializationFeature#FAIL_ON_NULL_FOR_PRIMITIVES})
+     * and {@code @JsonFormat(with = ACCEPT_SINGLE_VALUE_AS_ARRAY)}.
      */
     public abstract static class Base<C extends Collection<?>>
         extends BaseCollectionDeserializer<C, C>
     {
         protected final ContainerFamily.Creator<C> _creator;
 
+        // Handler for JSON nulls as elements, if not the default one
+        protected final NullValueProvider _nuller;
+
+        // Per-property override for `ACCEPT_SINGLE_VALUE_AS_ARRAY`, if any
+        protected final Boolean _unwrapSingle;
+
         protected Base(JavaType type, ContainerFamily.Creator<C> creator) {
             super(type);
             _creator = creator;
+            _nuller = null;
+            _unwrapSingle = null;
+        }
+
+        protected Base(Base<C> src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src.getValueType());
+            _creator = src._creator;
+            _nuller = nuller;
+            _unwrapSingle = unwrapSingle;
+        }
+
+        protected abstract Base<C> withResolved(NullValueProvider nuller, Boolean unwrapSingle);
+
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        {
+            Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
+                    JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+            NullValueProvider nuller = ContentNulls.findNuller(ctxt, property, getValueType());
+            if (Objects.equals(unwrapSingle, _unwrapSingle) && (nuller == _nuller)) {
+                return this;
+            }
+            return withResolved(nuller, unwrapSingle);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public C deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
+            if (p.isExpectedStartArrayToken()) {
+                return _deserializeContents(p, ctxt);
+            }
+            if ((_unwrapSingle == Boolean.TRUE) || ((_unwrapSingle == null)
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY))) {
+                return _deserializeFromSingleValue(p, ctxt);
+            }
+            return (C) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        }
+
+        @Override
+        protected C _deserializeContents(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
+            C collection = createIntermediate();
+            JsonToken t;
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                if ((t == JsonToken.VALUE_NULL) && (_nuller != null)) {
+                    _nuller.getNullValue(ctxt); // fails, or skips
+                    continue;
+                }
+                add(collection, p, ctxt);
+            }
+            return finish(ctxt, collection);
+        }
+
+        @Override
+        protected C _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
+            C collection = createIntermediate();
+            if (p.hasToken(JsonToken.VALUE_NULL) && (_nuller != null)) {
+                _nuller.getNullValue(ctxt);
+            } else {
+                add(collection, p, ctxt);
+            }
+            return finish(ctxt, collection);
         }
 
         @Override
@@ -181,13 +268,11 @@ public final class PrimitiveCollectionDeserializers
         }
 
         // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds elements
-        @SuppressWarnings("unchecked")
         @Override
         public C deserialize(JsonParser p, DeserializationContext ctxt, C intoValue)
             throws JacksonException
         {
-            ((Collection<Object>) intoValue).addAll(deserialize(p, ctxt));
-            return intoValue;
+            return Merging.addAll(ctxt, intoValue, deserialize(p, ctxt));
         }
 
         @Override
@@ -197,7 +282,7 @@ public final class PrimitiveCollectionDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.finish(_creator.create());
+            return _creator.createEmpty();
         }
 
         @Override
@@ -210,6 +295,15 @@ public final class PrimitiveCollectionDeserializers
     {
         public BooleanDeserializer(JavaType type, ContainerFamily.Creator<BooleanCollection> creator) {
             super(type, creator);
+        }
+
+        private BooleanDeserializer(BooleanDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected BooleanDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new BooleanDeserializer(this, nuller, unwrapSingle);
         }
 
         @Override
@@ -226,6 +320,15 @@ public final class PrimitiveCollectionDeserializers
             super(type, creator);
         }
 
+        private ByteDeserializer(ByteDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected ByteDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new ByteDeserializer(this, nuller, unwrapSingle);
+        }
+
         @Override
         protected void add(ByteCollection intermediate, JsonParser p, DeserializationContext ctxt)
             throws JacksonException
@@ -238,6 +341,15 @@ public final class PrimitiveCollectionDeserializers
     {
         public ShortDeserializer(JavaType type, ContainerFamily.Creator<ShortCollection> creator) {
             super(type, creator);
+        }
+
+        private ShortDeserializer(ShortDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected ShortDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new ShortDeserializer(this, nuller, unwrapSingle);
         }
 
         @Override
@@ -254,6 +366,15 @@ public final class PrimitiveCollectionDeserializers
             super(type, creator);
         }
 
+        private IntDeserializer(IntDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected IntDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new IntDeserializer(this, nuller, unwrapSingle);
+        }
+
         @Override
         protected void add(IntCollection intermediate, JsonParser p, DeserializationContext ctxt)
             throws JacksonException
@@ -266,6 +387,15 @@ public final class PrimitiveCollectionDeserializers
     {
         public LongDeserializer(JavaType type, ContainerFamily.Creator<LongCollection> creator) {
             super(type, creator);
+        }
+
+        private LongDeserializer(LongDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected LongDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new LongDeserializer(this, nuller, unwrapSingle);
         }
 
         @Override
@@ -282,6 +412,15 @@ public final class PrimitiveCollectionDeserializers
             super(type, creator);
         }
 
+        private FloatDeserializer(FloatDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected FloatDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new FloatDeserializer(this, nuller, unwrapSingle);
+        }
+
         @Override
         protected void add(FloatCollection intermediate, JsonParser p, DeserializationContext ctxt)
             throws JacksonException
@@ -294,6 +433,15 @@ public final class PrimitiveCollectionDeserializers
     {
         public DoubleDeserializer(JavaType type, ContainerFamily.Creator<DoubleCollection> creator) {
             super(type, creator);
+        }
+
+        private DoubleDeserializer(DoubleDeserializer src, NullValueProvider nuller, Boolean unwrapSingle) {
+            super(src, nuller, unwrapSingle);
+        }
+
+        @Override
+        protected DoubleDeserializer withResolved(NullValueProvider nuller, Boolean unwrapSingle) {
+            return new DoubleDeserializer(this, nuller, unwrapSingle);
         }
 
         @Override
@@ -313,9 +461,18 @@ public final class PrimitiveCollectionDeserializers
     {
         private final ContainerFamily.Creator<CharCollection> _creator;
 
+        // Handler for JSON nulls as elements of JSON Arrays, if not the default one
+        private final NullValueProvider _nuller;
+
         public CharDeserializer(Class<?> rawType, ContainerFamily.Creator<CharCollection> creator) {
+            this(rawType, creator, null);
+        }
+
+        private CharDeserializer(Class<?> rawType, ContainerFamily.Creator<CharCollection> creator,
+                NullValueProvider nuller) {
             super(_cast(rawType));
             _creator = creator;
+            _nuller = nuller;
         }
 
         @SuppressWarnings("unchecked")
@@ -324,13 +481,52 @@ public final class PrimitiveCollectionDeserializers
         }
 
         @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        {
+            NullValueProvider nuller = ContentNulls.findNuller(ctxt, property,
+                    ctxt.constructType(handledType()));
+            if (nuller == _nuller) {
+                return this;
+            }
+            return new CharDeserializer(handledType(), _creator, nuller);
+        }
+
+        @Override
         public CharCollection deserialize(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
-            if (!p.isExpectedStartArrayToken() && !p.hasToken(JsonToken.VALUE_STRING)) {
+            if (p.isExpectedStartArrayToken()) {
+                if (_nuller != null) {
+                    return _deserializeArrayWithNuller(p, ctxt);
+                }
+            } else if (!p.hasToken(JsonToken.VALUE_STRING)) {
                 return (CharCollection) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
             return super.deserialize(p, ctxt);
+        }
+
+        private CharCollection _deserializeArrayWithNuller(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
+            CharCollection collection = createIntermediate();
+            JsonToken t;
+            while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+                if (t == JsonToken.VALUE_NULL) {
+                    _nuller.getNullValue(ctxt); // fails, or skips
+                    continue;
+                }
+                if (t != JsonToken.VALUE_STRING) {
+                    return (CharCollection) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                }
+                String str = p.getString();
+                if (str.length() != 1) {
+                    ctxt.reportInputMismatch(this,
+                            "Cannot convert a JSON String of length %d into a char element of char array",
+                            str.length());
+                }
+                collection.add(str.charAt(0));
+            }
+            return finish(collection);
         }
 
         @Override
@@ -348,8 +544,7 @@ public final class PrimitiveCollectionDeserializers
                 CharCollection intoValue)
             throws JacksonException
         {
-            intoValue.addAll(deserialize(p, ctxt));
-            return intoValue;
+            return Merging.addAll(ctxt, intoValue, deserialize(p, ctxt));
         }
 
         @Override
@@ -359,7 +554,7 @@ public final class PrimitiveCollectionDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.finish(_creator.create());
+            return _creator.createEmpty();
         }
 
         @Override

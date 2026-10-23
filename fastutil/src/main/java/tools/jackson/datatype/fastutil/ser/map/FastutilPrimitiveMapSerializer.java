@@ -12,6 +12,7 @@ import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.ser.jdk.MapSerializer;
+import tools.jackson.datatype.fastutil.util.ContentSerializers;
 import tools.jackson.datatype.primitive_collections_base.ser.map.PrimitiveMapSerializer;
 
 /**
@@ -57,6 +58,9 @@ public abstract class FastutilPrimitiveMapSerializer<T> extends PrimitiveMapSeri
                 JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES))) {
             return true;
         }
+        if (ContentSerializers.hasCustomContentSerialization(ctxt, property)) {
+            return true;
+        }
         final AnnotatedMember member = (property == null) ? null : property.getMember();
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (member == null || intr == null) {
@@ -64,8 +68,6 @@ public abstract class FastutilPrimitiveMapSerializer<T> extends PrimitiveMapSeri
         }
         final SerializationConfig config = ctxt.getConfig();
         return (intr.findKeySerializer(config, member) != null)
-                || (intr.findContentSerializer(config, member) != null)
-                || (intr.findSerializationContentConverter(config, member) != null)
                 || Boolean.TRUE.equals(intr.findSerializationSortAlphabetically(config, member))
                 || (intr.findFilterId(config, member) != null)
                 || !intr.findPropertyIgnoralByName(config, member).findIgnoredForSerialization().isEmpty()

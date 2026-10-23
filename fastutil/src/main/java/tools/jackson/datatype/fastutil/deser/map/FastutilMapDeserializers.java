@@ -8,18 +8,23 @@ import java.util.function.Supplier;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.datatype.fastutil.deser.BoxedDelegatingDeserializer;
 import tools.jackson.datatype.fastutil.deser.ContainerFamily;
+import tools.jackson.datatype.fastutil.util.ContentNulls;
+import tools.jackson.datatype.fastutil.util.Merging;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.map.KeyHandler;
 import tools.jackson.datatype.primitive_collections_base.deser.map.MapDeserializer;
@@ -208,8 +213,8 @@ public final class FastutilMapDeserializers
             V valueHandler = refValue
                     ? (V) new RefValueHandler(type.getContentType(), valueDeserializer, valueTypeDeserializer)
                     : typeHandlerPair.valueHandler(type.getContentType());
-            return new FastutilMapDeserializer<>(type.getRawClass(), keyHandler, valueHandler,
-                    typeHandlerPair, creator);
+            return new FastutilMapDeserializer<>(type, keyHandler, valueHandler,
+                    typeHandlerPair, creator, null);
         }
     }
 
@@ -217,19 +222,45 @@ public final class FastutilMapDeserializers
      * Creates maps using {@link ContainerFamily.Creator} (instead of
      * {@link TypeHandlerPair#createEmpty}) since the map type to create depends on
      * the requested type, not just on key and value types.
+     *<p>
+     * Also handles {@code @JsonSetter(contentNulls = SKIP / FAIL)} for values.
      */
     static final class FastutilMapDeserializer<M, K extends KeyHandler<K>, V extends ValueHandler<V>>
         extends MapDeserializer<M, M, K, V>
     {
+        private final JavaType _mapType;
+        private final K _keyHandler;
+        private final V _valueHandler;
         private final TypeHandlerPair<M, K, V> _typeHandlerPair;
         private final ContainerFamily.Creator<M> _creator;
 
-        FastutilMapDeserializer(Class<?> mapType, K keyHandler, V valueHandler,
-                TypeHandlerPair<M, K, V> typeHandlerPair, ContainerFamily.Creator<M> creator) {
-            super(mapType, keyHandler, valueHandler, typeHandlerPair,
+        // Handler for JSON nulls as values, if not the default one
+        private final NullValueProvider _nuller;
+
+        FastutilMapDeserializer(JavaType mapType, K keyHandler, V valueHandler,
+                TypeHandlerPair<M, K, V> typeHandlerPair, ContainerFamily.Creator<M> creator,
+                NullValueProvider nuller) {
+            super(mapType.getRawClass(), keyHandler, valueHandler, typeHandlerPair,
                     (ctxt, intermediate) -> creator.finish(intermediate));
+            _mapType = mapType;
+            _keyHandler = keyHandler;
+            _valueHandler = valueHandler;
             _typeHandlerPair = typeHandlerPair;
             _creator = creator;
+            _nuller = nuller;
+        }
+
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        {
+            FastutilMapDeserializer<M, K, V> deser = (FastutilMapDeserializer<M, K, V>)
+                    super.createContextual(ctxt, property);
+            NullValueProvider nuller = ContentNulls.findNuller(ctxt, property, _mapType);
+            if (nuller == deser._nuller) {
+                return deser;
+            }
+            return new FastutilMapDeserializer<>(_mapType, deser._keyHandler, deser._valueHandler,
+                    _typeHandlerPair, _creator, nuller);
         }
 
         @Override
@@ -237,15 +268,25 @@ public final class FastutilMapDeserializers
             return _creator.create();
         }
 
+        @Override
+        protected void deserializeEntry(M target, DeserializationContext ctxt, String key,
+                JsonParser valueParser)
+            throws JacksonException
+        {
+            if ((_nuller != null) && valueParser.hasToken(JsonToken.VALUE_NULL)) {
+                _nuller.getNullValue(ctxt); // fails, or skips
+                return;
+            }
+            super.deserializeEntry(target, ctxt, key, valueParser);
+        }
+
         // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds entries,
         // replacing (not merging) existing values
-        @SuppressWarnings("unchecked")
         @Override
         public M deserialize(JsonParser p, DeserializationContext ctxt, M intoValue)
             throws JacksonException
         {
-            ((Map<Object, Object>) intoValue).putAll((Map<?, ?>) deserialize(p, ctxt));
-            return intoValue;
+            return Merging.putAll(ctxt, intoValue, (Map<?, ?>) deserialize(p, ctxt));
         }
 
         @Override
@@ -255,7 +296,7 @@ public final class FastutilMapDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.finish(_creator.create());
+            return _creator.createEmpty();
         }
 
         @Override
@@ -265,8 +306,8 @@ public final class FastutilMapDeserializers
 
         @Override
         protected MapDeserializer<M, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
-            return new FastutilMapDeserializer<>(handledType(), keyHandler, valueHandler,
-                    _typeHandlerPair, _creator);
+            return new FastutilMapDeserializer<>(_mapType, keyHandler, valueHandler,
+                    _typeHandlerPair, _creator, _nuller);
         }
     }
 }

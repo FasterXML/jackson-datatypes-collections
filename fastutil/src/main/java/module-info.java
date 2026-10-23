@@ -5,7 +5,8 @@ module tools.jackson.datatype.fastutil
     requires tools.jackson.core;
     requires transitive tools.jackson.databind;
 
-    requires tools.jackson.datatype.primitive_collections_base;
+    // public API extends its types
+    requires transitive tools.jackson.datatype.primitive_collections_base;
 
     requires static it.unimi.dsi.fastutil;
 

@@ -16,6 +16,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.datatype.fastutil.util.Merging;
 
 /**
  * Deserializer that reads content as another container type (with boxed keys and
@@ -72,8 +73,10 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
 
     @Override
     public C deserialize(JsonParser p, DeserializationContext ctxt, C intoValue) throws JacksonException {
-        _copy(ctxt, _delegate.deserialize(p, ctxt), intoValue);
-        return intoValue;
+        C values = deserialize(p, ctxt);
+        return (intoValue instanceof Map<?, ?>)
+                ? Merging.putAll(ctxt, intoValue, (Map<?, ?>) values)
+                : Merging.addAll(ctxt, intoValue, (Collection<?>) values);
     }
 
     @Override
@@ -87,7 +90,7 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
 
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
-        return _creator.finish(_creator.create());
+        return _creator.createEmpty();
     }
 
     @Override
