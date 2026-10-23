@@ -351,7 +351,7 @@ public class GuavaDeserializers
         if (type.hasRawClass(InternetDomainName.class)) {
             return InternetDomainNameDeserializer.std;
         }
-        if (type.hasRawClass(HashCode.class)) {
+        if (type.isTypeOrSubTypeOf(HashCode.class)) {
             return HashCodeDeserializer.std;
         }
         if (type.hasRawClass(ImmutableIntArray.class)) {
@@ -372,7 +372,7 @@ public class GuavaDeserializers
             return (valueType == Optional.class)
                     || (valueType == HostAndPort.class)
                     || (valueType == InternetDomainName.class)
-                    || (valueType == HashCode.class)
+                    || HashCode.class.isAssignableFrom(valueType)
                     // Ok to claim we might support; not a guarantee
                     || Multiset.class.isAssignableFrom(valueType)
                     || Multimap.class.isAssignableFrom(valueType)
