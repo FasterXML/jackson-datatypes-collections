@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.type.TypeReference;
@@ -33,6 +34,15 @@ public class RangeTest extends ModuleTestBase
 
         public UntypedWrapper() { }
         public UntypedWrapper(Range<?> r) { range = r; }
+    }
+
+    static class WildcardWrapper {
+        public Range<?> r;
+    }
+
+    static class WildcardStringWrapper {
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public Range<?> r;
     }
 
     static class Wrapped {
@@ -389,4 +399,36 @@ public class RangeTest extends ModuleTestBase
         }
     }
 
+
+    // `Range<?>` endpoints are written by their runtime type, read as "natural" types
+    @Test
+    public void testWildcardRange() throws Exception
+    {
+        WildcardWrapper input = new WildcardWrapper();
+        input.r = RangeFactory.closed(new java.math.BigDecimal("1.5"), new java.math.BigDecimal("2.5"));
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{'r':{'lowerEndpoint':1.5,'lowerBoundType':'CLOSED',"
+                + "'upperEndpoint':2.5,'upperBoundType':'CLOSED'}}"), json);
+        assertEquals(RangeFactory.closed(1.5, 2.5), MAPPER.readValue(json, WildcardWrapper.class).r);
+
+        input.r = RangeFactory.atLeast("abc");
+        assertEquals(input.r, MAPPER.readValue(MAPPER.writeValueAsString(input), WildcardWrapper.class).r);
+
+        // Same with default typing: no endpoint type ids
+        ObjectMapper typed = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
+        json = typed.writeValueAsString(input);
+        assertFalse(json.contains("java.lang.String"), json);
+        assertEquals(input.r, typed.readValue(json, WildcardWrapper.class).r);
+    }
+
+    @Test
+    public void testWildcardRangeAsString() throws Exception
+    {
+        WildcardStringWrapper input = new WildcardStringWrapper();
+        input.r = RangeFactory.closedOpen("a", "c");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{'r':'[a..c)'}"), json);
+        assertEquals(input.r, MAPPER.readValue(json, WildcardStringWrapper.class).r);
+    }
 }

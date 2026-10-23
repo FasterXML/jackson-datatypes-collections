@@ -38,6 +38,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -45,6 +46,10 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
 {
     static class Wrapper {
         public RangeSet<Integer> value;
+    }
+
+    static class ObjectWrapper {
+        public Object value;
     }
 
     static class ScalarWrapper<T extends Comparable<?>> {
@@ -242,6 +247,22 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
                 a2q("[{'lowerEndpoint':{'name':'a','value':1},'lowerBoundType':'CLOSED'}]"),
                 new TypeReference<ImmutableRangeSet<BeanEndpoint>>() { });
         assertEquals(ImmutableRangeSet.of(Range.atLeast(new BeanEndpoint("a", 1))), result);
+    }
+
+    // `Range` with unknown endpoint type (here, held in an `Object` property) also writes
+    // endpoints without type ids; previously it wrote ids that could not be read back
+    @ParameterizedTest
+    @EnumSource(value = DefaultTyping.class, names = { "NON_FINAL", "OBJECT_AND_NON_CONCRETE" })
+    public void untypedRangeEndpointsWrittenWithoutTypeIds(DefaultTyping typing) {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), typing).build();
+        ObjectWrapper input = new ObjectWrapper();
+        input.value = Range.closed(new BigDecimal("1.5"), new BigDecimal("2.5"));
+        String json = mapper.writeValueAsString(input);
+        assertFalse(json.contains("java.math.BigDecimal"), json);
+        ObjectWrapper output = mapper.readValue(json, ObjectWrapper.class);
+        // Endpoint type is not known when reading, so numbers come back as natural types
+        assertEquals(Range.closed(1.5, 2.5), output.value);
     }
 
     // Non-public views (like `complement()`) must be written with a readable type id

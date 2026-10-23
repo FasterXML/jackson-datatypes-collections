@@ -91,7 +91,9 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         if (endpointSer == null) {
             JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
             // let's not consider "untyped" (java.lang.Object) to be meaningful here...
-            if (endpointType != null && !endpointType.hasRawClass(Object.class)) {
+            // nor `Comparable`, the bound `Range<?>` resolves to
+            if (endpointType != null && !endpointType.hasRawClass(Object.class)
+                    && !endpointType.hasRawClass(Comparable.class)) {
                 endpointSer = ctxt.findContentValueSerializer(endpointType, property);
             }
         } else {

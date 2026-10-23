@@ -88,7 +88,12 @@ public class RangeDeserializer
 
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
                 ctxt.getConfig().getPropertyNamingStrategy());
-        final JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
+        JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
+        // `Range<?>` resolves to the `Comparable` bound, which cannot be deserialized
+        // as such: read endpoints as "natural" types instead (which are `Comparable`)
+        if (endpointType.hasRawClass(Comparable.class)) {
+            endpointType = ctxt.constructType(Object.class);
+        }
         ValueDeserializer<?> deser = _endpointDeserializer;
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(endpointType, property);
