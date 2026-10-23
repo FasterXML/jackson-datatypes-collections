@@ -241,7 +241,7 @@ public final class FastutilMapDeserializers
                 TypeHandlerPair<M, K, V> typeHandlerPair, ContainerFamily.Creator<M> creator,
                 NullValueProvider nuller) {
             super(mapType.getRawClass(), keyHandler, valueHandler, typeHandlerPair,
-                    (ctxt, intermediate) -> creator.finish(intermediate));
+                    (ctxt, intermediate) -> creator.finish(ctxt, intermediate));
             _mapType = mapType;
             _keyHandler = keyHandler;
             _valueHandler = valueHandler;
@@ -265,7 +265,12 @@ public final class FastutilMapDeserializers
 
         @Override
         protected M createIntermediate() {
-            return _creator.create();
+            return _creator.create(null);
+        }
+
+        @Override
+        protected M createIntermediate(DeserializationContext ctxt) throws JacksonException {
+            return _creator.create(ctxt);
         }
 
         @Override
@@ -296,7 +301,7 @@ public final class FastutilMapDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.createEmpty();
+            return _creator.createEmpty(ctxt);
         }
 
         @Override

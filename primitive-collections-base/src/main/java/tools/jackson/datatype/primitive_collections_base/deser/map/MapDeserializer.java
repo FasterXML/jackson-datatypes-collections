@@ -78,7 +78,21 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
         return typeHandlerPair.createEmpty();
     }
 
-    private void deserializeEntry(
+    /**
+     * Variant of {@link #createIntermediate()} that has access to the context, for
+     * reporting problems with creating the map: by default simply calls
+     * {@link #createIntermediate()}.
+     *
+     * @since 3.3
+     */
+    protected I createIntermediate(DeserializationContext ctxt) throws JacksonException {
+        return createIntermediate();
+    }
+
+    /**
+     * @since 3.3 (private before)
+     */
+    protected void deserializeEntry(
             I target,
             DeserializationContext ctx,
             String key,
@@ -144,7 +158,7 @@ public class MapDeserializer<T, I, K extends KeyHandler<K>, V extends ValueHandl
             return (T) ctxt.handleUnexpectedToken(ctxt.constructType(handledType()), p);
         }
 
-        I map = createIntermediate();
+        I map = createIntermediate(ctxt);
         for (; p.currentToken() == JsonToken.PROPERTY_NAME; p.nextToken()) {
             // Must point to field name now
             String fieldName = p.currentName();

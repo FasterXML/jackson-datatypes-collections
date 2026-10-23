@@ -66,9 +66,9 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
 
     @Override
     public C deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
-        C result = _creator.create();
+        C result = _creator.create(ctxt);
         _copy(ctxt, _delegate.deserialize(p, ctxt), result);
-        return _creator.finish(result);
+        return _creator.finish(ctxt, result);
     }
 
     @Override
@@ -90,7 +90,7 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
 
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
-        return _creator.createEmpty();
+        return _creator.createEmpty(ctxt);
     }
 
     @Override

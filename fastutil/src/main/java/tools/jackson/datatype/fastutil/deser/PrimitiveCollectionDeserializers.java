@@ -232,7 +232,7 @@ public final class PrimitiveCollectionDeserializers
         protected C _deserializeContents(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
-            C collection = createIntermediate();
+            C collection = createIntermediate(ctxt);
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 if ((t == JsonToken.VALUE_NULL) && (_nuller != null)) {
@@ -248,7 +248,7 @@ public final class PrimitiveCollectionDeserializers
         protected C _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
-            C collection = createIntermediate();
+            C collection = createIntermediate(ctxt);
             if (p.hasToken(JsonToken.VALUE_NULL) && (_nuller != null)) {
                 _nuller.getNullValue(ctxt);
             } else {
@@ -259,12 +259,22 @@ public final class PrimitiveCollectionDeserializers
 
         @Override
         protected C createIntermediate() {
-            return _creator.create();
+            return _creator.create(null);
+        }
+
+        @Override
+        protected C createIntermediate(DeserializationContext ctxt) throws JacksonException {
+            return _creator.create(ctxt);
         }
 
         @Override
         protected C finish(C intermediate) {
-            return _creator.finish(intermediate);
+            return _creator.finish(null, intermediate);
+        }
+
+        @Override
+        protected C finish(DeserializationContext ctxt, C intermediate) throws JacksonException {
+            return _creator.finish(ctxt, intermediate);
         }
 
         // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds elements
@@ -282,7 +292,7 @@ public final class PrimitiveCollectionDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.createEmpty();
+            return _creator.createEmpty(ctxt);
         }
 
         @Override
@@ -508,7 +518,7 @@ public final class PrimitiveCollectionDeserializers
         private CharCollection _deserializeArrayWithNuller(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
-            CharCollection collection = createIntermediate();
+            CharCollection collection = createIntermediate(ctxt);
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 if (t == JsonToken.VALUE_NULL) {
@@ -526,17 +536,29 @@ public final class PrimitiveCollectionDeserializers
                 }
                 collection.add(str.charAt(0));
             }
-            return finish(collection);
+            return finish(ctxt, collection);
         }
 
         @Override
         protected CharCollection createIntermediate() {
-            return _creator.create();
+            return _creator.create(null);
+        }
+
+        @Override
+        protected CharCollection createIntermediate(DeserializationContext ctxt) throws JacksonException {
+            return _creator.create(ctxt);
         }
 
         @Override
         protected CharCollection finish(CharCollection intermediate) {
-            return _creator.finish(intermediate);
+            return _creator.finish(null, intermediate);
+        }
+
+        @Override
+        protected CharCollection finish(DeserializationContext ctxt, CharCollection intermediate)
+            throws JacksonException
+        {
+            return _creator.finish(ctxt, intermediate);
         }
 
         @Override
@@ -554,7 +576,7 @@ public final class PrimitiveCollectionDeserializers
 
         @Override
         public Object getEmptyValue(DeserializationContext ctxt) {
-            return _creator.createEmpty();
+            return _creator.createEmpty(ctxt);
         }
 
         @Override

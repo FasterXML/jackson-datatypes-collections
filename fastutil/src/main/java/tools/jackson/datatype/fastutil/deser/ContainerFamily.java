@@ -9,8 +9,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.exc.ValueInstantiationException;
+import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 
 /**
@@ -117,7 +124,7 @@ public final class ContainerFamily<C>
         }
         for (Kind<C> kind : _kinds) {
             if (kind.iface() == rawType) {
-                return new Creator<>(kind.defaultImpl(), null);
+                return new Creator<>(rawType, kind.defaultImpl()::get, null);
             }
         }
         if (rawType.isInterface() || Modifier.isAbstract(rawType.getModifiers())) {
@@ -127,7 +134,7 @@ public final class ContainerFamily<C>
             for (Kind<C> kind : _kinds) {
                 if (kind.iface().isAssignableFrom(rawType)
                         && rawType.isAssignableFrom(kind.defaultImplType())) {
-                    return new Creator<>(kind.defaultImpl(), null);
+                    return new Creator<>(rawType, kind.defaultImpl()::get, null);
                 }
             }
             return null;
@@ -153,13 +160,7 @@ public final class ContainerFamily<C>
         } catch (NoSuchMethodException e) {
             return null;
         }
-        return new Creator<>(() -> {
-            try {
-                return (C) ctor.newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw _creationFailure(rawType, e);
-            }
-        }, null);
+        return new Creator<>(rawType, () -> (C) ctor.newInstance(), null);
     }
 
     @SuppressWarnings("unchecked")
@@ -193,13 +194,8 @@ public final class ContainerFamily<C>
             if (!Modifier.isStatic(factory.getModifiers())) {
                 continue;
             }
-            return new Creator<>(kind.orderedImpl(), value -> {
-                try {
-                    return (C) factory.invoke(null, value);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw _creationFailure(rawType, e);
-                }
-            });
+            return new Creator<>(rawType, kind.orderedImpl()::get,
+                    value -> (C) factory.invoke(null, value));
         }
         return null;
     }
@@ -222,21 +218,10 @@ public final class ContainerFamily<C>
                 }
             }
             final Constructor<?> copyCtor = ctor;
-            return new Creator<>(kind.orderedImpl(), value -> {
-                try {
-                    return (C) copyCtor.newInstance(value);
-                } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    throw _creationFailure(rawType, e);
-                }
-            });
+            return new Creator<>(rawType, kind.orderedImpl()::get,
+                    value -> (C) copyCtor.newInstance(value));
         }
         return null;
-    }
-
-    private static IllegalStateException _creationFailure(Class<?> rawType, Exception e) {
-        Throwable t = (e instanceof InvocationTargetException) ? e.getCause() : e;
-        return new IllegalStateException("Failed to create instance of "
-                + rawType.getName() + ": " + t, t);
     }
 
     private record Kind<C>(Class<?> iface, Class<?> defaultImplType,
@@ -247,32 +232,82 @@ public final class ContainerFamily<C>
     /**
      * Creates the intermediate container to populate, and converts the populated
      * container into the final value.
+     *<p>
+     * Failures (of constructors or factory methods called by reflection) are reported
+     * the same way as for other types by {@code jackson-databind}, as
+     * {@link tools.jackson.databind.exc.ValueInstantiationException}s.
      */
     public static final class Creator<C>
     {
-        private final Supplier<? extends C> _intermediate;
-        // null if the intermediate value is returned as-is
-        private final UnaryOperator<C> _finish;
+        @FunctionalInterface
+        interface Factory<C> {
+            C create() throws ReflectiveOperationException;
+        }
 
-        Creator(Supplier<? extends C> intermediate, UnaryOperator<C> finish) {
+        @FunctionalInterface
+        interface Finisher<C> {
+            C finish(C intermediate) throws ReflectiveOperationException;
+        }
+
+        // Type requested, for error messages
+        private final Class<?> _type;
+        private final Factory<C> _intermediate;
+        // null if the intermediate value is returned as-is
+        private final Finisher<C> _finish;
+
+        Creator(Class<?> type, Factory<C> intermediate, Finisher<C> finish) {
+            _type = type;
             _intermediate = intermediate;
             _finish = finish;
         }
 
-        public C create() {
-            return _intermediate.get();
+        /**
+         * @param ctxt Context for reporting failures; may be {@code null} if not
+         *    available (in which case location of the problem is not included)
+         */
+        public C create(DeserializationContext ctxt) throws JacksonException {
+            try {
+                return _intermediate.create();
+            } catch (ReflectiveOperationException e) {
+                throw _creationFailure(ctxt, e);
+            }
         }
 
-        public C finish(C intermediate) {
-            return (_finish == null) ? intermediate : _finish.apply(intermediate);
+        /**
+         * @param ctxt Context for reporting failures; may be {@code null} if not
+         *    available (in which case location of the problem is not included)
+         */
+        public C finish(DeserializationContext ctxt, C intermediate) throws JacksonException {
+            if (_finish == null) {
+                return intermediate;
+            }
+            try {
+                return _finish.finish(intermediate);
+            } catch (ReflectiveOperationException e) {
+                throw _creationFailure(ctxt, e);
+            }
         }
 
         /**
          * @return New empty container (as used for "empty" values, like with
          *    {@code Nulls.AS_EMPTY})
          */
-        public C createEmpty() {
-            return finish(create());
+        public C createEmpty(DeserializationContext ctxt) throws JacksonException {
+            return finish(ctxt, create(ctxt));
+        }
+
+        private DatabindException _creationFailure(DeserializationContext ctxt,
+                ReflectiveOperationException e)
+        {
+            // Exception thrown by the constructor or factory method itself, if any
+            Throwable cause = (e instanceof InvocationTargetException) ? e.getCause() : e;
+            if (ctxt != null) {
+                return ctxt.instantiationException(_type, cause);
+            }
+            return ValueInstantiationException.from((JsonParser) null,
+                    String.format("Cannot construct instance of %s, problem: %s",
+                            ClassUtil.nameOf(_type), ClassUtil.exceptionMessage(cause)),
+                    TypeFactory.unsafeSimpleType(_type), cause);
         }
     }
 }
