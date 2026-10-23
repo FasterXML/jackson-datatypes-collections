@@ -1,5 +1,7 @@
 package tools.jackson.datatype.guava.deser;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -185,6 +187,15 @@ public class RangeDeserializer
         }
 
         if ((lowerEndpoint != null) && (upperEndpoint != null)) {
+            // Endpoints of unknown type are read as "natural" types, so numbers
+            // may differ (like `1` and `2.5`): if so, widen to a common type
+            if ((lowerEndpoint.getClass() != upperEndpoint.getClass())
+                    && (lowerEndpoint instanceof Number) && (upperEndpoint instanceof Number)
+                    && _hasUnknownEndpointType()) {
+                Class<?> common = _commonNumberType((Number) lowerEndpoint, (Number) upperEndpoint);
+                lowerEndpoint = _widenNumber((Number) lowerEndpoint, common);
+                upperEndpoint = _widenNumber((Number) upperEndpoint, common);
+            }
             if (lowerEndpoint.getClass() != upperEndpoint.getClass()) {
                 return ctxt.reportBadDefinition(getValueType(ctxt), String.format(
 "Endpoint types are not the same - '%s' deserialized to [%s], and '%s' deserialized to [%s].",
@@ -275,7 +286,39 @@ public class RangeDeserializer
                 Arrays.asList(BoundType.values()));
     }
 
-    private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
+    private boolean _hasUnknownEndpointType() {
+        JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
+        return endpointType.hasRawClass(Object.class) || endpointType.hasRawClass(Comparable.class);
+    }
+
+    private static Class<?> _commonNumberType(Number n1, Number n2) {
+        if ((n1 instanceof BigDecimal) || (n2 instanceof BigDecimal)) {
+            return BigDecimal.class;
+        }
+        if ((n1 instanceof Double) || (n2 instanceof Double)
+                || (n1 instanceof Float) || (n2 instanceof Float)) {
+            return Double.class;
+        }
+        if ((n1 instanceof BigInteger) || (n2 instanceof BigInteger)) {
+            return BigInteger.class;
+        }
+        return Long.class;
+    }
+
+    private static Comparable<?> _widenNumber(Number n, Class<?> type) {
+        if (type == BigDecimal.class) {
+            return (n instanceof BigDecimal) ? (BigDecimal) n : new BigDecimal(n.toString());
+        }
+        if (type == Double.class) {
+            return n.doubleValue();
+        }
+        if (type == BigInteger.class) {
+            return (n instanceof BigInteger) ? (BigInteger) n : BigInteger.valueOf(n.longValue());
+        }
+        return n.longValue();
+    }
+
+        private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
         throws JacksonException
     {
         Object obj = _endpointDeserializer.deserialize(p, context);

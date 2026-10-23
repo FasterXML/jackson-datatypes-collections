@@ -1,5 +1,8 @@
 package tools.jackson.datatype.guava;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.BoundType;
@@ -11,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -405,7 +409,7 @@ public class RangeTest extends ModuleTestBase
     public void testWildcardRange() throws Exception
     {
         WildcardWrapper input = new WildcardWrapper();
-        input.r = RangeFactory.closed(new java.math.BigDecimal("1.5"), new java.math.BigDecimal("2.5"));
+        input.r = RangeFactory.closed(new BigDecimal("1.5"), new BigDecimal("2.5"));
         String json = MAPPER.writeValueAsString(input);
         assertEquals(a2q("{'r':{'lowerEndpoint':1.5,'lowerBoundType':'CLOSED',"
                 + "'upperEndpoint':2.5,'upperBoundType':'CLOSED'}}"), json);
@@ -420,6 +424,27 @@ public class RangeTest extends ModuleTestBase
         json = typed.writeValueAsString(input);
         assertFalse(json.contains("java.lang.String"), json);
         assertEquals(input.r, typed.readValue(json, WildcardWrapper.class).r);
+    }
+
+    // Numeric endpoints read as different "natural" types are widened to a common type
+    @Test
+    public void testWildcardRangeMixedNumbers() throws Exception
+    {
+        assertEquals(RangeFactory.closed(1.0, 2.5), _readWildcard("1", "2.5"));
+        assertEquals(RangeFactory.closed(1L, 5_000_000_000L), _readWildcard("1", "5000000000"));
+        assertEquals(RangeFactory.closed(BigInteger.ONE, new BigInteger("99999999999999999999")),
+                _readWildcard("1", "99999999999999999999"));
+        ObjectMapper mapper = builderWithModule()
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
+        assertEquals(RangeFactory.closed(BigDecimal.ONE, new BigDecimal("2.5")),
+                mapper.readValue(a2q("{'r':{'lowerEndpoint':1,'lowerBoundType':'CLOSED',"
+                        + "'upperEndpoint':2.5,'upperBoundType':'CLOSED'}}"), WildcardWrapper.class).r);
+    }
+
+    private Range<?> _readWildcard(String lower, String upper) throws Exception
+    {
+        return MAPPER.readValue(a2q("{'r':{'lowerEndpoint':" + lower + ",'lowerBoundType':'CLOSED',"
+                + "'upperEndpoint':" + upper + ",'upperBoundType':'CLOSED'}}"), WildcardWrapper.class).r;
     }
 
     @Test
