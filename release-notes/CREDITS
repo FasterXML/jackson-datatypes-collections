@@ -55,7 +55,9 @@ Jaehong Park (@PHJ2000)
 * Fixed #237: (pcollections) Preserve element order when deserializing `PStack` / `ConsPStack`
  [3.3.0]
 * Fixed #241: (guava) `RangeSet` values lose type information with default typing
-  (support polymorphic typing for `RangeSet` serialization and deserialization)
+  (note: `Range` endpoints of unknown type are now written without type ids;
+  non-public `RangeSet` views use `RangeSet` as type id)
+ [3.3.0]
 * Fixed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
   with default typing
  [3.3.0]

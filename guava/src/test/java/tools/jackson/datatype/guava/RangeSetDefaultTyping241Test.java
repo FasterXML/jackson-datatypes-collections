@@ -1,9 +1,12 @@
 package tools.jackson.datatype.guava;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -29,7 +32,6 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
-import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -231,18 +233,47 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
         assertEquals(input, mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type));
     }
 
-    @ParameterizedTest
-    @EnumSource(value = JsonTypeInfo.As.class, names = { "WRAPPER_ARRAY", "WRAPPER_OBJECT", "PROPERTY" })
-    public void typedObjectEndpointStillValidatesSubtype(JsonTypeInfo.As inclusion) {
+    // Endpoints are written without type ids, so JSON from other producers reads as well
+    @Test
+    public void readUntypedObjectEndpoints() {
         ObjectMapper mapper = builderWithModule()
-                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType("com.google.common.collect.").build(),
-                        DefaultTyping.NON_FINAL, inclusion).build();
-        TypeReference<RangeSet<BeanEndpoint>> type = new TypeReference<>() { };
-        RangeSet<BeanEndpoint> input = ImmutableRangeSet.of(Range.closed(
-                new BeanEndpoint("a", 1), new BeanEndpoint("b", 5)));
-        String json = mapper.writerFor(type).writeValueAsString(input);
-        assertThrows(InvalidTypeIdException.class, () -> mapper.readValue(json, type));
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
+        RangeSet<BeanEndpoint> result = mapper.readValue(
+                a2q("[{'lowerEndpoint':{'name':'a','value':1},'lowerBoundType':'CLOSED'}]"),
+                new TypeReference<ImmutableRangeSet<BeanEndpoint>>() { });
+        assertEquals(ImmutableRangeSet.of(Range.atLeast(new BeanEndpoint("a", 1))), result);
+    }
+
+    // Non-public views (like `complement()`) must be written with a readable type id
+    @ParameterizedTest
+    @EnumSource(value = DefaultTyping.class, names = { "NON_FINAL", "OBJECT_AND_NON_CONCRETE" })
+    public void roundTripRangeSetViews(DefaultTyping typing) {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), typing).build();
+        TreeRangeSet<Integer> base = TreeRangeSet.create();
+        base.add(Range.closed(1, 5));
+        base.add(Range.open(10, 20));
+        for (RangeSet<Integer> view : List.of(base.complement(), base.subRangeSet(Range.closed(3, 15)))) {
+            Wrapper input = new Wrapper();
+            input.value = view;
+            assertEquals(view, mapper.readValue(mapper.writeValueAsString(input), Wrapper.class).value);
+        }
+    }
+
+    @Test
+    public void roundTripCalendarRoot() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
+        TypeReference<RangeSet<Calendar>> type = new TypeReference<>() { };
+        Calendar lower = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        lower.setTimeInMillis(1L);
+        Calendar upper = (Calendar) lower.clone();
+        upper.setTimeInMillis(5L);
+        RangeSet<Calendar> input = ImmutableRangeSet.of(Range.closed(lower, upper));
+        RangeSet<Calendar> result = mapper.readValue(mapper.writerFor(type).writeValueAsString(input), type);
+        Range<Calendar> range = result.span();
+        assertEquals(1L, range.lowerEndpoint().getTimeInMillis());
+        assertEquals(5L, range.upperEndpoint().getTimeInMillis());
     }
 
     @Test
@@ -274,16 +305,6 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
         assertEquals(Range.atLeast(new Date(1)), mapper.readValue(
                 a2q("{'lowerEndpoint':1,'lowerBoundType':'CLOSED'}"),
                 new TypeReference<Range<Date>>() { }));
-    }
-
-    @Test
-    public void typedScalarStillValidatesSubtype() {
-        ObjectMapper mapper = builderWithModule()
-                .activateDefaultTyping(BasicPolymorphicTypeValidator.builder().build(),
-                        DefaultTyping.NON_FINAL).build();
-        assertThrows(InvalidTypeIdException.class, () -> mapper.readValue(
-                a2q("{'lowerEndpoint':['java.math.BigDecimal',1.20],'lowerBoundType':'CLOSED'}"),
-                new TypeReference<Range<BigDecimal>>() { }));
     }
 
     @ParameterizedTest

@@ -1,5 +1,6 @@
 package tools.jackson.datatype.guava.ser;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import tools.jackson.core.JacksonException;
@@ -64,12 +65,19 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         // Write the array directly (instead of delegating to the `Set` serializer) so that
         // both the type id and the current value refer to the `RangeSet`, not its `asRanges()` view
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
-                typeSer.typeId(value, JsonToken.START_ARRAY));
+                typeSer.typeId(value, _typeIdClass(value), JsonToken.START_ARRAY));
         g.assignCurrentValue(value);
         for (Range<?> range : value.asRanges()) {
             _rangeSerializer.serialize(range, g, ctxt);
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    // Non-public implementations (like views returned by `TreeRangeSet.complement()`)
+    // cannot be read back as such, so use the `RangeSet` interface as their type id
+    private static Class<?> _typeIdClass(RangeSet<?> value) {
+        Class<?> cls = value.getClass();
+        return Modifier.isPublic(cls.getModifiers()) ? cls : RangeSet.class;
     }
 
     @Override

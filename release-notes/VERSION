@@ -73,7 +73,8 @@ Modules:
   for `RangeSet`, actual token instead of `VALUE_NULL`)
  (fixed by @cowtowncoder)
 #241: (guava) `RangeSet` values lose type information with default typing
-  (support polymorphic typing for `RangeSet` serialization and deserialization)
+  (note: `Range` endpoints of unknown type are now written without type ids;
+  non-public `RangeSet` views use `RangeSet` as type id)
  (reported by @pjfanning)
  (fixed by @PHJ2000)
 

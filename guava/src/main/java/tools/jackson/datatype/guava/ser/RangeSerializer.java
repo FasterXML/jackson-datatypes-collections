@@ -148,25 +148,29 @@ public class RangeSerializer extends StdSerializer<Range<?>>
         throws JacksonException
     {
         if (value.hasLowerBound()) {
-            if (_endpointSerializer != null) {
-                g.writeName(_fieldNames.lowerEndpoint);
-                _endpointSerializer.serialize(value.lowerEndpoint(), g, ctxt);
-            } else {
-                ctxt.defaultSerializeProperty(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g);
-            }
+            _writeEndpoint(_fieldNames.lowerEndpoint, value.lowerEndpoint(), g, ctxt);
             // 20-Mar-2016, tatu: Should not use default handling since it leads to
             //    [datatypes-collections#12] with default typing
             g.writeStringProperty(_fieldNames.lowerBoundType, value.lowerBoundType().name());
         }
         if (value.hasUpperBound()) {
-            if (_endpointSerializer != null) {
-                g.writeName(_fieldNames.upperEndpoint);
-                _endpointSerializer.serialize(value.upperEndpoint(), g, ctxt);
-            } else {
-                ctxt.defaultSerializeProperty(_fieldNames.upperEndpoint, value.upperEndpoint(), g);
-            }
+            _writeEndpoint(_fieldNames.upperEndpoint, value.upperEndpoint(), g, ctxt);
             // same as above; should always be just String so
             g.writeStringProperty(_fieldNames.upperBoundType, value.upperBoundType().name());
+        }
+    }
+
+    private void _writeEndpoint(String name, Object endpoint, JsonGenerator g, SerializationContext ctxt)
+        throws JacksonException
+    {
+        g.writeName(name);
+        if (_endpointSerializer != null) {
+            _endpointSerializer.serialize(endpoint, g, ctxt);
+        } else {
+            // 22-Oct-2026: Endpoint type not known (raw `Range`, as with `RangeSet` contents
+            //   under default typing): must not write type id, since `RangeDeserializer` reads
+            //   endpoints using the declared type, same as for a statically typed `Range<C>`
+            ctxt.findContentValueSerializer(endpoint.getClass(), null).serialize(endpoint, g, ctxt);
         }
     }
 
