@@ -7,16 +7,20 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.util.JsonGeneratorDelegate;
 import tools.jackson.databind.*;
+import tools.jackson.databind.exc.InvalidNullException;
 
 import com.google.common.primitives.ImmutableIntArray;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ImmutableIntArrayTest extends ModuleTestBase
 {
@@ -39,6 +43,17 @@ public class ImmutableIntArrayTest extends ModuleTestBase
         public Object value;
 
         TypedValue(Object v) { value = v; }
+    }
+
+    static class SingleRoundTrip {
+        @JsonFormat(with = { JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED,
+                JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY })
+        public ImmutableIntArray values;
+    }
+
+    static class FailOnContentNulls {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public ImmutableIntArray values;
     }
 
     private final ObjectMapper MAPPER = builderWithModule()
@@ -112,6 +127,22 @@ public class ImmutableIntArrayTest extends ModuleTestBase
             mapper.writeValue(g, value);
         }
         return hints;
+    }
+
+    @Test
+    public void testPerPropertyUnwrapSingleRoundTrip() throws Exception {
+        SingleRoundTrip input = new SingleRoundTrip();
+        input.values = ImmutableIntArray.of(42);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals("{\"values\":42}", json);
+        assertEquals(input.values, MAPPER.readValue(json, SingleRoundTrip.class).values);
+    }
+
+    @Test
+    public void testPerPropertyContentNulls() throws Exception {
+        // Global setting coerces nulls; per-property setting must override
+        assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue("{\"values\":[1,null]}", FailOnContentNulls.class));
     }
 
     @Test
