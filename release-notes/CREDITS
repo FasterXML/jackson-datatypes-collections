@@ -48,8 +48,10 @@ Vanya (@vanyamanko)
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
 
-@PHJ2000
+Jaehong Park (@PHJ2000)
 
-* Contributed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
+* Fixed #237: (pcollections) Preserve element order when deserializing `PStack` / `ConsPStack`
+ [3.3.0]
+* Fixed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
   with default typing
  [3.3.0]
