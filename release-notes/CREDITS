@@ -40,6 +40,9 @@ PJ Fanning (@pjfanning)
  [3.1.0]
 * Reported #241: (guava) `RangeSet` values lose type information with default typing
  [3.3.0]
+* Reported #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
+  with default typing
+ [3.3.0]
 
 Vanya (@vanyamanko)
 
@@ -47,8 +50,12 @@ Vanya (@vanyamanko)
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
 
-@PHJ2000
+Jaehong Park (@PHJ2000)
 
+* Fixed #237: (pcollections) Preserve element order when deserializing `PStack` / `ConsPStack`
+ [3.3.0]
 * Fixed #241: (guava) `RangeSet` values lose type information with default typing
   (support polymorphic typing for `RangeSet` serialization and deserialization)
+* Fixed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
+  with default typing
  [3.3.0]
