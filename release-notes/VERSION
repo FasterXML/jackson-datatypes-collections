@@ -28,6 +28,16 @@ Modules:
   throwing `NullPointerException`, for single-value, sorted, `Multiset` and
   `ImmutableMap` content)
  (fixed by @pjfanning)
+#237: (pcollections) Preserve JSON element order when deserializing `PStack`
+  and `ConsPStack` (previously the order was reversed:
+  behavior change, code compensating for the old order needs removing)
+ (fixed by Jaehong Park)
+#243: (guava) `HashCode` cannot be deserialized as `Object` / base type with default
+  typing (implementation subtypes not matched)
+ (NOTE: type id now written as `com.google.common.hash.HashCode`, not that of
+  internal implementation subtype; old subtype ids still accepted)
+ (reported by @pjfanning)
+ (fixed by Jaehong Park)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
  (fixed by @pjfanning)
@@ -68,6 +78,10 @@ Modules:
   for `RangeSet`, actual token instead of `VALUE_NULL`)
  (fixed by @cowtowncoder)
 
+3.2.4 (18-Oct-2026)
+
+No changes since 3.2.3
+
 3.2.3 (21-Sep-2026)
 
 No changes since 3.2.2
@@ -83,6 +97,10 @@ No changes since 3.2.0
 3.2.0 (08-Jun-2026)
 
 No changes since 3.1
+
+3.1.8 (17-Oct-2026)
+
+No changes since 3.1.7
 
 3.1.7 (21-Sep-2026)
 
