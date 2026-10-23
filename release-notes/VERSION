@@ -30,6 +30,19 @@ Modules:
   and `ConsPStack` (previously the order was reversed:
   behavior change, code compensating for the old order needs removing)
  (fixed by Jaehong Park)
+#240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
+  primitive maps silently lose data
+ (fixed by @pjfanning)
+#241: (guava) `RangeSet` values lose type information with default typing
+  (note: `Range` endpoints of unknown type are now written without type ids;
+  `RangeSet`s other than `ImmutableRangeSet` use `RangeSet` as type id;
+  `Range<?>` endpoints are read as "natural" types instead of failing;
+  `protected RangeSetDeserializer._tryToAddNull()` removed)
+ (reported by @pjfanning)
+ (fixed by @PHJ2000)
+#242: (guava) Support polymorphic reading/writing of Guava immutable primitive
+  arrays (`ImmutableIntArray`, `ImmutableLongArray`, `ImmutableDoubleArray`)
+ (contributed by @PHJ2000)
 #243: (guava) `HashCode` cannot be deserialized as `Object` / base type with default
   typing (implementation subtypes not matched)
  (NOTE: type id now written as `com.google.common.hash.HashCode`, not that of
@@ -38,9 +51,6 @@ Modules:
  (fixed by Jaehong Park)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
- (fixed by @pjfanning)
-#240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
-  primitive maps silently lose data
  (fixed by @pjfanning)
 #251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
   and implementation classes (default typing); `Triplet` read as `TripleImpl`
@@ -75,13 +85,6 @@ Modules:
   (note: handlers now see `END_OBJECT` / `END_ARRAY`, not `START_OBJECT` / `START_ARRAY`;
   for `RangeSet`, actual token instead of `VALUE_NULL`)
  (fixed by @cowtowncoder)
-#241: (guava) `RangeSet` values lose type information with default typing
-  (note: `Range` endpoints of unknown type are now written without type ids;
-  `RangeSet`s other than `ImmutableRangeSet` use `RangeSet` as type id;
-  `Range<?>` endpoints are read as "natural" types instead of failing;
-  `protected RangeSetDeserializer._tryToAddNull()` removed)
- (reported by @pjfanning)
- (fixed by @PHJ2000)
 
 3.2.4 (18-Oct-2026)
 

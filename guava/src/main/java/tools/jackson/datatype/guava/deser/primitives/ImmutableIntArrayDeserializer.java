@@ -1,50 +1,36 @@
 package tools.jackson.datatype.guava.deser.primitives;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.databind.*;
-import tools.jackson.databind.deser.jdk.PrimitiveArrayDeserializers;
-import tools.jackson.databind.deser.std.StdDeserializer;
-import tools.jackson.databind.type.LogicalType;
-import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import com.google.common.primitives.ImmutableIntArray;
 
-public final class ImmutableIntArrayDeserializer extends StdDeserializer<ImmutableIntArray>
+public final class ImmutableIntArrayDeserializer
+    extends ImmutablePrimitiveArrayDeserializerBase<ImmutableIntArray, int[]>
 {
-    private final ValueDeserializer<int[]> _intArrayDeserializer;
-
-    @SuppressWarnings("unchecked")
     public ImmutableIntArrayDeserializer() {
-        super(ImmutableIntArray.class);
-        _intArrayDeserializer = (ValueDeserializer<int[]>) PrimitiveArrayDeserializers.forType(int.class);
+        super(ImmutableIntArray.class, int[].class);
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected ImmutableIntArrayDeserializer(ImmutableIntArrayDeserializer src,
+            ValueDeserializer<int[]> arrayDeserializer) {
+        super(src, arrayDeserializer);
     }
 
     @Override
-    public LogicalType logicalType() {
-        return LogicalType.Array;
+    protected ImmutableIntArrayDeserializer _withDelegate(ValueDeserializer<int[]> arrayDeserializer) {
+        return new ImmutableIntArrayDeserializer(this, arrayDeserializer);
     }
 
     @Override
-    public Boolean supportsUpdate(DeserializationConfig config) {
-        return Boolean.FALSE;
-    }
-
-    @Override
-    public boolean isCachable() {
-        return true;
-    }
-
-    @Override
-    public AccessPattern getEmptyAccessPattern() {
-        return AccessPattern.CONSTANT;
+    protected ImmutableIntArray _fromArray(int[] array) {
+        return ImmutableIntArray.copyOf(array);
     }
 
     @Override
     public ImmutableIntArray getEmptyValue(DeserializationContext ctxt) {
         return ImmutableIntArray.of();
-    }
-
-    @Override
-    public ImmutableIntArray deserialize(JsonParser p, DeserializationContext ctxt) {
-        return ImmutableIntArray.copyOf(_intArrayDeserializer.deserialize(p, ctxt));
     }
 }

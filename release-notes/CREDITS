@@ -61,6 +61,9 @@ Jaehong Park (@PHJ2000)
   `RangeSet`s other than `ImmutableRangeSet` use `RangeSet` as type id;
   `Range<?>` endpoints are read as "natural" types instead of failing)
  [3.3.0]
+* Contributed #242: (guava) Support polymorphic reading/writing of Guava immutable
+  primitive arrays (`ImmutableIntArray`, `ImmutableLongArray`, `ImmutableDoubleArray`)
+ [3.3.0]
 * Fixed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
   with default typing
  [3.3.0]
