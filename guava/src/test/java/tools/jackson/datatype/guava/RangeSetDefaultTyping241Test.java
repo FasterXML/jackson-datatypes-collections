@@ -299,8 +299,25 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
                         a2q("[{'lowerEndpoint':1,'lowerBoundType':'CLOSED','upperEndpoint':2,'upperBoundType':'CLOSED'},"
                                 + "{'lowerEndpoint':1,'lowerBoundType':'OPEN','upperEndpoint':1,'upperBoundType':'CLOSED'}]"),
                         new TypeReference<RangeSet<Integer>>() { }));
-        verifyException(e, "range must not be empty");
+        verifyException(e, "Cannot add empty `Range`");
         assertEquals(1, e.getPath().get(0).getIndex());
+    }
+
+    // ... also as single value, or without wrapping
+    @Test
+    public void emptyRangeReportedAsMismatch() {
+        final String emptyRange = a2q(
+                "{'lowerEndpoint':1,'lowerBoundType':'OPEN','upperEndpoint':1,'upperBoundType':'CLOSED'}");
+        ObjectMapper mapper = builderWithModule()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .disable(DeserializationFeature.WRAP_EXCEPTIONS).build();
+        TypeReference<RangeSet<Integer>> type = new TypeReference<>() { };
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> mapper.readValue(emptyRange, type));
+        verifyException(e, "Cannot add empty `Range`");
+        e = assertThrows(MismatchedInputException.class,
+                () -> mapper.readValue("[" + emptyRange + "]", type));
+        verifyException(e, "Cannot add empty `Range`");
     }
 
     // Unwrapped single range must also see `RangeSet` as current value

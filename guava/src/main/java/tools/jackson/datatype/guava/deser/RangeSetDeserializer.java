@@ -3,7 +3,7 @@ package tools.jackson.datatype.guava.deser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -24,7 +24,6 @@ import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.datatype.guava.util.NullElementHelper;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -219,27 +218,11 @@ public class RangeSetDeserializer
         } else {
             range = _deserializer.deserializeWithType(p, ctxt, _typeDeserializer);
         }
-        // Validate like `ImmutableRangeSet.Builder.add()` so that problems are reported
-        // with element index: `null` must fail with NPE (see `NullElementHelper`)
-        _addRange(p, ctxt, range, r -> {
-            Preconditions.checkArgument(!r.isEmpty(), "range must not be empty, but was %s", r);
-            return ranges.add(r);
-        });
+        _addRange(p, ctxt, ranges, range);
     }
 
-    /**
-     * Some/many Guava containers do not allow addition of {@code null} values,
-     * so isolate handling here.
-     */
-    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
-            ImmutableRangeSet.Builder<Comparable<?>> builder)
-        throws JacksonException
-    {
-        _addRange(p, ctxt, null, builder::add);
-    }
-
-    private void _addRange(JsonParser p, DeserializationContext ctxt, Object range,
-            Function<Range<Comparable<?>>, ?> adder)
+    private void _addRange(JsonParser p, DeserializationContext ctxt,
+            List<Range<Comparable<?>>> ranges, Object range)
         throws JacksonException
     {
         NullElementHelper.addElement(p, ctxt, p.currentToken(),
@@ -247,7 +230,13 @@ public class RangeSetDeserializer
                 range, r -> {
                     @SuppressWarnings("unchecked")
                     Range<Comparable<?>> typed = (Range<Comparable<?>>) r;
-                    return adder.apply(typed);
+                    // Validate like `ImmutableRangeSet.Builder.add()` (which is only called
+                    // later): `null` must fail with NPE (see `NullElementHelper`)
+                    if (Objects.requireNonNull(typed).isEmpty()) {
+                        return ctxt.reportInputMismatch(this,
+                                "Cannot add empty `Range` (%s) to `RangeSet`", typed);
+                    }
+                    return ranges.add(typed);
                 });
     }
 }

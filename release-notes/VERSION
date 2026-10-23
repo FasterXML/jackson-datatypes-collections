@@ -75,7 +75,8 @@ Modules:
 #241: (guava) `RangeSet` values lose type information with default typing
   (note: `Range` endpoints of unknown type are now written without type ids;
   `RangeSet`s other than `ImmutableRangeSet` use `RangeSet` as type id;
-  `Range<?>` endpoints are read as "natural" types instead of failing)
+  `Range<?>` endpoints are read as "natural" types instead of failing;
+  `protected RangeSetDeserializer._tryToAddNull()` removed)
  (reported by @pjfanning)
  (fixed by @PHJ2000)
 
