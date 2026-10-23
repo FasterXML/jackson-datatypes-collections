@@ -20,10 +20,15 @@ public final class Merging
 {
     private Merging() { }
 
+    // Content may be `null` (like from an empty String, if coerced so): nothing to add
+
     @SuppressWarnings("unchecked")
     public static <C> C addAll(DeserializationContext ctxt, C intoValue, Collection<?> elements)
         throws JacksonException
     {
+        if (elements == null) {
+            return intoValue;
+        }
         try {
             ((Collection<Object>) intoValue).addAll(elements);
         } catch (UnsupportedOperationException e) {
@@ -36,6 +41,9 @@ public final class Merging
     public static <M> M putAll(DeserializationContext ctxt, M intoValue, Map<?, ?> entries)
         throws JacksonException
     {
+        if (entries == null) {
+            return intoValue;
+        }
         try {
             ((Map<Object, Object>) intoValue).putAll(entries);
         } catch (UnsupportedOperationException e) {

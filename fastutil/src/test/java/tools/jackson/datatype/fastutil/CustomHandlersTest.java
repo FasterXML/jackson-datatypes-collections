@@ -4,18 +4,23 @@ import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.deser.ContextualKeyDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
 import it.unimi.dsi.fastutil.chars.CharArrayList;
 import it.unimi.dsi.fastutil.chars.CharList;
 import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,6 +91,54 @@ public class CustomHandlersTest extends ModuleTestBase
         public Int2LongSortedMap map;
     }
 
+    // Appends name of the property it is contextualized for
+    static class ContextualStringDeserializer extends StdDeserializer<String> {
+        private final String _suffix;
+
+        public ContextualStringDeserializer() { this("raw"); }
+
+        private ContextualStringDeserializer(String suffix) {
+            super(String.class);
+            _suffix = suffix;
+        }
+
+        @Override
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+            return new ContextualStringDeserializer((property == null) ? "root" : property.getName());
+        }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
+            return p.getString() + "/" + _suffix;
+        }
+    }
+
+    static class ContextualKeyDeser extends KeyDeserializer implements ContextualKeyDeserializer {
+        private final String _suffix;
+
+        public ContextualKeyDeser() { this("raw"); }
+
+        private ContextualKeyDeser(String suffix) { _suffix = suffix; }
+
+        @Override
+        public KeyDeserializer createContextual(DeserializationContext ctxt, BeanProperty property) {
+            return new ContextualKeyDeser((property == null) ? "root" : property.getName());
+        }
+
+        @Override
+        public Object deserializeKey(String key, DeserializationContext ctxt) {
+            return key + "/" + _suffix;
+        }
+    }
+
+    static class RefMapBean {
+        @JsonDeserialize(contentUsing = ContextualStringDeserializer.class)
+        public Int2ObjectMap<String> values;
+
+        @JsonDeserialize(keyUsing = ContextualKeyDeser.class)
+        public Object2IntMap<String> keys;
+    }
+
     private final ObjectMapper MAPPER = mapperWithModule();
 
     @Test
@@ -122,5 +175,24 @@ public class CustomHandlersTest extends ModuleTestBase
         assertEquals(IntArrayList.of(31, 2), MAPPER.readValue(json, ListBean.class).list);
 
         assertEquals(a2q("{'chars':['A','B']}"), MAPPER.writeValueAsString(new CharsBean()));
+    }
+
+    @Test
+    void testContextualCustomDeserializers() throws Exception
+    {
+        RefMapBean bean = MAPPER.readValue(a2q("{'values':{'1':'x'},'keys':{'k':2}}"),
+                RefMapBean.class);
+        assertEquals("x/values", bean.values.get(1));
+        assertEquals(2, bean.keys.getInt("k/keys"));
+    }
+
+    @Test
+    void testEmptyStringWithCustomDeserializers() throws Exception
+    {
+        ObjectMapper mapper = mapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .build();
+        assertNull(mapper.readValue(a2q("{'list':''}"), ListBean.class).list);
+        assertNull(mapper.readValue(a2q("{'map':''}"), MapBean.class).map);
     }
 }

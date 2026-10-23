@@ -16,14 +16,17 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.KeyDeserializer;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.type.MapLikeType;
 import tools.jackson.databind.type.MapType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.datatype.fastutil.deser.BoxedDelegatingDeserializer;
 import tools.jackson.datatype.fastutil.deser.ContainerFamily;
 import tools.jackson.datatype.fastutil.util.ContentNulls;
+import tools.jackson.datatype.fastutil.util.EmptyStrings;
 import tools.jackson.datatype.fastutil.util.Merging;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.map.KeyHandler;
@@ -283,6 +286,24 @@ public final class FastutilMapDeserializers
                 return;
             }
             super.deserializeEntry(target, ctxt, key, valueParser);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public M deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
+        {
+            // Empty String may be coerced (like for `java.util` maps)
+            CoercionAction act = EmptyStrings.findCoercion(p, ctxt, this);
+            if (act != null) {
+                return (M) EmptyStrings.coercedValue(ctxt, this, act);
+            }
+            return super.deserialize(p, ctxt);
+        }
+
+        @Override
+        public LogicalType logicalType() {
+            return LogicalType.Map;
         }
 
         // Merging (`@JsonMerge`, `ObjectReader.readerForUpdating()`) adds entries,

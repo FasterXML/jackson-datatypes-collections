@@ -11,8 +11,11 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.type.LogicalType;
 
 import it.unimi.dsi.fastutil.chars.CharArrayList;
 import it.unimi.dsi.fastutil.chars.CharList;
@@ -64,6 +67,9 @@ public class MergeAndNullsTest extends ModuleTestBase
 
         @JsonSetter(contentNulls = Nulls.FAIL)
         public it.unimi.dsi.fastutil.longs.LongList failList;
+
+        @JsonSetter(contentNulls = Nulls.AS_EMPTY)
+        public Int2ObjectMap<java.util.List<String>> emptyRefMap;
     }
 
     static class SingleValueBean {
@@ -202,6 +208,53 @@ public class MergeAndNullsTest extends ModuleTestBase
         Int2ObjectMap<String> refMap = MAPPER.readValue("{\"1\":null}",
                 new TypeReference<Int2ObjectMap<String>>() { });
         assertTrue(refMap.containsKey(1));
+
+        // AS_EMPTY uses "empty" value of the value deserializer
+        bean = MAPPER.readValue("{\"emptyRefMap\":{\"1\":null}}", ContentNullsBean.class);
+        assertEquals(java.util.List.of(), bean.emptyRefMap.get(1));
+    }
+
+    @Test
+    void testCharNullsWithoutFailOnNullForPrimitives() throws Exception
+    {
+        // like `char[]` (and other primitive collections), nulls become default value
+        assertEquals(CharList.of('a', '\0'), LENIENT_MAPPER.readValue("[\"a\",null]", CharList.class));
+        assertThrows(MismatchedInputException.class,
+                () -> MAPPER.readValue("[\"a\",null]", CharList.class));
+    }
+
+    @Test
+    void testEmptyStringCoercion() throws Exception
+    {
+        // Not allowed by default
+        assertThrows(MismatchedInputException.class, () -> MAPPER.readValue("\"\"", IntList.class));
+        assertThrows(MismatchedInputException.class, () -> MAPPER.readValue("\"\"", Int2IntMap.class));
+
+        ObjectMapper mapper = mapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .build();
+        assertNull(mapper.readValue("\"\"", IntList.class));
+        assertNull(mapper.readValue("\"\"", Int2IntMap.class));
+        assertNull(mapper.readValue("\"\"", Int2ObjectMap.class));
+        // merging nothing leaves value as is
+        IntList list = new IntArrayList(new int[] { 1 });
+        assertSame(list, mapper.readerForUpdating(list).readValue("\"\""));
+        assertEquals(IntList.of(1), list);
+
+        // Coercion configuration by logical type
+        mapper = mapperBuilder()
+                .withCoercionConfig(LogicalType.Collection, cfg ->
+                        cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+                .withCoercionConfig(LogicalType.Map, cfg ->
+                        cfg.setAcceptBlankAsEmpty(Boolean.TRUE)
+                            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+                .build();
+        assertEquals(new IntRBTreeSet(), assertInstanceOf(IntRBTreeSet.class,
+                mapper.readValue("\"\"", IntSortedSet.class)));
+        assertEquals(new Int2IntOpenHashMap(), mapper.readValue("\" \"", Int2IntMap.class));
+
+        // but for char collections, Strings are content, so empty one is an empty collection
+        assertEquals(CharList.of(), MAPPER.readValue("\"\"", CharList.class));
     }
 
     @Test

@@ -19,9 +19,12 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.datatype.fastutil.util.ContentNulls;
+import tools.jackson.datatype.fastutil.util.EmptyStrings;
 import tools.jackson.datatype.fastutil.util.Merging;
 import tools.jackson.datatype.fastutil.util.OptionalTypes;
 import tools.jackson.datatype.primitive_collections_base.deser.BaseCharCollectionDeserializer;
@@ -221,6 +224,12 @@ public final class PrimitiveCollectionDeserializers
             if (p.isExpectedStartArrayToken()) {
                 return _deserializeContents(p, ctxt);
             }
+            // Empty String may be coerced (checked before single-value handling,
+            // like for `java.util` collections)
+            CoercionAction act = EmptyStrings.findCoercion(p, ctxt, this);
+            if (act != null) {
+                return (C) EmptyStrings.coercedValue(ctxt, this, act);
+            }
             if ((_unwrapSingle == Boolean.TRUE) || ((_unwrapSingle == null)
                     && ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY))) {
                 return _deserializeFromSingleValue(p, ctxt);
@@ -298,6 +307,11 @@ public final class PrimitiveCollectionDeserializers
         @Override
         public AccessPattern getEmptyAccessPattern() {
             return AccessPattern.DYNAMIC;
+        }
+
+        @Override
+        public LogicalType logicalType() {
+            return LogicalType.Collection;
         }
     }
 
@@ -506,27 +520,34 @@ public final class PrimitiveCollectionDeserializers
             throws JacksonException
         {
             if (p.isExpectedStartArrayToken()) {
-                if (_nuller != null) {
-                    return _deserializeArrayWithNuller(p, ctxt);
-                }
-            } else if (!p.hasToken(JsonToken.VALUE_STRING)) {
+                return _deserializeArray(p, ctxt);
+            }
+            if (!p.hasToken(JsonToken.VALUE_STRING)) {
                 return (CharCollection) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
             return super.deserialize(p, ctxt);
         }
 
-        private CharCollection _deserializeArrayWithNuller(JsonParser p, DeserializationContext ctxt)
+        // Handled here (not by base class) to support `contentNulls`, and to handle
+        // other nulls as specified by `FAIL_ON_NULL_FOR_PRIMITIVES` (like for `char[]`)
+        private CharCollection _deserializeArray(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
         {
             CharCollection collection = createIntermediate(ctxt);
             JsonToken t;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 if (t == JsonToken.VALUE_NULL) {
-                    _nuller.getNullValue(ctxt); // fails, or skips
+                    if (_nuller != null) {
+                        _nuller.getNullValue(ctxt); // fails, or skips
+                        continue;
+                    }
+                    _verifyNullForPrimitive(ctxt);
+                    collection.add('\0');
                     continue;
                 }
                 if (t != JsonToken.VALUE_STRING) {
-                    return (CharCollection) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+                    collection.add((Character) ctxt.handleUnexpectedToken(Character.TYPE, p));
+                    continue;
                 }
                 String str = p.getString();
                 if (str.length() != 1) {
