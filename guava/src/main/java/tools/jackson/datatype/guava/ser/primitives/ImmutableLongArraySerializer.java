@@ -1,34 +1,37 @@
 package tools.jackson.datatype.guava.ser.primitives;
 
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.databind.SerializationFeature;
-import tools.jackson.databind.SerializationContext;
-import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.BeanProperty;
 import com.google.common.primitives.ImmutableLongArray;
 
-public final class ImmutableLongArraySerializer extends StdSerializer<ImmutableLongArray>
+public final class ImmutableLongArraySerializer
+    extends ImmutablePrimitiveArraySerializerBase<ImmutableLongArray>
 {
     public ImmutableLongArraySerializer() {
-        super(ImmutableLongArray.class);
+        super(ImmutableLongArray.class, long.class);
+    }
+
+    /**
+     * @since 3.3
+     */
+    protected ImmutableLongArraySerializer(ImmutableLongArraySerializer src,
+            BeanProperty prop, Boolean unwrapSingle) {
+        super(src, prop, unwrapSingle);
     }
 
     @Override
-    public boolean isEmpty(SerializationContext ctxt, ImmutableLongArray value) {
-        return value == null || value.isEmpty();
+    protected ImmutableLongArraySerializer _withResolved(BeanProperty prop,
+            Boolean unwrapSingle) {
+        return new ImmutableLongArraySerializer(this, prop, unwrapSingle);
     }
 
     @Override
-    public void serialize(ImmutableLongArray value, JsonGenerator g, SerializationContext ctxt)
-    {
-        int len = value.length();
-        if (len == 1 && ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
-            g.writeNumber(value.get(0));
-        } else {
-            g.writeStartArray(value, len);
-            for (int i = 0; i < len; i++) {
-                g.writeNumber(value.get(i));
-            }
-            g.writeEndArray();
-        }
+    protected int _length(ImmutableLongArray value) {
+        return value.length();
+    }
+
+    @Override
+    protected void _writeElement(JsonGenerator g, ImmutableLongArray value, int index) {
+        g.writeNumber(value.get(index));
     }
 }

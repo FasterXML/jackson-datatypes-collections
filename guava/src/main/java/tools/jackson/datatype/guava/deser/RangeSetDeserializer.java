@@ -1,6 +1,9 @@
 package tools.jackson.datatype.guava.deser;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -135,13 +138,13 @@ public class RangeSetDeserializer
             ctxt.reportBadDefinition(handledType(),
 "Not contextualized to have value deserializer or value type of `RangeSet` was not available via type parameters");
         }
-        ImmutableRangeSet.Builder<Comparable<?>> builder = ImmutableRangeSet.builder();
+        List<Range<Comparable<?>>> ranges = new ArrayList<>();
         if (p.isExpectedStartArrayToken()) {
             JsonToken t;
             int index = 0;
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 try {
-                    _readRange(p, ctxt, t, builder);
+                    _readRange(p, ctxt, t, ranges);
                 } catch (Exception e) {
                     // As with databind `CollectionDeserializer`: add index to path
                     boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
@@ -149,7 +152,7 @@ public class RangeSetDeserializer
                         ClassUtil.throwIfRTE(e);
                     }
                     throw DatabindException.wrapWithPath(ctxt, e,
-                            new JacksonException.Reference(builder, index));
+                            new JacksonException.Reference(ranges, index));
                 }
                 ++index;
             }
@@ -180,11 +183,20 @@ public class RangeSetDeserializer
             if (!canWrap) {
                 return (RangeSet<?>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
             }
-            _readRange(p, ctxt, p.currentToken(), builder);
+            _readRange(p, ctxt, p.currentToken(), ranges);
+        }
+        // Endpoints of unknown type are read as "natural" types, so numbers
+        // may differ between ranges (like `Integer` and `Long`): if so, widen
+        final Object rangeDeser = _deserializer;
+        if ((rangeDeser instanceof RangeDeserializer)
+                && ((RangeDeserializer) rangeDeser).hasUnknownEndpointType()) {
+            ranges = RangeDeserializer.widenNumericRanges(ranges);
         }
         try {
-            return builder.build();
-        } catch (IllegalArgumentException e) {
+            return ImmutableRangeSet.<Comparable<?>>builder().addAll(ranges).build();
+        // `ClassCastException` if ranges have incompatible endpoint types (like
+        // `Integer` and `Long` when endpoint type is not known)
+        } catch (IllegalArgumentException | ClassCastException e) {
             return ctxt.reportInputMismatch(this,
                     "Failed to build %s from deserialized entries: %s",
                     ClassUtil.getTypeDescription(getValueType(ctxt)), e.getMessage());
@@ -192,7 +204,7 @@ public class RangeSetDeserializer
     }
 
     private void _readRange(JsonParser p, DeserializationContext ctxt, JsonToken t,
-            ImmutableRangeSet.Builder<Comparable<?>> builder)
+            List<Range<Comparable<?>>> ranges)
         throws JacksonException
     {
         final Object range;
@@ -206,22 +218,11 @@ public class RangeSetDeserializer
         } else {
             range = _deserializer.deserializeWithType(p, ctxt, _typeDeserializer);
         }
-        _addRange(p, ctxt, builder, range);
-    }
-
-    /**
-     * Some/many Guava containers do not allow addition of {@code null} values,
-     * so isolate handling here.
-     */
-    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt,
-            ImmutableRangeSet.Builder<Comparable<?>> builder)
-        throws JacksonException
-    {
-        _addRange(p, ctxt, builder, null);
+        _addRange(p, ctxt, ranges, range);
     }
 
     private void _addRange(JsonParser p, DeserializationContext ctxt,
-            ImmutableRangeSet.Builder<Comparable<?>> builder, Object range)
+            List<Range<Comparable<?>>> ranges, Object range)
         throws JacksonException
     {
         NullElementHelper.addElement(p, ctxt, p.currentToken(),
@@ -229,7 +230,13 @@ public class RangeSetDeserializer
                 range, r -> {
                     @SuppressWarnings("unchecked")
                     Range<Comparable<?>> typed = (Range<Comparable<?>>) r;
-                    return builder.add(typed);
+                    // Validate like `ImmutableRangeSet.Builder.add()` (which is only called
+                    // later): `null` must fail with NPE (see `NullElementHelper`)
+                    if (Objects.requireNonNull(typed).isEmpty()) {
+                        return ctxt.reportInputMismatch(this,
+                                "Cannot add empty `Range` (%s) to `RangeSet`", typed);
+                    }
+                    return ranges.add(typed);
                 });
     }
 }

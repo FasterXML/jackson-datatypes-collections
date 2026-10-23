@@ -32,12 +32,19 @@ Oliver Gillespie (@olivergillespie)
 
 PJ Fanning (@pjfanning)
 
+* Contributed #38: Add new `jackson-datatype-fastutil` module for fastutil collection types
+ [3.3.0]
 * Fixed #218: (guava) Fix input mismatch error message in `RangeDeserializer`
  [3.1.0]
 * Fixed #219: (eclipse-collections) Improve error handling for number parsing
  [3.1.0]
 * Fixed #221: (guava) Add try catch for guava deserializers
  [3.1.0]
+* Reported #241: (guava) `RangeSet` values lose type information with default typing
+ [3.3.0]
+* Reported #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
+  with default typing
+ [3.3.0]
 
 Vanya (@vanyamanko)
 
@@ -45,8 +52,22 @@ Vanya (@vanyamanko)
   `TreePMap`, `OrderedPMap` and `AmortizedPQueue` types
  [3.3.0]
 
-@PHJ2000
+Jaehong Park (@PHJ2000)
 
+* Fixed #237: (pcollections) Preserve element order when deserializing `PStack` / `ConsPStack`
+ [3.3.0]
+* Fixed #241: (guava) `RangeSet` values lose type information with default typing
+  (note: `Range` endpoints of unknown type are now written without type ids;
+  `RangeSet`s other than `ImmutableRangeSet` use `RangeSet` as type id;
+  `Range<?>` endpoints are read as "natural" types instead of failing)
+ [3.3.0]
+* Contributed #242: (guava) Support polymorphic reading/writing of Guava immutable
+  primitive arrays (`ImmutableIntArray`, `ImmutableLongArray`, `ImmutableDoubleArray`)
+ [3.3.0]
+* Fixed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
+  with default typing
+ [3.3.0]
 * Fixed #244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize
   each value as `{}` when root type is given
  [3.3.0]
+
