@@ -343,14 +343,14 @@ public final class FastutilMapDeserializers
             if (nuller == deser._nuller) {
                 return deser;
             }
-            return new FastutilMapDeserializer<>(_mapType, deser.keyHandler, deser.valueHandler,
-                    typeHandlerPair, _construction, nuller);
+            return new FastutilMapDeserializer<>(_mapType, deser._keyHandler, deser._valueHandler,
+                    _typeHandlerPair, _construction, nuller);
         }
 
         @Override
         protected MapDeserializer<T, ?, ?, ?> withResolved(K keyHandler, V valueHandler) {
             return new FastutilMapDeserializer<>(_mapType, keyHandler, valueHandler,
-                    typeHandlerPair, _construction, _nuller);
+                    _typeHandlerPair, _construction, _nuller);
         }
 
         @Override
