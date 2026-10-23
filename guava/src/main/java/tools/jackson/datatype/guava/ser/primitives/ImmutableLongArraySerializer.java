@@ -11,6 +11,9 @@ public final class ImmutableLongArraySerializer
         super(ImmutableLongArray.class, long.class);
     }
 
+    /**
+     * @since 3.3
+     */
     protected ImmutableLongArraySerializer(ImmutableLongArraySerializer src,
             BeanProperty prop, Boolean unwrapSingle) {
         super(src, prop, unwrapSingle);

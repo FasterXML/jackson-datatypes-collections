@@ -11,6 +11,9 @@ public final class ImmutableDoubleArraySerializer
         super(ImmutableDoubleArray.class, double.class);
     }
 
+    /**
+     * @since 3.3
+     */
     protected ImmutableDoubleArraySerializer(ImmutableDoubleArraySerializer src,
             BeanProperty prop, Boolean unwrapSingle) {
         super(src, prop, unwrapSingle);

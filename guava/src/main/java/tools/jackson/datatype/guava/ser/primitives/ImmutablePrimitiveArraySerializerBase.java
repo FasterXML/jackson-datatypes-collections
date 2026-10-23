@@ -5,8 +5,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.JsonGenerator;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
@@ -24,6 +22,8 @@ import tools.jackson.databind.type.TypeFactory;
  *<p>
  * Note: content inclusion ({@code @JsonInclude(content = ...)}) is NOT supported,
  * to avoid boxing of element values.
+ *
+ * @since 3.3
  */
 public abstract class ImmutablePrimitiveArraySerializerBase<T>
     extends ArraySerializerBase<T>
@@ -63,11 +63,10 @@ public abstract class ImmutablePrimitiveArraySerializerBase<T>
             BeanProperty property)
     {
         Boolean unwrapSingle = null;
-        if (property != null) {
-            JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
-            if (format != null) {
-                unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
-            }
+        // Note: property may be null (root values), but per-type config overrides apply
+        JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
+        if (format != null) {
+            unwrapSingle = format.getFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
         if (!Objects.equals(unwrapSingle, _unwrapSingle)) {
             return _withResolved(property, unwrapSingle);
@@ -129,22 +128,12 @@ public abstract class ImmutablePrimitiveArraySerializerBase<T>
             serializeContents(value, g, ctxt);
             return;
         }
-        _serializeArray(value, g);
+        g.writeStartArray(value, _length(value));
+        serializeContents(value, g, ctxt);
+        g.writeEndArray();
     }
 
-    @Override
-    public void serializeWithType(T value, JsonGenerator g, SerializationContext ctxt,
-            TypeSerializer typeSer)
-    {
-        // Declare value as non-structured so that type prefix does not open the
-        // array: we open it ourselves to pass the length hint (needed by binary
-        // formats for definite-length arrays). Type ids that require Object context
-        // fall back to wrapper array either way.
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
-                typeSer.typeId(value, JsonToken.VALUE_EMBEDDED_OBJECT));
-        _serializeArray(value, g);
-        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
-    }
+    // NOTE: `serializeWithType()` inherited from `ArraySerializerBase`
 
     @Override
     protected void serializeContents(T value, JsonGenerator g, SerializationContext ctxt)
@@ -152,15 +141,5 @@ public abstract class ImmutablePrimitiveArraySerializerBase<T>
         for (int i = 0, len = _length(value); i < len; ++i) {
             _writeElement(g, value, i);
         }
-    }
-
-    protected void _serializeArray(T value, JsonGenerator g)
-    {
-        final int len = _length(value);
-        g.writeStartArray(value, len);
-        for (int i = 0; i < len; ++i) {
-            _writeElement(g, value, i);
-        }
-        g.writeEndArray();
     }
 }

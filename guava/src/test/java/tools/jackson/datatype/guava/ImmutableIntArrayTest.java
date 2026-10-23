@@ -75,18 +75,27 @@ public class ImmutableIntArrayTest extends ModuleTestBase
     }
 
     @Test
+    public void testSerializationPerTypeUnwrapSingle() throws Exception {
+        ObjectMapper mapper = builderWithModule()
+                .withConfigOverride(ImmutableIntArray.class,
+                        o -> o.setFormat(JsonFormat.Value.empty()
+                                .withFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)))
+                .build();
+        assertEquals("42", mapper.writeValueAsString(ImmutableIntArray.of(42)));
+    }
+
+    @Test
     public void testSerializationWithTypeId() throws Exception {
         // Type id "as property" falls back to wrapper array for array values
         assertEquals("{\"value\":[\"com.google.common.primitives.ImmutableIntArray\",[1,2]]}",
                 MAPPER.writeValueAsString(new TypedValue(ImmutableIntArray.of(1, 2))));
     }
 
-    // Length hint must be passed for both untyped and typed arrays (needed for
-    // definite-length arrays by binary formats)
+    // Length hint needed by binary formats for definite-length arrays
+    // (not passed when type id written, since type prefix opens the array)
     @Test
     public void testSerializationPassesLengthHint() throws Exception {
-        assertEquals(List.of(3), arrayLengthHints(MAPPER, ImmutableIntArray.of(1, 2, 3)));
-        assertEquals(List.of(3), arrayLengthHints(MAPPER, new TypedValue(ImmutableIntArray.of(1, 2, 3))));
+        assertEquals(List.of(2), arrayLengthHints(MAPPER, ImmutableIntArray.of(1, 2)));
     }
 
     private List<Integer> arrayLengthHints(ObjectMapper mapper, Object value) throws Exception {

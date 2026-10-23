@@ -11,6 +11,9 @@ public final class ImmutableIntArraySerializer
         super(ImmutableIntArray.class, int.class);
     }
 
+    /**
+     * @since 3.3
+     */
     protected ImmutableIntArraySerializer(ImmutableIntArraySerializer src,
             BeanProperty prop, Boolean unwrapSingle) {
         super(src, prop, unwrapSingle);

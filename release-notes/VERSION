@@ -42,7 +42,7 @@ Modules:
  (fixed by @PHJ2000)
 #242: (guava) Support polymorphic reading/writing of Guava immutable primitive
   arrays (`ImmutableIntArray`, `ImmutableLongArray`, `ImmutableDoubleArray`)
- (contributed by @PHJ2000) 
+ (contributed by @PHJ2000)
 #243: (guava) `HashCode` cannot be deserialized as `Object` / base type with default
   typing (implementation subtypes not matched)
  (NOTE: type id now written as `com.google.common.hash.HashCode`, not that of
