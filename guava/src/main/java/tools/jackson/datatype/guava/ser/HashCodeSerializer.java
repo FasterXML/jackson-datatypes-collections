@@ -8,7 +8,7 @@ import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.jsontype.TypeSerializer;
-import tools.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.databind.ser.std.ToStringSerializerBase;
 
 /**
  * Serializer for Guava {@link HashCode} values: writes hex String representation.
@@ -17,21 +17,19 @@ import tools.jackson.databind.ser.std.StdScalarSerializer;
  * (non-public) implementation subtype, so that it stays readable regardless of
  * Guava internals (see [datatypes-collections#243]).
  */
-public class HashCodeSerializer extends StdScalarSerializer<HashCode>
+public class HashCodeSerializer extends ToStringSerializerBase
 {
     public final static HashCodeSerializer instance = new HashCodeSerializer();
 
     public HashCodeSerializer() { super(HashCode.class); }
 
     @Override
-    public void serialize(HashCode value, JsonGenerator g, SerializationContext ctxt)
-        throws JacksonException
-    {
-        g.writeString(value.toString());
+    public String valueToString(Object value) {
+        return value.toString();
     }
 
     @Override
-    public void serializeWithType(HashCode value, JsonGenerator g, SerializationContext ctxt,
+    public void serializeWithType(Object value, JsonGenerator g, SerializationContext ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {

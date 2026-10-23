@@ -29,6 +29,8 @@ Modules:
  (fixed by Jaehong Park)
 #243: (guava) `HashCode` cannot be deserialized as `Object` / base type with default
   typing (implementation subtypes not matched)
+ (NOTE: type id now written as `com.google.common.hash.HashCode`, not that of
+  internal implementation subtype; old subtype ids still accepted)
  (reported by @pjfanning)
  (fixed by Jaehong Park)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized

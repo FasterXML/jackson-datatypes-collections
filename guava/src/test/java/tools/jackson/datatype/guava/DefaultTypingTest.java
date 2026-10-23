@@ -222,8 +222,8 @@ public class DefaultTypingTest extends ModuleTestBase
         public InternetDomainName domainName;
         public Object untypedHostAndPort;
         public Object untypedDomainName;
-        public HashCode hashCode;
-        public Object untypedHashCode;
+        public HashCode hash;
+        public Object untypedHash;
 
         @Override
         public boolean equals(Object o) {
@@ -232,8 +232,8 @@ public class DefaultTypingTest extends ModuleTestBase
                     && Objects.equals(domainName, other.domainName)
                     && Objects.equals(untypedHostAndPort, other.untypedHostAndPort)
                     && Objects.equals(untypedDomainName, other.untypedDomainName)
-                    && Objects.equals(hashCode, other.hashCode)
-                    && Objects.equals(untypedHashCode, other.untypedHashCode);
+                    && Objects.equals(hash, other.hash)
+                    && Objects.equals(untypedHash, other.untypedHash);
         }
 
         @Override
@@ -244,7 +244,7 @@ public class DefaultTypingTest extends ModuleTestBase
             return "Scalars{hostAndPort=" + hostAndPort + ", domainName=" + domainName
                     + ", untypedHostAndPort=" + untypedHostAndPort
                     + ", untypedDomainName=" + untypedDomainName
-                    + ", hashCode=" + hashCode + ", untypedHashCode=" + untypedHashCode + "}";
+                    + ", hash=" + hash + ", untypedHash=" + untypedHash + "}";
         }
     }
 
@@ -689,8 +689,8 @@ public class DefaultTypingTest extends ModuleTestBase
         input.domainName = InternetDomainName.from("www.example.com");
         input.untypedHostAndPort = HostAndPort.fromString("localhost:1234");
         input.untypedDomainName = InternetDomainName.from("example.org");
-        input.hashCode = HashCode.fromInt(42);
-        input.untypedHashCode = HashCode.fromString("cafebabe12345678");
+        input.hash = HashCode.fromInt(42);
+        input.untypedHash = HashCode.fromString("cafebabe12345678");
 
         roundTrip(mapper, input, Scalars.class);
     }
