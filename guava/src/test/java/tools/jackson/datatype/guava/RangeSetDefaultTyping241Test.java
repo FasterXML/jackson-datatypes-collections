@@ -41,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RangeSetDefaultTyping241Test extends ModuleTestBase
 {
@@ -263,6 +264,40 @@ public class RangeSetDefaultTyping241Test extends ModuleTestBase
         ObjectWrapper output = mapper.readValue(json, ObjectWrapper.class);
         // Endpoint type is not known when reading, so numbers come back as natural types
         assertEquals(Range.closed(1.5, 2.5), output.value);
+    }
+
+    // Ranges whose endpoints read back as different types must fail cleanly
+    @Test
+    public void mixedEndpointTypesAcrossRanges() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
+        TreeRangeSet<Long> set = TreeRangeSet.create();
+        set.add(Range.closed(1L, 2L));
+        set.add(Range.closed(3L, 5_000_000_000L));
+        ObjectWrapper input = new ObjectWrapper();
+        input.value = set;
+        String json = mapper.writeValueAsString(input);
+        MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                () -> mapper.readValue(json, ObjectWrapper.class));
+        verifyException(e, "Failed to build");
+    }
+
+    // Deserializer always builds `ImmutableRangeSet`, so other implementations use `RangeSet` id
+    @Test
+    public void treeRangeSetUsesRangeSetTypeId() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL).build();
+        TreeRangeSet<Integer> set = TreeRangeSet.create();
+        set.add(Range.closed(1, 5));
+        Wrapper input = new Wrapper();
+        input.value = set;
+        String json = mapper.writeValueAsString(input);
+        assertTrue(json.contains("\"com.google.common.collect.RangeSet\""), json);
+        assertEquals(set, mapper.readValue(json, Wrapper.class).value);
+
+        input.value = ImmutableRangeSet.copyOf(set);
+        json = mapper.writeValueAsString(input);
+        assertTrue(json.contains("\"com.google.common.collect.ImmutableRangeSet\""), json);
     }
 
     // Non-public views (like `complement()`) must be written with a readable type id

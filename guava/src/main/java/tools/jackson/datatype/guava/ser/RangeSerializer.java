@@ -133,11 +133,10 @@ public class RangeSerializer extends StdSerializer<Range<?>>
     {
         gen.assignCurrentValue(value);
         if (_shape == JsonFormat.Shape.STRING) {
-            String rangeString = _getStringFormat(value);
-            WritableTypeId typeId = typeSer.writeTypeSuffix(gen, ctxt,
-                    typeSer.typeId(rangeString, JsonToken.VALUE_STRING)
-            );
-            typeSer.writeTypeSuffix(gen, ctxt, typeId);
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
+                    typeSer.typeId(value, JsonToken.VALUE_STRING));
+            gen.writeString(_getStringFormat(value));
+            typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
         } else {
             WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                     typeSer.typeId(value, JsonToken.START_OBJECT));

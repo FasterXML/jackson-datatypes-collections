@@ -1,6 +1,5 @@
 package tools.jackson.datatype.guava.ser;
 
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import tools.jackson.core.JacksonException;
@@ -16,6 +15,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.TypeWrappedSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
 
+import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
@@ -73,20 +73,15 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
-    // Non-public implementations (like views returned by `TreeRangeSet.complement()`)
-    // cannot be read back as such, so use the `RangeSet` interface as their type id
+    // Deserializer always builds an `ImmutableRangeSet`, so other implementations
+    // (`TreeRangeSet`, views like `complement()`) use the `RangeSet` interface as type id
     private static Class<?> _typeIdClass(RangeSet<?> value) {
-        Class<?> cls = value.getClass();
-        return Modifier.isPublic(cls.getModifiers()) ? cls : RangeSet.class;
+        return (value instanceof ImmutableRangeSet<?>) ? value.getClass() : RangeSet.class;
     }
 
     @Override
     public ValueSerializer<?> createContextual(SerializationContext ctxt, BeanProperty property)
     {
-        // 23-Jan-2021, tatu: Should really improve upon this to handle more complex
-        //   values, but this simplified version passes existing unit tests so has to do.
-       
-        
         ValueSerializer<Object> ser = ctxt.findContentValueSerializer(
                 ctxt.getTypeFactory().constructCollectionType(List.class, Range.class), property);
         if (property == null) {
@@ -105,26 +100,5 @@ public class RangeSetSerializer extends StdSerializer<RangeSet<Comparable<?>>>
             rangeSer = new TypeWrappedSerializer(typeSer.forProperty(ctxt, property), rangeSer);
         }
         return new RangeSetSerializer(this, ser, rangeSer);
-
-        // Old (Jackson 2.x) implementation was along lines of
-        /*
-        if (property == null) {
-            return this;
-        }
-
-        final JavaType grlType = prov.getTypeFactory()
-                .constructCollectionType(List.class,
-                        prov.getTypeFactory().constructParametricType(
-                                Range.class, property.getType().containedType(0)));
-        return new RangeSetSerializer(grlType);
-
-        if (genericRangeListType == null) {
-            ser = serializers.findValueSerializer(List.class);
-        } else {
-            serializers.findValueSerializer(genericRangeListType);
-        }
-        ser.serialize(value.asRanges(), gen, serializers);
-        
-        */
     }
 }

@@ -184,7 +184,9 @@ public class RangeSetDeserializer
         }
         try {
             return builder.build();
-        } catch (IllegalArgumentException e) {
+        // `ClassCastException` if ranges have incompatible endpoint types (like
+        // `Integer` and `Long` when endpoint type is not known)
+        } catch (IllegalArgumentException | ClassCastException e) {
             return ctxt.reportInputMismatch(this,
                     "Failed to build %s from deserialized entries: %s",
                     ClassUtil.getTypeDescription(getValueType(ctxt)), e.getMessage());

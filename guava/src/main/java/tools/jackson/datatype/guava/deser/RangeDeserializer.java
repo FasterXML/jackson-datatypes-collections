@@ -90,15 +90,13 @@ public class RangeDeserializer
 
         final RangeHelper.RangeProperties fieldNames = RangeHelper.getPropertyNames(ctxt.getConfig(),
                 ctxt.getConfig().getPropertyNamingStrategy());
-        JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
-        // `Range<?>` resolves to the `Comparable` bound, which cannot be deserialized
-        // as such: read endpoints as "natural" types instead (which are `Comparable`)
-        if (endpointType.hasRawClass(Comparable.class)) {
-            endpointType = ctxt.constructType(Object.class);
-        }
+        final JavaType endpointType = _rangeType.containedTypeOrUnknown(0);
         ValueDeserializer<?> deser = _endpointDeserializer;
         if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(endpointType, property);
+            // `Range<?>` resolves to the `Comparable` bound, which cannot be deserialized
+            // as such: read endpoints as "natural" types instead (which are `Comparable`)
+            deser = ctxt.findContextualValueDeserializer(endpointType.hasRawClass(Comparable.class)
+                    ? ctxt.constructType(Object.class) : endpointType, property);
         } else {
             // 04-Sep-2019, tatu: If we already have a deserialize, should contextualize, right?
             deser = deser.createContextual(ctxt, property);
@@ -193,8 +191,10 @@ public class RangeDeserializer
                     && (lowerEndpoint instanceof Number) && (upperEndpoint instanceof Number)
                     && _hasUnknownEndpointType()) {
                 Class<?> common = _commonNumberType((Number) lowerEndpoint, (Number) upperEndpoint);
-                lowerEndpoint = _widenNumber((Number) lowerEndpoint, common);
-                upperEndpoint = _widenNumber((Number) upperEndpoint, common);
+                if (common != null) {
+                    lowerEndpoint = _widenNumber((Number) lowerEndpoint, common);
+                    upperEndpoint = _widenNumber((Number) upperEndpoint, common);
+                }
             }
             if (lowerEndpoint.getClass() != upperEndpoint.getClass()) {
                 return ctxt.reportBadDefinition(getValueType(ctxt), String.format(
@@ -291,9 +291,10 @@ public class RangeDeserializer
         return endpointType.hasRawClass(Object.class) || endpointType.hasRawClass(Comparable.class);
     }
 
+    // Returns `null` if there is no common type (non-finite `Double` with `BigDecimal`)
     private static Class<?> _commonNumberType(Number n1, Number n2) {
         if ((n1 instanceof BigDecimal) || (n2 instanceof BigDecimal)) {
-            return BigDecimal.class;
+            return (_isNonFinite(n1) || _isNonFinite(n2)) ? null : BigDecimal.class;
         }
         if ((n1 instanceof Double) || (n2 instanceof Double)
                 || (n1 instanceof Float) || (n2 instanceof Float)) {
@@ -303,6 +304,10 @@ public class RangeDeserializer
             return BigInteger.class;
         }
         return Long.class;
+    }
+
+    private static boolean _isNonFinite(Number n) {
+        return ((n instanceof Double) || (n instanceof Float)) && !Double.isFinite(n.doubleValue());
     }
 
     private static Comparable<?> _widenNumber(Number n, Class<?> type) {
@@ -318,7 +323,7 @@ public class RangeDeserializer
         return n.longValue();
     }
 
-        private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
+    private Comparable<?> deserializeEndpoint(DeserializationContext context, JsonParser p)
         throws JacksonException
     {
         Object obj = _endpointDeserializer.deserialize(p, context);

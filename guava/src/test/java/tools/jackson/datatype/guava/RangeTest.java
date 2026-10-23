@@ -11,12 +11,14 @@ import com.google.common.collect.Range;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import tools.jackson.core.json.JsonReadFeature;
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -44,10 +46,13 @@ public class RangeTest extends ModuleTestBase
         public Range<?> r;
     }
 
-    static class WildcardStringWrapper {
+    static class StringRangeWrapper {
         @JsonFormat(shape = JsonFormat.Shape.STRING)
-        public Range<?> r;
+        public Range<Integer> r;
     }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    static class TypedRangeMixin { }
 
     static class Wrapped {
         public Range<Integer> r;
@@ -441,19 +446,39 @@ public class RangeTest extends ModuleTestBase
                         + "'upperEndpoint':2.5,'upperBoundType':'CLOSED'}}"), WildcardWrapper.class).r);
     }
 
+    // Non-finite `Double` cannot be widened to `BigDecimal`: must fail cleanly
+    @Test
+    public void testWildcardRangeNaNWithBigDecimal() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(new GuavaModule())
+                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                .build();
+        InvalidDefinitionException e = assertThrows(InvalidDefinitionException.class,
+                () -> mapper.readValue(a2q("{'r':{'lowerEndpoint':NaN,'lowerBoundType':'CLOSED',"
+                        + "'upperEndpoint':1.5,'upperBoundType':'CLOSED'}}"), WildcardWrapper.class));
+        verifyException(e, "Endpoint types are not the same");
+    }
+
+    // STRING shape must write type id (if any) and the range String
+    @Test
+    public void testStringShapeWithTypeId() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .addMixIn(Range.class, TypedRangeMixin.class)
+                .build();
+        StringRangeWrapper input = new StringRangeWrapper();
+        input.r = RangeFactory.closed(1, 5);
+        String json = mapper.writeValueAsString(input);
+        assertEquals(a2q("{'r':['com.google.common.collect.Range','[1..5]']}"), json);
+        assertEquals(input.r, mapper.readValue(json, StringRangeWrapper.class).r);
+    }
+
     private Range<?> _readWildcard(String lower, String upper) throws Exception
     {
         return MAPPER.readValue(a2q("{'r':{'lowerEndpoint':" + lower + ",'lowerBoundType':'CLOSED',"
                 + "'upperEndpoint':" + upper + ",'upperBoundType':'CLOSED'}}"), WildcardWrapper.class).r;
     }
 
-    @Test
-    public void testWildcardRangeAsString() throws Exception
-    {
-        WildcardStringWrapper input = new WildcardStringWrapper();
-        input.r = RangeFactory.closedOpen("a", "c");
-        String json = MAPPER.writeValueAsString(input);
-        assertEquals(a2q("{'r':'[a..c)'}"), json);
-        assertEquals(input.r, MAPPER.readValue(json, WildcardStringWrapper.class).r);
-    }
 }
