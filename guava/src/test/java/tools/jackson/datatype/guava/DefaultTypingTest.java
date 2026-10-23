@@ -9,6 +9,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.*;
+import com.google.common.hash.HashCode;
 import com.google.common.net.HostAndPort;
 import com.google.common.net.InternetDomainName;
 import com.google.common.primitives.ImmutableDoubleArray;
@@ -221,6 +222,8 @@ public class DefaultTypingTest extends ModuleTestBase
         public InternetDomainName domainName;
         public Object untypedHostAndPort;
         public Object untypedDomainName;
+        public HashCode hashCode;
+        public Object untypedHashCode;
 
         @Override
         public boolean equals(Object o) {
@@ -228,7 +231,9 @@ public class DefaultTypingTest extends ModuleTestBase
             return Objects.equals(hostAndPort, other.hostAndPort)
                     && Objects.equals(domainName, other.domainName)
                     && Objects.equals(untypedHostAndPort, other.untypedHostAndPort)
-                    && Objects.equals(untypedDomainName, other.untypedDomainName);
+                    && Objects.equals(untypedDomainName, other.untypedDomainName)
+                    && Objects.equals(hashCode, other.hashCode)
+                    && Objects.equals(untypedHashCode, other.untypedHashCode);
         }
 
         @Override
@@ -238,7 +243,8 @@ public class DefaultTypingTest extends ModuleTestBase
         public String toString() {
             return "Scalars{hostAndPort=" + hostAndPort + ", domainName=" + domainName
                     + ", untypedHostAndPort=" + untypedHostAndPort
-                    + ", untypedDomainName=" + untypedDomainName + "}";
+                    + ", untypedDomainName=" + untypedDomainName
+                    + ", hashCode=" + hashCode + ", untypedHashCode=" + untypedHashCode + "}";
         }
     }
 
@@ -638,10 +644,7 @@ public class DefaultTypingTest extends ModuleTestBase
 
     /*
     /**********************************************************************
-    /* Tests: HostAndPort, InternetDomainName
-    /*
-    /* NOTE: HashCode not covered: type id is that of a non-public subtype
-    /*   (like `HashCode$BytesHashCode`) for which no deserializer is found
+    /* Tests: HostAndPort, InternetDomainName, HashCode
     /**********************************************************************
      */
 
@@ -656,6 +659,24 @@ public class DefaultTypingTest extends ModuleTestBase
 
         roundTripAsObject(mapper, HostAndPort.fromParts("example.com", 8080));
         roundTripAsObject(mapper, InternetDomainName.from("www.example.com"));
+
+        // [datatypes-collections#243]: type id is that of a non-public subtype
+        // (like `HashCode$BytesHashCode`), different for each factory method
+        for (HashCode hash : new HashCode[] {
+                HashCode.fromInt(42), HashCode.fromLong(123456789L),
+                HashCode.fromString("cafebabe12345678") }) {
+            roundTrip(mapper, hash, HashCode.class);
+            roundTripAsObject(mapper, hash);
+            // ... so type id written must be that of public `HashCode` type
+            String json = mapper.writerFor(Object.class).writeValueAsString(hash);
+            assertEquals(a2q("['com.google.common.hash.HashCode','"+hash+"']"), json);
+        }
+
+        // but JSON written with subtype ids (by earlier versions) must still be readable
+        assertEquals(HashCode.fromString("cafebabe"), mapper.readValue(
+                a2q("['com.google.common.hash.HashCode$BytesHashCode','cafebabe']"), Object.class));
+        assertEquals(HashCode.fromInt(42), mapper.readValue(
+                a2q("['com.google.common.hash.HashCode$IntHashCode','2a000000']"), HashCode.class));
     }
 
     @ParameterizedTest
@@ -668,6 +689,8 @@ public class DefaultTypingTest extends ModuleTestBase
         input.domainName = InternetDomainName.from("www.example.com");
         input.untypedHostAndPort = HostAndPort.fromString("localhost:1234");
         input.untypedDomainName = InternetDomainName.from("example.org");
+        input.hashCode = HashCode.fromInt(42);
+        input.untypedHashCode = HashCode.fromString("cafebabe12345678");
 
         roundTrip(mapper, input, Scalars.class);
     }
