@@ -19,6 +19,7 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
@@ -140,7 +141,10 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
             "'x'",
     };
 
-    private final ObjectMapper MAPPER = mapperWithModule();
+    // These regression tests exercise the repeated-element Multiset format.
+    private final ObjectMapper MAPPER = JsonMapper.builder()
+            .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+            .build();
 
     private final ObjectMapper X_TO_NULL_MAPPER = _xToNullMapper(null);
 
@@ -177,6 +181,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
     public void testDeserializedNullNotSkipped() throws Exception
     {
         ObjectMapper mapper = builderWithModule()
+                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         for (String content : WITH_X) {
@@ -407,6 +412,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
     private ObjectMapper _xToNullMapper(DeserializationProblemHandler h)
     {
         var b = builderWithModule()
+                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .addModule(new SimpleModule().addDeserializer(String.class, new XToNullDeserializer()))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         if (h != null) {
@@ -419,6 +425,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
             TypeReference<T> typeRef) throws Exception
     {
         return builderWithModule()
+                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .addModule(new SimpleModule().addDeserializer(Point.class, new ObjectToNullDeserializer()))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .addHandler(h)

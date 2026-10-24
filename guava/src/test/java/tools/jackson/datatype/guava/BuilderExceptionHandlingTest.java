@@ -27,9 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class BuilderExceptionHandlingTest extends ModuleTestBase
 {
-    private final ObjectMapper MAPPER = mapperWithModule();
+    // These regression tests exercise the repeated-element Multiset format.
+    private final ObjectMapper MAPPER = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
+            .build();
 
-    private final ObjectMapper POLY_MAPPER = builderWithModule()
+    private final ObjectMapper POLY_MAPPER = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
             .polymorphicTypeValidator(new NoCheckSubTypeValidator())
             .build();
 
@@ -270,7 +272,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
     @Test
     public void testUntypedSortedSingleNonComparableElementHandling()
     {
-        final ObjectMapper wrappingMapper = builderWithModule()
+        final ObjectMapper wrappingMapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         for (Class<?> type : new Class<?>[] { ImmutableSortedSet.class,
@@ -278,7 +280,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
             final String typeName = type.getSimpleName();
             for (String json : new String[] { "[{\"x\":1}]", "[{\"x\":1},null]" }) {
                 try {
-                    builderWithModule()
+                    builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                         .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
                         .build()
                         .readValue(json, type);
@@ -316,7 +318,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
         assertEquals(new ArrayList<>(multiset), new ArrayList<>(treeMultiset));
 
         // and with default typing, mixed number types round-trip as-is
-        ObjectMapper mapper = builderWithModule()
+        ObjectMapper mapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
                 .build();
         ImmutableSortedSet<?> input = MAPPER.readValue("[3000000000, 1, 2.5]", ImmutableSortedSet.class);
@@ -367,7 +369,7 @@ public class BuilderExceptionHandlingTest extends ModuleTestBase
     @Test
     public void testImmutableSortedContainersAsObjectWithDefaultTyping() throws Exception
     {
-        ObjectMapper mapper = builderWithModule()
+        ObjectMapper mapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
                 .build();
         for (Object input : new Object[] {

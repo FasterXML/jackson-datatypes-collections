@@ -43,6 +43,11 @@ public abstract class ModuleTestBase
                         .configureAbsentsAsNulls(absentsAsNulls));
     }
 
+    protected MapperBuilder<?,?> builderWithModule(GuavaModule module)
+    {
+        return JsonMapper.builder().addModule(module);
+    }
+
     protected String a2q(String json) {
         return json.replace("'", "\"");
     }
