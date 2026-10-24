@@ -54,7 +54,9 @@ Modules:
  (NOTE: also, polymorphic values (with `@JsonTypeInfo` or default typing) of
   `Multimap` / `RangeMap` / `Cache` / `Table` are now serialized using actual value
   type even when root type is given; and `Table` values now include type id (and
-  can be read back) and honor static typing)
+  can be read back) and honor static typing. With default typing, this means that
+  non-scalar `Table` values written by earlier versions (without type id) can
+  not be read)
  (fixed by @PHJ2000)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing

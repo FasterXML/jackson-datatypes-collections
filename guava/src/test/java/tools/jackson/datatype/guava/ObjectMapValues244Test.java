@@ -2,6 +2,7 @@ package tools.jackson.datatype.guava;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -11,6 +12,8 @@ import com.google.common.collect.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -213,5 +216,42 @@ public class ObjectMapValues244Test extends ModuleTestBase
         Sub sub = assertInstanceOf(Sub.class, result.get("r", "c"));
         assertEquals(2, sub.b);
         assertEquals("x", result.get("r", "d"));
+    }
+
+    // Values must also be located dynamically when using filtered output
+
+    @JsonFilter("filter244")
+    static class FilterMixin { }
+
+    private ObjectMapper filteringMapper() {
+        return builderWithModule()
+                .filterProvider(new SimpleFilterProvider()
+                        .addFilter("filter244", SimpleBeanPropertyFilter.serializeAllExcept("b")))
+                .addMixIn(Cache.class, FilterMixin.class)
+                .addMixIn(RangeMap.class, FilterMixin.class)
+                .build();
+    }
+
+    @Test
+    public void cacheWithFilter() {
+        ObjectMapper mapper = filteringMapper();
+        Cache<String, Object> input = CacheBuilder.newBuilder().build();
+        input.put("a", 1);
+        input.put("b", "x");
+        TypeReference<Cache<String, Object>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':1}"), mapper.writeValueAsString(input));
+        assertEquals(a2q("{'a':1}"), mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void rangeMapWithFilter() {
+        ObjectMapper mapper = filteringMapper();
+        RangeMap<Integer, Object> input = TreeRangeMap.create();
+        input.put(Range.closed(1, 5), "a");
+        input.put(Range.open(10, 20), 42);
+        TypeReference<RangeMap<Integer, Object>> type = new TypeReference<>() { };
+        String exp = a2q("{'[1..5]':'a','(10..20)':42}");
+        assertEquals(exp, mapper.writeValueAsString(input));
+        assertEquals(exp, mapper.writerFor(type).writeValueAsString(input));
     }
 }

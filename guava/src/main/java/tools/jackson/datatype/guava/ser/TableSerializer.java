@@ -124,8 +124,12 @@ public class TableSerializer
     public ValueSerializer<?> createContextual(final SerializationContext ctxt,
             final BeanProperty property)
     {
-        // Value type is the content type of the (column-to-value) content type
-        final JavaType valueType = _type.getContentType().getContentType();
+        // Value type is the content type of the (column-to-value) content type;
+        // but fall back to type parameter if not (e.g. not constructed via TypeFactory)
+        final JavaType columnValueType = _type.getContentType();
+        final JavaType valueType = ((columnValueType == null) || !columnValueType.isContainerType())
+                ? _type.containedTypeOrUnknown(2)
+                : columnValueType.getContentType();
         // Value type serializer (if any) is not passed by factory, as content type
         // of Table type is that of column-to-value Map, not value
         TypeSerializer typeSer = _valueTypeSerializer;

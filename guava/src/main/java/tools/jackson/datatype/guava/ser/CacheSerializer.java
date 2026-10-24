@@ -328,6 +328,7 @@ public class CacheSerializer
         final Set<String> ignored = _ignoredEntries;
         PropertyFilter filter = findPropertyFilter(ctxt, _filterId, map);
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
+        PropertySerializerMap serializers = _dynamicValueSerializers;
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             // First, serialize key
             Object key = entry.getKey();
@@ -341,6 +342,15 @@ public class CacheSerializer
                 valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
+                // May need to locate dynamically (no static content serializer) [#244]
+                if (valueSer == null) {
+                    Class<?> cc = value.getClass();
+                    valueSer = serializers.serializerFor(cc);
+                    if (valueSer == null) {
+                        valueSer = _findAndAddDynamic(serializers, cc, ctxt);
+                        serializers = _dynamicValueSerializers;
+                    }
+                }
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {
