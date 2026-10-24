@@ -35,7 +35,7 @@ import tools.jackson.databind.type.MapLikeType;
  * @author mcvayc
  */
 public class RangeMapSerializer
-    extends StdContainerSerializer<RangeMap<Comparable<?>, ?>>
+    extends ContainerSerializerBase<RangeMap<Comparable<?>, ?>>
 {
     private final MapLikeType _type;
     private final BeanProperty _property;
@@ -123,12 +123,7 @@ public class RangeMapSerializer
     {
         ValueSerializer<?> valueSer = _valueSerializer;
         final SerializationConfig config = ctxt.getConfig();
-        if (valueSer == null) { // if type is final, can actually resolve:
-            JavaType valueType = _type.getContentType();
-            if (valueType.isFinal()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
-        } else {
+        if (valueSer != null) {
             valueSer = valueSer.createContextual(ctxt, property);
         }
 
@@ -155,12 +150,10 @@ public class RangeMapSerializer
         // May have a content converter
         valueSer = findContextualConvertingSerializer(ctxt, property, valueSer);
         if (valueSer == null) {
-            // One more thing -- if explicit content type is annotated,
-            //   we can consider it a static case as well.
-            JavaType valueType = _type.getContentType();
-            if (valueType.useStaticType()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
+            // One more thing -- if content type is final, or explicit content
+            //   type is annotated, we can consider it a static case as well.
+            valueSer = _findStaticContentSerializer(ctxt,
+                    _type.getContentType(), _valueTypeSerializer, property);
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
@@ -326,6 +319,7 @@ public class RangeMapSerializer
         final Set<String> ignored = _ignoredEntries;
         PropertyFilter filter = findPropertyFilter(provider, _filterId, rmap);
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
+        PropertySerializerMap serializers = _dynamicValueSerializers;
         for (Entry<Range<Comparable<?>>, ?> entry : rmap.entrySet()) {
             // First, serialize key
             Range<?> key = entry.getKey();
@@ -339,6 +333,15 @@ public class RangeMapSerializer
                 valueSer = provider.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
+                // May need to locate dynamically (no static content serializer) [#244]
+                if (valueSer == null) {
+                    Class<?> cc = value.getClass();
+                    valueSer = serializers.serializerFor(cc);
+                    if (valueSer == null) {
+                        valueSer = _findAndAddDynamic(serializers, cc, provider);
+                        serializers = _dynamicValueSerializers;
+                    }
+                }
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {

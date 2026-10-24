@@ -28,7 +28,7 @@ import com.google.common.cache.Cache;
  * Serializer for Guava's {@link Cache} values. 
  */
 public class CacheSerializer 
-    extends StdContainerSerializer<Cache<?, ?>>
+    extends ContainerSerializerBase<Cache<?, ?>>
 {
     private final MapLikeType _type;
     private final BeanProperty _property;
@@ -124,12 +124,7 @@ public class CacheSerializer
                 throws JacksonException
     {
         ValueSerializer<?> valueSer = _valueSerializer;
-        if (valueSer == null) { // if type is final, can actually resolve:
-            JavaType valueType = _type.getContentType();
-            if (valueType.isFinal()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
-        } else {
+        if (valueSer != null) {
             valueSer = valueSer.createContextual(ctxt, property);
         }
 
@@ -157,12 +152,10 @@ public class CacheSerializer
         // [datatype-guava#124]: May have a content converter
         valueSer = findContextualConvertingSerializer(ctxt, property, valueSer);
         if (valueSer == null) {
-            // One more thing -- if explicit content type is annotated,
-            //   we can consider it a static case as well.
-            JavaType valueType = _type.getContentType();
-            if (valueType.useStaticType()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
+            // One more thing -- if content type is final, or explicit content
+            //   type is annotated, we can consider it a static case as well.
+            valueSer = _findStaticContentSerializer(ctxt,
+                    _type.getContentType(), _valueTypeSerializer, property);
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
@@ -335,6 +328,7 @@ public class CacheSerializer
         final Set<String> ignored = _ignoredEntries;
         PropertyFilter filter = findPropertyFilter(ctxt, _filterId, map);
         final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
+        PropertySerializerMap serializers = _dynamicValueSerializers;
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             // First, serialize key
             Object key = entry.getKey();
@@ -348,6 +342,15 @@ public class CacheSerializer
                 valueSer = ctxt.getDefaultNullValueSerializer();
             } else {
                 valueSer = _valueSerializer;
+                // May need to locate dynamically (no static content serializer) [#244]
+                if (valueSer == null) {
+                    Class<?> cc = value.getClass();
+                    valueSer = serializers.serializerFor(cc);
+                    if (valueSer == null) {
+                        valueSer = _findAndAddDynamic(serializers, cc, ctxt);
+                        serializers = _dynamicValueSerializers;
+                    }
+                }
             }
             prop.reset(key, value, _keySerializer, valueSer);
             try {

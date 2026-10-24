@@ -69,3 +69,7 @@ Jaehong Park (@PHJ2000)
 * Fixed #243: (guava) `HashCode` cannot be deserialized as `Object` / base type
   with default typing
  [3.3.0]
+* Fixed #244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize
+  each value as `{}` when root type is given
+ [3.3.0]
+

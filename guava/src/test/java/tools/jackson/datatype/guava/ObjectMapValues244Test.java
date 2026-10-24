@@ -1,0 +1,257 @@
+package tools.jackson.datatype.guava;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.*;
+
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.*;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
+public class ObjectMapValues244Test extends ModuleTestBase
+{
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
+    @JsonSubTypes({ @JsonSubTypes.Type(value = Dog.class, name = "Dog") })
+    static abstract class Animal {
+        public String name = "n";
+    }
+
+    static class Dog extends Animal {
+        public int barks = 3;
+    }
+
+    // Non-polymorphic, non-final base type: static typing should use base type
+    static class Base {
+        public int a = 1;
+    }
+
+    static class Sub extends Base {
+        public int b = 2;
+    }
+
+    private final static String DOG_JSON = "{'@type':'Dog','barks':3,'name':'n'}";
+
+    @Test
+    public void multimapWithExplicitRootType() {
+        ObjectMapper mapper = mapperWithModule();
+        Multimap<String, Object> input = ArrayListMultimap.create();
+        input.put("a", 1);
+        input.put("a", "x");
+        input.put("b", 2);
+        TypeReference<Multimap<String, Object>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':[1,'x'],'b':[2]}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void rangeMapWithExplicitRootType() {
+        ObjectMapper mapper = mapperWithModule();
+        RangeMap<Integer, Object> input = TreeRangeMap.create();
+        input.put(Range.closed(1, 5), "a");
+        input.put(Range.open(10, 20), 42);
+        TypeReference<RangeMap<Integer, Object>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'[1..5]':'a','(10..20)':42}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void cacheWithExplicitRootType() {
+        ObjectMapper mapper = mapperWithModule();
+        Cache<String, Object> input = CacheBuilder.newBuilder().build();
+        input.put("a", 1);
+        input.put("b", "x");
+        TypeReference<Cache<String, Object>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':1,'b':'x'}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void multimapWithDefaultTyping() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
+                .build();
+        Multimap<String, Object> input = ArrayListMultimap.create();
+        input.put("a", 1);
+        input.put("a", "x");
+        TypeReference<Multimap<String, Object>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertEquals(a2q("['com.google.common.collect.ArrayListMultimap',{'a':[1,'x']}]"), json);
+        assertEquals(input, mapper.readValue(json, type));
+    }
+
+    @Test
+    public void rangeMapWithDefaultTyping() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
+                .build();
+        RangeMap<Integer, Object> input = TreeRangeMap.create();
+        input.put(Range.closed(1, 5), "a");
+        input.put(Range.open(10, 20), 42);
+        TypeReference<RangeMap<Integer, Object>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertEquals(a2q("['com.google.common.collect.TreeRangeMap',{'[1..5]':'a','(10..20)':42}]"), json);
+        RangeMap<Integer, Object> result = mapper.readValue(json, type);
+        assertEquals(input.asMapOfRanges(), result.asMapOfRanges());
+    }
+
+    // Polymorphic values must not be serialized using static base type serializer
+
+    @Test
+    public void multimapWithPolymorphicValues() {
+        ObjectMapper mapper = mapperWithModule();
+        Multimap<String, Animal> input = ArrayListMultimap.create();
+        input.put("a", new Dog());
+        TypeReference<Multimap<String, Animal>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':["+DOG_JSON+"]}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void cacheWithPolymorphicValues() {
+        ObjectMapper mapper = mapperWithModule();
+        Cache<String, Animal> input = CacheBuilder.newBuilder().build();
+        input.put("a", new Dog());
+        TypeReference<Cache<String, Animal>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':"+DOG_JSON+"}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void rangeMapWithPolymorphicValues() {
+        ObjectMapper mapper = mapperWithModule();
+        RangeMap<Integer, Animal> input = TreeRangeMap.create();
+        input.put(Range.closed(1, 5), new Dog());
+        TypeReference<RangeMap<Integer, Animal>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'[1..5]':"+DOG_JSON+"}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void tableWithPolymorphicValues() {
+        ObjectMapper mapper = mapperWithModule();
+        Table<String, String, Animal> input = HashBasedTable.create();
+        input.put("r", "c", new Dog());
+        TypeReference<Table<String, String, Animal>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'r':{'c':"+DOG_JSON+"}}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    // But static typing of explicit (non-Object, non-polymorphic) type should
+    // still use the declared type
+
+    @Test
+    public void multimapWithStaticBaseType() {
+        ObjectMapper mapper = mapperWithModule();
+        Multimap<String, Base> input = ArrayListMultimap.create();
+        input.put("a", new Sub());
+        TypeReference<Multimap<String, Base>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':[{'a':1}]}"),
+                mapper.writerFor(type).writeValueAsString(input));
+        // but without static typing, actual type
+        assertEquals(a2q("{'a':[{'a':1,'b':2}]}"),
+                mapper.writeValueAsString(input));
+    }
+
+    @Test
+    public void tableWithStaticBaseType() {
+        ObjectMapper mapper = mapperWithModule();
+        Table<String, String, Base> input = HashBasedTable.create();
+        input.put("r", "c", new Sub());
+        TypeReference<Table<String, String, Base>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'r':{'c':{'a':1}}}"),
+                mapper.writerFor(type).writeValueAsString(input));
+        assertEquals(a2q("{'r':{'c':{'a':1,'b':2}}}"),
+                mapper.writeValueAsString(input));
+    }
+
+    // And polymorphic Table values must also be readable back
+
+    @Test
+    public void tableWithPolymorphicValuesRoundTrip() {
+        ObjectMapper mapper = mapperWithModule();
+        Table<String, String, Animal> input = HashBasedTable.create();
+        input.put("r", "c", new Dog());
+        TypeReference<Table<String, String, Animal>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        Table<String, String, Animal> result = mapper.readValue(json, type);
+        assertEquals(1, result.size());
+        Dog dog = assertInstanceOf(Dog.class, result.get("r", "c"));
+        assertEquals(3, dog.barks);
+    }
+
+    @Test
+    public void hashBasedTableWithPolymorphicValuesRoundTrip() {
+        ObjectMapper mapper = mapperWithModule();
+        HashBasedTable<String, String, Animal> input = HashBasedTable.create();
+        input.put("r", "c", new Dog());
+        TypeReference<HashBasedTable<String, String, Animal>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertEquals(a2q("{'r':{'c':"+DOG_JSON+"}}"), json);
+        HashBasedTable<String, String, Animal> result = mapper.readValue(json, type);
+        assertInstanceOf(Dog.class, result.get("r", "c"));
+    }
+
+    @Test
+    public void tableWithDefaultTypingRoundTrip() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
+                .build();
+        Table<String, String, Object> input = HashBasedTable.create();
+        input.put("r", "c", new Sub());
+        input.put("r", "d", "x");
+        TypeReference<Table<String, String, Object>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        Table<String, String, Object> result = mapper.readValue(json, type);
+        assertEquals(2, result.size());
+        Sub sub = assertInstanceOf(Sub.class, result.get("r", "c"));
+        assertEquals(2, sub.b);
+        assertEquals("x", result.get("r", "d"));
+    }
+
+    // Values must also be located dynamically when using filtered output
+
+    @JsonFilter("filter244")
+    static class FilterMixin { }
+
+    private ObjectMapper filteringMapper() {
+        return builderWithModule()
+                .filterProvider(new SimpleFilterProvider()
+                        .addFilter("filter244", SimpleBeanPropertyFilter.serializeAllExcept("b")))
+                .addMixIn(Cache.class, FilterMixin.class)
+                .addMixIn(RangeMap.class, FilterMixin.class)
+                .build();
+    }
+
+    @Test
+    public void cacheWithFilter() {
+        ObjectMapper mapper = filteringMapper();
+        Cache<String, Object> input = CacheBuilder.newBuilder().build();
+        input.put("a", 1);
+        input.put("b", "x");
+        TypeReference<Cache<String, Object>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':1}"), mapper.writeValueAsString(input));
+        assertEquals(a2q("{'a':1}"), mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void rangeMapWithFilter() {
+        ObjectMapper mapper = filteringMapper();
+        RangeMap<Integer, Object> input = TreeRangeMap.create();
+        input.put(Range.closed(1, 5), "a");
+        input.put(Range.open(10, 20), 42);
+        TypeReference<RangeMap<Integer, Object>> type = new TypeReference<>() { };
+        String exp = a2q("{'[1..5]':'a','(10..20)':42}");
+        assertEquals(exp, mapper.writeValueAsString(input));
+        assertEquals(exp, mapper.writerFor(type).writeValueAsString(input));
+    }
+}
