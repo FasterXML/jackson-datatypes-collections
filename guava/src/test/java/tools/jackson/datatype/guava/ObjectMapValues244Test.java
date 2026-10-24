@@ -13,6 +13,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 public class ObjectMapValues244Test extends ModuleTestBase
 {
@@ -24,6 +25,15 @@ public class ObjectMapValues244Test extends ModuleTestBase
 
     static class Dog extends Animal {
         public int barks = 3;
+    }
+
+    // Non-polymorphic, non-final base type: static typing should use base type
+    static class Base {
+        public int a = 1;
+    }
+
+    static class Sub extends Base {
+        public int b = 2;
     }
 
     private final static String DOG_JSON = "{'@type':'Dog','barks':3,'name':'n'}";
@@ -91,16 +101,6 @@ public class ObjectMapValues244Test extends ModuleTestBase
         assertEquals(input.asMapOfRanges(), result.asMapOfRanges());
     }
 
-    @Test
-    public void tableWithExplicitRootType() {
-        ObjectMapper mapper = mapperWithModule();
-        Table<String, String, Object> input = HashBasedTable.create();
-        input.put("r", "c", 1);
-        TypeReference<Table<String, String, Object>> type = new TypeReference<>() { };
-        assertEquals(a2q("{'r':{'c':1}}"),
-                mapper.writerFor(type).writeValueAsString(input));
-    }
-
     // Polymorphic values must not be serialized using static base type serializer
 
     @Test
@@ -131,5 +131,87 @@ public class ObjectMapValues244Test extends ModuleTestBase
         TypeReference<RangeMap<Integer, Animal>> type = new TypeReference<>() { };
         assertEquals(a2q("{'[1..5]':"+DOG_JSON+"}"),
                 mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    @Test
+    public void tableWithPolymorphicValues() {
+        ObjectMapper mapper = mapperWithModule();
+        Table<String, String, Animal> input = HashBasedTable.create();
+        input.put("r", "c", new Dog());
+        TypeReference<Table<String, String, Animal>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'r':{'c':"+DOG_JSON+"}}"),
+                mapper.writerFor(type).writeValueAsString(input));
+    }
+
+    // But static typing of explicit (non-Object, non-polymorphic) type should
+    // still use the declared type
+
+    @Test
+    public void multimapWithStaticBaseType() {
+        ObjectMapper mapper = mapperWithModule();
+        Multimap<String, Base> input = ArrayListMultimap.create();
+        input.put("a", new Sub());
+        TypeReference<Multimap<String, Base>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'a':[{'a':1}]}"),
+                mapper.writerFor(type).writeValueAsString(input));
+        // but without static typing, actual type
+        assertEquals(a2q("{'a':[{'a':1,'b':2}]}"),
+                mapper.writeValueAsString(input));
+    }
+
+    @Test
+    public void tableWithStaticBaseType() {
+        ObjectMapper mapper = mapperWithModule();
+        Table<String, String, Base> input = HashBasedTable.create();
+        input.put("r", "c", new Sub());
+        TypeReference<Table<String, String, Base>> type = new TypeReference<>() { };
+        assertEquals(a2q("{'r':{'c':{'a':1}}}"),
+                mapper.writerFor(type).writeValueAsString(input));
+        assertEquals(a2q("{'r':{'c':{'a':1,'b':2}}}"),
+                mapper.writeValueAsString(input));
+    }
+
+    // And polymorphic Table values must also be readable back
+
+    @Test
+    public void tableWithPolymorphicValuesRoundTrip() {
+        ObjectMapper mapper = mapperWithModule();
+        Table<String, String, Animal> input = HashBasedTable.create();
+        input.put("r", "c", new Dog());
+        TypeReference<Table<String, String, Animal>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        Table<String, String, Animal> result = mapper.readValue(json, type);
+        assertEquals(1, result.size());
+        Dog dog = assertInstanceOf(Dog.class, result.get("r", "c"));
+        assertEquals(3, dog.barks);
+    }
+
+    @Test
+    public void hashBasedTableWithPolymorphicValuesRoundTrip() {
+        ObjectMapper mapper = mapperWithModule();
+        HashBasedTable<String, String, Animal> input = HashBasedTable.create();
+        input.put("r", "c", new Dog());
+        TypeReference<HashBasedTable<String, String, Animal>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        assertEquals(a2q("{'r':{'c':"+DOG_JSON+"}}"), json);
+        HashBasedTable<String, String, Animal> result = mapper.readValue(json, type);
+        assertInstanceOf(Dog.class, result.get("r", "c"));
+    }
+
+    @Test
+    public void tableWithDefaultTypingRoundTrip() {
+        ObjectMapper mapper = builderWithModule()
+                .activateDefaultTyping(new NoCheckSubTypeValidator(), DefaultTyping.NON_FINAL)
+                .build();
+        Table<String, String, Object> input = HashBasedTable.create();
+        input.put("r", "c", new Sub());
+        input.put("r", "d", "x");
+        TypeReference<Table<String, String, Object>> type = new TypeReference<>() { };
+        String json = mapper.writerFor(type).writeValueAsString(input);
+        Table<String, String, Object> result = mapper.readValue(json, type);
+        assertEquals(2, result.size());
+        Sub sub = assertInstanceOf(Sub.class, result.get("r", "c"));
+        assertEquals(2, sub.b);
+        assertEquals("x", result.get("r", "d"));
     }
 }

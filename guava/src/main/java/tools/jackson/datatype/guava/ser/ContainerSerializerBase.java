@@ -29,13 +29,13 @@ abstract class ContainerSerializerBase<T>
     }
 
     /**
-     * Method for locating serializer to use for statically typed content, if
-     * content type is explicitly specified (for example, root type passed
-     * via {@code writerFor()}).
+     * Method for locating serializer to use for content values, if it can be
+     * determined statically: either content type is final, or it is explicitly
+     * specified (for example, root type passed via {@code writerFor()}).
      *<p>
      * Note: static handling is not used for polymorphic content (one with
-     * {@link TypeSerializer}), since the declared type may only be a base type
-     * of actual values.
+     * {@link TypeSerializer}) of non-final types, since the declared type may
+     * only be a base type of actual values.
      *
      * @return Serializer to use for the content type if it is to be handled
      *   statically; {@code null} if it should be looked up dynamically (from
@@ -44,6 +44,9 @@ abstract class ContainerSerializerBase<T>
     protected ValueSerializer<Object> _findStaticContentSerializer(SerializationContext ctxt,
             JavaType contentType, TypeSerializer contentTypeSer, BeanProperty property)
     {
+        if (contentType.isFinal()) {
+            return ctxt.findContentValueSerializer(contentType, property);
+        }
         if (contentTypeSer != null) {
             return null;
         }

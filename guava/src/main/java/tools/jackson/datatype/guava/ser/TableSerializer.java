@@ -124,15 +124,17 @@ public class TableSerializer
     public ValueSerializer<?> createContextual(final SerializationContext ctxt,
             final BeanProperty property)
     {
+        // Value type is the content type of the (column-to-value) content type
+        final JavaType valueType = _type.getContentType().getContentType();
+        // Value type serializer (if any) is not passed by factory, as content type
+        // of Table type is that of column-to-value Map, not value
+        TypeSerializer typeSer = _valueTypeSerializer;
+        if (typeSer == null) {
+            typeSer = ctxt.findTypeSerializer(valueType);
+        }
         ValueSerializer<?> valueSer = _valueSerializer;
-        if (valueSer == null) { // if type is final (or static), can actually resolve:
-            final JavaType valueType = _type.containedTypeOrUnknown(2);
-            if (valueType.isFinal()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            } else {
-                valueSer = _findStaticContentSerializer(ctxt, valueType,
-                        _valueTypeSerializer, property);
-            }
+        if (valueSer == null) {
+            valueSer = _findStaticContentSerializer(ctxt, valueType, typeSer, property);
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
@@ -149,7 +151,6 @@ public class TableSerializer
             columnKeySer = ctxt.handleSecondaryContextualization(columnKeySer, property);
         }
         // finally, TypeSerializers may need contextualization as well
-        TypeSerializer typeSer = _valueTypeSerializer;
         if (typeSer != null) {
             typeSer = typeSer.forProperty(ctxt, property);
         }

@@ -109,12 +109,7 @@ public class MultimapSerializer
             BeanProperty property)
     {
         ValueSerializer<?> valueSer = _valueSerializer;
-        if (valueSer == null) { // if type is final, can actually resolve:
-            JavaType valueType = _type.getContentType();
-            if (valueType.isFinal()) {
-                valueSer = ctxt.findContentValueSerializer(valueType, property);
-            }
-        } else {
+        if (valueSer != null) {
             valueSer = valueSer.createContextual(ctxt, property);
         }
 
@@ -142,8 +137,8 @@ public class MultimapSerializer
         // [datatype-guava#124]: May have a content converter
         valueSer = findContextualConvertingSerializer(ctxt, property, valueSer);
         if (valueSer == null) {
-            // One more thing -- if explicit content type is annotated,
-            //   we can consider it a static case as well.
+            // One more thing -- if content type is final, or explicit content
+            //   type is annotated, we can consider it a static case as well.
             valueSer = _findStaticContentSerializer(ctxt,
                     _type.getContentType(), _valueTypeSerializer, property);
         } else {

@@ -51,6 +51,10 @@ Modules:
  (fixed by Jaehong Park)
 #244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize each
   value as `{}` when root type is given
+ (NOTE: also, polymorphic values (with `@JsonTypeInfo` or default typing) of
+  `Multimap` / `RangeMap` / `Cache` / `Table` are now serialized using actual value
+  type even when root type is given; and `Table` values now include type id and
+  honor static typing)
  (fixed by @PHJ2000)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
