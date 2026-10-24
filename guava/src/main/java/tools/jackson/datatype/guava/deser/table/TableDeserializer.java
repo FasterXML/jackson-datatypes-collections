@@ -88,8 +88,13 @@ public abstract class TableDeserializer<T extends Table<Object, Object, Object>>
         } else { // if directly assigned, probably not yet contextual, so:
             valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
         }
-        // Type deserializer is slightly different; must be passed, but needs to become contextual:
+        // Type deserializer is slightly different; must be passed, but needs to become contextual.
+        // But factory does not pass one, as content type of Table type is that of
+        // column-to-value Map, not value: so need to locate it here [#244]
         TypeDeserializer vtd = _valueTypeDeserializer;
+        if (vtd == null) {
+            vtd = ctxt.findTypeDeserializer(vt);
+        }
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
