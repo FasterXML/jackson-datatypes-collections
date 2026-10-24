@@ -125,10 +125,13 @@ public class TableSerializer
             final BeanProperty property)
     {
         ValueSerializer<?> valueSer = _valueSerializer;
-        if (valueSer == null) { // if type is final, can actually resolve:
+        if (valueSer == null) { // if type is final (or static), can actually resolve:
             final JavaType valueType = _type.containedTypeOrUnknown(2);
             if (valueType.isFinal()) {
                 valueSer = ctxt.findContentValueSerializer(valueType, property);
+            } else {
+                valueSer = _findStaticContentSerializer(ctxt, valueType,
+                        _valueTypeSerializer, property);
             }
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);

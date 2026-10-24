@@ -49,6 +49,9 @@ Modules:
   internal implementation subtype; old subtype ids still accepted)
  (reported by @pjfanning)
  (fixed by Jaehong Park)
+#244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize each
+  value as `{}` when root type is given
+ (fixed by @PHJ2000)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
  (fixed by @pjfanning)
@@ -85,9 +88,6 @@ Modules:
   (note: handlers now see `END_OBJECT` / `END_ARRAY`, not `START_OBJECT` / `START_ARRAY`;
   for `RangeSet`, actual token instead of `VALUE_NULL`)
  (fixed by @cowtowncoder)
-#244: (guava) `Multimap` / `RangeMap` / `Cache` with `Object` values serialize each
-  value as `{}` when root type is given
- (fixed by @PHJ2000)
 
 3.2.4 (18-Oct-2026)
 

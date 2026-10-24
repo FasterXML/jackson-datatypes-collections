@@ -145,7 +145,7 @@ public class MultimapSerializer
             // One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             valueSer = _findStaticContentSerializer(ctxt,
-                    _type.getContentType(), property);
+                    _type.getContentType(), _valueTypeSerializer, property);
         } else {
             valueSer = ctxt.handleSecondaryContextualization(valueSer, property);
         }
