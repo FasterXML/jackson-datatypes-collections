@@ -2,6 +2,7 @@ Project: jackson-modules-base
 Major version: 3 (for earlier, see VERSION-2.x)
 Modules:
   jackson-datatype-eclipse-collections
+  jackson-datatype-fastutil
   jackson-datatype-guava
   jackson-datatype-hppc
   jackson-datatype-pcollections
@@ -17,6 +18,8 @@ Modules:
   available with `GuavaModule.configureMultisetsAsEntries(false)`; max size of
   deserialized `Multiset` limited by `GuavaModule.configureMaxMultisetSize()`
  (contributed by Vanya M)
+#38: Add new `jackson-datatype-fastutil` module for fastutil collection types
+ (contributed by @pjfanning)
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
   `OrderedPMap` and `AmortizedPQueue` types
  (contributed by Vanya M)
@@ -32,6 +35,19 @@ Modules:
   and `ConsPStack` (previously the order was reversed:
   behavior change, code compensating for the old order needs removing)
  (fixed by Jaehong Park)
+#240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
+  primitive maps silently lose data
+ (fixed by @pjfanning)
+#241: (guava) `RangeSet` values lose type information with default typing
+  (note: `Range` endpoints of unknown type are now written without type ids;
+  `RangeSet`s other than `ImmutableRangeSet` use `RangeSet` as type id;
+  `Range<?>` endpoints are read as "natural" types instead of failing;
+  `protected RangeSetDeserializer._tryToAddNull()` removed)
+ (reported by @pjfanning)
+ (fixed by @PHJ2000)
+#242: (guava) Support polymorphic reading/writing of Guava immutable primitive
+  arrays (`ImmutableIntArray`, `ImmutableLongArray`, `ImmutableDoubleArray`)
+ (contributed by @PHJ2000)
 #243: (guava) `HashCode` cannot be deserialized as `Object` / base type with default
   typing (implementation subtypes not matched)
  (NOTE: type id now written as `com.google.common.hash.HashCode`, not that of
@@ -40,9 +56,6 @@ Modules:
  (fixed by Jaehong Park)
 #245: (guava) `ImmutableSortedSet` / `ImmutableSortedMultiset` cannot be deserialized
   as `Object` with default typing
- (fixed by @pjfanning)
-#240: (eclipse-collections) Most types fail to round-trip with default typing enabled;
-  primitive maps silently lose data
  (fixed by @pjfanning)
 #251: (eclipse-collections) `Pair` / `Triple` deserialization fails for raw types
   and implementation classes (default typing); `Triplet` read as `TripleImpl`
