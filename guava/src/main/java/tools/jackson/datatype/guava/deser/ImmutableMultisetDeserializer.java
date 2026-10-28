@@ -5,7 +5,6 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.datatype.guava.GuavaModule;
 
 import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableMultiset;
@@ -15,7 +14,7 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeseria
     public ImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        this(selfType, deser, typeDeser, nuller, unwrapSingle, true, GuavaModule.DEFAULT_MAX_MULTISET_SIZE);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, MultisetConfig.DEFAULT);
     }
 
     /**
@@ -23,8 +22,8 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeseria
      */
     public ImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle, asEntries, maxSize);
+            NullValueProvider nuller, Boolean unwrapSingle, MultisetConfig config) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, config);
     }
 
     @Override
@@ -36,7 +35,7 @@ public class ImmutableMultisetDeserializer extends GuavaImmutableMultisetDeseria
     public GuavaCollectionDeserializer<ImmutableMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle, _asEntries, _maxSize);
+                valueDeser, typeDeser, nuller, unwrapSingle, _config);
     }
 
     @Override

@@ -9,7 +9,6 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.datatype.guava.GuavaModule;
 import tools.jackson.databind.util.AccessPattern;
 
 import com.google.common.collect.Multiset;
@@ -18,32 +17,23 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     extends GuavaCollectionDeserializer<T>
 {
     /**
-     * Whether entries are expected as {@code {"element":...,"count":...}}
-     * (if {@code true}) or as repeated elements (if {@code false}).
+     * Multiset-specific settings.
      *
      * @since 3.3
      */
-    protected final boolean _asEntries;
-
-    /**
-     * Maximum number of elements (sum of counts) allowed when reading entries.
-     *
-     * @since 3.3
-     */
-    protected final int _maxSize;
+    protected final MultisetConfig _config;
 
     GuavaMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        this(selfType, deser, typeDeser, nuller, unwrapSingle, true, GuavaModule.DEFAULT_MAX_MULTISET_SIZE);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, MultisetConfig.DEFAULT);
     }
 
     GuavaMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+            NullValueProvider nuller, Boolean unwrapSingle, MultisetConfig config) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
-        _asEntries = asEntries;
-        _maxSize = maxSize;
+        _config = config;
     }
 
     protected abstract T createMultiset();
@@ -64,8 +54,8 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
         throws JacksonException
     {
         T set = createMultiset();
-        if (_asEntries) {
-            MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+        if (_config.asEntries()) {
+            MultisetEntryReader r = new MultisetEntryReader(this, _config.maxSize());
             while (r.nextEntry(p, ctxt)) {
                 _addEntry(p, ctxt, set, r.element(), r.count());
             }
@@ -88,9 +78,9 @@ abstract class GuavaMultisetDeserializer<T extends Multiset<Object>>
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        if (_asEntries) {
+        if (_config.asEntries()) {
             T set = createMultiset();
-            MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+            MultisetEntryReader r = new MultisetEntryReader(this, _config.maxSize());
             if (r.readEntry(p, ctxt)) {
                 _addEntry(p, ctxt, set, r.element(), r.count());
             }

@@ -18,33 +18,28 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
     extends GuavaImmutableCollectionDeserializer<T>
 {
     /**
-     * Whether entries are expected as {@code {"element":...,"count":...}}
-     * (if {@code true}) or as repeated elements (if {@code false}).
+     * Multiset-specific settings.
+     *
+     * @since 3.3
      */
-    protected final boolean _asEntries;
-
-    /**
-     * Maximum number of elements (sum of counts) allowed when reading entries.
-     */
-    protected final int _maxSize;
+    protected final MultisetConfig _config;
 
     GuavaImmutableMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
-            NullValueProvider nuller, Boolean unwrapSingle, boolean asEntries, int maxSize) {
+            NullValueProvider nuller, Boolean unwrapSingle, MultisetConfig config) {
         super(selfType, deser, typeDeser, nuller, unwrapSingle);
-        _asEntries = asEntries;
-        _maxSize = maxSize;
+        _config = config;
     }
 
     @Override
     protected T _deserializeContents(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        if (!_asEntries) {
+        if (!_config.asEntries()) {
             return super._deserializeContents(p, ctxt);
         }
         ImmutableMultiset.Builder<Object> builder = (ImmutableMultiset.Builder<Object>) createBuilder();
-        MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+        MultisetEntryReader r = new MultisetEntryReader(this, _config.maxSize());
         while (r.nextEntry(p, ctxt)) {
             _addEntry(p, ctxt, builder, r.element(), r.count());
         }
@@ -55,11 +50,11 @@ abstract class GuavaImmutableMultisetDeserializer<T extends ImmutableMultiset<Ob
     protected T _deserializeFromSingleValue(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        if (!_asEntries) {
+        if (!_config.asEntries()) {
             return super._deserializeFromSingleValue(p, ctxt);
         }
         ImmutableMultiset.Builder<Object> builder = (ImmutableMultiset.Builder<Object>) createBuilder();
-        MultisetEntryReader r = new MultisetEntryReader(this, _maxSize);
+        MultisetEntryReader r = new MultisetEntryReader(this, _config.maxSize());
         if (r.readEntry(p, ctxt)) {
             _addEntry(p, ctxt, builder, r.element(), r.count());
         }

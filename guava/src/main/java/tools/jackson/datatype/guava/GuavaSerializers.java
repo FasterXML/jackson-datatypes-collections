@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.Serializers;
@@ -169,8 +170,22 @@ public class GuavaSerializers extends Serializers.Base
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         if (_cfgMultisetsAsEntries && type.isTypeOrSubTypeOf(Multiset.class)) {
-            boolean staticTyping = (elementTypeSerializer == null)
-                    && config.isEnabled(MapperFeature.USE_STATIC_TYPING);
+            // Mirror `BasicSerializerFactory`: class-level `@JsonSerialize(typing=...)`
+            // overrides global setting; root-level "static" types force static typing
+            boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
+            JsonSerialize.Typing typing = config.getAnnotationIntrospector()
+                    .findSerializationTyping(config, beanDescRef.getClassInfo());
+            if (typing == JsonSerialize.Typing.STATIC) {
+                staticTyping = true;
+            } else if (typing == JsonSerialize.Typing.DYNAMIC) {
+                staticTyping = false;
+            }
+            if (!staticTyping && type.useStaticType() && !type.getContentType().isJavaLangObject()) {
+                staticTyping = true;
+            }
+            if (elementTypeSerializer != null) {
+                staticTyping = false;
+            }
             return new MultisetSerializer(type.getContentType(), staticTyping,
                     elementTypeSerializer, elementValueSerializer);
         }

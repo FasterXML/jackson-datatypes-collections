@@ -13,6 +13,9 @@ import tools.jackson.databind.JavaType;
 import tools.jackson.databind.SerializationContext;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import tools.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.AsArraySerializerBase;
@@ -161,6 +164,41 @@ public class MultisetSerializer
         } catch (Exception e) {
             wrapAndThrow(ctxt, e, value, i);
         }
+    }
+
+    /*
+    /**********************************************************************
+    /* Schema related functionality
+    /**********************************************************************
+     */
+
+    // Output is an array of `{"element":..., "count":...}` Objects, not of elements
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+        JsonArrayFormatVisitor arrayV = visitor.expectArrayFormat(typeHint);
+        if (arrayV == null) {
+            return;
+        }
+        final SerializationContext ctxt = visitor.getContext();
+        ValueSerializer<?> elemSer = _elementSerializer;
+        if ((elemSer == null) && (_elementType != null)) {
+            elemSer = ctxt.findContentValueSerializer(_elementType, _property);
+        }
+        final ValueSerializer<?> elemSer2 = elemSer;
+        final JavaType elemType = _elementType;
+        final ValueSerializer<?> countSer = ctxt.findValueSerializer(Integer.TYPE);
+        final JavaType countType = ctxt.constructType(Integer.TYPE);
+        final JavaType entryType = ctxt.constructType(Object.class);
+        arrayV.itemsFormat((entryVisitor, entryHint) -> {
+            JsonObjectFormatVisitor objV = entryVisitor.expectObjectFormat(entryHint);
+            if (objV != null) {
+                if (elemSer2 != null) {
+                    objV.property(PROP_ELEMENT, elemSer2, elemType);
+                }
+                objV.property(PROP_COUNT, countSer, countType);
+            }
+        }, entryType);
     }
 
     private ValueSerializer<Object> _findElementSerializer(SerializationContext ctxt,
