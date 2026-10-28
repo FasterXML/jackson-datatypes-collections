@@ -27,7 +27,6 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.guava.deser.MultisetConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,8 +97,7 @@ public class MultisetsTest extends ModuleTestBase
 
     private final ObjectMapper MAPPER = mapperWithModule();
 
-    private final ObjectMapper MAPPER_ELEMENTS = JsonMapper.builder()
-            .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+    private final ObjectMapper MAPPER_ELEMENTS = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
             .build();
 
     @Test
@@ -229,8 +227,7 @@ public class MultisetsTest extends ModuleTestBase
                 new TypeReference<ImmutableMultiset<String>>() { });
         assertEquals(2, set.count("abc"));
 
-        mapper = JsonMapper.builder()
-            .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+        mapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
             .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
             .build();
         set = mapper.readValue("\"abc\"",
@@ -351,8 +348,7 @@ public class MultisetsTest extends ModuleTestBase
                         new TypeReference<SortedMultiset<Person>>() { }));
         verifyException(e, "Failed to build `com.google.common.collect.SortedMultiset<");
 
-        ObjectMapper mapper = JsonMapper.builder()
-                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+        ObjectMapper mapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         e = assertThrows(MismatchedInputException.class,
@@ -375,8 +371,7 @@ public class MultisetsTest extends ModuleTestBase
                         new TypeReference<TreeMultiset<Integer>>() { }));
         verifyException(e, "does not accept `null` values");
 
-        ObjectMapper mapper = JsonMapper.builder()
-                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+        ObjectMapper mapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         e = assertThrows(MismatchedInputException.class,
@@ -450,8 +445,7 @@ public class MultisetsTest extends ModuleTestBase
         }
 
         // custom limit: applies to sum of counts of all entries
-        ObjectMapper mapper = JsonMapper.builder()
-                .addModule(new GuavaModule().configureMaxMultisetSize(5))
+        ObjectMapper mapper = builderWithModule(new GuavaModule().configureMaxMultisetSize(5))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         for (TypeReference<?> ref : refs) {

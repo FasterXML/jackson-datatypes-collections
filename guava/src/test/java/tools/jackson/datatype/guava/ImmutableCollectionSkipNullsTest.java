@@ -19,7 +19,6 @@ import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ValueDeserializer;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
@@ -142,8 +141,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
     };
 
     // These regression tests exercise the repeated-element Multiset format.
-    private final ObjectMapper MAPPER = JsonMapper.builder()
-            .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+    private final ObjectMapper MAPPER = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
             .build();
 
     private final ObjectMapper X_TO_NULL_MAPPER = _xToNullMapper(null);

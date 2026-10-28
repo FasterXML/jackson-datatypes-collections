@@ -198,9 +198,7 @@ public class MultisetSerializer
             return;
         }
         final SerializationContext ctxt = visitor.getContext();
-        // Element type is Object if not known: still describe the property
-        final JavaType elemType = (_elementType == null)
-                ? ctxt.constructType(Object.class) : _elementType;
+        final JavaType elemType = _elementType;
         ValueSerializer<?> elemSer = _elementSerializer;
         if (elemSer == null) {
             elemSer = ctxt.findContentValueSerializer(elemType, _property);
