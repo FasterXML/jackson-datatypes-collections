@@ -8,6 +8,14 @@ import com.google.common.collect.TreeMultiset;
 
 public class TreeMultisetDeserializer extends GuavaMultisetDeserializer<TreeMultiset<Object>>
 {
+    /**
+     * Constructor that uses {@link MultisetConfig#DEFAULT} settings: note that this means
+     * entries format ({@code {"element":...,"count":...}}) is expected since 3.3.
+     *
+     * @deprecated Since 3.3 use constructor that takes {@link MultisetConfig} to
+     *    explicitly specify expected format
+     */
+    @Deprecated // since 3.3
     public TreeMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {

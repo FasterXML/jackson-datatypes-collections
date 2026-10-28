@@ -11,6 +11,14 @@ import com.google.common.collect.HashMultiset;
 public class HashMultisetDeserializer
     extends GuavaMultisetDeserializer<HashMultiset<Object>>
 {
+    /**
+     * Constructor that uses {@link MultisetConfig#DEFAULT} settings: note that this means
+     * entries format ({@code {"element":...,"count":...}}) is expected since 3.3.
+     *
+     * @deprecated Since 3.3 use constructor that takes {@link MultisetConfig} to
+     *    explicitly specify expected format
+     */
+    @Deprecated // since 3.3
     public HashMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
