@@ -193,6 +193,17 @@ public abstract class GuavaCollectionDeserializer<T>
     }
 
     /**
+     * Accessor for {@link MultisetEntryReader}: whether JSON {@code null}s are to be skipped.
+     */
+    boolean skipsNullValues() {
+        return _skipNullValues;
+    }
+
+    JavaType containerType() {
+        return _containerType;
+    }
+
+    /**
      * Helper method for deserializing a single element, given its first token.
      * Only JSON {@code null} tokens are skipped (if so configured): {@code null}
      * returned by value deserializer (or null provider) is returned as-is.

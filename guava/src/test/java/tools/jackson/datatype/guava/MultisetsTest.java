@@ -508,6 +508,39 @@ public class MultisetsTest extends ModuleTestBase
         assertEquals(ImmutableMultiset.of("a", "a", "a"), w.values);
     }
 
+    // `null` entries (as opposed to `null` elements) are skipped with `Nulls.SKIP`
+    @Test
+    public void testSkipNullEntries() throws Exception
+    {
+        SkipNullsWrapper w = MAPPER.readValue(a2q(
+                "{'values':[null,{'element':'a','count':3}]}"),
+                SkipNullsWrapper.class);
+        assertEquals(ImmutableMultiset.of("a", "a", "a"), w.values);
+    }
+
+    // Malformed entries are passed to `DeserializationProblemHandler`s
+    @Test
+    public void testMalformedEntryWithProblemHandler() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .addHandler(new DeserializationProblemHandler() {
+                    @Override
+                    public Object handleUnexpectedToken(DeserializationContext ctxt,
+                            JavaType targetType, JsonToken t,
+                            JsonParser p, String failureMsg) {
+                        return null;
+                    }
+                })
+                .build();
+        for (TypeReference<?> ref : new TypeReference<?>[] {
+                new TypeReference<HashMultiset<String>>() { },
+                new TypeReference<ImmutableMultiset<String>>() { } }) {
+            Multiset<?> set = (Multiset<?>) mapper.readValue(a2q(
+                    "[null,'abc',[1,2],{'element':'a','count':2}]"), ref);
+            assertEquals(ImmutableMultiset.of("a", "a"), set);
+        }
+    }
+
     static class ContentInclusionWrapper {
         @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
         public Multiset<String> values = HashMultiset.create();

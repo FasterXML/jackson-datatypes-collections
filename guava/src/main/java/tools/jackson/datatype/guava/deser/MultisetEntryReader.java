@@ -62,9 +62,16 @@ final class MultisetEntryReader
         throws JacksonException
     {
         if (!p.hasToken(JsonToken.START_OBJECT)) {
-            ctxt.reportInputMismatch(_owner,
+            // JSON `null` entries are skipped if so configured (as with other collections)
+            if (p.hasToken(JsonToken.VALUE_NULL) && _owner.skipsNullValues()) {
+                return false;
+            }
+            // otherwise give problem handlers a chance to recover; if one does, entry is dropped
+            ctxt.handleUnexpectedToken(_owner.containerType(), p.currentToken(), p,
 "Unexpected token (%s) for `Multiset` entry: expected JSON Object with properties \"element\" and \"count\"",
                     p.currentToken());
+            p.skipChildren();
+            return false;
         }
         Object element = null;
         boolean hasElement = false;
