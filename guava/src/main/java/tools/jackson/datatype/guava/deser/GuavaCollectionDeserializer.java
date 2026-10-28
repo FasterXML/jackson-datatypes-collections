@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.deser.impl.NullsFailProvider;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -190,6 +191,29 @@ public abstract class GuavaCollectionDeserializer<T>
             }
         }
         return _createEmpty(ctxt);
+    }
+
+    /**
+     * Method for {@link MultisetEntryReader} to handle JSON {@code null} used in place
+     * of a whole entry, according to content null handling: throws exception for
+     * {@code Nulls.FAIL}; other settings have no meaningful value for an entry.
+     *
+     * @return {@code true} if entry is to be skipped ({@code Nulls.SKIP})
+     */
+    boolean handleNullEntry(DeserializationContext ctxt) throws JacksonException {
+        if (_skipNullValues) {
+            return true;
+        }
+        // Only `Nulls.FAIL` is relevant: other providers (including element
+        // deserializer itself) would produce an element value, not an entry
+        if (_nullProvider instanceof NullsFailProvider) {
+            _nullProvider.getNullValue(ctxt);
+        }
+        return false;
+    }
+
+    JavaType containerType() {
+        return _containerType;
     }
 
     /**

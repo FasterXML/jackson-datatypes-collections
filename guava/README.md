@@ -77,3 +77,10 @@ Configurable settings of the module are:
     * In either case, `Optional.absent()` values are always excluded with Inclusion values of:
         * NON_EMPTY
         * NON_ABSENT (new in Jackson 2.6)
+* `configureMultisetsAsEntries` (default: true) (added in 3.3)
+    * If enabled, `Multiset`s are serialized as `[{"element":"apple","count":5},{"element":"pear","count":2}]`
+    * If disabled, each element is repeated as many times as it occurs: `["apple","apple","apple","apple","apple","pear","pear"]` (format used before 3.3)
+    * Same format is expected when deserializing
+    * Note: serialization format depends on the actual type of value, but deserialization on the declared type. So a `Multiset` held in a property declared as, for example, `Collection<String>` or `Object` is written as entries, but cannot be read back into that type; disable this setting to keep the old format in such cases
+* `configureMaxMultisetSize` (default: 10_000_000) (added in 3.3)
+    * Maximum number of elements (sum of counts) allowed when deserializing a `Multiset` from entries, so that a small input cannot produce a huge `Multiset`

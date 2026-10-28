@@ -11,19 +11,36 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import com.google.common.collect.ImmutableCollection.Builder;
 import com.google.common.collect.ImmutableSortedMultiset;
 
-public class ImmutableSortedMultisetDeserializer extends GuavaImmutableCollectionDeserializer<ImmutableSortedMultiset<Object>>
+public class ImmutableSortedMultisetDeserializer extends GuavaImmutableMultisetDeserializer<ImmutableSortedMultiset<Object>>
 {
+    /**
+     * Constructor that uses {@link MultisetConfig#DEFAULT} settings: note that this means
+     * entries format ({@code {"element":...,"count":...}}) is expected since 3.3.
+     *
+     * @deprecated Since 3.3 use constructor that takes {@link MultisetConfig} to
+     *    explicitly specify expected format
+     */
+    @Deprecated // since 3.3
     public ImmutableSortedMultisetDeserializer(JavaType selfType,
             ValueDeserializer<?> deser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
-        super(selfType, deser, typeDeser, nuller, unwrapSingle);
+        this(selfType, deser, typeDeser, nuller, unwrapSingle, MultisetConfig.DEFAULT);
+    }
+
+    /**
+     * @since 3.3
+     */
+    public ImmutableSortedMultisetDeserializer(JavaType selfType,
+            ValueDeserializer<?> deser, TypeDeserializer typeDeser,
+            NullValueProvider nuller, Boolean unwrapSingle, MultisetConfig config) {
+        super(selfType, deser, typeDeser, nuller, unwrapSingle, config);
     }
 
     @Override
     public GuavaCollectionDeserializer<ImmutableSortedMultiset<Object>> withResolved(ValueDeserializer<?> valueDeser, TypeDeserializer typeDeser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         return new ImmutableSortedMultisetDeserializer(_containerType,
-                valueDeser, typeDeser, nuller, unwrapSingle);
+                valueDeser, typeDeser, nuller, unwrapSingle, _config);
     }
 
     @Override

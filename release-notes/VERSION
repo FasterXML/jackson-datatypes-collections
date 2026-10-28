@@ -13,6 +13,11 @@ Modules:
 
 3.3.0 (not yet released)
 
+#2: (guava) Serialize `Multiset` as list of element/count entries
+  (`[{"element":"a","count":2}]`) by default; old format (repeated elements)
+  available with `GuavaModule.configureMultisetsAsEntries(false)`; max size of
+  deserialized `Multiset` limited by `GuavaModule.configureMaxMultisetSize()`
+ (contributed by Vanya M)
 #38: Add new `jackson-datatype-fastutil` module for fastutil collection types
  (contributed by @pjfanning)
 #229: (pcollections) Add deserializers for PCollection `TreePSet`, `TreePMap`,
