@@ -24,6 +24,7 @@ import tools.jackson.core.util.JsonGeneratorDelegate;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -585,6 +586,61 @@ public class MultisetsTest extends ModuleTestBase
             mapper.writeValue(g, value);
         }
         return sizes;
+    }
+
+    /*
+    /**********************************************************************
+    /* Unit tests for schema generation
+    /**********************************************************************
+     */
+
+    // Schema should describe array of {"element", "count"} Objects, not of elements
+    @Test
+    public void testSchemaForEntries() throws Exception
+    {
+        final List<String> events = new ArrayList<>();
+        MAPPER.acceptJsonFormatVisitor(new TypeReference<HashMultiset<String>>() { },
+                new JsonFormatVisitorWrapper.Base() {
+            @Override
+            public JsonArrayFormatVisitor expectArrayFormat(JavaType type) {
+                events.add("array");
+                return new JsonArrayFormatVisitor.Base(getContext()) {
+                    @Override
+                    public void itemsFormat(JsonFormatVisitable handler, JavaType elementType) {
+                        handler.acceptJsonFormatVisitor(_entryVisitor(events), elementType);
+                    }
+                };
+            }
+        });
+        assertEquals(Arrays.asList("array", "object", "element:string", "count:integer"), events);
+    }
+
+    private JsonFormatVisitorWrapper _entryVisitor(List<String> events)
+    {
+        return new JsonFormatVisitorWrapper.Base() {
+            @Override
+            public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
+                events.add("object");
+                return new JsonObjectFormatVisitor.Base(getContext()) {
+                    @Override
+                    public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) {
+                        handler.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base(getContext()) {
+                            @Override
+                            public JsonStringFormatVisitor expectStringFormat(JavaType type) {
+                                events.add(name + ":string");
+                                return null;
+                            }
+
+                            @Override
+                            public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type) {
+                                events.add(name + ":integer");
+                                return null;
+                            }
+                        }, propertyTypeHint);
+                    }
+                };
+            }
+        };
     }
 
     private void _verifyInvalid(String json, String expectedMessage) throws Exception
