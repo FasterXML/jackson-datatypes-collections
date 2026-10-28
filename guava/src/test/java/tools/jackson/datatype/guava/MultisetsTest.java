@@ -28,6 +28,7 @@ import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.guava.deser.MultisetConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -565,6 +566,126 @@ public class MultisetsTest extends ModuleTestBase
             Multiset<?> set = (Multiset<?>) mapper.readValue(a2q(
                     "[null,'abc',[1,2],{'element':'a','count':2}]"), ref);
             assertEquals(ImmutableMultiset.of("a", "a"), set);
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Unit tests for null handling of elements, all Multiset types
+    /**********************************************************************
+     */
+
+    private final static TypeReference<?>[] ALL_TYPES = new TypeReference<?>[] {
+            new TypeReference<HashMultiset<String>>() { },
+            new TypeReference<LinkedHashMultiset<String>>() { },
+            new TypeReference<TreeMultiset<String>>() { },
+            new TypeReference<ImmutableMultiset<String>>() { },
+            new TypeReference<ImmutableSortedMultiset<String>>() { } };
+
+    // Types that do not accept `null` elements
+    private static boolean _rejectsNulls(TypeReference<?> ref) {
+        String desc = ref.getType().getTypeName();
+        return !desc.contains("HashMultiset");
+    }
+
+    // Element `null`s in entries, for each content null setting; both as Array and
+    // as single entry (with `ACCEPT_SINGLE_VALUE_AS_ARRAY`)
+    @Test
+    public void testNullElementMatrix() throws Exception
+    {
+        final String[] inputs = {
+                "[{'element':null,'count':2},{'element':'a','count':1}]",
+                "{'element':null,'count':2}" };
+        for (Nulls nulls : new Nulls[] { Nulls.DEFAULT, Nulls.SKIP, Nulls.FAIL, Nulls.AS_EMPTY }) {
+            ObjectMapper mapper = builderWithModule()
+                    .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                    .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(nulls))
+                    .build();
+            for (TypeReference<?> ref : ALL_TYPES) {
+                for (String input : inputs) {
+                    final String json = a2q(input);
+                    final String desc = nulls + "/" + ref.getType().getTypeName() + "/" + json;
+                    final int aCount = json.startsWith("[") ? 1 : 0;
+                    switch (nulls) {
+                    case SKIP:
+                        _assertCounts(mapper.readValue(json, ref), desc, aCount, 0, 0);
+                        break;
+                    case FAIL:
+                        assertThrows(InvalidNullException.class,
+                                () -> mapper.readValue(json, ref), desc);
+                        break;
+                    case AS_EMPTY:
+                        _assertCounts(mapper.readValue(json, ref), desc, aCount, 2, 0);
+                        break;
+                    default:
+                        if (_rejectsNulls(ref)) {
+                            MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                                    () -> mapper.readValue(json, ref), desc);
+                            verifyException(e, "does not accept `null` values");
+                        } else {
+                            _assertCounts(mapper.readValue(json, ref), desc, aCount, 0, 2);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // `null` produced by element deserializer (not JSON `null`): never skipped
+    @Test
+    public void testDeserializedNullElementMatrix() throws Exception
+    {
+        ObjectMapper mapper = builderWithModule()
+                .addModule(new tools.jackson.databind.module.SimpleModule()
+                        .addDeserializer(String.class, new XToNullDeserializer()))
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .changeDefaultNullHandling(n -> JsonSetter.Value.forContentNulls(Nulls.SKIP))
+                .build();
+        for (TypeReference<?> ref : ALL_TYPES) {
+            for (String input : new String[] {
+                    "[{'element':'x','count':2},{'element':'a','count':1}]",
+                    "{'element':'x','count':2}" }) {
+                final String json = a2q(input);
+                final String desc = ref.getType().getTypeName() + "/" + json;
+                if (_rejectsNulls(ref)) {
+                    MismatchedInputException e = assertThrows(MismatchedInputException.class,
+                            () -> mapper.readValue(json, ref), desc);
+                    verifyException(e, "does not accept `null` values");
+                } else {
+                    _assertCounts(mapper.readValue(json, ref), desc,
+                            json.startsWith("[") ? 1 : 0, 0, 2);
+                }
+            }
+        }
+    }
+
+    static class XToNullDeserializer extends ValueDeserializer<String> {
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
+            String str = p.getString();
+            return "x".equals(str) ? null : str;
+        }
+    }
+
+    private void _assertCounts(Object result, String desc, int aCount, int emptyCount, int nullCount)
+    {
+        Multiset<?> set = (Multiset<?>) result;
+        assertEquals(aCount, set.count("a"), desc);
+        assertEquals(emptyCount, set.count(""), desc);
+        if (!(set instanceof SortedMultiset<?>)) {
+            assertEquals(nullCount, set.count(null), desc);
+        }
+        assertEquals(aCount + emptyCount + nullCount, set.size(), desc);
+    }
+
+    @Test
+    public void testInvalidMaxSizeConfig() throws Exception
+    {
+        for (int maxSize : new int[] { 0, -1 }) {
+            assertThrows(IllegalArgumentException.class,
+                    () -> new MultisetConfig(true, maxSize));
+            assertThrows(IllegalArgumentException.class,
+                    () -> new GuavaDeserializers(null, true, maxSize));
         }
     }
 

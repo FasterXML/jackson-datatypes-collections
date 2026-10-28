@@ -1,7 +1,6 @@
 package tools.jackson.datatype.guava.ser;
 
 import java.util.Iterator;
-import java.util.Set;
 
 import com.google.common.collect.Multiset;
 
@@ -108,18 +107,18 @@ public class MultisetSerializer
     public void serialize(Multiset<?> value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
-        final Set<? extends Multiset.Entry<?>> entries = value.entrySet();
-        final int len = entries.size();
         final boolean filtered = _needToCheckFiltering(ctxt);
-        if (len == 1) {
-            if (((_unwrapSingle == null) &&
-                    ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
-                    || (_unwrapSingle == Boolean.TRUE)) {
-                // Cannot unwrap if the only entry is filtered out: nothing would be written
-                if (!filtered || !_allElementsSuppressed(ctxt, value.elementSet().iterator())) {
-                    serializeContents(value, g, ctxt);
-                    return;
-                }
+        final boolean unwrap = ((_unwrapSingle == null) &&
+                ctxt.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED))
+                || (_unwrapSingle == Boolean.TRUE);
+        // Size only needed for unwrapping check, or as size hint if not filtering
+        // (may be costly for some views, like `Multisets.filter()`)
+        final int len = (unwrap || !filtered) ? value.entrySet().size() : -1;
+        if (unwrap && (len == 1)) {
+            // Cannot unwrap if the only entry is filtered out: nothing would be written
+            if (!filtered || !_allElementsSuppressed(ctxt, value.elementSet().iterator())) {
+                _serializeContents(value, g, ctxt, filtered);
+                return;
             }
         }
         // Entries may be filtered out, in which case size is not known up front
@@ -128,7 +127,7 @@ public class MultisetSerializer
         } else {
             g.writeStartArray(value, len);
         }
-        serializeContents(value, g, ctxt);
+        _serializeContents(value, g, ctxt, filtered);
         g.writeEndArray();
     }
 
@@ -136,8 +135,14 @@ public class MultisetSerializer
     protected void serializeContents(Multiset<?> value, JsonGenerator g, SerializationContext ctxt)
         throws JacksonException
     {
+        _serializeContents(value, g, ctxt, _needToCheckFiltering(ctxt));
+    }
+
+    private void _serializeContents(Multiset<?> value, JsonGenerator g, SerializationContext ctxt,
+            boolean filtered)
+        throws JacksonException
+    {
         final Iterator<? extends Multiset.Entry<?>> it = value.entrySet().iterator();
-        final boolean filtered = _needToCheckFiltering(ctxt);
         int i = 0;
         try {
             while (it.hasNext()) {
