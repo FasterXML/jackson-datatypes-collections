@@ -553,6 +553,8 @@ public class MultisetsTest extends ModuleTestBase
                     public Object handleUnexpectedToken(DeserializationContext ctxt,
                             JavaType targetType, JsonToken t,
                             JsonParser p, String failureMsg) {
+                        // handler must consume the value it handles
+                        p.skipChildren();
                         return null;
                     }
                 })

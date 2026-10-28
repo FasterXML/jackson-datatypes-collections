@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
+import tools.jackson.databind.deser.impl.NullsFailProvider;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
@@ -203,7 +204,9 @@ public abstract class GuavaCollectionDeserializer<T>
         if (_skipNullValues) {
             return true;
         }
-        if (_nullProvider != null) {
+        // Only `Nulls.FAIL` is relevant: other providers (including element
+        // deserializer itself) would produce an element value, not an entry
+        if (_nullProvider instanceof NullsFailProvider) {
             _nullProvider.getNullValue(ctxt);
         }
         return false;

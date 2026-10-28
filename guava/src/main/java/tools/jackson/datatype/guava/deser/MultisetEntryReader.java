@@ -70,11 +70,13 @@ final class MultisetEntryReader
             if (p.hasToken(JsonToken.VALUE_NULL) && _owner.handleNullEntry(ctxt)) {
                 return false;
             }
-            // otherwise give problem handlers a chance to recover; if one does, entry is dropped
+            // otherwise give problem handlers a chance to recover: if none does, exception
+            // is thrown; if one does, it is responsible for consuming the value (as per
+            // `DeserializationProblemHandler.handleUnexpectedToken()` contract), and
+            // entry is dropped
             ctxt.handleUnexpectedToken(_owner.containerType(), p.currentToken(), p,
 "Unexpected token (%s) for `Multiset` entry: expected JSON Object with properties \"element\" and \"count\"",
                     p.currentToken());
-            p.skipChildren();
             return false;
         }
         Object element = null;
