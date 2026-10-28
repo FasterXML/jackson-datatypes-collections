@@ -193,10 +193,20 @@ public abstract class GuavaCollectionDeserializer<T>
     }
 
     /**
-     * Accessor for {@link MultisetEntryReader}: whether JSON {@code null}s are to be skipped.
+     * Method for {@link MultisetEntryReader} to handle JSON {@code null} used in place
+     * of a whole entry, according to content null handling: throws exception for
+     * {@code Nulls.FAIL}; other settings have no meaningful value for an entry.
+     *
+     * @return {@code true} if entry is to be skipped ({@code Nulls.SKIP})
      */
-    boolean skipsNullValues() {
-        return _skipNullValues;
+    boolean handleNullEntry(DeserializationContext ctxt) throws JacksonException {
+        if (_skipNullValues) {
+            return true;
+        }
+        if (_nullProvider != null) {
+            _nullProvider.getNullValue(ctxt);
+        }
+        return false;
     }
 
     JavaType containerType() {

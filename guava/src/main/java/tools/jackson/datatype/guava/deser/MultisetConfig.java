@@ -2,8 +2,6 @@ package tools.jackson.datatype.guava.deser;
 
 import java.io.Serializable;
 
-import tools.jackson.datatype.guava.GuavaModule;
-
 /**
  * Immutable settings shared by Guava {@code Multiset} deserializers.
  *
@@ -14,10 +12,16 @@ public final class MultisetConfig implements Serializable
     private static final long serialVersionUID = 1L;
 
     /**
+     * Default maximum size (sum of element counts) of a
+     * {@link com.google.common.collect.Multiset} read from entries.
+     */
+    public static final int DEFAULT_MAX_SIZE = 10_000_000;
+
+    /**
      * Default configuration: entries format, default maximum size.
      */
     public static final MultisetConfig DEFAULT = new MultisetConfig(true,
-            GuavaModule.DEFAULT_MAX_MULTISET_SIZE);
+            DEFAULT_MAX_SIZE);
 
     private final boolean _asEntries;
 

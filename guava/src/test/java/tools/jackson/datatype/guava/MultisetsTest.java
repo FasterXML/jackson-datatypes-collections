@@ -24,6 +24,7 @@ import tools.jackson.core.util.JsonGeneratorDelegate;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
@@ -259,8 +260,7 @@ public class MultisetsTest extends ModuleTestBase
         _verifyInvalid(a2q("[{'count':2}]"), "missing \"element\" property");
         _verifyInvalid(a2q("[{'element':'abc','count':0}]"), "expected positive integer, got 0");
         _verifyInvalid(a2q("[{'element':'abc','count':-1}]"), "expected positive integer, got -1");
-        _verifyInvalid(a2q("[{'element':'abc','count':'2'}]"), "expected positive integer, got VALUE_STRING");
-        _verifyInvalid(a2q("[{'element':'abc','count':1.5}]"), "expected positive integer, got VALUE_NUMBER_FLOAT");
+        _verifyInvalid(a2q("[{'element':'abc','count':'x'}]"), "expected positive integer, got `x`");
         _verifyInvalid(a2q("[{'element':'abc','count':99999999999}]"), "value out of range for `int`: 99999999999");
     }
 
@@ -506,6 +506,31 @@ public class MultisetsTest extends ModuleTestBase
                 "{'values':[{'element':null,'count':2},{'element':'a','count':3}]}"),
                 SkipNullsWrapper.class);
         assertEquals(ImmutableMultiset.of("a", "a", "a"), w.values);
+    }
+
+    // "count" accepts numeric Strings and integral floating-point numbers
+    @Test
+    public void testCountCoercion() throws Exception
+    {
+        final TypeReference<HashMultiset<String>> ref = new TypeReference<>() { };
+        final Multiset<String> expected = ImmutableMultiset.of("abc", "abc");
+        assertEquals(expected, MAPPER.readValue(a2q("[{'element':'abc','count':'2'}]"), ref));
+        assertEquals(expected, MAPPER.readValue(a2q("[{'element':'abc','count':2.0}]"), ref));
+    }
+
+    static class FailNullsWrapper {
+        @JsonSetter(contentNulls = Nulls.FAIL)
+        public Multiset<String> values;
+    }
+
+    // `null` entries are rejected with `Nulls.FAIL`
+    @Test
+    public void testFailNullEntries() throws Exception
+    {
+        InvalidNullException e = assertThrows(InvalidNullException.class,
+                () -> MAPPER.readValue(a2q("{'values':[null,{'element':'a','count':3}]}"),
+                        FailNullsWrapper.class));
+        verifyException(e, "Invalid `null` value");
     }
 
     // `null` entries (as opposed to `null` elements) are skipped with `Nulls.SKIP`

@@ -18,6 +18,9 @@ import tools.jackson.databind.DeserializationContext;
  */
 final class MultisetEntryReader
 {
+    // Marker for "not convertible to `int`"
+    private final static int NOT_AN_INT = Integer.MIN_VALUE;
+
     private final GuavaCollectionDeserializer<?> _owner;
     private final int _maxSize;
 
@@ -62,8 +65,9 @@ final class MultisetEntryReader
         throws JacksonException
     {
         if (!p.hasToken(JsonToken.START_OBJECT)) {
-            // JSON `null` entries are skipped if so configured (as with other collections)
-            if (p.hasToken(JsonToken.VALUE_NULL) && _owner.skipsNullValues()) {
+            // JSON `null` entries are skipped (`Nulls.SKIP`) or rejected (`Nulls.FAIL`)
+            // if so configured, as with other collections
+            if (p.hasToken(JsonToken.VALUE_NULL) && _owner.handleNullEntry(ctxt)) {
                 return false;
             }
             // otherwise give problem handlers a chance to recover; if one does, entry is dropped
@@ -86,17 +90,23 @@ final class MultisetEntryReader
                 element = _owner._deserializeElement(p, ctxt, t);
                 skipEntry = (element == GuavaCollectionDeserializer.SKIPPED_ELEMENT);
             } else if ("count".equals(name)) {
-                if (t != JsonToken.VALUE_NUMBER_INT) {
+                // Only numbers and numeric Strings; coerced via parser (no deserializer lookup)
+                if (t != JsonToken.VALUE_NUMBER_INT && t != JsonToken.VALUE_NUMBER_FLOAT
+                        && t != JsonToken.VALUE_STRING) {
                     ctxt.reportInputMismatch(_owner,
                             "Invalid `Multiset` entry \"count\": expected positive integer, got %s", t);
                 }
                 try {
-                    count = p.getIntValue();
+                    count = p.getValueAsInt(NOT_AN_INT);
                 } catch (InputCoercionException e) {
                     // value does not fit in `int`
-                    count = 0;
                     ctxt.reportInputMismatch(_owner,
                             "Invalid `Multiset` entry \"count\": value out of range for `int`: %s",
+                            p.getString());
+                }
+                if (count == NOT_AN_INT) {
+                    ctxt.reportInputMismatch(_owner,
+                            "Invalid `Multiset` entry \"count\": expected positive integer, got `%s`",
                             p.getString());
                 }
                 if (count < 1) {
@@ -105,9 +115,8 @@ final class MultisetEntryReader
                 }
                 hasCount = true;
             } else {
-                if (!ctxt.handleUnknownProperty(p, _owner, _owner.handledType(), name)) {
-                    p.skipChildren();
-                }
+                // either skips the value (and returns `true`) or throws exception
+                ctxt.handleUnknownProperty(p, _owner, _owner.handledType(), name);
             }
         }
         if (!hasElement) {

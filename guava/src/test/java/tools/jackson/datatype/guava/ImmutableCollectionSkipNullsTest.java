@@ -180,8 +180,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
     @Test
     public void testDeserializedNullNotSkipped() throws Exception
     {
-        ObjectMapper mapper = builderWithModule()
-                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+        ObjectMapper mapper = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .build();
         for (String content : WITH_X) {
@@ -411,8 +410,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
 
     private ObjectMapper _xToNullMapper(DeserializationProblemHandler h)
     {
-        var b = builderWithModule()
-                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+        var b = builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .addModule(new SimpleModule().addDeserializer(String.class, new XToNullDeserializer()))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         if (h != null) {
@@ -424,8 +422,7 @@ public class ImmutableCollectionSkipNullsTest extends ModuleTestBase
     private <T> T _readWithObjectToNull(DeserializationProblemHandler h, String json,
             TypeReference<T> typeRef) throws Exception
     {
-        return builderWithModule()
-                .addModule(new GuavaModule().configureMultisetsAsEntries(false))
+        return builderWithModule(new GuavaModule().configureMultisetsAsEntries(false))
                 .addModule(new SimpleModule().addDeserializer(Point.class, new ObjectToNullDeserializer()))
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .addHandler(h)
