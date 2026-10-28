@@ -65,6 +65,8 @@ public class GuavaModule extends JacksonModule // can't use just SimpleModule, d
      * ({@code ["a","a"]}). Same format is expected when deserializing.
      *<p>
      * Default value is {@code true}.
+     *
+     * @since 3.3
      */
     protected boolean _cfgMultisetsAsEntries = true;
 
@@ -75,6 +77,8 @@ public class GuavaModule extends JacksonModule // can't use just SimpleModule, d
      * produce a huge {@code Multiset}.
      *<p>
      * Default value is {@link MultisetConfig#DEFAULT_MAX_SIZE}.
+     *
+     * @since 3.3
      */
     protected int _cfgMaxMultisetSize = MultisetConfig.DEFAULT_MAX_SIZE;
 

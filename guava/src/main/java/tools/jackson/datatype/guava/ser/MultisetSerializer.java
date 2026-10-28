@@ -33,15 +33,27 @@ import tools.jackson.databind.ser.std.StdContainerSerializer;
 public class MultisetSerializer
     extends AsArraySerializerBase<Multiset<?>>
 {
+    /**
+     * @since 3.3
+     */
     public final static String PROP_ELEMENT = "element";
 
+    /**
+     * @since 3.3
+     */
     public final static String PROP_COUNT = "count";
 
+    /**
+     * @since 3.3
+     */
     public MultisetSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             ValueSerializer<Object> valueSerializer) {
         super(Multiset.class, elemType, staticTyping, vts, valueSerializer);
     }
 
+    /**
+     * @since 3.3
+     */
     protected MultisetSerializer(MultisetSerializer src,
             TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property,

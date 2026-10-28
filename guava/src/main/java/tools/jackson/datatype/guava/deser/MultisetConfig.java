@@ -14,11 +14,15 @@ public final class MultisetConfig implements Serializable
     /**
      * Default maximum size (sum of element counts) of a
      * {@link com.google.common.collect.Multiset} read from entries.
+     *
+     * @since 3.3
      */
     public static final int DEFAULT_MAX_SIZE = 10_000_000;
 
     /**
      * Default configuration: entries format, default maximum size.
+     *
+     * @since 3.3
      */
     public static final MultisetConfig DEFAULT = new MultisetConfig(true,
             DEFAULT_MAX_SIZE);
@@ -34,6 +38,8 @@ public final class MultisetConfig implements Serializable
      *    must be positive
      *
      * @throws IllegalArgumentException if {@code maxSize} is not positive
+     *
+     * @since 3.3
      */
     public MultisetConfig(boolean asEntries, int maxSize) {
         if (maxSize <= 0) {
@@ -43,7 +49,17 @@ public final class MultisetConfig implements Serializable
         _maxSize = maxSize;
     }
 
+    /**
+     * @return Whether entries are expected as {@code {"element":...,"count":...}}
+     *
+     * @since 3.3
+     */
     public boolean asEntries() { return _asEntries; }
 
+    /**
+     * @return Maximum number of elements (sum of counts) allowed when reading entries
+     *
+     * @since 3.3
+     */
     public int maxSize() { return _maxSize; }
 }

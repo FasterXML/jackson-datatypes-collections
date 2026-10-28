@@ -52,6 +52,9 @@ public class GuavaSerializers extends Serializers.Base
      */
     protected final boolean _cfgMultisetsAsEntries;
 
+    /**
+     * @since 3.3
+     */
     public GuavaSerializers() {
         this(true);
     }
@@ -164,6 +167,9 @@ public class GuavaSerializers extends Serializers.Base
         return null;
     }
 
+    /**
+     * @since 3.3
+     */
     @Override
     public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
             CollectionType type, BeanDescription.Supplier beanDescRef, JsonFormat.Value formatOverrides,
