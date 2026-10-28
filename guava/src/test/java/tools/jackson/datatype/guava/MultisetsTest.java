@@ -260,6 +260,7 @@ public class MultisetsTest extends ModuleTestBase
         _verifyInvalid(a2q("[{'element':'abc','count':-1}]"), "expected positive integer, got -1");
         _verifyInvalid(a2q("[{'element':'abc','count':'2'}]"), "expected positive integer, got VALUE_STRING");
         _verifyInvalid(a2q("[{'element':'abc','count':1.5}]"), "expected positive integer, got VALUE_NUMBER_FLOAT");
+        _verifyInvalid(a2q("[{'element':'abc','count':99999999999}]"), "value out of range for `int`: 99999999999");
     }
 
     @Test

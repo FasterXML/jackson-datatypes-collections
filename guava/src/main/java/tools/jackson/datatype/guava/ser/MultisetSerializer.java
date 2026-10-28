@@ -181,22 +181,22 @@ public class MultisetSerializer
             return;
         }
         final SerializationContext ctxt = visitor.getContext();
+        // Element type is Object if not known: still describe the property
+        final JavaType elemType = (_elementType == null)
+                ? ctxt.constructType(Object.class) : _elementType;
         ValueSerializer<?> elemSer = _elementSerializer;
-        if ((elemSer == null) && (_elementType != null)) {
-            elemSer = ctxt.findContentValueSerializer(_elementType, _property);
+        if (elemSer == null) {
+            elemSer = ctxt.findContentValueSerializer(elemType, _property);
         }
         final ValueSerializer<?> elemSer2 = elemSer;
-        final JavaType elemType = _elementType;
-        final ValueSerializer<?> countSer = ctxt.findValueSerializer(Integer.TYPE);
         final JavaType countType = ctxt.constructType(Integer.TYPE);
-        final JavaType entryType = ctxt.constructType(Object.class);
+        final JavaType entryType = ctxt.constructType(Multiset.Entry.class);
         arrayV.itemsFormat((entryVisitor, entryHint) -> {
             JsonObjectFormatVisitor objV = entryVisitor.expectObjectFormat(entryHint);
             if (objV != null) {
-                if (elemSer2 != null) {
-                    objV.property(PROP_ELEMENT, elemSer2, elemType);
-                }
-                objV.property(PROP_COUNT, countSer, countType);
+                objV.property(PROP_ELEMENT, elemSer2, elemType);
+                objV.property(PROP_COUNT, (countVisitor, countHint) ->
+                        countVisitor.expectIntegerFormat(countHint), countType);
             }
         }, entryType);
     }

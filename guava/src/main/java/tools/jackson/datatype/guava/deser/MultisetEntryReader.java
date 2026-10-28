@@ -3,6 +3,7 @@ package tools.jackson.datatype.guava.deser;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.DeserializationContext;
 
 /**
@@ -82,7 +83,15 @@ final class MultisetEntryReader
                     ctxt.reportInputMismatch(_owner,
                             "Invalid `Multiset` entry \"count\": expected positive integer, got %s", t);
                 }
-                count = p.getIntValue();
+                try {
+                    count = p.getIntValue();
+                } catch (InputCoercionException e) {
+                    // value does not fit in `int`
+                    count = 0;
+                    ctxt.reportInputMismatch(_owner,
+                            "Invalid `Multiset` entry \"count\": value out of range for `int`: %s",
+                            p.getString());
+                }
                 if (count < 1) {
                     ctxt.reportInputMismatch(_owner,
                             "Invalid `Multiset` entry \"count\": expected positive integer, got %d", count);

@@ -26,9 +26,15 @@ public final class MultisetConfig implements Serializable
     /**
      * @param asEntries Whether entries are expected as {@code {"element":...,"count":...}}
      *    (if {@code true}) or as repeated elements (if {@code false})
-     * @param maxSize Maximum number of elements (sum of counts) allowed when reading entries
+     * @param maxSize Maximum number of elements (sum of counts) allowed when reading entries;
+     *    must be positive
+     *
+     * @throws IllegalArgumentException if {@code maxSize} is not positive
      */
     public MultisetConfig(boolean asEntries, int maxSize) {
+        if (maxSize <= 0) {
+            throw new IllegalArgumentException("maxSize must be positive, was "+maxSize);
+        }
         _asEntries = asEntries;
         _maxSize = maxSize;
     }
