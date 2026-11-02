@@ -156,7 +156,7 @@ public final class BoxedDelegatingDeserializer<C> extends StdDeserializer<C>
     // as specified by `FAIL_ON_NULL_FOR_PRIMITIVES` (default value if not failing)
     private Object _value(DeserializationContext ctxt, Object value) throws JacksonException {
         if (value == null && _primitiveValueType != null) {
-            _verifyNullForPrimitive(ctxt);
+            _verifyNullForPrimitive(ctxt, ctxt.getParser(), null);
             return ClassUtil.defaultValue(_primitiveValueType);
         }
         return value;
