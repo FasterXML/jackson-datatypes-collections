@@ -99,7 +99,7 @@ final class PrimitiveValueHandlers
             // no parsing helper for `char` in `StdDeserializer`: handle the same way as
             // `jackson-databind` does for `char` (except for no coercion from numbers)
             if (p.hasToken(JsonToken.VALUE_NULL)) {
-                _verifyNullForPrimitive(ctxt);
+                _verifyNullForPrimitive(ctxt, ctxt.getParser(), null);
                 return '\0';
             }
             if (!p.hasToken(JsonToken.VALUE_STRING)) {
@@ -117,7 +117,7 @@ final class PrimitiveValueHandlers
         // Value from a `DeserializationProblemHandler`, which may be `null`
         private char _handled(DeserializationContext ctxt, Object value) throws JacksonException {
             if (value == null) {
-                _verifyNullForPrimitive(ctxt);
+                _verifyNullForPrimitive(ctxt, ctxt.getParser(), null);
                 return '\0';
             }
             return (java.lang.Character) value;

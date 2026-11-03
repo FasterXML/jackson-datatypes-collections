@@ -559,7 +559,7 @@ public final class PrimitiveCollectionDeserializers
                         _nuller.getNullValue(ctxt); // fails, or skips
                         continue;
                     }
-                    _verifyNullForPrimitive(ctxt);
+                    _verifyNullForPrimitive(ctxt, ctxt.getParser(), null);
                     collection.add('\0');
                     continue;
                 }
@@ -567,7 +567,7 @@ public final class PrimitiveCollectionDeserializers
                     // problem handler may also return `null`
                     Character c = (Character) ctxt.handleUnexpectedToken(Character.TYPE, p);
                     if (c == null) {
-                        _verifyNullForPrimitive(ctxt);
+                        _verifyNullForPrimitive(ctxt, ctxt.getParser(), null);
                         c = '\0';
                     }
                     collection.add(c.charValue());
