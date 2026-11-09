@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.type.WritableTypeId;
 
@@ -16,6 +17,7 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.std.StdContainerSerializer;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.util.TokenBuffer;
 
 /**
  * @author yawkat
@@ -202,7 +204,7 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
         Set<String> ignored = _ignoredEntries;
         forEachKeyValue(value, (key, v) -> {
             // First, serialize key
-            if ((ignored != null) && ignored.contains(key)) {
+            if ((ignored != null) && _isIgnored(ctxt, ignored, key)) {
                 return;
             }
             if (key == null) {
@@ -225,6 +227,28 @@ public abstract class RefRefMapSerializer<T> extends StdContainerSerializer<T>
                 valueSer.serializeWithType(v, gen, ctxt, _valueTypeSerializer);
             }
         });
+    }
+
+    /**
+     * Ignored entries are specified by property name, so match them against the key
+     * as serialized (for example {@code "2"} for {@code Integer} key 2).
+     */
+    private boolean _isIgnored(SerializationContext ctxt, Set<String> ignored, Object key) {
+        if (key == null) {
+            return false;
+        }
+        if (key instanceof String) {
+            return ignored.contains(key);
+        }
+        try (TokenBuffer buf = ctxt.bufferForValueConversion()) {
+            buf.writeStartObject();
+            _keySerializer.serialize(key, buf, ctxt);
+            try (JsonParser p = buf.asParser()) {
+                p.nextToken(); // START_OBJECT
+                p.nextToken(); // PROPERTY_NAME
+                return ignored.contains(p.currentName());
+            }
+        }
     }
 
     private ValueSerializer<Object> _findSerializer(SerializationContext ctxt,
